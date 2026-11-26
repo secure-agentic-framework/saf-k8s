@@ -1,19 +1,13 @@
-# SAF-K8S-0603-006 — TUF update verification
+# Verify trusted TUF updates
 
-Run `python3 lab.py test SAF-K8S-0603-006` from the control lab.
+Run from the framework repository.
 
-Two disposable Kubernetes Pods act as the publisher and client. The
-publisher generates synthetic Ed25519 keys and signed metadata for a
-benign UTF-8 release note. The lab passes the authenticated bootstrap root
-to the client via the Kubernetes API. The client reads update metadata and
-the target only from the case's ClusterIP Service.
+```sh
+python3 tests/control-lab/lab.py test SAF-K8S-0603-006 --docker-context desktop-linux
+```
 
-The pinned reference client verifies expiry, role thresholds, signed parent
-version and digest binding, metadata download length, and target integrity.
-It rejects rollback after a successful update. A new root must satisfy
-the thresholds of both old and new root metadata; the test exercises
-both the allowed rotation and a rotation with only the new signatures.
+The pinned client uses a separately mounted immutable policy to verify the exact initial root fingerprint. It refuses a different self-signed version-one root before creating the updater. Two disposable Kubernetes Pods serve and consume an inert release note. The client checks role thresholds, signed metadata references, expiry, lengths, and exact target bytes. It rejects rollback using persisted metadata. Root rotation requires the configured thresholds of both the old and new root; the case tests successful rotation and refusal of a root signed only under the new authority.
 
-The fixture uses software-generated keys. Threshold design, actual custody,
-HSM integration if required, and signing and emergency recovery ceremonies
-need separate deployment evidence.
+For adoption, inventory the actual repositories, clients and release channels. Distribute the approved initial root through an independently authenticated channel and confirm both acceptance of that root and refusal of a different root. Document role owners, thresholds, expiry, custody, rotation and recovery, including offline or HSM requirements when applicable. Test real client download bounds, version and hash bindings, persistent state across restart, and safe behavior on failed updates. Retain the exact target and approved root fingerprints, tested decision, and expected installed artifact. Verify installed integrity and build provenance independently where required. The reference uses ephemeral fixture keys and a case-owned distribution path.
+
+[TUF specification](https://theupdateframework.github.io/specification/latest/) · [NIST SP 800-53 Rev. 5](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final)

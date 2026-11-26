@@ -1,4 +1,5 @@
 """Run the TUF reference implementation against an in-cluster synthetic repository."""
+from hashlib import sha256
 import json
 from pathlib import Path
 
@@ -9,9 +10,9 @@ REPO = "saf-0603-006-repo"
 CLIENT = "saf-0603-006-client"
 SCOPE = (
     "python-tuf 7.0.1 on Kubernetes v1.36.1 with a case-owned Service and two Pods. "
-    "An authenticated fixture root controls a synthetic repository with local Ed25519 signing. "
+    "A separately pinned fixture root controls a synthetic repository with local Ed25519 signing. "
     "The case exercises digest and version binding, distinct signatures, metadata limits, expiry, "
-    "persisted rollback protection, exact target acceptance and root rotation. "
+    "separate bootstrap root identity, persisted rollback protection, exact target acceptance and root rotation. "
     "Live custody, managed services and signing ceremonies require separate evidence."
 )
 INSTALL = (
@@ -40,6 +41,8 @@ def pod(name, mode, *, server=False):
     else:
         volumes.append({"name": "bootstrap", "configMap": {"name": "saf-0603-006-root"}})
         mounts.append({"name": "bootstrap", "mountPath": "/bootstrap", "readOnly": True})
+        volumes.append({"name": "trust-policy", "configMap": {"name": "saf-0603-006-root-policy"}})
+        mounts.append({"name": "trust-policy", "mountPath": "/trust-policy", "readOnly": True})
     return {
         "apiVersion": "v1", "kind": "Pod", "metadata": {"name": name, "labels": {"app": name}},
         "spec": {"restartPolicy": "Never", "automountServiceAccountToken": False,
@@ -66,8 +69,11 @@ def run(lab):
     lab.create(pod(REPO, "serve", server=True))
     wait(lab, REPO, "condition=Ready")
     root = lab.kubectl("exec", REPO, "--", "cat", "/tmp/bootstrap.json").stdout
+    alternative = lab.kubectl("exec", REPO, "--", "cat", "/tmp/alternative-bootstrap.json").stdout
+    lab.create({"apiVersion": "v1", "kind": "ConfigMap", "metadata": {"name": "saf-0603-006-root-policy"},
+                "immutable": True, "data": {"sha256": sha256(root.encode()).hexdigest()}})
     lab.create({"apiVersion": "v1", "kind": "ConfigMap", "metadata": {"name": "saf-0603-006-root"},
-                "data": {"root.json": root}})
+                "immutable": True, "data": {"root.json": root, "alternative.json": alternative}})
     lab.create(pod(CLIENT, "verify"))
     wait(lab, CLIENT, "jsonpath={.status.phase}=Succeeded")
     observed = json.loads(lab.kubectl("logs", CLIENT).stdout)
@@ -88,3 +94,6 @@ def run(lab):
                 and observed["accepted"]["target_sha256"] == observed["expected_sha256"])
     lab.check("positive", "The authorized 2-of-3 targets role delivers the exact selected payload",
               verified, {"verified_tuf_version": observed["tuf_version"], **observed["accepted"]})
+    bootstrap = observed["bootstrap"]
+    lab.check("green", "The separate bootstrap policy accepts the approved version-one root and rejects a different signed version-one root",
+              all(bootstrap.values()), bootstrap)

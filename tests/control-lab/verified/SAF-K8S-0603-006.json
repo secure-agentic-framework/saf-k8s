@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0603-006",
-  "catalog_revision": "a0a3f57af4eec0ea84f97edde5254a93c9a77d47",
-  "catalog_sha256": "637809ee915d1f3ed4451dd9d8256edcfd4ba9cb18559e7ee016de3f8a91c693",
+  "catalog_revision": "785fd9d817b836e5d8e99876d18e93ec1bc5b8f1",
+  "catalog_sha256": "f22ac63bf97577c04a89f43196dc2de2eb4f5a9eeaa472fe2152cbf36c1b213b",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "61a54c759f2ae0941e6bcde710843d9d5d624bc9b5c0f03fd412b984a20a7f6e",
-  "scope": "python-tuf 7.0.1 on Kubernetes v1.36.1 with a case-owned Service and two Pods. An authenticated fixture root controls a synthetic repository with local Ed25519 signing. The case exercises digest and version binding, distinct signatures, metadata limits, expiry, persisted rollback protection, exact target acceptance and root rotation. Live custody, managed services and signing ceremonies require separate evidence.",
-  "cluster": "saf-lab-0cb09323d50b",
+  "scope": "python-tuf 7.0.1 on Kubernetes v1.36.1 with a case-owned Service and two Pods. A separately pinned fixture root controls a synthetic repository with local Ed25519 signing. The case exercises digest and version binding, distinct signatures, metadata limits, expiry, separate bootstrap root identity, persisted rollback protection, exact target acceptance and root rotation. Live custody, managed services and signing ceremonies require separate evidence.",
+  "cluster": "saf-lab-c8d548731735",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -135,6 +135,16 @@
         "verified_tuf_version": "7.0.1",
         "target_exact": true,
         "target_sha256": "c8055bc0038781dbf2a057c137ff84c4eeb06e9a13e416141e338beb2f6b4bd4"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The separate bootstrap policy accepts the approved version-one root and rejects a different signed version-one root",
+      "matched": true,
+      "observed": {
+        "alternative_has_valid_root_signature_and_same_version": true,
+        "alternative_root_rejected_before_client_construction": true,
+        "approved_root_matches_pin": true
       }
     }
   ]

@@ -52,6 +52,8 @@ def create_repositories(path):
     rotated_root = root_metadata(next_keys, 2, future, keys["root"])
     unauthorized_rotation = root_metadata(next_keys, 2, future)
     path.parent.joinpath("bootstrap.json").write_bytes(trusted_root)
+    alternative_root = root_metadata(next_keys, 1, future)
+    path.parent.joinpath("alternative-bootstrap.json").write_bytes(alternative_root)
     settings = {
         "good": 2, "one-signature": 2, "expired": 2, "different-snapshot": 2,
         "different-version": 2, "oversize": 2, "other-target": 2, "previous": 1,
@@ -134,9 +136,30 @@ def trusted_versions(directory):
             for role in ("root", "timestamp", "snapshot", "targets")}
 
 
+def pinned_bootstrap(candidate, expected):
+    if sha256(candidate).hexdigest() != expected:
+        raise ValueError("Root does not match the approved bootstrap policy")
+    return candidate
+
+
 def observe():
     assert len(CONTENTS) == len(ALTERNATE)
-    root = Path("/bootstrap/root.json").read_bytes()
+    expected_root_digest = Path("/trust-policy/sha256").read_text().strip()
+    original = Path("/bootstrap/root.json").read_bytes()
+    alternative = Path("/bootstrap/alternative.json").read_bytes()
+    root = pinned_bootstrap(original, expected_root_digest)
+    alternative_metadata = Metadata.from_bytes(alternative)
+    alternative_metadata.signed.verify_delegate(
+        "root", alternative_metadata.signed_bytes, alternative_metadata.signatures
+    )
+    try:
+        pinned_bootstrap(alternative, expected_root_digest)
+        alternative_rejected = False
+    except ValueError:
+        alternative_rejected = True
+    bootstrap = {"approved_root_matches_pin": root == original,
+                 "alternative_has_valid_root_signature_and_same_version": alternative_metadata.signed.version == 1,
+                 "alternative_root_rejected_before_client_construction": alternative_rejected}
     name = f"{sha256(CONTENTS).hexdigest()}.{TARGET}"
     with urlopen(SERVICE + "other-target/targets/" + name, timeout=8) as result:
         raw_downloaded = result.read()
@@ -172,7 +195,7 @@ def observe():
     return {
         "tuf_version": version("tuf"), "raw_http_returned_alternate": raw_downloaded == ALTERNATE,
         "expected_sha256": name.split(".", 1)[0], "accepted": accepted, "rollback": rollback,
-        "rotation": rotation, "cases": {name: rejection(root, name, error) for name, error in checks.items()},
+        "rotation": rotation, "bootstrap": bootstrap, "cases": {name: rejection(root, name, error) for name, error in checks.items()},
     }
 
 
