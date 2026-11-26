@@ -1,4 +1,4 @@
-# SAF-K8S-1001-012 — AI workload detection rule validation
+# SAF-K8S-1001-012 — AI workload anomaly indicator validation
 
 Run from the framework root.
 
@@ -31,3 +31,13 @@ replay results, ingestion and delivery health, alert identifiers, analyst
 disposition, and the deployed rule revision. Keep GPU, inference, storage,
 audit-policy, incident-tracking, and human-response claims tied to their real
 deployed evidence.
+
+### Map an audit record to an active policy change
+
+Retain the source object or file revision and the deployment mechanism that
+binds it to the API server's effective audit policy. Compare benign audit
+behavior before and after the governed revision. Treat an isolated ConfigMap
+change event as a candidate modification signal until this evidence connects
+it to the active audit configuration and audit results.
+
+- [Kubernetes v1.36 auditing and audit policy](https://v1-36.docs.kubernetes.io/docs/tasks/debug/debug-cluster/audit/)

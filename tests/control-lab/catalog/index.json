@@ -3123,8 +3123,8 @@
     "SAF-K8S-1001-012": {
       "catalog_status": "draft",
       "domain": "D10",
-      "sha256": "dd81a93dbb12ba0176f9bb4b0ad204b0457cb04ec9b1d67ac33349c143c694ef",
-      "title": "SIEM correlation rules for AI-specific attack patterns"
+      "sha256": "877844a92557858d5437258cbb76a6178c21a2602d3596bee07d6372fb545dbe",
+      "title": "SIEM correlation rules for AI-workload anomaly indicators"
     },
     "SAF-K8S-1001-015": {
       "catalog_status": "draft",
@@ -3572,7 +3572,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "2ddbb4df251c1791c56777920b50a27bf56825c1",
-  "sha256": "9d56d09351d38305fde79b1fa01354031042ccea5b366869ee918dc6eaba3358",
+  "revision": "b196ba9d7c9fb8ca48cbf4a434e52dce653870c7",
+  "sha256": "ee384744c842f8d644f583a5aaca5eaaa6b5317fc5eec912d037736ad0661d10",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
