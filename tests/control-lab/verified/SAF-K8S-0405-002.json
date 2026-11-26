@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0405-002",
-  "catalog_revision": "4617f36ff94ae8e9e22834af6115500f541fc86e",
-  "catalog_sha256": "8f2cdf0ce998f80a155c3f235dfd06267fbccdf60960273d466525bbe5fc10f5",
+  "catalog_revision": "d5c16b88f7738cf51d1fdd125b8b79b675b3c3d9",
+  "catalog_sha256": "e21df5ef6d7be8d3be548d48d3650f2dfc630a3e395f036b3e3eb0533fc68fe4",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "dbf19c6040b63829138e9815573c40342e3902a3e76b266eb036bbed8e1427d4",
-  "scope": "Native API audit records approved and unexpected administrative changes to a case-owned RoleBinding for public test data, and one ordinary authorization denial. The test separates audit coverage, review policy and alert delivery to an owned queue. No attack, secret access, live credential theft, production privileges, or external monitoring integration is exercised.",
-  "cluster": "saf-lab-740e6ce941ca",
+  "scope": "Metadata-only Kubernetes audit records scoped RoleBinding activity and two named reads from a case-owned Pod using its projected identity. The case compares the allowed and denied API responses, attributes both events, and routes the denied result to a local queue.",
+  "cluster": "saf-lab-58e359b0d4de",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -65,6 +65,18 @@
       "observed": {
         "approved_public_read_preserved": true,
         "incident_signals_retained": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "A projected ServiceAccount read produces exact metadata-only identity evidence and a bounded denial signal",
+      "matched": true,
+      "observed": {
+        "allowed_projected_identity_read": true,
+        "denied_projected_identity_read": true,
+        "denied_signal_routed": true,
+        "probe_output_is_status_only": true,
+        "audit_events_exclude_request_and_response_bodies": true
       }
     }
   ]

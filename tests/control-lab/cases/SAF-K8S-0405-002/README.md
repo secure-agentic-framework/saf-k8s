@@ -1,14 +1,18 @@
-# SAF-K8S-0405-002 Defensive RBAC audit coverage
+# Verify selected Kubernetes identity-use observations
 
-Run by ID on fresh Kind. A fixture administrator creates two
-non-sensitive readers and a workload's annotation change is denied.
-Native audit records feed an owned review queue. The fixture preserves
-separate classifications for unexpected approved-authority activity
-and a denied workload request, with no request or response objects.
+    python3 tests/control-lab/lab.py test SAF-K8S-0405-002 --docker-context desktop-linux
 
-The case evaluates the selected RBAC path only. Production event
-selection, token misuse indicators, runtime sensors, alert delivery
-and response objectives require separate evidence.
+The case records metadata for a scoped RoleBinding change and compares
+the local review queue before and after its review exercise. Reconciliation
+removes the selected excess fixture grant and preserves the approved read.
 
-- [Kubernetes auditing](https://v1-36.docs.kubernetes.io/docs/tasks/debug/debug-cluster/audit/)
-- [Kubernetes RBAC](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/rbac/)
+A case-owned Pod uses its projected ServiceAccount to read the one
+approved named ConfigMap and attempt a second named read outside its Role.
+The API returns allow and deny responses. Metadata-only audit attributes
+the two exact requests and status codes to the Pod identity. The test
+routes only the denied result to its local review queue.
+
+For a deployment, identify effective identity and issuer boundaries and
+the selected source events. Correlate authorized workload, provider and
+runtime sources by approved identity and action. Verify actual delivery,
+latency, retention, protected review access and authorized response.
