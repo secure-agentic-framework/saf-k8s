@@ -16,3 +16,20 @@ The case reuses the pinned runtime loader in SAF-K8S-0908-001.
 
 - [NIST SP 800-226](https://csrc.nist.gov/pubs/sp/800/226/final)
 - [Kubernetes Validating Admission Policy](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/validating-admission-policy/)
+
+## Local input and collector boundary
+
+A separate client Pod mounts an invented input bit and applies the same
+approved mechanism before sending the noisy result to an isolated test
+collector. An independent scope check compares actual Pod volume mounts.
+The collector's native identity is forbidden from reading the input
+ConfigMap. A fixed request with an extra field is rejected and leaves the
+result record blank. The accepted request produces exactly one persisted
+output field, observed separately.
+
+The case uses one replacement bit, one release and the specified uniform draws
+for its finite bound. The fixture control plane still has access to the input.
+For adoption, verify the real privacy unit and neighboring relation, approved
+utility measures for the actual use, mechanism and implementation provenance,
+data path and recipient trust, retention, side channels and cumulative release
+scope.

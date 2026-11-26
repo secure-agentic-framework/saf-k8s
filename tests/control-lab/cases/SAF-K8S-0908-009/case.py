@@ -12,13 +12,20 @@ NAME = "fixture-privacy-parameters"
 SERVER = "fixture-privacy-verified-release"
 CODE = "fixture-privacy-code"
 VAP = "admissionregistration.k8s.io/v1"
+CLIENT = "fixture-privacy-client"
+COLLECTOR = "fixture-privacy-collector"
+COLLECTOR_ACCOUNT = "fixture-privacy-collector"
+INPUT = "fixture-privacy-client-input"
+OUTPUT = "fixture-privacy-collected-result"
 DENY = "the exact reviewed privacy parameter record is required"
 SCOPE = (
     "Native Kubernetes admission rejects unapproved binary randomized-response parameters "
     "for one named fixture deployment. Its actual worker validates the mounted approval and "
     "the case enumerates the executed mechanism's finite outcomes for replacing one bit. "
-    "The running loopback service returns only a sampled bit. This tests the declared pure "
-    "local differential privacy bound for this mechanism and neighbor relation."
+    "A second case-owned client keeps one inert bit in a client-only mount, applies the same "
+    "mechanism locally, and sends only its one-field noisy result to a separate scoped collector. "
+    "This proves only the toy mechanism and fixture data boundary, not real population privacy or "
+    "application utility."
 )
 
 
@@ -72,6 +79,105 @@ def launch(lab, image):
     ready(lab, SERVER)
 
 
+def client_collector(lab, image):
+    create(lab, "ConfigMap", INPUT, data={"bit": "1"})
+    create(lab, "ConfigMap", OUTPUT, data={"result": ""})
+    create(lab, "ServiceAccount", COLLECTOR_ACCOUNT, automountServiceAccountToken=True)
+    create(lab, "Role", COLLECTOR_ACCOUNT, "rbac.authorization.k8s.io/v1", rules=[
+        {"apiGroups": [""], "resources": ["configmaps"], "resourceNames": [OUTPUT],
+         "verbs": ["patch"]},
+    ])
+    create(lab, "RoleBinding", COLLECTOR_ACCOUNT, "rbac.authorization.k8s.io/v1",
+           roleRef={"apiGroup": "rbac.authorization.k8s.io", "kind": "Role",
+                    "name": COLLECTOR_ACCOUNT},
+           subjects=[{"kind": "ServiceAccount", "name": COLLECTOR_ACCOUNT, "namespace": NS}])
+
+    collector_unit = container(
+        "collector", image=image, imagePullPolicy="Never",
+        command=["python", "/fixture/mechanism.py", "serve-collector"],
+        volumeMounts=[{"name": "source", "mountPath": "/fixture", "readOnly": True},
+                      {"name": "policy", "mountPath": "/policy", "readOnly": True}],
+    )
+    collector_unit["readinessProbe"] = {
+        "exec": {"command": ["python", "-c",
+                             "import socket; socket.create_connection(('127.0.0.1', 8080), 2).close()"]},
+        "periodSeconds": 1,
+    }
+    collector_pod = pod(COLLECTOR, [collector_unit], serviceAccountName=COLLECTOR_ACCOUNT,
+                        automountServiceAccountToken=True, volumes=[
+                            {"name": "source", "configMap": {"name": CODE}},
+                            {"name": "policy", "configMap": {"name": NAME}},
+                        ])
+    collector_pod["metadata"]["labels"] = {"fixture-role": "privacy-collector"}
+    lab.create(collector_pod)
+    create(lab, "Service", COLLECTOR, spec={
+        "selector": {"fixture-role": "privacy-collector"},
+        "ports": [{"name": "http", "port": 80, "targetPort": 8080, "protocol": "TCP"}],
+    })
+
+    client_unit = container(
+        "client", image=image, imagePullPolicy="Never",
+        command=["sleep", "300"],
+        volumeMounts=[{"name": "source", "mountPath": "/fixture", "readOnly": True},
+                      {"name": "policy", "mountPath": "/policy", "readOnly": True},
+                      {"name": "input", "mountPath": "/input", "readOnly": True}],
+    )
+    client_pod = pod(CLIENT, [client_unit], automountServiceAccountToken=False, volumes=[
+        {"name": "source", "configMap": {"name": CODE}},
+        {"name": "policy", "configMap": {"name": NAME}},
+        {"name": "input", "configMap": {"name": INPUT}},
+    ])
+    lab.create(client_pod)
+    ready(lab, COLLECTOR)
+    ready(lab, CLIENT)
+    for _ in range(12):
+        probe = lab.kubectl("exec", CLIENT, "--", "python", "/fixture/mechanism.py",
+                             "collector-ready", timeout=12)
+        if probe.stdout.strip() == "ready":
+            break
+        time.sleep(1)
+    else:
+        lab.block("The collector service did not become ready from the client")
+    client_record = json.loads(lab.kubectl("get", "pod", CLIENT, "-o", "json").stdout)
+    collector_record = json.loads(lab.kubectl("get", "pod", COLLECTOR, "-o", "json").stdout)
+    return client_record, collector_record
+
+
+def persisted_result(lab):
+    result = lab.kubectl("get", "configmap", OUTPUT, "-o", "json")
+    return json.loads(result.stdout)["data"]
+
+
+def client_collector_path(lab, image):
+    client_pod, collector_pod = client_collector(lab, image)
+    input_read = lab.kubectl("exec", COLLECTOR, "--", "python", "/fixture/mechanism.py",
+                             "collector-input-probe", timeout=12)
+    input_read_status = json.loads(input_read.stdout)["status"]
+    wrong = lab.kubectl("exec", CLIENT, "--", "python", "/fixture/mechanism.py",
+                        "wrong-schema-probe", timeout=12)
+    wrong_response = json.loads(wrong.stdout)
+    after_wrong = persisted_result(lab)
+    sent = lab.kubectl("exec", CLIENT, "--", "python", "/fixture/mechanism.py",
+                       "client-send", timeout=12)
+    sent_result = json.loads(sent.stdout)
+    after_send = persisted_result(lab)
+    client_mounts = {mount["name"] for mount in client_pod["spec"]["containers"][0]["volumeMounts"]}
+    collector_mounts = {mount["name"] for mount in collector_pod["spec"]["containers"][0]["volumeMounts"]}
+    return {
+        "input_volume_is_client_only": "input" in client_mounts and "input" not in collector_mounts,
+        "client_has_no_serviceaccount_token": client_pod["spec"]["automountServiceAccountToken"] is False,
+        "collector_cannot_read_input_configmap": input_read_status == 403,
+        "wrong_schema_denied_without_state_change": wrong_response == {
+            "decision": "rejected", "status": 400} and after_wrong == {"result": ""},
+        "accepted_one_field_release_matches_persisted_observation":
+            sent_result.get("status") == 200 and sent_result.get("decision") == "accepted"
+            and type(sent_result.get("sent_result")) is int
+            and sent_result["sent_result"] in (0, 1)
+            and set(after_send) == {"result"}
+            and after_send == {"result": str(sent_result["sent_result"])},
+    }
+
+
 def run(lab):
     runtime = module(HERE.parent/"SAF-K8S-0908-001"/"case.py", "saf_fixture_runtime")
     image = runtime.load_runtime(lab)
@@ -115,6 +221,10 @@ def run(lab):
              and type(response["result"]) is int and response["result"] in (0,1)}
     lab.check("positive", "The deployed fixture mechanism realizes the declared finite bound and releases one bit",
               all(valid.values()), valid)
+    flow = client_collector_path(lab, image)
+    lab.check("supplement", "The owned client sends only a schema-valid noisy result to its collector",
+              all(flow.values()), flow)
     (lab.evidence/"approved-privacy-parameters-observations.json").write_text(json.dumps({
-        "baseline": red, "approved_parameters": gate, "deployed": valid, "finite_distribution": observed,
+        "baseline": red, "approved_parameters": gate, "deployed": valid,
+        "client_collector_path": flow, "finite_distribution": observed,
     },sort_keys=True,indent=2)+"\n")
