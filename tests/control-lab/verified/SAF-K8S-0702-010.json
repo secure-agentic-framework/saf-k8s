@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0702-010",
-  "catalog_revision": "889ff69c03e0e87523b4daf14162a532f34d53b3",
-  "catalog_sha256": "7a28badc5e3a74a2232d83ef1b54c79e5ef9235017577e593aecf4bca2c13451",
+  "catalog_revision": "03197b5f34c07adf30de371cb78cb9f0dfb5587b",
+  "catalog_sha256": "f22ac63bf97577c04a89f43196dc2de2eb4f5a9eeaa472fe2152cbf36c1b213b",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "80c8532a4fec27084e1feab6a00d97a5ce46c8de9b691551e3cdf251b6b7f3a5",
-  "scope": "A real local host API and two vCluster tenant APIs on a shared Kind node, with scoped host authorization reviews.",
-  "cluster": "saf-lab-d7269371d661",
+  "scope": "A real local host API and two pinned vCluster tenant APIs on a shared Kind node, with scoped host authorization reviews and two independently observed inert ConfigMap synchronization lifecycles in the expected release namespaces.",
+  "cluster": "saf-lab-d88b6c30cb04",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -75,6 +75,38 @@
             "host_crd_create_allowed": false
           }
         }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "An owned inert ConfigMap syncs only to its vCluster host namespace and is removed with its tenant source",
+      "matched": true,
+      "observed": {
+        "tenant_host_sync": {
+          "tenant-a": {
+            "single_host_object": true,
+            "host_namespace_is_release_namespace": true,
+            "source_name_matches": true,
+            "source_namespace_matches": true,
+            "managed_label_present": true,
+            "marker_matches": true,
+            "sync_observed": true,
+            "source_deleted": true,
+            "host_copy_removed": true
+          },
+          "tenant-b": {
+            "single_host_object": true,
+            "host_namespace_is_release_namespace": true,
+            "source_name_matches": true,
+            "source_namespace_matches": true,
+            "managed_label_present": true,
+            "marker_matches": true,
+            "sync_observed": true,
+            "source_deleted": true,
+            "host_copy_removed": true
+          }
+        },
+        "all_host_copies_removed": true
       }
     }
   ]

@@ -22,7 +22,9 @@ VCLUSTER_VERSION = "0.37.7"
 K8S_IMAGE_TAG = "v1.36.6@sha256:967b956bd407adcacc5e6323bb20346c58e190d8a292cc63dea7cef60b5e9cbc"
 VCLUSTER_IMAGE_TAG = "0.37.7@sha256:799ba08e9622e8454f4d9574fd81b17567b6b0a4ad936b74507ae7798d91a489"
 TENANTS = (("tenant-a", "saf-vcluster-a"), ("tenant-b", "saf-vcluster-b"))
-SCOPE = "A real local host API and two vCluster tenant APIs on a shared Kind node, with scoped host authorization reviews."
+SCOPE = ("A real local host API and two pinned vCluster tenant APIs on a shared Kind node, "
+         "with scoped host authorization reviews and two independently observed inert ConfigMap "
+         "synchronization lifecycles in the expected release namespaces.")
 TENANT_NAMESPACE = "isolation-fixture"
 
 
@@ -93,7 +95,9 @@ def _install(lab, chart, release, namespace):
                "--set", "controlPlane.proxy.extraSANs[0]=127.0.0.1",
                "--set", "telemetry.enabled=false",
                "--set-string", f"controlPlane.distro.k8s.image.tag={K8S_IMAGE_TAG}",
-               "--set-string", f"controlPlane.statefulSet.image.tag={VCLUSTER_IMAGE_TAG}"],
+               "--set-string", f"controlPlane.statefulSet.image.tag={VCLUSTER_IMAGE_TAG}",
+               "--set", "sync.toHost.configMaps.enabled=true",
+               "--set", "sync.toHost.configMaps.all=true"],
          timeout=510, action=f"install vCluster {release}")
 
 
@@ -129,11 +133,27 @@ def _start_forward(lab, release, namespace, port):
 
 def _tenant_kubeconfig(lab, release, namespace, port, path):
     """Use only the owned chart's fixture export and keep its content out of logs."""
-    exported = _kubectl(lab, lab.kubeconfig, _host_context(lab), "-n", namespace,
-                        "get", "secret", f"vc-{release}", "-o", "jsonpath={.data.config}",
-                        action=f"obtain the {release} fixture kubeconfig")
+    deadline = time.monotonic() + 75
+    encoded = None
+    while time.monotonic() < deadline:
+        exported = _kubectl(lab, lab.kubeconfig, _host_context(lab), "-n", namespace,
+                            "get", "secret", f"vc-{release}", "-o", "jsonpath={.data.config}",
+                            timeout=12, allow_failure=True,
+                            action=f"obtain the {release} fixture kubeconfig")
+        if exported.returncode == 0 and exported.stdout.strip():
+            encoded = exported.stdout.strip()
+            break
+        if exported.returncode and not _is_not_found(exported):
+            lab.block(f"The owned API could not read the {release} fixture export")
+        time.sleep(0.5)
+    if encoded is None:
+        names = _kubectl(lab, lab.kubeconfig, _host_context(lab), "-n", namespace,
+                          "get", "secrets", "-o", "name", timeout=12,
+                          action=f"inspect exact names for the owned {release} export")
+        lab.block(f"The {release} kubeconfig was unavailable after controller startup. "
+                  f"Expected export present: {f'secret/vc-{release}' in names.stdout.splitlines()}.")
     try:
-        content = b64decode(exported.stdout.strip(), validate=True)
+        content = b64decode(encoded, validate=True)
     except InvalidBase64:
         lab.block(f"the {release} fixture exported an invalid kubeconfig")
     if not content:
@@ -188,6 +208,49 @@ def _record(group, name, namespace, owner):
     return {"apiVersion": f"{group}/v1", "kind": "IsolationRecord",
             "metadata": {"name": name, "namespace": namespace},
             "spec": {"owner": owner}}
+
+
+def _synced_configmap(lab, host_namespace, sync_id, expected):
+    """Return only a stable owned-fixture sync decision, never the full object."""
+    selector = f"saf.test/sync-id={sync_id}"
+    deadline = time.monotonic() + 45
+    while time.monotonic() < deadline:
+        result = _kubectl(lab, lab.kubeconfig, _host_context(lab), "get", "configmaps",
+                          "--all-namespaces", "--selector", selector, "-o", "json",
+                          action="read the exact owned host-sync marker")
+        try:
+            items = json.loads(result.stdout).get("items", [])
+        except (ValueError, AttributeError):
+            lab.block("the host sync marker response was not valid JSON")
+        if len(items) == 1:
+            item = items[0]
+            metadata = item.get("metadata", {})
+            labels = metadata.get("labels", {})
+            annotations = metadata.get("annotations", {})
+            data = item.get("data", {})
+            observed = {
+                "single_host_object": True,
+                "host_namespace_is_release_namespace": metadata.get("namespace") == host_namespace,
+                "source_name_matches": annotations.get("vcluster.loft.sh/object-name") == "sync-marker",
+                "source_namespace_matches": annotations.get("vcluster.loft.sh/object-namespace") == TENANT_NAMESPACE,
+                "managed_label_present": bool(labels.get("vcluster.loft.sh/managed-by")),
+                "marker_matches": data.get("fixture") == expected,
+            }
+            return all(observed.values()), observed
+        time.sleep(0.5)
+    return False, {"single_host_object": False, "host_object_absent_or_ambiguous": True}
+
+
+def _host_sync_marker_count(lab, sync_id):
+    selector = f"saf.test/sync-id={sync_id}"
+    result = _kubectl(lab, lab.kubeconfig, _host_context(lab), "get", "configmaps",
+                      "--all-namespaces", "--selector", selector, "-o", "json",
+                      action="confirm the owned host-sync marker is removed")
+    try:
+        items = json.loads(result.stdout).get("items", [])
+    except (ValueError, AttributeError):
+        lab.block("the host sync marker response was not valid JSON")
+    return len(items)
 
 
 def _wait_established(lab, kubeconfig, name, owner):
@@ -273,9 +336,49 @@ def run(lab):
         lab.check("positive", "The virtual namespace is absent from the host API and owned tenant subjects have no tested host grant",
                   namespace_absent and all(not any(result.values()) for result in decisions.values()),
                   {"virtual_namespace_absent_on_host": namespace_absent, "host_authorization": decisions})
+
+        sync_results = {}
+        for release, host_namespace in TENANTS:
+            sync_id = f"{release}-inert-configmap"
+            marker = f"public-{release}-sync-marker"
+            config = {"apiVersion": "v1", "kind": "ConfigMap",
+                      "metadata": {"name": "sync-marker", "namespace": TENANT_NAMESPACE,
+                                   "labels": {"saf.test/sync-id": sync_id}},
+                      "data": {"fixture": marker}}
+            _request(lab, temporary / f"{release}-kubeconfig.json", "create", "-f", "-",
+                     payload=json.dumps(config), action="create owned tenant ConfigMap sync marker")
+            synced, observed = _synced_configmap(lab, host_namespace, sync_id, marker)
+            tenant_kubeconfig = temporary / f"{release}-kubeconfig.json"
+            _request(lab, tenant_kubeconfig, "delete", "configmap", "sync-marker",
+                     "--namespace", TENANT_NAMESPACE, "--wait=true", "--timeout=30s",
+                     action="delete owned tenant ConfigMap sync marker")
+            source_after_delete = _request(lab, tenant_kubeconfig, "get", "configmap", "sync-marker",
+                                           "--namespace", TENANT_NAMESPACE, "-o", "name",
+                                           allow_failure=True,
+                                           action="read back deleted tenant ConfigMap sync marker")
+            source_deleted = _is_not_found(source_after_delete)
+            removed = False
+            deadline = time.monotonic() + 45
+            while time.monotonic() < deadline:
+                if _host_sync_marker_count(lab, sync_id) == 0:
+                    removed = True
+                    break
+                time.sleep(0.5)
+            sync_results[release] = {**observed, "sync_observed": synced,
+                                     "source_deleted": source_deleted, "host_copy_removed": removed}
+        sync_ok = all(
+            result.get("single_host_object") and result.get("host_namespace_is_release_namespace")
+            and result.get("source_name_matches") and result.get("source_namespace_matches")
+            and result.get("managed_label_present")
+            and result.get("marker_matches") and result.get("sync_observed")
+            and result.get("source_deleted") and result.get("host_copy_removed")
+            for result in sync_results.values())
+        lab.check("positive", "An owned inert ConfigMap syncs only to its vCluster host namespace and is removed with its tenant source",
+                  sync_ok, {"tenant_host_sync": sync_results, "all_host_copies_removed": sync_ok})
         (lab.evidence / "virtual-cluster-observations.json").write_text(json.dumps(
             {"chart": chart_evidence, "shared_host_namespace_collision": collision, "tenant_markers_independent": markers,
              "virtual_namespace_absent_on_host": namespace_absent, "synthetic_host_subject_decisions": decisions,
+             "owned_configmap_sync_and_removal": sync_results,
              "node_and_kernel_shared": True}, indent=2) + "\n")
     finally:
         for process in reversed(forwards):
