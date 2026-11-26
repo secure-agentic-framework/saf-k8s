@@ -4,8 +4,8 @@
   "catalog_sha256": "8ecd02f78cbc319e3674743b42545b08917af33d749a87ce2958dc691e640821",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "4ead55dc0f470227a043d370d55a378e72a690d811a166661289b2c7487024c6",
-  "scope": "Real Kubernetes TokenReview authenticates scoped projected workload identities. A case-owned HTTPS artifact service uses approved subject and object attributes to enforce classification, sensitivity and environment on actual reads. Other stores, attribute authorities and production traffic paths require independent evidence.",
-  "cluster": "saf-lab-8fc2be7c81c8",
+  "scope": "Real Kubernetes TokenReview authenticates scoped projected workload identities. A case-owned HTTPS artifact service enforces classification, sensitivity and environment on actual reads. It reads case-owned immutable attribute versions through a separate Kubernetes API identity; RBAC separates a fixed-version pointer writer from an unapproved identity. Other attribute authorities, approval and integrity provenance, stores and production traffic paths require independent evidence.",
+  "cluster": "saf-lab-a6cb8642bbaa",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -79,6 +79,18 @@
       "observed": {
         "developer_gets_development": true,
         "release_gets_production": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Only the RBAC-authorized registry writer can select a pre-existing immutable attribute version and change the actual read decision",
+      "matched": true,
+      "observed": {
+        "version_before": "fixture-attribute-v1",
+        "unauthorized_writer_denied_without_change": true,
+        "authorized_writer_updated_version": true,
+        "classified_read_decision_changed": true,
+        "baseline_development_read_retained": true
       }
     }
   ]
