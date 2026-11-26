@@ -1,17 +1,11 @@
 {
   "control_id": "SAF-K8S-0902-003",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "1d28901a13172f0bbd965a664e9be4c4794ee8a1",
+  "catalog_sha256": "f22ac63bf97577c04a89f43196dc2de2eb4f5a9eeaa472fe2152cbf36c1b213b",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "17dc2843caf5bda45734a88ebcec476c3d1d8cf66980796a4fd471a399eb613a",
   "scope": "One disposable Kind v1.36.1 cluster runs case-owned gateway, model, and backend mock processes from a digest-pinned official Python image. The gateway and mock model each enforce the exact two-field JSON object schema and a 128-byte request-body limit. Benign typed fixtures test one schema-invalid object and one otherwise-valid object exactly one byte over the limit; valid requests must return the exact mock marker. With checks disabled, both benign comparators reach the recorder. An independently queried backend counter and request ID establish which requests reached the local backend. No external targets, feeds, model, gateway product, injection content, adversarial input, exploit, or production workload is used. This does not establish adversarial detection, sanitization, injection prevention, model robustness, batch/gRPC/streaming coverage, or organization-wide deployment.",
-  "review_timing": {
-    "queued_at": "2026-11-22T20:48:28.993971+00:00",
-    "cluster_ready_at": "2026-11-22T20:49:04.006311+00:00",
-    "approval_at": "2026-11-22T20:51:29.930827+00:00",
-    "case_loaded_at": "2026-11-22T20:51:30.061884+00:00"
-  },
-  "cluster": "saf-lab-37e6a4da998a",
+  "cluster": "saf-lab-00c32f850915",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -41,7 +35,6 @@
       "platform": "linux/arm64"
     }
   },
-  "approved_case_sha256": "c0ed955d656e4d49d0841a5947a47394c5152616278a30518a40e7dd2382aa2d",
   "status": "passed",
   "cleanup": "deleted",
   "checks": [
