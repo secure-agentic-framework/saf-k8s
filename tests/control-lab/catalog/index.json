@@ -2607,7 +2607,7 @@
     "SAF-K8S-0905-006": {
       "catalog_status": "draft",
       "domain": "D09",
-      "sha256": "32bea0073124cb47237a7889a2ddb2d2587245513d000547407843bd654e7ed2",
+      "sha256": "d948cc896109c8c3c5bd3ac60f10c048b4609169a396ac16c606d205438c6ae6",
       "title": "Model artifact lifecycle management"
     },
     "SAF-K8S-0905-009": {
@@ -3572,7 +3572,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "b2eb4aef83a1dcc1ea548db7b7c55cf8fb653391",
-  "sha256": "c1a14a1b203bdfe8828a691f5c30058745d96afefca29c70b370256b29cdb06d",
+  "revision": "45b9cfff1de4734ed4df5a827c737920b2e31f69",
+  "sha256": "1d7ee8bb6fda38d512e240ddc5dd8903eca46391185e844312addb22e4a4e39e",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

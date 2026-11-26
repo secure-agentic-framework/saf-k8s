@@ -10,6 +10,8 @@ PVC_NAME = "saf-0905-006-model-claim"
 POD_NAME = "saf-0905-006-active-release"
 NOTICE_ID = "fixture-dataset-deletion-001"
 NOTICE_ANNOTATION = "saf-k8s.example/data-deletion-notice"
+CORRECTION_ID = "fixture-dataset-correction-001"
+CORRECTION_ANNOTATION = "saf-k8s.example/data-correction-notice"
 BUSYBOX_IMAGE = (
     "docker.io/library/busybox:1.37.0@sha256:"
     "a7dbc319b1438115a207e11930dc4bb3e643dcb3ec0bdd694bb36cd8fad289ec"
@@ -167,6 +169,54 @@ def _lineage_notice(lab):
     lab.check("positive", "The unrelated control fixture remains unmarked",
               observed[LINEAGE["unrelated"]] is None,
               {"node": LINEAGE["unrelated"], "notice": observed[LINEAGE["unrelated"]]})
+
+    # Reuse only the fixed synthetic graph to check the separate correction
+    # notice type. This marks API metadata; it does not alter or retrain data.
+    def mark_correction(names):
+        for name in sorted(names):
+            lab.kubectl("annotate", "configmap", name,
+                        f"{CORRECTION_ANNOTATION}={CORRECTION_ID}", "--overwrite")
+
+    def read_correction_notices():
+        return {
+            name: (_get_json(lab, f"configmap/{name}")
+                   .get("metadata", {}).get("annotations", {})
+                   .get(CORRECTION_ANNOTATION))
+            for name in sorted(LINEAGE["nodes"])
+        }
+
+    correction_expected = {source, *transitive_dependents(LINEAGE, source)}
+    correction_direct = {source, *direct_dependents(LINEAGE, source)}
+    mark_correction(correction_direct)
+    correction_before = read_correction_notices()
+    correction_missed = {
+        name for name in correction_expected
+        if correction_before[name] != CORRECTION_ID
+    }
+    mark_correction(correction_expected)
+    correction_after = read_correction_notices()
+    correction_recorded = {
+        name for name, notice in correction_after.items()
+        if notice == CORRECTION_ID
+    }
+    correction_ok = (correction_missed == correction_expected - correction_direct
+                     and correction_recorded == correction_expected
+                     and correction_after[LINEAGE["unrelated"]] is None)
+    _save(lab, "lineage-correction-notice-runtime-evidence.json", {
+        "lineage_version": LINEAGE_VERSION,
+        "notice_type": "synthetic-data-correction",
+        "expected_marked": sorted(correction_expected),
+        "direct_only_missed": sorted(correction_missed),
+        "observed_marked": sorted(correction_recorded),
+        "unrelated_unmarked": correction_after[LINEAGE["unrelated"]] is None,
+        "meaning": "metadata notice propagation on a fixed synthetic graph only",
+    })
+    lab.check("green", "Correction notice reaches all fixed transitive dependents and leaves unrelated record unmarked",
+              correction_ok,
+              {"expected": sorted(correction_expected),
+               "direct_only_missed": sorted(correction_missed),
+               "observed": sorted(correction_recorded),
+               "unrelated_unmarked": correction_after[LINEAGE["unrelated"]] is None})
 
 
 def _lifecycle_objects(lab):

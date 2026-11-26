@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0905-006",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "ee480faf56ece2a6efe4a90f4401a06fefb7957d",
+  "catalog_sha256": "1d7ee8bb6fda38d512e240ddc5dd8903eca46391185e844312addb22e4a4e39e",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "32bea0073124cb47237a7889a2ddb2d2587245513d000547407843bd654e7ed2",
+  "control_sha256": "d948cc896109c8c3c5bd3ac60f10c048b4609169a396ac16c606d205438c6ae6",
   "scope": "Kubernetes v1.36.1 in the lab-created Kind cluster and namespace saf-test. A fixed static hostPath PV/PVC and one pinned BusyBox Pod prove that the built-in PVC-protection finalizer keeps a namespaced claim terminating while a nonterminal Pod references it, and that the claim and PV API objects can be removed after the Pod is gone. Separately, case-local fixture logic traverses the embedded fixture-lineage-v1 graph, annotates its source and every direct/transitive dependent ConfigMap, retrieves an inert archived ConfigMap value and compares its SHA-256, and leaves one unrelated control ConfigMap unmarked. This does not prove a model registry, production release controller, CycloneDX schema validation, ML-BOM ingestion, a general propagation service, cold or external storage, retention policy, physical or backup erasure, cryptographic erasure, regulatory compliance, or deletion outside these fixture Kubernetes objects.",
-  "cluster": "saf-lab-3e398835fd9d",
+  "cluster": "saf-lab-9507bb650bf1",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -91,6 +91,33 @@
       "observed": {
         "node": "control-unrelated",
         "notice": null
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Correction notice reaches all fixed transitive dependents and leaves unrelated record unmarked",
+      "matched": true,
+      "observed": {
+        "expected": [
+          "fixture-dataset",
+          "model-archive",
+          "model-base",
+          "model-derived",
+          "release-active"
+        ],
+        "direct_only_missed": [
+          "model-archive",
+          "model-derived",
+          "release-active"
+        ],
+        "observed": [
+          "fixture-dataset",
+          "model-archive",
+          "model-base",
+          "model-derived",
+          "release-active"
+        ],
+        "unrelated_unmarked": true
       }
     },
     {
