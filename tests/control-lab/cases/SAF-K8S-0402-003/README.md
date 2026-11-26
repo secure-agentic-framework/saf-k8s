@@ -2,7 +2,23 @@
 
 Run `python3 tests/control-lab/lab.py test SAF-K8S-0402-003 --docker-context desktop-linux` from the framework checkout.
 
-The case compares raw and filtered Pod output. It observes a fixed account identifier, preserves unrelated and shared-prefix names, and removes the value of an inert Authorization bearer header before collection. Both Kubernetes workloads disable token automount. A temporary Git repository records an inert marker and then removes it. The case independently checks presence in the current tree before removal and continuing presence in history after removal. Only fixed canary observations are retained.
+The case compares raw and filtered Pod output. It observes a fixed account identifier, preserves unrelated and shared-prefix names, and removes the value of an inert Authorization bearer header before collection. All Kubernetes probe Pods disable token automount. A temporary Git repository records an inert marker and then removes it. The case independently checks presence in the current tree before removal and continuing presence in history after removal. Only fixed canary observations are retained.
+
+## Loopback HTTP response comparison
+
+The additive eighth check starts one ephemeral HTTP server bound only to
+`127.0.0.1` in the case process. It compares two GETs against the same fixed
+synthetic error response: a baseline route returns an inert bearer-lookalike
+marker, while a second route applies a response sanitizer before sending its
+response. The check requires the same 400 status, absence of the marker from the
+filtered response, and preservation of the fixed request ID and state fields.
+The handler suppresses request logging; response bodies are inspected only in
+memory and the result contains booleans, never body text or the marker.
+
+This is a local reference comparison for one response path. It does not exercise
+a real application, API server, external endpoint, production middleware or
+actual credential. Keep deployed error/response behavior and all other
+repository, image, CI and log collection paths in adopter verification.
 
 ## Verify an adopting implementation
 

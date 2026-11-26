@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0402-003",
-  "catalog_revision": "0e5f66b144eb71aca33656c040117faa73e5dd11",
-  "catalog_sha256": "80c7da0fd4f41cb7830cb16c47d2d08461aee78c45806ed496151b90cef2011d",
+  "catalog_revision": "8ca957210cb5ed5a74374a1779f0c03a4a7f65c8",
+  "catalog_sha256": "ee384744c842f8d644f583a5aaca5eaaa6b5317fc5eec912d037736ad0661d10",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "833a7d3684dbf32824234f5e43cfcf454b4acfba7e69b4ddad14d5c9b452fe3e",
-  "scope": "Two short non-root Pods in a disposable kind cluster process only the checked-in synthetic stdout lines. A case-local process filter redacts lines carrying one exact synthetic name and retains both other lines. The test reads only the two case Pods' stdout and disables credential automount. Production log aggregation, token protection, repository and image scanning, API sanitization, and external exposure remain separate.",
-  "cluster": "saf-lab-61bd072706ec",
+  "scope": "Four short non-root Pods in a disposable kind cluster process only the checked-in synthetic stdout lines. A case-local process filter redacts lines carrying one exact synthetic name and retains both other lines. The test reads only the two case Pods' stdout and disables credential automount. A separate loopback-only HTTP handler compares an inert error response with and without a fixed response sanitizer. Production log aggregation, token protection, repository and image scanning, deployed API behavior, and external exposure remain separate.",
+  "cluster": "saf-lab-f058e945a93b",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -96,6 +96,17 @@
       "observed": {
         "current_tree_clean": true,
         "historical_marker_detected": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "A loopback HTTP error response redacts the inert bearer marker and preserves safe fields",
+      "matched": true,
+      "observed": {
+        "baseline_exposed_in_memory": true,
+        "filtered_marker_absent": true,
+        "safe_fields_preserved": true,
+        "response_body_retained": false
       }
     }
   ]

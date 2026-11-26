@@ -1,9 +1,12 @@
 """Verify a narrow synthetic ServiceAccount-name filter before Pod stdout."""
 import json
+from http.client import HTTPConnection
+from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
 import re
 import subprocess
 import tempfile
+from threading import Thread
 
 from fixtures import container, pod
 
@@ -11,12 +14,84 @@ from fixtures import container, pod
 HERE = Path(__file__).parent
 REDACTED = "[synthetic service account identifier redacted]"
 SCOPE = (
-    "Two short non-root Pods in a disposable kind cluster process only the checked-in "
+    "Four short non-root Pods in a disposable kind cluster process only the checked-in "
     "synthetic stdout lines. A case-local process filter redacts lines carrying one exact "
     "synthetic name and retains both other lines. The test reads only the two case Pods' "
-    "stdout and disables credential automount. Production log aggregation, token protection, "
-    "repository and image scanning, API sanitization, and external exposure remain separate."
+    "stdout and disables credential automount. A separate loopback-only HTTP handler compares "
+    "an inert error response with and without a fixed response sanitizer. Production log "
+    "aggregation, token protection, repository and image scanning, deployed API behavior, "
+    "and external exposure remain separate."
 )
+
+
+def response_redaction_probe(lab, marker):
+    """Compare one fixed synthetic API error response; retain booleans only."""
+    replacement = "[synthetic bearer redacted]"
+    pattern = re.compile(r'(Authorization:\s*Bearer\s+)[^\s",}]+', re.IGNORECASE)
+    baseline_body = (f'{{"error":"invalid Authorization: Bearer {marker}",'
+                     '"request_id":"fixture-request-0402-003","state":"unchanged"}}')
+
+    class Handler(BaseHTTPRequestHandler):
+        def do_GET(self):
+            body = baseline_body
+            if self.path == "/filtered":
+                body = pattern.sub(lambda match: match.group(1) + replacement, body)
+            encoded = body.encode("utf-8")
+            self.send_response(400)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(encoded)))
+            self.end_headers()
+            self.wfile.write(encoded)
+
+        def log_message(self, _format, *_args):
+            # Never copy request or response content to stdout/stderr.
+            return
+
+    server = HTTPServer(("127.0.0.1", 0), Handler)
+    server.timeout = 3
+    thread = Thread(target=server.serve_forever, kwargs={"poll_interval": 0.05}, daemon=True)
+    thread.start()
+    baseline = filtered = None
+    try:
+        for path, slot in (("/baseline", "baseline"), ("/filtered", "filtered")):
+            connection = HTTPConnection("127.0.0.1", server.server_port, timeout=2)
+            try:
+                connection.request("GET", path)
+                response = connection.getresponse()
+                value = (response.status, response.read().decode("utf-8"))
+            finally:
+                connection.close()
+            if slot == "baseline":
+                baseline = value
+            else:
+                filtered = value
+    except Exception:
+        lab.block("Loopback response comparison failed (details suppressed)")
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=2)
+
+    raw_status, raw_body = baseline
+    filtered_status, filtered_body = filtered
+    raw_control = raw_status == 400 and marker in raw_body
+    filtered_control = (
+        filtered_status == 400
+        and marker not in filtered_body
+        and replacement in filtered_body
+        and '"request_id":"fixture-request-0402-003"' in filtered_body
+        and '"state":"unchanged"' in filtered_body
+    )
+    lab.check(
+        "green",
+        "A loopback HTTP error response redacts the inert bearer marker and preserves safe fields",
+        raw_control and filtered_control,
+        {"baseline_exposed_in_memory": raw_control,
+         "filtered_marker_absent": marker not in filtered_body,
+         "safe_fields_preserved": ('"request_id":"fixture-request-0402-003"' in filtered_body
+                                   and '"state":"unchanged"' in filtered_body),
+         "response_body_retained": False},
+    )
 
 
 def stdout(lab, name, command, env):
@@ -103,3 +178,5 @@ def run(lab):
                   and history_hit.returncode == 0 and bool(history_hit.stdout.strip()),
                   {"current_tree_clean": current_clean.returncode == 1 and not current_clean.stdout.strip(),
                    "historical_marker_detected": history_hit.returncode == 0 and bool(history_hit.stdout.strip())})
+
+    response_redaction_probe(lab, bearer_marker)
