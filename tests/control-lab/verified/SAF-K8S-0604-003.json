@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0604-003",
-  "catalog_revision": "47478542c33dd217109cda1e77cee1b0bceff5db",
-  "catalog_sha256": "2a4083610a48967abdb0ac6053a6d0801b649194fd1f4149649821e51b8ff707",
+  "catalog_revision": "b14ca7801a388f0e933c92a0ff88b7e6960e5c0f",
+  "catalog_sha256": "f22ac63bf97577c04a89f43196dc2de2eb4f5a9eeaa472fe2152cbf36c1b213b",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "fea99dea4335fa6e8df6b5afbb33ae73a648d4ecc378ebe70a5785427e7f7f4d",
   "scope": "Disposable TLS Zot and Distribution registries illustrate OCI referrers discovery and a real 404-triggered referrers-tag fallback. In-cluster consumers verify manifest, subject, blob and approved attachment identity. Zot exercises test publisher and reader permissions. Production identity, retention, audit, pagination and provider-specific discovery require separate evidence.",
-  "cluster": "saf-lab-7539be6abe54",
+  "cluster": "saf-lab-8de9ffda71d7",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
