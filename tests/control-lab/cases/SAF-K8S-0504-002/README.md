@@ -23,3 +23,34 @@ require separate evidence. [Stable upgrade guide](https://docs.cilium.io/en/stab
 The optional [Cilium runtime case](cilium/README.md) runs the stable
 chart on a separate three-node Kind cluster and checks fixture SPIRE
 authentication and active WireGuard peer state.
+
+## Verify an adopting mesh
+
+1. Record the control-plane and proxy versions, enabled mesh mode, workload
+   identities, enrollment coverage, and any exceptions.
+2. Inventory actual source to destination paths, including same-node and
+   cross-node routes. For each, identify the mechanism that binds identity and
+   the mechanism that protects traffic. Capture both independently when the
+   chosen product separates them.
+3. Verify the effective peer authentication and request authorization for
+   normal approved comparisons against owned harmless routes. Record the
+   receiving principal and policy decision.
+4. Confirm protected request metrics, matching trace context at the client and
+   server, actual collection and retention, and delivery to the intended
+   operational consumer.
+5. Measure resource use and connection overhead for the deployed mesh mode and
+   representative workloads. Document gaps, compensating controls, owners and
+   approved exceptions.
+
+The paired Istio case checks one enrolled, traced request path. The companion
+Cilium case records cross-node WireGuard receive counters and a distinct
+same-node comparator. Review both boundaries for the paths used by the adopter.
+
+### Versioned references
+
+- [Istio 1.32 PeerAuthentication](https://istio.io/v1.32/docs/reference/config/security/peer_authentication/)
+- [Istio 1.32 AuthorizationPolicy](https://istio.io/v1.32/docs/reference/config/security/authorization-policy/)
+- [Istio 1.32 distributed tracing with Jaeger](https://istio.io/v1.32/docs/tasks/observability/distributed-tracing/jaeger/)
+- [Cilium v1.20 WireGuard encryption](https://docs.cilium.io/en/v1.20/security/network/encryption-wireguard/)
+- [Cilium v1.20 mutual authentication](https://docs.cilium.io/en/v1.20/network/servicemesh/mutual-authentication/mutual-authentication/)
+- [Cilium v1.20 upgrade notes](https://docs.cilium.io/en/v1.20/operations/upgrade/)
