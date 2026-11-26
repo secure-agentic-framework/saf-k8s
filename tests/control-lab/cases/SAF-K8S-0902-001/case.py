@@ -22,14 +22,10 @@ PYTHON_IMAGE = (
     "e48f59cdba69a3cbd9ed2cf0f348d90d45a8d350d98134cf1070bc106ee9ed90"
 )
 SCOPE = (
-    "One disposable Kind v1.36.1 cluster with a synthetic inference HTTP Pod and two owned HTTP sinks. "
-    "An independent runtime probe verifies the effective nonroot identity, root filesystem and model "
-    "mounts, exact synthetic model bytes, and permitted scratch writes. An egress allowlist keeps "
-    "one Ready peer reachable and denies the other while an unselected peer still reaches it. "
-    "A controlled setting change verifies the root filesystem write comparator. "
-    "An additional restricted Pod demonstrates a kubelet liveness restart and verified recovery. "
-    "Actual serving stacks, production dependencies, network boundaries and patch cadence require "
-    "separate evidence."
+    "One disposable Kind v1.36.1 cluster runs the synthetic inference posture, egress selection, and liveness recovery fixtures. "
+    "A separate nonroot and tokenless llama.cpp CPU Pod loads a digest-pinned tiny model from a read-only artifact volume. "
+    "An independent probe verifies model bytes, fixed tokenization, bounded native inference, and reports actual root and model mount flags and token-path presence. "
+    "Deployed serving stacks, dependencies, production network boundaries, accelerator behavior, and patch cadence need separate evidence."
 )
 
 
@@ -396,3 +392,38 @@ def run(lab):
     supplement = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(supplement)
     supplement.run_liveness(lab)
+    run_actual_model_mount(lab)
+
+
+MODEL_RUNTIME_COMPANION = HERE.parent / "SAF-K8S-0903-004"
+MODEL_RUNTIME_PINS = {
+    "llama_runtime.py": "eb5431938939d15363a21f7c6dbb8126def4b99ec790e92a2be2e0bd40b513d8",
+    "Dockerfile.llama": "9e9d4d3a6db46fac9fafca6fdc2b3ed2b703c24c5c49c87f7556aecd71057650",
+}
+LOCAL_WITNESS_PINS = {
+    "runtime_mount_witness.py": "98570f9ed58e935930c0237c6e62c0661d1ed86de28ac8ee5339f04bbd65a580",
+    "probe.py": "f37b0988c36b55d10c104033a1de01ba677e4d456abfc63ce5a78060d6e183cc",
+}
+
+
+def run_actual_model_mount(lab):
+    for name, expected_sha256 in MODEL_RUNTIME_PINS.items():
+        path = MODEL_RUNTIME_COMPANION / name
+        if not path.is_file() or hashlib.sha256(path.read_bytes()).hexdigest() != expected_sha256:
+            lab.block(f"Pinned SAF-K8S-0903-004 model companion changed or is missing: {name}")
+    for name, expected_sha256 in LOCAL_WITNESS_PINS.items():
+        path = HERE / name
+        if not path.is_file() or hashlib.sha256(path.read_bytes()).hexdigest() != expected_sha256:
+            lab.block(f"Pinned SAF-K8S-0902-001 serving witness changed or is missing: {name}")
+    runtime_spec = importlib.util.spec_from_file_location(
+        "saf_k8s_0903_004_llama_runtime", MODEL_RUNTIME_COMPANION / "llama_runtime.py")
+    runtime = importlib.util.module_from_spec(runtime_spec)
+    runtime_spec.loader.exec_module(runtime)
+    image, image_provenance = runtime._build_and_load(lab)
+    witness_spec = importlib.util.spec_from_file_location(
+        "saf_k8s_0902_001_readonly_model_witness", HERE / "runtime_mount_witness.py")
+    witness = importlib.util.module_from_spec(witness_spec)
+    witness_spec.loader.exec_module(witness)
+    witness.run_readonly_model_witness(
+        lab, image, image_provenance,
+        {**MODEL_RUNTIME_PINS, **LOCAL_WITNESS_PINS})

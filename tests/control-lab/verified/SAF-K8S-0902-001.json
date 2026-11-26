@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0902-001",
-  "catalog_revision": "78e37cddeb2b2ac05382d042a709ac4bd45076d1",
-  "catalog_sha256": "e38420f524fb15e73e8ffca4c9a87efd965bcdc648e8f97243d8c301bc7ed21d",
+  "catalog_revision": "d1b8447a22de8db36ec31676b53c34496d4d3f59",
+  "catalog_sha256": "63ca25b48ffb8f35202c5c4db9c599eb98e12d31aa18f4d0d69d91a9e3ec5423",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "66dcc21b763407314fd815b3b6394669f30cccb885aada0445060a39dd257234",
-  "scope": "One disposable Kind v1.36.1 cluster with a synthetic inference HTTP Pod and two owned HTTP sinks. An independent runtime probe verifies the effective nonroot identity, root filesystem and model mounts, exact synthetic model bytes, and permitted scratch writes. An egress allowlist keeps one Ready peer reachable and denies the other while an unselected peer still reaches it. A controlled setting change verifies the root filesystem write comparator. An additional restricted Pod demonstrates a kubelet liveness restart and verified recovery. Actual serving stacks, production dependencies, network boundaries and patch cadence require separate evidence.",
-  "cluster": "saf-lab-987ef278c4fc",
+  "scope": "One disposable Kind v1.36.1 cluster runs the synthetic inference posture, egress selection, and liveness recovery fixtures. A separate nonroot and tokenless llama.cpp CPU Pod loads a digest-pinned tiny model from a read-only artifact volume. An independent probe verifies model bytes, fixed tokenization, bounded native inference, and reports actual root and model mount flags and token-path presence. Deployed serving stacks, dependencies, production network boundaries, accelerator behavior, and patch cadence need separate evidence.",
+  "cluster": "saf-lab-391effeea8a4",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -135,6 +135,57 @@
         "last_exit_code_present": true,
         "live_route_status_after_restart": "200",
         "finite_marker_cleared": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Pinned actual CPU server loads the approved model from a read-only mounted artifact",
+      "matched": true,
+      "observed": {
+        "server_artifact_mount_read_only": true,
+        "verifier_mount_read_only": true,
+        "model_sha256_matches_pin": true,
+        "model_bytes_match_pin": true,
+        "model_owner_is_init_uid": true,
+        "model_group_matches_fs_group": true,
+        "mode_is_read_only": true,
+        "server_healthy": true,
+        "model_alias_matches": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Actual server has the reviewed tokenless nonroot read-only root posture",
+      "matched": true,
+      "observed": {
+        "service_account_token_path_absent": true,
+        "pod_token_automount_disabled": true,
+        "no_projected_service_account_token": true,
+        "pod_run_as_nonroot": true,
+        "uid_is_unprivileged": true,
+        "pod_fs_group_matches_init": true,
+        "artifact_emptydir_is_bounded": true,
+        "init_runs_nonroot": true,
+        "init_uid_is_nonroot": true,
+        "init_completed_successfully": true,
+        "pod_local_verifier_ready": true,
+        "runtime_default_seccomp": true,
+        "privilege_escalation_disabled": true,
+        "all_capabilities_dropped": true,
+        "server_root_mount_read_only": true,
+        "server_read_only_rootfs_spec": true,
+        "server_container_ready": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Pinned server performs bounded native CPU generation with the mounted model",
+      "matched": true,
+      "observed": {
+        "prompt_token_ids_match_pin": true,
+        "exact_four_tokens_generated": true,
+        "four_token_limit": true,
+        "stopped_at_limit": true
       }
     }
   ]
