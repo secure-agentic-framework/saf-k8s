@@ -20,3 +20,17 @@ rejects anonymous discovery and denies writes and deletion to the reader.
 The reference uses pinned fixture images, OpenSSL and htpasswd. For each governed registry and approved alternate, record the service and client versions, authenticated publisher and reader identities, and supported discovery path. Identify whether the governed subject is an image manifest or an OCI index and use its exact digest at publication and consumption. Verify discovery and bytes through each required path and retest after the required retention interval. Record the exact subject, SBOM descriptor, checked byte digest, discovery response, access decision and retention evidence.
 
 Approve the SBOM producer and inventory content through an independent review. Verify that the approved source and release correspond to the exact subject, including child manifests where policy requires that coverage. Confirm each governed reader, publisher and deletion authority with an owned artifact. Validate pagination or the approved fallback when the service uses it.
+
+
+## Adjacent-repository authorization
+
+The Zot fixture publishes from the same saved archive with the same Skopeo OCI
+copy options in two adjacent repositories. It requires both publication digests
+to match. The two permitted reads must return the exact manifest bytes and
+matching `Docker-Content-Digest`. Each same-digest cross-repository read must
+return 403. The retained evidence includes the exact public fixture digest,
+HTTP status and body hash, with role names and without generated credentials.
+
+The test covers per-repository authorization in the pinned disposable Zot
+registry. Deployment identity, registry access, retention, paging and producer
+trust require separate verification.

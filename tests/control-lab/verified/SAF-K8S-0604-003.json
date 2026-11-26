@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0604-003",
-  "catalog_revision": "b14ca7801a388f0e933c92a0ff88b7e6960e5c0f",
-  "catalog_sha256": "f22ac63bf97577c04a89f43196dc2de2eb4f5a9eeaa472fe2152cbf36c1b213b",
+  "catalog_revision": "3f65185f2e64894c20d741e3d13c7c17e373022a",
+  "catalog_sha256": "63ca25b48ffb8f35202c5c4db9c599eb98e12d31aa18f4d0d69d91a9e3ec5423",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "fea99dea4335fa6e8df6b5afbb33ae73a648d4ecc378ebe70a5785427e7f7f4d",
-  "scope": "Disposable TLS Zot and Distribution registries illustrate OCI referrers discovery and a real 404-triggered referrers-tag fallback. In-cluster consumers verify manifest, subject, blob and approved attachment identity. Zot exercises test publisher and reader permissions. Production identity, retention, audit, pagination and provider-specific discovery require separate evidence.",
-  "cluster": "saf-lab-8de9ffda71d7",
+  "scope": "Disposable TLS Zot and Distribution registries illustrate OCI referrers discovery and a real 404-triggered referrers-tag fallback. In-cluster consumers verify manifest, subject, blob and approved attachment identity. Zot exercises test publisher and reader permissions. The Zot fixture also scopes two explicit principals to adjacent repositories and checks the same inert manifest digest in both. Production identity, retention, audit, pagination and provider-specific discovery require separate evidence.",
+  "cluster": "saf-lab-e9b9e5cf0c4a",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -112,6 +112,26 @@
       "observed": {
         "observed_statuses": [
           200
+        ]
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Zot scopes exact-digest reads to the authorized adjacent repository principal",
+      "matched": true,
+      "observed": {
+        "same_manifest_digest_published_to_both_repositories": true,
+        "reader_main_repository_status": 200,
+        "reader_main_manifest_bytes_match": true,
+        "reader_main_content_digest_match": true,
+        "adjacent_publisher_neighbor_repository_status": 200,
+        "adjacent_publisher_neighbor_manifest_bytes_match": true,
+        "adjacent_publisher_neighbor_content_digest_match": true,
+        "reader_adjacent_repository_status": 403,
+        "adjacent_publisher_main_repository_status": 403,
+        "principal_labels_only": [
+          "reader",
+          "adjacent-publisher"
         ]
       }
     },

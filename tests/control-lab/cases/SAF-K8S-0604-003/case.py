@@ -24,12 +24,14 @@ SKOPEO = ("quay.io/skopeo/stable:v1.20.0@sha256:"
 PYTHON = ("docker.io/library/python:3.13-slim@sha256:"
           "e48f59cdba69a3cbd9ed2cf0f348d90d45a8d350d98134cf1070bc106ee9ed90")
 REPOSITORY = "fixture/sbom-images"
+ADJACENT_REPOSITORY = "fixture/sbom-adjacent"
 SCOPE = (
     "Disposable TLS Zot and Distribution registries illustrate OCI referrers discovery and a real "
     "404-triggered referrers-tag fallback. In-cluster consumers verify manifest, subject, blob "
     "and approved attachment identity. Zot exercises test publisher and reader permissions. "
-    "Production identity, retention, audit, pagination "
-    "and provider-specific discovery require separate evidence."
+    "The Zot fixture also scopes two explicit principals to adjacent repositories and checks the "
+    "same inert manifest digest in both. Production identity, retention, audit, pagination and "
+    "provider-specific discovery require separate evidence."
 )
 
 
@@ -95,7 +97,8 @@ def start_legacy(registry):
 
 def start_zot(registry):
     tls = certificates(registry)
-    registry.credentials = {role: secrets.token_hex(16) for role in ("publisher", "reader")}
+    registry.credentials = {role: secrets.token_hex(16)
+                            for role in ("publisher", "reader", "adjacent-publisher")}
     accounts = []
     for role, password in registry.credentials.items():
         record = subprocess.run(["htpasswd", "-nBi", role], input=password + "\n", text=True,
@@ -109,6 +112,9 @@ def start_zot(registry):
                     "accessControl": {"repositories": {REPOSITORY: {"policies": [
                         {"users": ["publisher"], "actions": ["read", "create", "update"]},
                         {"users": ["reader"], "actions": ["read"]},
+                    ]},
+                    ADJACENT_REPOSITORY: {"policies": [
+                        {"users": ["adjacent-publisher"], "actions": ["read", "create", "update"]},
                     ]}}}},
            "log": {"level": "error"}}
     (tls / "config.json").write_text(json.dumps(cfg))
@@ -156,7 +162,7 @@ def json_bytes(data):
     return json.dumps(data, sort_keys=True, separators=(",", ":")).encode()
 
 
-def publish_images(registry, work):
+def publish_images(registry, work, *, retain_archive=False):
     work.mkdir(mode=0o755)
     registry.docker("pull", BUSYBOX_IMAGE, timeout=140)
     registry.docker("image", "save", "-o", str(work / "image.tar"), BUSYBOX_IMAGE, timeout=100)
@@ -171,8 +177,12 @@ def publish_images(registry, work):
                     "copy", "--format", "oci", "--dest-cert-dir", "/io", *auth_args, "--digestfile",
                     "/io/target.digest", "docker-archive:/io/image.tar",
                     f"docker://{registry.registry}/{REPOSITORY}:target", timeout=110)
-    (work / "image.tar").unlink()
-    return (work / "target.digest").read_text().strip()
+    target_digest = (work / "target.digest").read_text().strip()
+    if not consumer.DIGEST.fullmatch(target_digest):
+        registry.lab.block("Main-repository publication returned an invalid manifest digest")
+    if not retain_archive:
+        (work / "image.tar").unlink()
+    return target_digest
 
 
 def request(registry, port, method, path, role, media, payload=None):
@@ -255,9 +265,9 @@ def consume(lab, registry, ip, name, plan):
     lab.block("The in-cluster fixture consumer did not reach a terminal state")
 
 
-def exercise(lab, registry, ip, port, mode):
+def exercise(lab, registry, ip, port, mode, *, retain_archive=False):
     work = registry.work / "release"
-    target = publish_images(registry, work)
+    target = publish_images(registry, work, retain_archive=retain_archive)
     other = variant(registry, port, target)
 
     def fetch(path, media):
@@ -300,12 +310,93 @@ def exercise(lab, registry, ip, port, mode):
             "decision": result}
 
 
+def exercise_adjacent_repository_scope(lab, registry, port, target_digest):
+    """Bind two scoped Zot principals to the same inert manifest in adjacent repos."""
+    work = registry.work / "release"
+    if not consumer.DIGEST.fullmatch(target_digest):
+        lab.block("Subject digest is not valid for the controlled adjacent-repository check")
+    if not (work / "image.tar").is_file():
+        lab.block("Exact saved fixture image archive is unavailable for adjacent-repository ACL proof")
+    (work / "ca.crt").write_bytes(registry.registry_ca.read_bytes())
+    auth = authorization(registry, "adjacent-publisher")
+    auth_payload = {"auths": {registry.registry: {"auth": auth.split(" ", 1)[1]}}}
+    auth_file = work / "adjacent-auth.json"
+    auth_file.write_text(json.dumps(auth_payload))
+    auth_file.chmod(0o600)
+    adjacent_tag = f"{registry.registry}/{ADJACENT_REPOSITORY}:target"
+    try:
+        registry.docker(
+            "run", "--rm", "--network", "kind", "--cap-drop=ALL",
+            "--security-opt=no-new-privileges", "--volume", f"{work}:/io", SKOPEO,
+            "copy", "--format", "oci", "--dest-cert-dir", "/io",
+            "--authfile", "/io/adjacent-auth.json", "--digestfile", "/io/adjacent.digest",
+            "docker-archive:/io/image.tar", f"docker://{adjacent_tag}", timeout=110,
+        )
+    finally:
+        auth_file.unlink(missing_ok=True)
+    adjacent_digest = (work / "adjacent.digest").read_text().strip()
+    reader_main, reader_main_bytes, reader_main_header = request(
+        registry, port, "GET", f"/v2/{REPOSITORY}/manifests/{target_digest}",
+        "reader", consumer.MANIFEST)
+    adjacent_publisher_neighbor, adjacent_bytes, adjacent_header = request(
+        registry, port, "GET", f"/v2/{ADJACENT_REPOSITORY}/manifests/{target_digest}",
+        "adjacent-publisher", consumer.MANIFEST)
+    reader_neighbor = request(
+        registry, port, "GET", f"/v2/{ADJACENT_REPOSITORY}/manifests/{target_digest}",
+        "reader", consumer.MANIFEST)[0]
+    adjacent_publisher_main = request(
+        registry, port, "GET", f"/v2/{REPOSITORY}/manifests/{target_digest}",
+        "adjacent-publisher", consumer.MANIFEST)[0]
+    same_subject = adjacent_digest == target_digest
+    main_bytes_match = (reader_main == 200 and consumer.digest(reader_main_bytes) == target_digest
+                        and reader_main_header == target_digest)
+    adjacent_bytes_match = (adjacent_publisher_neighbor == 200
+                            and consumer.digest(adjacent_bytes) == target_digest
+                            and adjacent_header == target_digest)
+    matched = (same_subject and main_bytes_match and adjacent_bytes_match
+               and reader_neighbor == 403 and adjacent_publisher_main == 403)
+    raw = {
+        "main_manifest_digest": target_digest,
+        "adjacent_manifest_digest": adjacent_digest,
+        "reader_main": {"status": reader_main, "body_sha256": consumer.digest(reader_main_bytes),
+                        "content_digest": reader_main_header},
+        "adjacent_publisher_adjacent": {"status": adjacent_publisher_neighbor,
+                                        "body_sha256": consumer.digest(adjacent_bytes),
+                                        "content_digest": adjacent_header},
+        "reader_adjacent_status": reader_neighbor,
+        "adjacent_publisher_main_status": adjacent_publisher_main,
+    }
+    (lab.evidence / "adjacent-repository-authorization.json").write_text(
+        json.dumps(raw, indent=2, sort_keys=True) + "\n")
+    lab.check(
+        "positive",
+        "Zot scopes exact-digest reads to the authorized adjacent repository principal",
+        matched,
+        {"same_manifest_digest_published_to_both_repositories": same_subject,
+         "reader_main_repository_status": reader_main,
+         "reader_main_manifest_bytes_match": reader_main == 200 and consumer.digest(reader_main_bytes) == target_digest,
+         "reader_main_content_digest_match": reader_main_header == target_digest,
+         "adjacent_publisher_neighbor_repository_status": adjacent_publisher_neighbor,
+         "adjacent_publisher_neighbor_manifest_bytes_match": adjacent_publisher_neighbor == 200 and consumer.digest(adjacent_bytes) == target_digest,
+         "adjacent_publisher_neighbor_content_digest_match": adjacent_header == target_digest,
+         "reader_adjacent_repository_status": reader_neighbor,
+         "adjacent_publisher_main_repository_status": adjacent_publisher_main,
+         "principal_labels_only": ["reader", "adjacent-publisher"]},
+    )
+
+
 def run(lab):
     registry_module = load_module("oci_registry_fixture", HERE.parent / "SAF-K8S-0605-002" / "image_admission.py")
     reports = {}
     for mode in ("tag", "api"):
         with registry_fixture(registry_module, lab, mode, legacy=mode == "tag") as (registry, ip, port):
-            reports[mode] = exercise(lab, registry, ip, port, mode)
+            reports[mode] = exercise(lab, registry, ip, port, mode, retain_archive=mode == "api")
+            if mode == "api":
+                try:
+                    exercise_adjacent_repository_scope(
+                        lab, registry, port, reports[mode]["selected_image_manifest_digest"])
+                finally:
+                    (registry.work / "release" / "image.tar").unlink(missing_ok=True)
     (lab.evidence / "oci-inventory-discovery.json").write_text(json.dumps(reports, indent=2, sort_keys=True) + "\n")
     lab.check("positive", "The disposable registries and volumes were removed",
               True, {"registry_cleanup": "complete"})
