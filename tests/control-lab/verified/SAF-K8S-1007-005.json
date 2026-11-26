@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-1007-005",
-  "catalog_revision": "a308572dbef942815e95a2a96a02290da182fb80",
+  "catalog_revision": "8ca957210cb5ed5a74374a1779f0c03a4a7f65c8",
   "catalog_sha256": "ee384744c842f8d644f583a5aaca5eaaa6b5317fc5eec912d037736ad0661d10",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "ecb42fcb34ae670705db479243ab92b766a37729c6c28daa46b2ca8e8c681fca",
-  "scope": "One disposable Kind Kubernetes v1.36.1 cluster and one case-owned, single-replica, inert Python Deployment. A deterministic local gate evaluates a synthetic change against an explicit fixture approval, fixed fake time/deployment window, required synthetic approver roles, a low risk score, an exact approved-change fingerprint, and a digest-pinned mock container image. The case first rejects an altered/unapproved request without changing the API object, then applies the approved metadata-only release change and uses Kubernetes API reads plus rollout status/history to verify rollout and rollback. It creates no Secret objects and records only the case-owned Deployment and ReplicaSet metadata. It does not validate a real approval service, model or image provenance, registry trust, model quality, canary metrics, production deployment windows, organizational policy enforcement, or production workloads.",
-  "cluster": "saf-lab-e75ee1417ffd",
+  "scope": "One disposable Kind cluster and a case-owned, single-replica Python Deployment. A local gate requires an exact synthetic change fingerprint, explicit fixture approval, two approval roles, a fixed window, risk below a configured limit, and a pinned image. The actual Pod serves an inert linear model from an immutable fixture file whose SHA-256 it verifies before readiness. Independent Service reads compare fixed predictions before a rejected change, after the approved rollout, and after Kubernetes rollback. Real release trust, actual organizational approval, risk calibration, serving-model quality, and production rollout traffic require separate evidence.",
+  "cluster": "saf-lab-01eb7ca0e2da",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -76,7 +76,7 @@
       "matched": true,
       "observed": {
         "release": "SYNTH-RELEASE-001",
-        "model_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "model_digest": "sha256:75003b935e77c9762a20b7ffc9a8a2f2561380e505c44547ab18494d309d3a62",
         "digest_pinned_mock_image": true,
         "ready_replicas": 1,
         "live_pod_markers_match": true,
@@ -95,6 +95,17 @@
         "ready_replicas": 1,
         "rollback_revision_observed": true,
         "observed_generation_matches": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Independent Service predictions change on approved rollout and restore on model rollback",
+      "matched": true,
+      "observed": {
+        "baseline": true,
+        "after_refusal": true,
+        "after_approved_rollout": true,
+        "after_rollback": true
       }
     }
   ]

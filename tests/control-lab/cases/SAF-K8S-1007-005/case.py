@@ -5,6 +5,7 @@ import hashlib
 import json
 from pathlib import Path
 import re
+import time
 
 HERE = Path(__file__).resolve().parent
 FIXTURE_PATH = HERE / "fixtures" / "change.json"
@@ -13,18 +14,16 @@ NAMESPACE = "saf-test"
 DEPLOYMENT = "saf-1007-005-mock-inference"
 LABEL_KEY = "saf-lab.example/control"
 LABEL_VALUE = CONTROL_ID
+PROBE = "saf-1007-005-service-observer"
 SCOPE = (
-    "One disposable Kind Kubernetes v1.36.1 cluster and one case-owned, single-replica, inert "
-    "Python Deployment. A deterministic local gate evaluates a synthetic change against an "
-    "explicit fixture approval, fixed fake time/deployment window, required synthetic approver "
-    "roles, a low risk score, an exact approved-change fingerprint, and a digest-pinned mock "
-    "container image. The case first rejects an altered/unapproved request without changing "
-    "the API object, then applies the approved metadata-only release change and uses Kubernetes "
-    "API reads plus rollout status/history to verify rollout and rollback. It creates no Secret "
-    "objects and records only the case-owned Deployment and ReplicaSet metadata. It does not "
-    "validate a real approval service, model or image provenance, registry trust, model quality, "
-    "canary metrics, production deployment windows, organizational policy enforcement, or "
-    "production workloads."
+    "One disposable Kind cluster and a case-owned, single-replica Python Deployment. A local gate "
+    "requires an exact synthetic change fingerprint, explicit fixture approval, two approval roles, "
+    "a fixed window, risk below a configured limit, and a pinned image. The actual Pod serves an "
+    "inert linear model from an immutable fixture file whose SHA-256 it verifies before readiness. "
+    "Independent Service reads compare fixed predictions before a rejected change, after the "
+    "approved rollout, and after Kubernetes rollback. Real release trust, actual organizational "
+    "approval, risk calibration, serving-model quality, and production rollout traffic require "
+    "separate evidence."
 )
 
 
@@ -73,6 +72,61 @@ def evaluate_gate(fixture, change, approval):
     return {"accepted": all(findings.values()), "findings": findings}
 
 
+def _artifact_config_name(model_digest):
+    return f"{DEPLOYMENT}-model-{model_digest[7:19]}"
+
+
+def _install_artifacts(lab, fixture):
+    source = (HERE / "server.py").read_text()
+    artifacts = (
+        (fixture["mock_workload"]["baseline_model_digest"], "baseline-model.json"),
+        (fixture["proposed_change"]["model_digest"], "candidate-model.json"),
+    )
+    for digest, name in artifacts:
+        artifact = (HERE / "fixtures" / name).read_bytes()
+        if digest != "sha256:" + hashlib.sha256(artifact).hexdigest():
+            lab.block("The checked-in fixture model digest does not match the change record")
+        lab.create({"apiVersion": "v1", "kind": "ConfigMap",
+                    "metadata": {"name": _artifact_config_name(digest), "namespace": NAMESPACE},
+                    "immutable": True,
+                    "data": {"model.json": artifact.decode(), "server.py": source}})
+    lab.create({"apiVersion": "v1", "kind": "Service",
+                "metadata": {"name": DEPLOYMENT, "namespace": NAMESPACE},
+                "spec": {"selector": {"app": DEPLOYMENT},
+                         "ports": [{"name": "http", "port": 8080, "targetPort": 8080}]}})
+
+    lab.create({"apiVersion": "v1", "kind": "Pod",
+                "metadata": {"name": PROBE, "namespace": NAMESPACE},
+                "spec": {"automountServiceAccountToken": False, "restartPolicy": "Never",
+                         "securityContext": {"runAsNonRoot": True, "runAsUser": 65534,
+                                             "seccompProfile": {"type": "RuntimeDefault"}},
+                         "containers": [{"name": "probe", "image": fixture["mock_workload"]["image"],
+                                         "command": ["python", "-B", "-c", "import time; time.sleep(420)"],
+                                         "securityContext": {"allowPrivilegeEscalation": False,
+                                                             "readOnlyRootFilesystem": True,
+                                                             "capabilities": {"drop": ["ALL"]}},
+                                         "resources": {"requests": {"cpu": "5m", "memory": "16Mi"},
+                                                       "limits": {"cpu": "75m", "memory": "64Mi"}}}]}})
+    lab.kubectl("wait", "--for=condition=Ready", f"pod/{PROBE}", "--timeout=65s", timeout=75)
+
+def _independent_prediction(lab, release, digest, predictions):
+    expected = {"model_digest": digest, "release": release, "inputs": [-1, 0, 3],
+                "predictions": predictions}
+    request = "from urllib.request import urlopen; import sys; print(urlopen(sys.argv[1], timeout=3).read(4096).decode())"
+    target = f"http://{DEPLOYMENT}.{NAMESPACE}.svc.cluster.local:8080/predict"
+    deadline = time.monotonic() + 25
+    observed = None
+    while time.monotonic() < deadline:
+        response = lab.kubectl("exec", f"pod/{PROBE}", "--", "python", "-B", "-c", request, target,
+                               allow_failure=True, timeout=10)
+        if response.returncode == 0:
+            observed = json.loads(response.stdout)
+            if observed == expected:
+                break
+        time.sleep(0.5)
+    return {"matched": observed == expected, "expected": expected, "observed": observed}
+
+
 def _deployment(fixture, release, model_digest):
     image = fixture["mock_workload"]["image"]
     labels = {LABEL_KEY: LABEL_VALUE, "saf-lab.example/fixture": "synthetic"}
@@ -92,10 +146,13 @@ def _deployment(fixture, release, model_digest):
                     "terminationGracePeriodSeconds": 3,
                     "securityContext": {"runAsNonRoot": True, "runAsUser": 65534,
                                          "seccompProfile": {"type": "RuntimeDefault"}},
+                    "volumes": [{"name": "artifact", "configMap": {"name": _artifact_config_name(model_digest)}}],
                     "containers": [{
                         "name": "mock-inference", "image": image,
                         "imagePullPolicy": "IfNotPresent",
-                        "command": ["python", "-B", "-c", "import time; time.sleep(3600)"],
+                        "command": ["python", "-B", "/fixture/server.py"],
+                        "readinessProbe": {"httpGet": {"path": "/healthz", "port": 8080}, "periodSeconds": 1},
+                        "volumeMounts": [{"name": "artifact", "mountPath": "/fixture", "readOnly": True}],
                         "env": [
                             {"name": "SAF_FIXTURE_RELEASE", "value": release},
                             {"name": "SAF_FIXTURE_MODEL_DIGEST", "value": model_digest},
@@ -185,6 +242,7 @@ def run(lab):
     baseline_cfg = fixture["mock_workload"]
     change = fixture["proposed_change"]
     approval = fixture["approval"]
+    _install_artifacts(lab, fixture)
 
     baseline = _deployment(fixture, baseline_cfg["baseline_release"],
                            baseline_cfg["baseline_model_digest"])
@@ -198,6 +256,8 @@ def run(lab):
     if baseline_markers != [baseline_cfg["baseline_release"], baseline_cfg["baseline_model_digest"]]:
         lab.block("Live baseline Pod did not report the expected fixture markers")
     _save_raw(lab, "baseline-deployment.raw.json", baseline_live)
+    expected_baseline = [-1, 1, 7]
+    baseline_behavior = _independent_prediction(lab, *baseline_markers, expected_baseline)
 
     # An approval copied from the fixture cannot authorize a modified fingerprint.
     altered = deepcopy(change)
@@ -231,6 +291,8 @@ def run(lab):
                "risk_limit_enforced": not rejected_gate["findings"]["risk_below_configured_limit"],
                "api_state_unchanged": unchanged, "outside_window_rejected": late_only_denial,
                "missing_role_rejected": role_only_denial})
+
+    denied_behavior = _independent_prediction(lab, *baseline_markers, expected_baseline)
 
     accepted_gate = submit_change(lab, fixture, change, approval)
     lab.check("green", "Fixture-approved change meets the fixed window, role, fingerprint, risk, and digest checks",
@@ -271,6 +333,8 @@ def run(lab):
     if not candidate_ready:
         lab.block("Approved fixture Deployment did not reach the expected API-observed rollout")
 
+    candidate_behavior = _independent_prediction(lab, *candidate_pod, [-1, 2, 11])
+
     lab.kubectl("-n", NAMESPACE, "rollout", "undo", f"deployment/{DEPLOYMENT}",
                 f"--to-revision={baseline_view['revision']}")
     _rollout(lab)
@@ -294,3 +358,11 @@ def run(lab):
                "ready_replicas": rollback_view["ready_replicas"],
                "rollback_revision_observed": rollback_view["revision"] != candidate_revision,
                "observed_generation_matches": rollback_view["observed_generation"] == rollback_view["generation"]})
+
+    restored_behavior = _independent_prediction(lab, *baseline_markers, expected_baseline)
+    predictions = {"baseline": baseline_behavior, "after_refusal": denied_behavior,
+                   "after_approved_rollout": candidate_behavior, "after_rollback": restored_behavior}
+    _save_raw(lab, "served-model-predictions.json", predictions)
+    matched = {name: outcome["matched"] for name, outcome in predictions.items()}
+    lab.check("positive", "Independent Service predictions change on approved rollout and restore on model rollback",
+              all(matched.values()), matched)
