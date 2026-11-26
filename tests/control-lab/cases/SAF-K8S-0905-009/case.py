@@ -1,5 +1,6 @@
 """Exercise one fixed signed OCI fixture at a fail-closed Kubernetes admission boundary."""
 import base64
+import importlib.util
 import json
 import time
 from pathlib import Path
@@ -12,13 +13,12 @@ PYTHON_IMAGE = "docker.io/library/python:3.13.2-alpine@sha256:323a717dc4a010fee2
 PAUSE_IMAGE = "registry.k8s.io/pause:3.10.1@sha256:278fb9dbcca9518083ad1e11276933a2e96f23de604a3a08cc3c80002767d24c"
 SCOPE = (
     "One fresh Kubernetes 1.36.1 Kind cluster and namespace saf-test. A fixture-only HTTPS admission "
-    "webhook examines CREATE requests for one inert Deployment shape, recomputes the exact fixed OCI "
+    "webhook examines CREATE and UPDATE requests for one inert Deployment shape, recomputes the exact fixed OCI "
     "manifest and layer digests, verifies an RSA-SHA256 manifest signature, verifies two sorted signed "
     "in-toto Statement v1 DSSE approval/provenance materials with matching subjects, and requires the sole "
     "Deployment container image to equal the manifest-digest-pinned fixture reference. Accepted Deployments "
-    "have zero replicas. Proves only this fixed test key, artifact, policy, "
-    "Deployment CREATE path, and namespace; not registry retrieval, arbitrary OCI artifacts, UPDATE, "
-    "production trust custody, all provenance steps, or all model deployments."
+    "have zero replicas. The actual signed digest is retrieved and read by a separate Job after scope verification. "
+    "Production trust custody, actual model loaders, and broader workload paths require separate evidence."
 )
 
 
@@ -68,10 +68,39 @@ def _admission_configuration(ca_pem):
                 "caBundle": base64.b64encode(ca_pem).decode("ascii"),
             },
             "namespaceSelector": {"matchLabels": {"saf.example.test/model-verification": "required"}},
-            "rules": [{"operations": ["CREATE"], "apiGroups": ["apps"],
+            "rules": [{"operations": ["CREATE", "UPDATE"], "apiGroups": ["apps"],
                        "apiVersions": ["v1"], "resources": ["deployments"], "scope": "Namespaced"}],
         }],
     }
+
+
+def verified_update(lab, name, before, fixture):
+    annotation = "saf.example.test/provenance-fixture-update"
+    signature_key = "saf.example.test/model-signature"
+    bad_update = lab.kubectl(
+        "patch", "deployment", name, "--type=merge", "-p",
+        json.dumps({"metadata": {"annotations": {signature_key: None}}}),
+        allow_failure=True,
+    )
+    after_denial = json.loads(lab.kubectl("get", "deployment", name, "-o", "json").stdout)
+    rejected = bad_update.returncode != 0 and "SAF fixture verifier:" in bad_update.stderr \
+        and "model signature is absent" in bad_update.stderr
+    lab.kubectl("patch", "deployment", name, "--type=merge", "-p",
+                json.dumps({"metadata": {"annotations": {annotation: "approved"}}}))
+    current = json.loads(lab.kubectl("get", "deployment", name, "-o", "json").stdout)
+    verified = {
+        "unsigned_update_refused_by_expected_webhook": rejected,
+        "denied_update_left_prior_signed_reference": after_denial["metadata"]["annotations"][signature_key]
+        == before["metadata"]["annotations"][signature_key],
+        "approved_update_persisted_on_same_deployment": current["metadata"]["uid"] == before["metadata"]["uid"]
+        and current["metadata"]["annotations"].get(annotation) == "approved"
+        and current["metadata"]["annotations"].get(signature_key) == fixture["manifest_signature_base64"],
+        "still_exact_digest_pinned": current["spec"]["template"]["spec"]["containers"][0]["image"]
+        == _artifact_image_ref(fixture) and current["spec"]["replicas"] == 0,
+    }
+    lab.check("supplement", "Admitted configuration updates retain verification of the exact artifact",
+              all(verified.values()), verified)
+    return all(verified.values())
 
 
 def _record_runtime(lab, value):
@@ -194,6 +223,20 @@ def run(lab):
                          "image_bound_to_manifest_digest": image_bound, "replicas_zero": replicas_zero,
                          "persisted_exact_reference": persisted, "no_pods_created": no_pods,
                          "model_digest": "sha256:" + fixture["manifest_sha256"]})
+    if not positive:
+        return
+    checked_update = verified_update(lab, trusted_name, observed, fixture)
+    if not checked_update:
+        return
+    helper_path = HERE.parent / "SAF-K8S-0605-002" / "image_admission.py"
+    spec = importlib.util.spec_from_file_location("saf_0605_registry_for_0905", helper_path)
+    registry_helpers = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(registry_helpers)
+    consumer_spec = importlib.util.spec_from_file_location(
+        "saf_0905_consumer_addendum", HERE / "consumer_addendum.py")
+    consumer = importlib.util.module_from_spec(consumer_spec)
+    consumer_spec.loader.exec_module(consumer)
+    consumer.consume_verified_artifact(lab, fixture, registry_helpers)
     _record_runtime(lab, {
         "red": {"outcome": "accepted-before-webhook", "deployment": red_name},
         "unsigned": {"returncode": unsigned.returncode, "stderr": unsigned.stderr.strip()},

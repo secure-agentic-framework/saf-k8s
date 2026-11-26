@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0905-009",
-  "catalog_revision": "8c4e3ed4ee1f6f9b2248d2fca2d635d241c31ed8",
-  "catalog_sha256": "c1a14a1b203bdfe8828a691f5c30058745d96afefca29c70b370256b29cdb06d",
+  "catalog_revision": "a2d4171abcb3d2532a0e97a2a08d870efd26b640",
+  "catalog_sha256": "ab598c8d529e8c408b30d9da739ef2238baa30596e3a773e3ee16b614b6995c0",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "9cbed0fcae9a1c6113fc1f51fd0b7dfec3a2a97048c9e9bc9b1b8ccab69acf74",
-  "scope": "One fresh Kubernetes 1.36.1 Kind cluster and namespace saf-test. A fixture-only HTTPS admission webhook examines CREATE requests for one inert Deployment shape, recomputes the exact fixed OCI manifest and layer digests, verifies an RSA-SHA256 manifest signature, verifies two sorted signed in-toto Statement v1 DSSE approval/provenance materials with matching subjects, and requires the sole Deployment container image to equal the manifest-digest-pinned fixture reference. Accepted Deployments have zero replicas. Proves only this fixed test key, artifact, policy, Deployment CREATE path, and namespace; not registry retrieval, arbitrary OCI artifacts, UPDATE, production trust custody, all provenance steps, or all model deployments.",
-  "cluster": "saf-lab-2abe92d9100a",
+  "scope": "One fresh Kubernetes 1.36.1 Kind cluster and namespace saf-test. A fixture-only HTTPS admission webhook examines CREATE and UPDATE requests for one inert Deployment shape, recomputes the exact fixed OCI manifest and layer digests, verifies an RSA-SHA256 manifest signature, verifies two sorted signed in-toto Statement v1 DSSE approval/provenance materials with matching subjects, and requires the sole Deployment container image to equal the manifest-digest-pinned fixture reference. Accepted Deployments have zero replicas. The actual signed digest is retrieved and read by a separate Job after scope verification. Production trust custody, actual model loaders, and broader workload paths require separate evidence.",
+  "cluster": "saf-lab-9e12c0a8ea88",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -108,6 +108,32 @@
         "persisted_exact_reference": true,
         "no_pods_created": true,
         "model_digest": "sha256:980f79ef01d474369ae9f4bbf5f4a45422ffe9190f873ce39f5563b9f7e54645"
+      }
+    },
+    {
+      "phase": "supplement",
+      "claim": "Admitted configuration updates retain verification of the exact artifact",
+      "matched": true,
+      "observed": {
+        "unsigned_update_refused_by_expected_webhook": true,
+        "denied_update_left_prior_signed_reference": true,
+        "approved_update_persisted_on_same_deployment": true,
+        "still_exact_digest_pinned": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The gated case workload retrieves and reads the admitted inert OCI bytes by digest",
+      "matched": true,
+      "observed": {
+        "outcome": "retrieved-and-consumed",
+        "registry_repository": "models/inert-fixture",
+        "manifest_digest": "sha256:980f79ef01d474369ae9f4bbf5f4a45422ffe9190f873ce39f5563b9f7e54645",
+        "layer_digest": "sha256:c5542197fe8ee8c1943c7db38a3881f36490c14ab1e050b7908b52781bc6b927",
+        "registry_manifest_digest_matches_admission": true,
+        "workload_job_succeeded": true,
+        "fixed_payload_hash_verified": true,
+        "raw_payload_logged": false
       }
     }
   ]

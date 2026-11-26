@@ -1,14 +1,30 @@
 # SAF-K8S-0905-009 — Verify model provenance at deployment
 
-From the framework checkout run `python3 tests/control-lab/lab.py test SAF-K8S-0905-009 --docker-context desktop-linux`.
+Run `python3 tests/control-lab/lab.py test SAF-K8S-0905-009 --docker-context desktop-linux` from the framework checkout.
 
-The seven checks use a case-local HTTPS admission verifier with a fixed signed OCI manifest, inert layer and two signed in-toto statements. Before enforcement, an owned Deployment with untrusted metadata is accepted. With the verifier installed, the test observes specific rejections for a wrong digest, changed signature, incorrectly ordered or incomplete material, and a different admitted image digest with otherwise valid statements. The allowed Deployment's verified image reference is read back from the API. The zero-replica workload creates no Pods and the `.test` reference is never pulled.
+A case-local HTTPS admission verifier checks the exact signed manifest, inert layer
+and two in-toto statements. The initial comparison admits an owned Deployment with
+untrusted metadata before enforcement. With verification enabled, the API refuses
+missing and changed evidence, incorrectly ordered statements, and a different image
+digest. It persists the approved Deployment with the exact digest reference.
 
-## Verify deployed provenance
+The verifier also covers the selected Deployment UPDATE path. Removing the
+required signature is refused. An approved metadata update preserves the
+same Deployment, full signature and digest reference.
 
-1. Identify approved signer and independent trust roots, provenance and approval authorities, and the required provenance fields for the actual artifact and workload classes. Decide who can change the policy or trust material and record the effective revisions.
-2. Verify the digest resolved from the approved registry or artifact source and bind the trust decision to the exact admitted reference. Follow that reference to the consuming runtime or loader and compare the bytes or immutable identity observed there. Cover every enabled deployment update or controller path.
-3. Test an approved release and controlled copies for missing or altered signatures and statements, untrusted authorities, and a mismatch between the verified artifact and the actual admitted reference. Confirm failure is attributed to the enforcement decision and retain the source artifact digest, authority, policy and workload identities. Apply and review only approved exceptions.
+After readback, the fixture publishes the exact inert OCI bytes to its temporary
+TLS registry. A separate non-root Job retrieves the manifest and layer by digest
+over verified TLS, reads the fixed bytes and reports only digests and outcomes.
+The protected Deployment has zero replicas. The independent reader demonstrates
+the authorized fixture handoff and the exact artifact data path.
 
-- [OCI image manifest specification v1.1.1](https://github.com/opencontainers/image-spec/blob/v1.1.1/manifest.md)
-- [Kubernetes Deployments](https://v1-36.docs.kubernetes.io/docs/concepts/workloads/controllers/deployment/)
+For adoption, inventory the real artifact source, approved trust and signer
+authorities, required provenance stages, governed workloads, and CREATE and UPDATE
+paths. Verify that the actual runtime consumes the same immutable artifact the
+admission decision approved. Exercise exact approved and mismatched references,
+missing evidence and invalid signatures on every governed path. Retain the
+decision, identity, source and loader references, policy revision and alerts.
+
+- [OCI image manifest v1.1.1](https://github.com/opencontainers/image-spec/blob/v1.1.1/manifest.md)
+- [Kubernetes v1.36 admission control](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/extensible-admission-controllers/)
+- [Kubernetes v1.36 Jobs](https://v1-36.docs.kubernetes.io/docs/concepts/workloads/controllers/job/)
