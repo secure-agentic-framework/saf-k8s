@@ -39,7 +39,7 @@ SCOPE = (
     "authenticated case-local HTTPS receiver using fixture-only Basic authentication. Kubernetes RBAC restricts "
     "writing one named analyst disposition. "
     "This does not establish authenticated production event forwarding, provider completeness beyond this one Zot "
-    "operation, general anomaly detection, named human notification/response, durable SIEM retention, or other "
+    "operation, general anomaly detection, a human decision, deployed reviewer identity, durable SIEM retention, or other "
     "registry provider behavior."
 )
 
@@ -155,6 +155,7 @@ def _setup(lab):
     scripts = {name: (HERE / name).read_text() for name in (
         "monitor.py", "receiver.py", "fixture.py", "events.json", "forward.py",
         "receiver_observe.py", "receiver_auth_probe.py", "zot_probe.py")}
+    scripts["projected_review.py"] = (HERE / "projected_review.py").read_text()
     _create(lab, {
         "apiVersion": "v1", "kind": "ConfigMap", "metadata": {"name": "audit-review-code"},
         "immutable": True, "data": scripts,
@@ -533,6 +534,67 @@ def verify_zot_alert_route(lab):
                "authorized_tls_verification": True,
                "authorized_replay_unchanged": after_replay == after,
                "external_alerts_sent": False})
+    routed = next(row for row in expected_after if row["event_id"] == event["event_id"])
+    return routed
+
+
+def review_routed_zot_alert(lab, alert):
+    """Exercise a real projected analyst identity on the exact received Zot event."""
+    review_name = "zot-alert-review"
+    record = {"alert_id": alert["alert_id"], "event_id": alert["event_id"],
+              "disposition": "unreviewed"}
+    _create(lab, {"apiVersion": "v1", "kind": "ConfigMap",
+                  "metadata": {"name": review_name}, "data": record})
+    group = "rbac.authorization.k8s.io"
+    for name, verbs in (("zot-alert-observer", ["get"]),
+                        ("zot-alert-analyst", ["get", "patch"])):
+        lab.create({"apiVersion": "v1", "kind": "ServiceAccount", "metadata": {"name": name}})
+        lab.create({"apiVersion": f"{group}/v1", "kind": "Role", "metadata": {"name": name},
+                    "rules": [{"apiGroups": [""], "resources": ["configmaps"],
+                               "resourceNames": [review_name], "verbs": verbs}]})
+        lab.create({"apiVersion": f"{group}/v1", "kind": "RoleBinding", "metadata": {"name": name},
+                    "subjects": [{"kind": "ServiceAccount", "name": name, "namespace": "saf-test"}],
+                    "roleRef": {"apiGroup": group, "kind": "Role", "name": name}})
+
+    def run_identity(name, service_account, action):
+        _create(lab, {
+            "apiVersion": "v1", "kind": "Pod", "metadata": {"name": name},
+            "spec": {"restartPolicy": "Never", "serviceAccountName": service_account,
+                     "automountServiceAccountToken": True,
+                     "securityContext": {"runAsNonRoot": True, "runAsUser": 65534},
+                     "containers": [{"name": "review", "image": PYTHON_IMAGE,
+                                     "imagePullPolicy": "IfNotPresent",
+                                     "command": ["python", "-B", "/app/projected_review.py",
+                                                 action, review_name, alert["alert_id"]],
+                                     "resources": {"requests": {"cpu": "10m", "memory": "24Mi"},
+                                                   "limits": {"cpu": "100m", "memory": "64Mi"}},
+                                     "securityContext": {"allowPrivilegeEscalation": False,
+                                                         "readOnlyRootFilesystem": True,
+                                                         "capabilities": {"drop": ["ALL"]}},
+                                     "volumeMounts": [{"name": "code", "mountPath": "/app",
+                                                       "readOnly": True}]}],
+                     "volumes": [{"name": "code", "configMap": {"name": "audit-review-code"}}]},
+        })
+        lab.kubectl("wait", "--for=jsonpath={.status.phase}=Succeeded", f"pod/{name}",
+                    "--timeout=90s", timeout=100)
+        result = json.loads(lab.kubectl("logs", f"pod/{name}").stdout)
+        lab.kubectl("delete", "pod", name, "--wait=true")
+        return result
+
+    denied = run_identity("zot-review-denied", "zot-alert-observer", "deny")
+    approved = run_identity("zot-review-approved", "zot-alert-analyst", "approve")
+    readback = run_identity("zot-review-readback", "zot-alert-observer", "readback")
+    lab.check("positive", "Projected observer is denied disposition writes while the projected scoped analyst acknowledges the exact Zot alert and an independent projected observer reads back its persisted record",
+              denied == {"patch_forbidden": True, "read_ok": True, "unchanged": True,
+                         "alert_id_matches": True}
+              and approved == {"patch_accepted": True}
+              and readback == {"read_ok": True, "exact_alert_id": True,
+                               "exact_event_id": True, "reviewed": True},
+              {"denied_observer": denied, "analyst_write": approved,
+               "independent_readback": readback, "alert_id": alert["alert_id"],
+               "token_or_credential_emitted": False})
+    return {"alert_id": alert["alert_id"], "denied_observer": denied,
+            "analyst_write": approved, "independent_readback": readback}
 
 
 def run(lab):
@@ -540,6 +602,8 @@ def run(lab):
     observations = _json_exec(lab, ["python", "-B", "/app/fixture.py", f"http://audit-monitor:{PORT}"])
     check_events(lab, observations)
     disposition = review_alert(lab, observations["enforced"]["alerts"]["alert-audit-003"])
-    verify_zot_alert_route(lab)
+    zot_alert = verify_zot_alert_route(lab)
+    zot_disposition = review_routed_zot_alert(lab, zot_alert)
     (lab.evidence / "normalized-audit-alert-review.json").write_text(
-        json.dumps({"events": observations, "analyst_review": disposition}, indent=2, sort_keys=True) + "\n")
+        json.dumps({"events": observations, "analyst_review": disposition,
+                    "zot_alert_review": zot_disposition}, indent=2, sort_keys=True) + "\n")

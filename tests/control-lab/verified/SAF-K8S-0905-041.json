@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0905-041",
-  "catalog_revision": "40b5ddfd2381e15bcf4d986bedca71abf3b6c561",
-  "catalog_sha256": "d65a8ba2d999d0a60a83345dbfd6f5235d9cd11cac65fdb011fac1cb9051e634",
+  "catalog_revision": "be51e36d445e3477ca7c4fbb30df96c0ea5716e9",
+  "catalog_sha256": "ab598c8d529e8c408b30d9da739ef2238baa30596e3a773e3ee16b614b6995c0",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "6770e418486a532ccff9a3942c34ee0b2db57981d3937e106cdd3dc407da8c0a",
-  "scope": "A disposable Kind cluster runs a case-owned monitor against fixed normalized events and one actual Zot v2.1.23 native audit event for a case-owned empty OCI marker. It evaluates bounded sensitive-operation and supplied anomaly rules, rejects wrong source labels, suppresses replay duplicates, and sends alert projections to an authenticated case-local HTTPS receiver using fixture-only Basic authentication. Kubernetes RBAC restricts writing one named analyst disposition. This does not establish authenticated production event forwarding, provider completeness beyond this one Zot operation, general anomaly detection, named human notification/response, durable SIEM retention, or other registry provider behavior.",
-  "cluster": "saf-lab-bd6d83a47997",
+  "scope": "A disposable Kind cluster runs a case-owned monitor against fixed normalized events and one actual Zot v2.1.23 native audit event for a case-owned empty OCI marker. It evaluates bounded sensitive-operation and supplied anomaly rules, rejects wrong source labels, suppresses replay duplicates, and sends alert projections to an authenticated case-local HTTPS receiver using fixture-only Basic authentication. Kubernetes RBAC restricts writing one named analyst disposition. This does not establish authenticated production event forwarding, provider completeness beyond this one Zot operation, general anomaly detection, a human decision, deployed reviewer identity, durable SIEM retention, or other registry provider behavior.",
+  "cluster": "saf-lab-60e8fb2f8012",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -404,6 +404,30 @@
         "authorized_tls_verification": true,
         "authorized_replay_unchanged": true,
         "external_alerts_sent": false
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Projected observer is denied disposition writes while the projected scoped analyst acknowledges the exact Zot alert and an independent projected observer reads back its persisted record",
+      "matched": true,
+      "observed": {
+        "denied_observer": {
+          "alert_id_matches": true,
+          "patch_forbidden": true,
+          "read_ok": true,
+          "unchanged": true
+        },
+        "analyst_write": {
+          "patch_accepted": true
+        },
+        "independent_readback": {
+          "exact_alert_id": true,
+          "exact_event_id": true,
+          "read_ok": true,
+          "reviewed": true
+        },
+        "alert_id": "alert-zot-f77fc5dde78bba47a709",
+        "token_or_credential_emitted": false
       }
     }
   ]
