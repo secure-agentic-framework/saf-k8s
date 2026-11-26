@@ -5,9 +5,7 @@
 
 ## Mapping Notes
 
-Reviewing agent audit trails
-
-10.1 - SIEM integration (audit record review, analysis, correlation rule development)
+The portable case reads effective registry ACL configuration and compares it with fixture approval data; it does not collect, analyze, report, or correlate audit records, and it does not test SIEM integration. AU-6 can support the adopter's entitlement review only where actual audit records inform findings about account or permission activity and that review/reporting is evidenced separately.
 
 ## SAF-K8S Controls
 
@@ -16,9 +14,9 @@ Reviewing agent audit trails
 - Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
 - Knowledge Area: 9.5
 - Relation Type: supports
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
+- Strength: moderate
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-0905-041 - Model registry sensitive-operation alerting and anomalous activity review](../../controls/SAF-K8S-0905-041.md)
 

@@ -5633,16 +5633,13 @@
   framework_version: 5.2.0
   framework_requirement_id: AC-2
   framework_requirement_title: Account Management
-  framework_mapping_notes: 'Agent/service account lifecycle management
-
-
-    4.2 - Secure service accounts and workload identity (account management and lifecycle)'
+  framework_mapping_notes: 'The case contributes narrowly to AC-2 account review: it reads the effective Zot repository ACL, compares one synthetic principal''s read action against a synthetic owner-approved inventory, removes that grant, and observes the same request denied while a separate required reader remains allowed. This is not full AC-2 account management or evidence of actual identities, approval authority, review cadence, or complete entitlement coverage.'
   control_id: SAF-K8S-0905-039
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: partial
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Applies when registry principals and their repository/action grants are included in the organization's AC-2 account-management review. The portable case covers one Zot repository and one synthetic identity review/remediation; actual human, service, workload, group and federated identity provenance, complete inventory, review frequency, approvals and broader account lifecycle processes require adopter evidence.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -12038,16 +12035,13 @@
   framework_version: 5.2.0
   framework_requirement_id: AU-6
   framework_requirement_title: Audit Record Review, Analysis, and Reporting
-  framework_mapping_notes: 'Reviewing agent audit trails
-
-
-    10.1 - SIEM integration (audit record review, analysis, correlation rule development)'
+  framework_mapping_notes: The portable case reads effective registry ACL configuration and compares it with fixture approval data; it does not collect, analyze, report, or correlate audit records, and it does not test SIEM integration. AU-6 can support the adopter's entitlement review only where actual audit records inform findings about account or permission activity and that review/reporting is evidenced separately.
   control_id: SAF-K8S-0905-039
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Retain this supporting relationship only when the deployed entitlement-review process actually reviews attributable registry or identity audit records to identify or report inappropriate or unusual access/grant activity. If those records do not contribute to the review, omit this AU-6 mapping.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
