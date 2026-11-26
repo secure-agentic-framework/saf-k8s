@@ -53866,9 +53866,9 @@
   control_id: SAF-K8S-0606-019
   relation_type: direct
   strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  applicability: conditional
+  applicability_condition: Only for organization-defined Helm chart software whose deployed installation path verifies the exact package before installation or execution. The portable case proves native Helm .prov verification for a local archive and one disposable cluster; adopters must establish the organization-defined chart scope and every deployed CI/reconciliation path.
+  strength_reason_code: exact-text-match
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -54804,11 +54804,11 @@
 
     6.2 - Image signing and verification (component authenticity); 9.5 - Model signing and provenance (model authenticity)'
   control_id: SAF-K8S-0606-019
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Only for the component-authenticity check at a governed Helm package installation boundary. This case does not establish organization anti-counterfeit policies/procedures or reporting of suspected counterfeit components.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -56403,9 +56403,9 @@
   control_id: SAF-K8S-0606-019
   relation_type: direct
   strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  applicability: conditional
+  applicability_condition: Only for Helm packages where the organization identifies an approved signer/keyring and verifies package provenance before installation. Portable evidence validates an owned fixture signature and exact archive bytes; it does not establish supplier identity or deployed enterprise trust roots.
+  strength_reason_code: exact-text-match
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -57954,10 +57954,10 @@
   framework_mapping_notes: 'SAF-K8S enforces vetting of third-party components at admission: image vulnerability scanning, signature verification, public model quarantine workflows, and approved source allowlists.'
   control_id: SAF-K8S-0606-019
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Only for provenance validation of third-party Helm chart packages selected for deployment. Signature verification is one trust/provenance input and does not establish that a component is well-secured or satisfy the broader acquire-and-maintain practice.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-SSDF
   framework_name: 'NIST SP 800-218: Secure Software Development Framework (SSDF) Version 1.1'
