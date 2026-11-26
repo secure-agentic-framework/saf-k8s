@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0606-011",
-  "catalog_revision": "3c1f2788647a453f6a8095330a2f2be2489f533e",
-  "catalog_sha256": "db32431ea58abad7377a7a0357d07cc8757399c216bc7b4a7c8567513a4d2631",
+  "catalog_revision": "791d63acc1219f46d83f99979c434fea4eee949d",
+  "catalog_sha256": "f22ac63bf97577c04a89f43196dc2de2eb4f5a9eeaa472fe2152cbf36c1b213b",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "6ef2d894dc87f9c81fa16681e31e716de21a2c2853409fe62e5f08250be1ba22",
-  "scope": "A Kubernetes promotion boundary with fictional check records for one public fixture artifact.",
-  "cluster": "saf-lab-c92027b3e3ff",
+  "scope": "A Kubernetes promotion boundary with four existing fictional check-record gates plus one case-local writer identity, computed fixture digest check, and real namespaced API create decision. No production evidence producers or credentials.",
+  "cluster": "saf-lab-e1358a996786",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -74,6 +74,18 @@
       "observed": {
         "same_api_object": true,
         "artifact": "sha256:b4b174338b8d9a77775a04cf757595330bff1746acb9394a145fa68c5c0525ff"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The scoped evidence writer creates an inert digest-bound record through the native promotion policy while an unbound identity is refused by API authorization",
+      "matched": true,
+      "observed": {
+        "unbound_writer_forbidden": true,
+        "approved_writer_created": true,
+        "mismatched_record_refused_by_native_policy": true,
+        "api_record_matches_expected_digest_and_check_state": true,
+        "job_logs_or_receipt_contain_token": false
       }
     }
   ]
