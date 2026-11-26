@@ -1,8 +1,10 @@
 """Verify Pod capability admission and isolated userspace signature validation and an unattached guest BPF program lifecycle."""
 
+import base64
 import hashlib
 import json
 from pathlib import Path
+import tempfile
 
 from fixtures import container, pod
 
@@ -24,6 +26,37 @@ def image(lab):
     if record["Config"]["Labels"].get(LABEL) != SOURCE:
         lab.block("The local guest fixture image does not match the tested build recipe")
     return record["Id"]
+
+
+def independent_marker_trust(lab, image_id):
+    """Sign only the exact harmless marker extracted from the verified local image.
+
+    The ephemeral private key is host-side temporary state. Only the public key,
+    detached signature and expected digest are returned for a read-only ConfigMap.
+    """
+    with tempfile.TemporaryDirectory(prefix="saf-0205-005-marker-") as scratch:
+        scratch = Path(scratch)
+        scratch.chmod(0o700)
+        marker = scratch / "marker.o"
+        key = scratch / "ephemeral-signing-key.pem"
+        public = scratch / "ephemeral-signing-key.pub"
+        signature = scratch / "marker.sig"
+        export = f"{lab.cluster}-marker-export"
+        lab.command("docker", "create", "--name", export, image_id)
+        try:
+            lab.command("docker", "cp", f"{export}:/fixture/marker.o", str(marker))
+        finally:
+            lab.command("docker", "rm", "-f", export, allow_failure=True)
+        lab.command("openssl", "genpkey", "-algorithm", "EC", "-pkeyopt",
+                    "ec_paramgen_curve:P-256", "-out", str(key))
+        lab.command("openssl", "pkey", "-in", str(key), "-pubout", "-out", str(public))
+        lab.command("openssl", "dgst", "-sha256", "-sign", str(key), "-out", str(signature), str(marker))
+        marker_bytes = marker.read_bytes()
+        public_bytes = public.read_text()
+        signature_b64 = base64.b64encode(signature.read_bytes()).decode("ascii")
+        digest = hashlib.sha256(marker_bytes).hexdigest()
+    return {"anchor.pem": public_bytes, "marker.sig.b64": signature_b64,
+            "approved.sha256": digest}, digest, hashlib.sha256(public_bytes.encode()).hexdigest()
 
 
 def capability_request(capability, placement):
@@ -53,12 +86,16 @@ def run(lab):
         admission_response[key] = request.stderr.strip()
         denied[key] = request.returncode != 0 and "capabilities.add" in request.stderr and cap in request.stderr
     expected_image = image(lab)
+    trust_data, expected_marker_digest, trust_anchor_digest = independent_marker_trust(lab, expected_image)
     lab.command("kind", "load", "docker-image", TOOLS, "--name", lab.cluster, timeout=210)
     lab.create({"apiVersion": "v1", "kind": "ConfigMap", "metadata": {"name": NAME},
                 "immutable": True, "data": {"boot.sh": (HERE / "integrity-fixture.sh").read_text()}})
+    lab.create({"apiVersion": "v1", "kind": "ConfigMap", "metadata": {"name": NAME + "-trust"},
+                "immutable": True, "data": trust_data})
     unit = {"name": "guest", "image": TOOLS, "imagePullPolicy": "Never",
             "command": ["sh", "/test/boot.sh"],
             "volumeMounts": [{"name": "fixture", "mountPath": "/test", "readOnly": True},
+                             {"name": "trust", "mountPath": "/trust", "readOnly": True},
                              {"name": "temporary", "mountPath": "/tmp"}],
             "securityContext": {"allowPrivilegeEscalation": False, "readOnlyRootFilesystem": True,
                                 "capabilities": {"drop": ["ALL"]}},
@@ -69,7 +106,9 @@ def run(lab):
                     "restartPolicy": "Never", "automountServiceAccountToken": False,
                     "securityContext": {"runAsNonRoot": True, "runAsUser": 65534, "seccompProfile": {"type": "RuntimeDefault"}},
                     "containers": [unit], "volumes": [
-                        {"name": "fixture", "configMap": {"name": NAME}}, {"name": "temporary", "emptyDir": {}}],
+                        {"name": "fixture", "configMap": {"name": NAME}},
+                        {"name": "trust", "configMap": {"name": NAME + "-trust"}},
+                        {"name": "temporary", "emptyDir": {}}],
                 }}}})
     completion = lab.kubectl("wait", "--for=condition=Complete", "job/" + NAME,
                              "--timeout=135s", timeout=145, allow_failure=True)
@@ -77,7 +116,8 @@ def run(lab):
     if completion.returncode or logs.returncode:
         lab.block("The isolated BPF fixture did not complete; inspect its owned Job result")
     results = set(logs.stdout.splitlines())
-    refused = "modified_object_rejected_before_load" in results
+    refused = ("modified_object_rejected_before_load" in results
+               and "approved_object_signature_verified" in results)
     lab.check("green", "Restricted admission refuses both capability requests and the fixture verifier rejects changed bytes",
               all(denied.values()) and refused, {"governed_capabilities_denied": denied, "changed_artifact_rejected": refused})
     report = dict(line.split(": ", 1) for line in logs.stdout.splitlines() if line.startswith("SAF-"))
@@ -85,6 +125,8 @@ def run(lab):
     lab.check("positive", "The ordinary live Job runs as its non-root UID with no effective capabilities",
               restricted, {"non_root_zero_capabilities": restricted})
     matched_digest = (report["SAF-GUEST-DIGEST"] == report["SAF-APPROVED-DIGEST"]
+                      == expected_marker_digest
+                      and report["SAF-APPROVED-TRUST-ANCHOR"] == trust_anchor_digest
                       and report["SAF-APPROVED-DIGEST"] != report["SAF-ALTERED-DIGEST"])
     lab.check("green", "The guest verifies the same approved object digest after altered bytes were rejected",
               matched_digest, {"identical_approved_bytes": matched_digest})
@@ -107,7 +149,9 @@ def run(lab):
                     "artifact": {"approved_sha256": report["SAF-APPROVED-DIGEST"],
                                  "changed_sha256": report["SAF-ALTERED-DIGEST"],
                                  "guest_sha256": report["SAF-GUEST-DIGEST"],
-                                 "anchor_sha256": report["SAF-APPROVED-TRUST-ANCHOR"]},
+                                 "anchor_sha256": trust_anchor_digest,
+                                 "host_expected_marker_sha256": expected_marker_digest,
+                                 "independent_signature_verified": "approved_object_signature_verified" in results},
                     "load_and_inventory": {"loader_result": report["SAF-BPF-LOAD"], "program": program,
                                            "before": before, "active": active, "after_unpin": after}}
     rows = json.loads(lab.kubectl("get", "pods", "-l", f"job-name={NAME}", "-o", "json").stdout)["items"]

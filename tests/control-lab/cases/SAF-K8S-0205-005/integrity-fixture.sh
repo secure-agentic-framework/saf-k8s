@@ -7,17 +7,24 @@ cd "$work"
 original=/fixture/marker.o
 awk '/^CapEff:/ {print "SAF-WORKLOAD-CAPABILITIES: " $2}' /proc/self/status
 printf 'SAF-WORKLOAD-UID: %s\n' "$(id -u)"
-openssl genpkey -algorithm EC -pkeyopt ec_paramgen_curve:P-256 -out local-key.pem
-openssl pkey -in local-key.pem -pubout -out local-anchor.pem
-openssl dgst -sha256 -sign local-key.pem -out marker.sig "$original"
+base64 -d /trust/marker.sig.b64 >marker.sig
+approved_digest=$(cat /trust/approved.sha256)
+case "$approved_digest" in
+    *[!0-9a-f]*|'') echo 'invalid fixture digest syntax' >&2; exit 1 ;;
+esac
+test "${#approved_digest}" -eq 64
+openssl dgst -sha256 -verify /trust/anchor.pem -signature marker.sig "$original" >/dev/null
+observed_digest=$(sha256sum "$original" | cut -d' ' -f1)
+test "$observed_digest" = "$approved_digest"
+echo approved_object_signature_verified
 cp "$original" changed.o
 printf '%s\n' 'Public fixture integrity comparison' >>changed.o
-if openssl dgst -sha256 -verify local-anchor.pem -signature marker.sig changed.o >/dev/null 2>&1; then
+if openssl dgst -sha256 -verify /trust/anchor.pem -signature marker.sig changed.o >/dev/null 2>&1; then
     echo 'The changed object unexpectedly matched the approved signature' >&2
     exit 1
 fi
 echo modified_object_rejected_before_load
-openssl dgst -sha256 -verify local-anchor.pem -signature marker.sig "$original" >/dev/null
+openssl dgst -sha256 -verify /trust/anchor.pem -signature marker.sig "$original" >/dev/null
 echo approved_object_verifies
 
 kernel=$(find /boot -maxdepth 1 -name 'vmlinuz-*' -print)
@@ -35,11 +42,10 @@ while IFS= read -r library; do
 done <libraries
 cp "$original" fs/marker.o
 cmp "$original" fs/marker.o
-approved_digest=$(sha256sum "$original" | cut -d' ' -f1)
 printf '%s  /marker.o\n' "$approved_digest" >fs/marker.sha256
 printf 'SAF-APPROVED-DIGEST: %s\n' "$approved_digest"
 printf 'SAF-ALTERED-DIGEST: %s\n' "$(sha256sum changed.o | cut -d' ' -f1)"
-printf 'SAF-APPROVED-TRUST-ANCHOR: %s\n' "$(sha256sum local-anchor.pem | cut -d' ' -f1)"
+printf 'SAF-APPROVED-TRUST-ANCHOR: %s\n' "$(sha256sum /trust/anchor.pem | cut -d' ' -f1)"
 cat >fs/init <<'INIT'
 #!/bin/busybox sh
 set -eu

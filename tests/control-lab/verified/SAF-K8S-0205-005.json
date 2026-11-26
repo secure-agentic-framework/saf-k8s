@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0205-005",
-  "catalog_revision": "14afd687a04e7eb513b6cf658116e6636cc42d2f",
-  "catalog_sha256": "1800d0d437803bd52be758900aa9e3361e1647299539dc3557ac7cd2d726f478",
+  "catalog_revision": "21a37bee11a2c8253acb514bd2f641d1c782a903",
+  "catalog_sha256": "e21df5ef6d7be8d3be548d48d3650f2dfc630a3e395f036b3e3eb0533fc68fe4",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "84c5b2699575fda21d247ff07c53558d1ddf7f90a2bd365a3873938dc687776e",
   "scope": "Verify Pod capability admission and isolated userspace signature validation and an unattached guest BPF program lifecycle.",
-  "cluster": "saf-lab-b004f79e2ec4",
+  "cluster": "saf-lab-b8ca8c29ecd6",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
