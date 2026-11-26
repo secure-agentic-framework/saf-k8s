@@ -57308,16 +57308,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SR-6
   framework_requirement_title: Supplier Assessments and Reviews
-  framework_mapping_notes: 'Supplier assessments for AI model providers and tool vendors validate security practices
-
-
-    6.4 - VEX (vendor vulnerability communication); 9.5 - ML dependency vulnerability management (supplier review)'
+  framework_mapping_notes: A periodic review of an approved external model-source allowlist can contribute to SR-6 when the source publisher is a supplier and the review evaluates relevant supplier/supply-chain risks. The four-check fixture models a keep, rename, revoke and stale decision, records the decision, reruns idempotently, and restricts the scheduled identity from changing its approval input. It does not assess supplier security processes, ownership/control, subordinate suppliers, or the actual source.
   control_id: SAF-K8S-0905-053
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Retain only when the reviewed external model source has an identified supplier/publisher relationship and the organization's review record evaluates the applicable supplier or supply-chain risk for the source or service. The fixture demonstrates a periodic allowlist decision workflow, not a supplier security assessment or a complete SR-6 review.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -57857,13 +57854,13 @@
   framework_version: '1.0'
   framework_requirement_id: MANAGE 3.1
   framework_requirement_title: AI risks and benefits from third-party resources are regularly monitored, and risk controls are applied and documented.
-  framework_mapping_notes: Dependency tracking with SLSA build provenance monitors third-party component risks. Vulnerability prioritization for AI workloads provides ongoing risk assessment. Restricted use policies govern external AI service consumption.
+  framework_mapping_notes: 'The control contributes a bounded recurring governance mechanism for third-party model-source approval: retain, update, revoke, and remove stale entries with a decision record. The four-check fixture uses inert records and an accelerated schedule; it does not assess the external provider, monitor all third-party AI resources, establish trust conditions, or show that deployed consumers enforce the revised allowlist.'
   control_id: SAF-K8S-0905-053
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Retain only for third-party model sources that are resources of an in-scope AI system and where the periodic review evaluates relevant third-party risks and documents/applies resulting source-approval controls. The fixture's inert decision set is not evidence of actual third-party risk monitoring or control effectiveness.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-AI-RMF
   framework_name: NIST AI Risk Management Framework

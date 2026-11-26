@@ -115,9 +115,9 @@ Supplier assessments for AI model providers and tool vendors validate security p
 - Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
 - Knowledge Area: 9.5
 - Relation Type: supports
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
+- Strength: moderate
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-0905-057 - External model trust-signal assessment and approval review](../../controls/SAF-K8S-0905-057.md)
 
