@@ -1,6 +1,9 @@
 """Classify fictional component findings with observed workload and service context."""
 from copy import deepcopy
+import hashlib
 import json
+from pathlib import Path
+import re
 
 from fixtures import BUSYBOX_IMAGE, container
 
@@ -14,6 +17,9 @@ SCOPE = (
     "request reaches the actual inference fixture. GPU/driver presence and public "
     "reachability require separate evidence."
 )
+ADVISORY_FILE = Path(__file__).with_name("busybox-advisory.json")
+ADVISORY_SOURCE = "https://osv.dev/vulnerability/CVE-2023-42365"
+ADVISORY_SHA256 = "3ada5189e30cbcaeb96569b25a2cbf021b8995e4cef684d28ee5e35f7afc6cd4"
 
 
 def metadata(name, purpose=None):
@@ -109,6 +115,30 @@ def private_request(lab):
     return lab.kubectl("logs", "saf-private-client").stdout.strip()
 
 
+def installed_busybox_version(lab, pod):
+    """Read the actual running image's BusyBox self-reported build version."""
+    result = lab.kubectl("exec", pod["metadata"]["name"], "-c", "marker", "--",
+                         "sh", "-c", "busybox 2>&1 | head -n 1", allow_failure=True)
+    if result.returncode != 0:
+        return None
+    match = re.search(r"\bBusyBox v([0-9]+(?:\.[0-9]+){2})\b", result.stdout)
+    return match.group(1) if match else None
+
+
+def advisory_classification(version, image_ref, observed_image_id, advisory, fixture_digest):
+    if (not version or image_ref != BUSYBOX_IMAGE or not observed_image_id
+            or not fixture_digest):
+        return "unknown"
+    affected = advisory.get("affected", {})
+    if (affected.get("ecosystem") != "CPE"
+            or affected.get("name") != "busybox"
+            or not isinstance(affected.get("exact_versions"), list)):
+        return "unknown"
+    # The reviewed source fixture records a single exact affected release, not a
+    # general semantic-version range. Do not infer range semantics it lacks.
+    return "listed-affected-version" if version in affected["exact_versions"] else "not-listed-as-affected"
+
+
 def run(lab):
     driver = {"advisory": "SYNTH-NODE-DRIVER", "component": "pkg:generic/saf-test-driver@1.0"}
     library = {"advisory": "SYNTH-IMAGE-LIBRARY", "component": "pkg:generic/saf-test-library@1.0"}
@@ -155,8 +185,51 @@ def run(lab):
               body == SERVE and ready_endpoint and service["spec"]["type"] == "ClusterIP",
               {"private_marker": body == SERVE, "correct_ready_backend": ready_endpoint,
                "public_reachability": "unknown"})
+
+    advisory_bytes = ADVISORY_FILE.read_bytes()
+    advisory = json.loads(advisory_bytes)
+    advisory_digest = hashlib.sha256(advisory_bytes).hexdigest()
+    version = installed_busybox_version(lab, inference_pod)
+    source_ok = advisory.get("id") == "CVE-2023-42365" and advisory.get("source") == ADVISORY_SOURCE
+    source_sha_ok = advisory_digest == ADVISORY_SHA256
+    installed_decision = advisory_classification(
+        version, inference["container_image"], inference["observed_image_id"],
+        advisory, advisory_digest if source_ok and source_sha_ok else None)
+    synthetic_affected = advisory_classification(
+        "1.36.1", BUSYBOX_IMAGE, inference["observed_image_id"], advisory,
+        advisory_digest if source_ok and source_sha_ok else None)
+    missing_unknown = advisory_classification(
+        None, inference["container_image"], inference["observed_image_id"], advisory,
+        advisory_digest if source_ok and source_sha_ok else None) == "unknown"
+    mismatch_unknown = advisory_classification(
+        version, "docker.io/library/busybox:wrong@sha256:" + "0" * 64,
+        inference["observed_image_id"], advisory,
+        advisory_digest if source_ok and source_sha_ok else None) == "unknown"
+    bound = (version == "1.37.0" and inference["container_image"] == BUSYBOX_IMAGE
+             and bool(inference["observed_image_id"]) and source_ok and source_sha_ok)
+    lab.check("positive", "Observed benign image component and pinned exact-release advisory stay bound to the live image",
+              bound and installed_decision == "not-listed-as-affected"
+              and synthetic_affected == "listed-affected-version" and missing_unknown and mismatch_unknown,
+              {"runtime_component_version": version, "inventory_image_bound": bound,
+               "advisory_source_and_digest_verified": source_ok and source_sha_ok,
+               "installed_release_not_listed_affected": installed_decision == "not-listed-as-affected",
+               "synthetic_exact_affected_version_comparator": synthetic_affected == "listed-affected-version",
+               "missing_inventory_unknown": missing_unknown, "image_mismatch_unknown": mismatch_unknown})
     (lab.evidence / "exposure-context.json").write_text(json.dumps({
         "training": training, "inference": inference, "classification": decisions,
         "service_type": service["spec"]["type"], "private_marker": body,
         "fictional_inventory": [node_fact, image_fact], "public_reachability": "unknown",
+    }, indent=2, sort_keys=True) + "\n")
+    (lab.evidence / "package-advisory-observations.json").write_text(json.dumps({
+        "pod_uid": inference_pod["metadata"]["uid"],
+        "image_ref": inference["container_image"],
+        "image_id": inference["observed_image_id"],
+        "observed_component": "busybox",
+        "observed_version": version,
+        "advisory_id": advisory.get("id"),
+        "advisory_source": advisory.get("source"),
+        "advisory_fixture_sha256": advisory_digest,
+        "classification": installed_decision,
+        "synthetic_exact_affected_version_comparator": synthetic_affected,
+        "host_and_injected_inventory": "not-observed",
     }, indent=2, sort_keys=True) + "\n")

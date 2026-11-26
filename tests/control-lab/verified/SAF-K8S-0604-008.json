@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0604-008",
-  "catalog_revision": "875807aa7cdc1f67704f1e38d822ee9d2f5be6ed",
-  "catalog_sha256": "c11e20f1ec20d984db838c86fdb56b8f5655671774a59cb9d1cbc01f9889c3df",
+  "catalog_revision": "be51e36d445e3477ca7c4fbb30df96c0ea5716e9",
+  "catalog_sha256": "ab598c8d529e8c408b30d9da739ef2238baa30596e3a773e3ee16b614b6995c0",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "f3e8340df07ef7f266fa1058320eb5d37e50a46d970b1b93436cfa9e87639e97",
   "scope": "A live Job, Deployment, Pods, Node and EndpointSlice are correlated with a reviewed fixture purpose record and fictional node and container inventories. A private in-cluster request reaches the actual inference fixture. GPU/driver presence and public reachability require separate evidence.",
-  "cluster": "saf-lab-f93c57593d9a",
+  "cluster": "saf-lab-f93aa0da6991",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -82,6 +82,20 @@
         "private_marker": true,
         "correct_ready_backend": true,
         "public_reachability": "unknown"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Observed benign image component and pinned exact-release advisory stay bound to the live image",
+      "matched": true,
+      "observed": {
+        "runtime_component_version": "1.37.0",
+        "inventory_image_bound": true,
+        "advisory_source_and_digest_verified": true,
+        "installed_release_not_listed_affected": true,
+        "synthetic_exact_affected_version_comparator": true,
+        "missing_inventory_unknown": true,
+        "image_mismatch_unknown": true
       }
     }
   ]

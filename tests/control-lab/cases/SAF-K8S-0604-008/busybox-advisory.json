@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "id": "CVE-2023-42365",
+  "source": "https://osv.dev/vulnerability/CVE-2023-42365",
+  "affected": {
+    "ecosystem": "CPE",
+    "name": "busybox",
+    "exact_versions": ["1.36.1"],
+    "basis": "OSV CVE record's extracted CPE range identifies BusyBox 1.36.1 as introduced and last_affected. This fixture intentionally compares only that exact version; it does not infer broader semantic-version bounds."
+  },
+  "description_summary": "Use-after-free issue associated with BusyBox 1.36.1; no reproducer or vulnerability exercise is included."
+}
