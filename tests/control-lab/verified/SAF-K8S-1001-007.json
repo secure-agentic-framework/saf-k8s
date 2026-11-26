@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-1001-007",
-  "catalog_revision": "9bd9773d77f4ac812211c78178cc6d2ab14acf7d",
-  "catalog_sha256": "4155548c831c8d59e531d7763a40a78a7bd4f509cc9fe8441b72891a0bbb496c",
+  "catalog_revision": "8ead917ed0df15582e04db6eb4c90ab397927fe1",
+  "catalog_sha256": "f22ac63bf97577c04a89f43196dc2de2eb4f5a9eeaa472fe2152cbf36c1b213b",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "fae14622a867ccba17728cfb10cd5188ab094099f8868c7492272538453e405e",
-  "scope": "Kubernetes Metadata audit versus scoped telemetry for synthetic HTTP workloads in two pods on one local kind node. The case uses fictional model information, an inert prompt marker, and a pod-local collector. Mesh, GPU processes, central forwarding and production retention require separate evidence.",
-  "cluster": "saf-lab-04037c741179",
+  "scope": "Kubernetes Metadata audit versus scoped telemetry for synthetic HTTP workloads in two pods on one local kind node, plus one isolated pinned-Istio synthetic access-log request. The case uses fictional model information, an inert prompt marker, and a pod-local collector. It does not establish GPU process accounting, production mesh rollout, forwarding, alerting, or retention.",
+  "cluster": "saf-lab-56beca49f763",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -71,6 +71,61 @@
         "persisted_event_matches_allowlist": true,
         "prompt_absent_from_record": true,
         "runtime_event_absent_from_api_audit": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Istio 1.32.0 control plane matches the published pinned fixture",
+      "matched": true,
+      "observed": {
+        "istio_version": "1.32.0",
+        "pilot_image_matches_pin": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "saf-mesh-1001-007/mesh-log-target has the pinned Istio sidecar",
+      "matched": true,
+      "observed": {
+        "proxy_image_matches_pin": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "saf-mesh-1001-007/mesh-log-client has the pinned Istio sidecar",
+      "matched": true,
+      "observed": {
+        "proxy_image_matches_pin": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "One fixed local synthetic HTTP exchange reaches the owned mesh service",
+      "matched": true,
+      "observed": {
+        "http_status_204": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Effective mesh config uses the pinned metadata-only access log format",
+      "matched": true,
+      "observed": {
+        "effective_file_stdout": true,
+        "format_matches_fixture": true,
+        "configured_body_directives_absent": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Actual destination Envoy access log emits one correlated metadata record without the body",
+      "matched": true,
+      "observed": {
+        "matching_log_records": 1,
+        "method_path_status_match": true,
+        "byte_count_fields_numeric": true,
+        "case_header_matches": true,
+        "synthetic_body_marker_absent": true
       }
     }
   ]

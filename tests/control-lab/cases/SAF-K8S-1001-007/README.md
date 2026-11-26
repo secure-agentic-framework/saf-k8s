@@ -1,30 +1,44 @@
-# SAF-K8S-1001-007 — Supplemental application telemetry
+# SAF-K8S-1001-007 — Application events and mesh access metadata
+
+Run from the lab checkout.
 
 ```sh
 python3 lab.py test SAF-K8S-1001-007 --docker-context desktop-linux
 ```
 
-Two finite Pods send an actual local HTTP request to a synthetic application.
-Each Pod generates its event identifier at runtime. With the collector disabled,
-the app succeeds and there is no supplemental record. With the collector
-enabled, the same request flow persists exactly one record. The test compares
-that persisted event with the five approved fixture fields and checks that the
-synthetic prompt did not reach the file.
+From the framework checkout invoke `python3 tests/control-lab/lab.py`.
+The disposable Kubernetes API logs only Metadata for a fixture request.
+A live synthetic application writes a separate allowlisted inference event
+with supplemental collection enabled. With collection disabled the matching
+event is absent. The fixture retains the control decision and exact event
+shape with the model and version set to fixed fixture values.
 
-An unrelated ConfigMap read proves that the Kind API server's Metadata audit
-stream captured a completed API request and omitted its bodies. Neither of the
-application event identifiers occurs in that active stream. The retained result
-includes the scoped assertions and no raw audit data.
+The separate in-cluster case installs pinned Istio 1.32.0. Its owned
+receiver replies 204 only when a single fixed POST carries the expected
+body and correlator. The destination Envoy sidecar records the method, path,
+status, correlator, and exact request and response byte counts. The observed
+access-log line contains no fixture body marker. The result retains the
+predicates used for the comparison.
 
-The reference design uses application events and request metadata by default.
-Istio's standard log format supplies HTTP metadata. GPU process accounting needs
-a validated process event source. NVIDIA documents a separate process statistics
-API with watches distinct from the GPU metrics exported by DCGM Exporter.
-Real GPU processes, mesh deployments, forwarding, and production retention
-require additional evidence. Collection of selected payload fields requires its
-own approved instrumentation and evidence.
+## Verify the adopted telemetry
 
-[Kubernetes v1.36 audit](https://v1-36.docs.kubernetes.io/docs/tasks/debug/debug-cluster/audit/) ·
-[Istio access logs](https://istio.io/latest/docs/tasks/observability/logs/access-log/) ·
-[NVIDIA GPU metrics](https://docs.nvidia.com/datacenter/dcgm/latest/gpu-telemetry/dcgm-exporter.html) ·
-[NVIDIA process accounting](https://docs.nvidia.com/datacenter/dcgm/latest/dcgm-api/dcgm-api-process-stats.html)
+1. Inventory the application and runtime events needed for the deployed
+   model loaders, inference and GPU workload paths. Record selected event
+   and identity fields, the supported mesh or application emitter, the
+   authorized collection path and the consumer.
+2. Use separate owned markers to verify an API audit event, an application
+   event and proxy metadata. Compare observed fields for the same request.
+   At each layer enforce the approved schema and check that payload markers
+   outside that schema are absent from retained output. Authorize and test
+   any application payload fields separately under the applicable data policy.
+3. Exercise a real model load and inference operation on a representative
+   workload when verifying those events. For GPU process events, reconcile
+   supported process and device identifiers, workload ownership,
+   completeness and dropped events against an independent inventory.
+4. Verify forwarding to the intended collector, restricted retrieval and
+   retention. Observe an approved collector-loss/recovery scenario,
+   correlate one exact event through storage and read-back, and retain
+   evidence for required protective controls and alerting.
+
+[Istio access logging](https://istio.io/latest/docs/tasks/observability/logs/access-log/)
+and [Envoy v1.32 access log fields](https://www.envoyproxy.io/docs/envoy/v1.32.0/configuration/observability/access_log/usage).
