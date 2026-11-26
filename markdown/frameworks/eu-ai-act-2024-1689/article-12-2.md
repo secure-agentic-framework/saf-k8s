@@ -31,10 +31,10 @@ Persist attributable infrastructure events when they are relevant to an applicab
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.1
-- Relation Type: partial
+- Relation Type: supports
 - Strength: moderate
-- Applicability: required
-- Strength Reason Code: framework-language-interpretation
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-1002-002 - Distributed tracing for ML pipelines](../../controls/SAF-K8S-1002-002.md)
 

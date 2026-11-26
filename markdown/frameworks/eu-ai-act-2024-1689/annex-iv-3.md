@@ -29,15 +29,6 @@ SAF-K8S observability stack (D10) provides performance monitoring, anomaly detec
 - Applicability: conditional
 - Strength Reason Code: partial-control-coverage
 
-### [SAF-K8S-1001-017 - Audit capture of admission, authorization, and privileged API decisions for AI workloads](../../controls/SAF-K8S-1001-017.md)
-
-- Domain: D10 - Observability, Incident Response, and Governance
-- Knowledge Area: 10.1
-- Relation Type: partial
-- Strength: moderate
-- Applicability: required
-- Strength Reason Code: framework-language-interpretation
-
 ### [SAF-K8S-1002-002 - Distributed tracing for ML pipelines](../../controls/SAF-K8S-1002-002.md)
 
 - Domain: D10 - Observability, Incident Response, and Governance

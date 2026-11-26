@@ -5,9 +5,7 @@
 
 ## Mapping Notes
 
-identifying situations that may result in the high-risk AI system presenting a risk within the meaning of Article 79(1) or in a substantial modification;
-
-SAF-K8S audit and monitoring controls capture platform-level events relevant to risk detection: resource anomalies, unauthorized access, and configuration changes that constitute substantial modifications. Application-layer risk events (accuracy drift, output quality degradation) require AI-specific instrumentation beyond platform controls.
+Selected Kubernetes admission, authorization and metrics API records can contribute control-plane evidence. The paired fixture attributes allowed and denied decisions, request or metadata levels and scoped webhook annotations. The adopter independently establishes AI-system relevance, event coverage and any substantial-modification determination.
 
 ## SAF-K8S Controls
 
@@ -15,10 +13,10 @@ SAF-K8S audit and monitoring controls capture platform-level events relevant to 
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.1
-- Relation Type: partial
+- Relation Type: supports
 - Strength: moderate
-- Applicability: required
-- Strength Reason Code: framework-language-interpretation
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-1002-003 - AI workload telemetry integration into cluster monitoring](../../controls/SAF-K8S-1002-003.md)
 

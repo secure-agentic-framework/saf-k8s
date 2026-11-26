@@ -5,20 +5,9 @@
 
 ## Mapping Notes
 
-Providers of high-risk AI systems placed on the Union market shall report any serious incident to the market surveillance authorities of the Member States where that incident occurred.
-
-SAF-K8S incident response controls (D10 KA 10.5) support detection of serious incidents through monitoring, alerting, and audit logging. The actual reporting to market surveillance authorities is an organizational obligation outside infrastructure scope.
+The supported component is preserving incident evidence and ownership for a possible handoff. Confirm the real authority, applicable trigger, actual submission and required timing separately.
 
 ## SAF-K8S Controls
-
-### [SAF-K8S-1001-017 - Audit capture of admission, authorization, and privileged API decisions for AI workloads](../../controls/SAF-K8S-1001-017.md)
-
-- Domain: D10 - Observability, Incident Response, and Governance
-- Knowledge Area: 10.1
-- Relation Type: partial
-- Strength: moderate
-- Applicability: required
-- Strength Reason Code: framework-language-interpretation
 
 ### [SAF-K8S-1005-001 - Kubernetes incident response lifecycle](../../controls/SAF-K8S-1005-001.md)
 

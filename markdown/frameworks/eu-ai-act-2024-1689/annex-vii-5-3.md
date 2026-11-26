@@ -20,15 +20,6 @@ SAF-K8S audit logging (D10) and RBAC (D4) can provide read-only auditor access t
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAF-K8S-1001-017 - Audit capture of admission, authorization, and privileged API decisions for AI workloads](../../controls/SAF-K8S-1001-017.md)
-
-- Domain: D10 - Observability, Incident Response, and Governance
-- Knowledge Area: 10.1
-- Relation Type: partial
-- Strength: moderate
-- Applicability: required
-- Strength Reason Code: framework-language-interpretation
-
 ### [SAF-K8S-1006-004 - Automated audit readiness for Kubernetes AI platforms](../../controls/SAF-K8S-1006-004.md)
 
 - Domain: D10 - Observability, Incident Response, and Governance
