@@ -17,13 +17,42 @@ SCOPE = (
     "case-owned API creates, patches, fallback reads, and a harmless ConfigMap control. The "
     "green policy additionally captures actual update and delete verbs on these synthetic objects "
     "and verifies a metadata-only same-resource create in a second owned namespace. "
-    "The fixtures are invented CRDs, including a proxy GpuClaim; they are not real AI products, "
-    "GPU plugin APIs, or production audit policy. Request bodies are inert fixture markers, and "
+    "Invented CRDs cover the product categories. The native comparison adds owned batch Jobs, "
+    "Deployments and ResourceClaims without workload or device allocation. Request bodies contain inert markers, and "
     "fallback events contain only metadata. No response bodies are logged."
 )
 
 # Each entry represents only the catalog's category label. Names, groups, and schemas are invented.
 FAMILIES = FIXTURES["families"]
+
+
+NATIVE_AUDIT_RESOURCES = (
+    ("batch", "jobs", "Job", "native-training-job"),
+    ("apps", "deployments", "Deployment", "native-serving-deployment"),
+    ("resource.k8s.io", "resourceclaims", "ResourceClaim", "native-device-claim"),
+)
+NATIVE_MARKER = "saf.example.org/ai-audit-fixture"
+
+
+def native_request(group, kind, name):
+    marker = "owned-native-ai-audit"
+    metadata = {"name": name, "namespace": NAMESPACE,
+                "annotations": {NATIVE_MARKER: marker}}
+    template = {"metadata": {"labels": {"app": name}}, "spec": {
+        "restartPolicy": "Never" if kind == "Job" else "Always",
+        "automountServiceAccountToken": False,
+        "containers": [{"name": "inert", "image": "registry.k8s.io/pause:3.10"}],
+    }}
+    specs = {
+        "Job": {"suspend": True, "backoffLimit": 0, "template": template},
+        "Deployment": {"replicas": 0, "selector": {"matchLabels": {"app": name}},
+                       "template": template},
+        "ResourceClaim": {"devices": {"requests": [{
+            "name": "accelerator", "exactly": {"deviceClassName": "saf-fixture-accelerator",
+                                              "allocationMode": "ExactCount", "count": 1},
+        }]}},
+    }
+    return {"apiVersion": f"{group}/v1", "kind": kind, "metadata": metadata, "spec": specs[kind]}
 
 
 def audit_policy(green: bool) -> dict:
@@ -39,6 +68,11 @@ def audit_policy(green: bool) -> dict:
                 "verbs": ["create", "update", "patch", "delete"],
                 "resources": [{"group": family["group"], "resources": resources}],
             })
+        rules.append({
+            "level": "Request", "namespaces": [NAMESPACE], "verbs": ["create"],
+            "resources": [{"group": group, "resources": [resource]}
+                          for group, resource, _, _ in NATIVE_AUDIT_RESOURCES],
+        })
         # A name-scoped exclusion checks first-match order without suppressing the other reads.
         rules.append({
             "level": "None", "namespaces": [NAMESPACE], "verbs": ["get"],
@@ -251,6 +285,8 @@ def _run_red(lab, temp: Path, cluster: str):
                         _resource(family["group"], "v1alpha1",
                                   family["kind"] if plural == family["plural"] else family["also"]["kind"],
                                   name, "red-inert"))
+        for group, resource, kind, name in NATIVE_AUDIT_RESOURCES:
+            _create(lab, cluster, kubeconfig, native_request(group, kind, name))
         records = _audit_records(lab, audit_dir / "audit.log")
         control = _matching(records, name=control_name, resource="configmaps", group="", verb="create")
         misses = []
@@ -264,7 +300,11 @@ def _run_red(lab, temp: Path, cluster: str):
                                                               group=family["group"], verb="create"))})
         return {"control_record_count": len(control),
                 "control_response_code": (control[0].get("responseStatus") or {}).get("code") if control else None,
-                "unmatched_ai_creates": misses}, [_safe_event(event) for event in records]
+                "unmatched_ai_creates": misses,
+                "unmatched_native_creates": {
+                    kind: len(_matching(records, name=name, resource=resource, group=group, verb="create"))
+                    for group, resource, kind, name in NATIVE_AUDIT_RESOURCES
+                }}, [_safe_event(event) for event in records]
     finally:
         clusters = lab.command("kind", "get", "clusters").stdout.splitlines()
         if cluster in clusters:
@@ -452,3 +492,31 @@ def run(lab) -> None:
                                                    for row in verb_comparisons) and namespace_metadata,
               {"resource_count": len(verb_comparisons), "operations": verb_comparisons,
                "outside_namespace_same_resource_metadata_only": namespace_metadata})
+
+
+    observed = {}
+    for group, resource, kind, name in NATIVE_AUDIT_RESOURCES:
+        request = native_request(group, kind, name)
+        _create(lab, green_cluster, green_kubeconfig, request)
+        uri = f"/apis/{group}/v1/namespaces/{NAMESPACE}/{resource}/{name}"
+        current = json.loads(_kubectl(lab, green_cluster, green_kubeconfig, "get", "--raw", uri).stdout)
+        creates = _await_exact(lab, green_audit, name=name, resource=resource, group=group, verb="create")
+        gets = _await_exact(lab, green_audit, name=name, resource=resource, group=group, verb="get")
+        submitted = creates[0] if len(creates) == 1 else {}
+        get_event = gets[0] if len(gets) == 1 else {}
+        expected_annotation = request["metadata"]["annotations"]
+        observed[kind] = {
+            "omitted_by_incomplete_policy": red["unmatched_native_creates"][kind] == 0,
+            "native_resource_persisted": current["metadata"].get("uid") is not None
+            and current.get("kind") == kind and current.get("apiVersion") == f"{group}/v1"
+            and current["metadata"].get("annotations", {}).get(NATIVE_MARKER) == expected_annotation[NATIVE_MARKER],
+            "exact_create_request_logged": submitted.get("level") == "Request"
+            and (submitted.get("responseStatus") or {}).get("code") == 201
+            and ((submitted.get("requestObject") or {}).get("metadata") or {}).get("annotations")
+            == expected_annotation and "responseObject" not in submitted,
+            "read_remains_metadata_only": get_event.get("level") == "Metadata"
+            and (get_event.get("responseStatus") or {}).get("code") == 200
+            and "requestObject" not in get_event and "responseObject" not in get_event,
+        }
+    lab.check("supplement", "The audit policy records exact native training, serving and DRA object creates",
+              len(observed) == 3 and all(all(item.values()) for item in observed.values()), observed)
