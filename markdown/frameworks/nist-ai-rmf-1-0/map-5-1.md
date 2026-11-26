@@ -24,5 +24,5 @@ The OCTAVE worksheet can contribute recorded infrastructure impact scenarios. AI
 - Knowledge Area: 10.4
 - Relation Type: partial
 - Strength: moderate
-- Applicability: required
+- Applicability: conditional
 - Strength Reason Code: partial-control-coverage

@@ -22,10 +22,10 @@ For a selected governed Kubernetes delivery path, enforce and retain decisions a
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.4
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
+- Relation Type: partial
+- Strength: moderate
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-1004-002 - Software supply chain threat model per NIST SP 800-204D](../../controls/SAF-K8S-1004-002.md)
 

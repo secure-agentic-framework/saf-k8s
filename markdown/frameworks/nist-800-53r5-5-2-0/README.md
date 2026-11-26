@@ -2,8 +2,8 @@
 
 - Framework Code: NIST-800-53R5
 - Version: 5.2.0
-- Total Reverse Mappings: 1722
-- Distinct Requirements Mapped: 590
+- Total Reverse Mappings: 1710
+- Distinct Requirements Mapped: 582
 
 ## Requirements
 
@@ -164,7 +164,6 @@
 - [CA-1 - Policy and Procedures](ca-1.md)
 - [CA-2 - Control Assessments](ca-2.md)
 - [CA-2(1) - Independent Assessors](ca-2-1.md)
-- [CA-2(3) - Leveraging Results from External Organizations](ca-2-3.md)
 - [CA-3 - Information Exchange](ca-3.md)
 - [CA-5 - Plan of Action and Milestones](ca-5.md)
 - [CA-5(1) - Automation Support for Accuracy and Currency](ca-5-1.md)
@@ -285,7 +284,6 @@
 - [IR-4(2) - Dynamic Reconfiguration](ir-4-2.md)
 - [IR-4(3) - Continuity of Operations](ir-4-3.md)
 - [IR-4(6) - Insider Threats](ir-4-6.md)
-- [IR-4(8) - Correlation with External Organizations](ir-4-8.md)
 - [IR-5 - Incident Monitoring](ir-5.md)
 - [IR-5(1) - Automated Tracking, Data Collection, and Analysis](ir-5-1.md)
 - [IR-6(1) - Automated Reporting](ir-6-1.md)
@@ -295,7 +293,6 @@
 - [PL-1 - Policy and Procedures](pl-1.md)
 - [PL-10 - Baseline Selection](pl-10.md)
 - [PL-2 - System Security and Privacy Plans](pl-2.md)
-- [PL-4 - Rules of Behavior](pl-4.md)
 - [PL-7 - Concept of Operations](pl-7.md)
 - [PL-8 - Security and Privacy Architectures](pl-8.md)
 - [PL-8(2) - Supplier Diversity](pl-8-2.md)
@@ -305,8 +302,6 @@
 - [PM-11 - Mission and Business Process Definition](pm-11.md)
 - [PM-12 - Insider Threat Program](pm-12.md)
 - [PM-14 - Testing, Training, and Monitoring](pm-14.md)
-- [PM-15 - Security and Privacy Groups and Associations](pm-15.md)
-- [PM-16(1) - Automated Means for Sharing Threat Intelligence](pm-16-1.md)
 - [PM-2 - Information Security Program Leadership Role](pm-2.md)
 - [PM-21 - Accounting of Disclosures](pm-21.md)
 - [PM-23 - Data Governance Body](pm-23.md)
@@ -323,7 +318,6 @@
 - [PM-9 - Risk Management Strategy](pm-9.md)
 - [PS-4 - Personnel Termination](ps-4.md)
 - [PS-5 - Personnel Transfer](ps-5.md)
-- [PS-6 - Access Agreements](ps-6.md)
 - [PT-2(1) - Data Tagging](pt-2-1.md)
 - [PT-2(2) - Automation](pt-2-2.md)
 - [PT-3(1) - Data Tagging](pt-3-1.md)
@@ -359,7 +353,6 @@
 - [SA-15(3) - Criticality Analysis](sa-15-3.md)
 - [SA-15(5) - Attack Surface Reduction](sa-15-5.md)
 - [SA-15(7) - Automated Vulnerability Analysis](sa-15-7.md)
-- [SA-15(8) - Reuse of Threat and Vulnerability Information](sa-15-8.md)
 - [SA-16 - Developer-provided Training](sa-16.md)
 - [SA-17 - Developer Security and Privacy Architecture and Design](sa-17.md)
 - [SA-17(1) - Formal Policy Model](sa-17-1.md)
@@ -557,7 +550,6 @@
 - [SI-4(20) - Privileged Users](si-4-20.md)
 - [SI-4(22) - Unauthorized Network Services](si-4-22.md)
 - [SI-4(23) - Host-based Devices](si-4-23.md)
-- [SI-4(24) - Indicators of Compromise](si-4-24.md)
 - [SI-4(25) - Optimize Network Traffic Analysis](si-4-25.md)
 - [SI-4(4) - Inbound and Outbound Communications Traffic](si-4-4.md)
 - [SI-4(5) - System-generated Alerts](si-4-5.md)

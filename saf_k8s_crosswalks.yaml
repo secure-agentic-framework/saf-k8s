@@ -2287,16 +2287,13 @@
   framework_requirement_id: Article-9.2.a
   legacy_requirement_id: Art-9:9(2)(a)
   framework_requirement_title: Risk management system
-  framework_mapping_notes: |-
-    the identification and analysis of the known and the reasonably foreseeable risks that the high-risk AI system can pose to health, safety or fundamental rights when the high-risk AI system is used in accordance with its intended purpose;
-
-    SAF-K8S threat modeling controls (STRIDE, OCTAVE, MITRE ATT&CK mapping) in D10 KA 10.3 address infrastructure and AI-specific threat identification. Health, safety, and fundamental rights risk analysis is an application-layer and organizational concern.
+  framework_mapping_notes: 'The Kubernetes mapping can contribute cybersecurity threat scenarios. It does not itself identify and analyze the full system''s foreseeable risks or establish Article 9 compliance. CTA-2114 class names and definitions must be checked against an authorized copy before this mapping is treated as CTA-conformant. See Regulation (EU) 2024/1689, Article 9(1)-(3): https://eur-lex.europa.eu/eli/reg/2024/1689/oj/eng.'
   control_id: SAF-K8S-1004-001
   relation_type: partial
   strength_level: moderate
-  applicability: required
-  applicability_condition:
-  strength_reason_code:
+  applicability: conditional
+  applicability_condition: The adopter is the provider of an in-scope high-risk AI system and documents use of the verified threat-class mapping as one input to Article 9(2)(a)'s identification and analysis of known and reasonably foreseeable risks to health, safety, or fundamental rights in intended use. The adopter separately completes the full lifecycle risk-management process.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to EU AI Act 2024/1689
   framework_code: EU-AI-ACT
   framework_name: EU AI Act
@@ -2332,16 +2329,13 @@
   framework_requirement_id: Article-9.2.b
   legacy_requirement_id: Art-9:9(2)(b)
   framework_requirement_title: Risk management system
-  framework_mapping_notes: |-
-    the estimation and evaluation of the risks that may emerge when the high-risk AI system is used in accordance with its intended purpose, and under conditions of reasonably foreseeable misuse;
-
-    SAF-K8S threat modeling addresses infrastructure-level risk estimation. Misuse risk evaluation for the AI system's intended purpose is an application-layer concern.
+  framework_mapping_notes: 'The taxonomy-to-Kubernetes map may contribute threat scenarios for the infrastructure portion of risk estimation. It does not itself estimate/evaluate risks for the AI system''s intended purpose and misuse. CTA class membership remains unverified absent authorized normative text. See Regulation (EU) 2024/1689, Article 9: https://eur-lex.europa.eu/eli/reg/2024/1689/oj/eng.'
   control_id: SAF-K8S-1004-001
   relation_type: partial
   strength_level: moderate
-  applicability: required
-  applicability_condition:
-  strength_reason_code:
+  applicability: conditional
+  applicability_condition: The adopter is the provider of an in-scope high-risk AI system and documents use of the verified threat-class mapping as one input to its assessment of risks in intended use and reasonably foreseeable misuse under Article 9(2)(b). The adopter separately estimates and evaluates the full system risks.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to EU AI Act 2024/1689
   framework_code: EU-AI-ACT
   framework_name: EU AI Act
@@ -2733,13 +2727,13 @@
   framework_version: '1.0'
   framework_requirement_id: GOVERN 4.2
   framework_requirement_title: Organizational teams document the risks and potential impacts of the AI technology they design, develop, deploy, or use, and communicate about the impacts more broadly.
-  framework_mapping_notes: STRIDE and OCTAVE assessments produce documented risk analysis. ML threat taxonomy mapping documents AI-specific risks. Compliance mapping workbooks communicate risk posture.
+  framework_mapping_notes: 'A documented mapping can contribute AI-specific threat information. The control does not itself establish broader organizational communication or the risks and impacts of a particular AI technology. Check the CTA labels against an authorized copy before attributing them to CTA-2114. NIST AI RMF 1.0 Table 1: https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.100-1.pdf.'
   control_id: SAF-K8S-1004-001
-  relation_type: supports
+  relation_type: partial
   strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: framework-language-interpretation
+  applicability: conditional
+  applicability_condition: The organization uses the verified taxonomy-to-Kubernetes mapping to document risks and potential impacts of AI technology it designs, develops, deploys, or uses, and communicates the resulting impacts to relevant organizational teams and broader audiences under its GOVERN processes.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST AI RMF 1.0
   framework_code: NIST-AI-RMF
   framework_name: NIST AI Risk Management Framework
@@ -3101,13 +3095,13 @@
   framework_version: '1.0'
   framework_requirement_id: MAP 3.2
   framework_requirement_title: Potential harms to people, organizations, and ecosystems arising from the AI system's intended use - and if relevant, across the lifecycle - are understood, characterized, and documented.
-  framework_mapping_notes: ML threat taxonomy (CTA-2114) characterizes AI-specific harms including data poisoning, model disclosure, and evasion attacks. MITRE ATT&CK mapping documents infrastructure attack surfaces and potential harms.
+  framework_mapping_notes: 'The mapping can help identify attack-related scenarios and infrastructure surfaces; it does not establish system-specific harms, intended-use context, or lifecycle impact analysis. NIST AI RMF 1.0 Table 2: https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.100-1.pdf. CTA class names and distinctions require authorized-text verification.'
   control_id: SAF-K8S-1004-001
-  relation_type: supports
+  relation_type: partial
   strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: framework-language-interpretation
+  applicability: conditional
+  applicability_condition: The organization uses the verified taxonomy-to-Kubernetes threat mapping as one input to understanding, characterizing, and documenting potential harms to people, organizations, and ecosystems in the AI system's intended-use context and, where relevant, across its lifecycle.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -3220,13 +3214,13 @@
   framework_name: NIST AI Risk Management Framework
   framework_version: '1.0'
   framework_requirement_id: MAP 5.1
-  framework_requirement_title: Likelihood and severity of each identified impact of the AI system's use, misuse, or failure - including effects on impacted communities - are assessed and documented.
-  framework_mapping_notes: OCTAVE risk assessment includes impact severity scoring and prioritization based on organizational risk tolerance. ML threat taxonomy documents failure modes and their impacts.
+  framework_requirement_title: Likelihood and magnitude of beneficial and harmful impacts
+  framework_mapping_notes: 'Threat classes may contribute scenarios to an impact assessment, but taxonomy mapping does not assess impact likelihood or magnitude. The current row''s title is not the official MAP 5.1 wording. NIST AI RMF 1.0 Table 2, p. 27: https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.100-1.pdf. CTA taxonomy attribution remains contingent on authorized-text verification.'
   control_id: SAF-K8S-1004-001
   relation_type: partial
   strength_level: moderate
-  applicability: required
-  applicability_condition: null
+  applicability: conditional
+  applicability_condition: The adopter uses the verified taxonomy mapping as an input to a documented assessment of likelihood and magnitude of beneficial and harmful AI-system impacts, using expected use, similar-system history, public incident reports, external feedback, or other applicable evidence. The adopter separately performs and documents the full MAP 5.1 assessment.
   strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST AI RMF 1.0
   framework_code: NIST-AI-RMF
@@ -3423,13 +3417,13 @@
   framework_version: '1.0'
   framework_requirement_id: MEASURE 2.7
   framework_requirement_title: AI system security and resilience - as identified in the MAP function - are evaluated and documented.
-  framework_mapping_notes: STRIDE threat modeling evaluates security posture across six threat categories. MITRE ATT&CK mapping evaluates defense coverage across attack tactics. ML threat taxonomy evaluates AI-specific attack resilience. Runtime security tools continuously evaluate system security.
+  framework_mapping_notes: 'A threat-to-control/detection map can inform evaluation scope, but the control itself does not execute or document security and resilience evaluations. NIST AI RMF 1.0 Table 3: https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.100-1.pdf. CTA class names and distinctions require authorized-text verification.'
   control_id: SAF-K8S-1004-001
-  relation_type: supports
+  relation_type: partial
   strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: compound-control-split-required
+  applicability: conditional
+  applicability_condition: The organization uses the verified threat-class-to-control and detection mapping as input to defined evaluations of AI-system security and resilience, documents the evaluation methods and results, and separately addresses the full MEASURE 2.7 outcome.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST AI RMF 1.0
   framework_code: NIST-AI-RMF
   framework_name: NIST AI Risk Management Framework
@@ -9630,22 +9624,6 @@
   framework_version: 5.2.0
   framework_requirement_id: AU-6(9)
   framework_requirement_title: Correlation with Information from Nontechnical Sources
-  framework_mapping_notes: 'Correlating agent logs with business context
-
-
-    10.4 - Correlating technical audit data with business context and non-technical sources (organizational risk indicators, physical security events, HR actions)'
-  control_id: SAF-K8S-1004-001
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AU-6(9)
-  framework_requirement_title: Correlation with Information from Nontechnical Sources
   framework_mapping_notes: This control tests a bounded join between synthetic technical records and synthetic nontechnical business context, including identity/time scope, expired/ambiguous-context rejection, and advisory analyst review ordering. It does not ingest live audit records or nontechnical sources, establish source authorization, protect sensitive data in a deployed system, or demonstrate organization-wide situational awareness. NIST SP 800-53 Rev. 5 AU-6(9) calls for correlating information from nontechnical sources with audit record information to enhance organization-wide situational awareness; the organization must separately document approved source types, privacy/access protections, operational use, and resulting awareness.
   control_id: SAF-K8S-1004-006
   relation_type: partial
@@ -9912,22 +9890,6 @@
   control_id: SAF-K8S-1006-001
   relation_type: supports
   strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: CA-2(3)
-  framework_requirement_title: Leveraging Results from External Organizations
-  framework_mapping_notes: 'Using external agent security assessment results
-
-
-    10.4 - Threat intelligence integration (leveraging external vulnerability assessments, CVE feeds)'
-  control_id: SAF-K8S-1004-001
-  relation_type: supports
-  strength_level: strong
   applicability: required
   applicability_condition: null
   strength_reason_code: null
@@ -15214,22 +15176,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: IR-4(8)
-  framework_requirement_title: Correlation with External Organizations
-  framework_mapping_notes: 'Sharing agent incident data with external parties
-
-
-    10.4 - Threat intelligence (correlating incidents with external threat feeds, CVE databases, and partner orgs)'
-  control_id: SAF-K8S-1004-001
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: IR-5
   framework_requirement_title: Incident Monitoring
   framework_mapping_notes: 'Monitoring agent incidents across the ecosystem
@@ -15465,22 +15411,6 @@
 
     10.6 - Enforce compliance and governance (system security and privacy plan for K8s AI infrastructure)'
   control_id: SAF-K8S-1006-005
-  relation_type: supports
-  strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: PL-4
-  framework_requirement_title: Rules of Behavior
-  framework_mapping_notes: 'Rules of behavior apply to users and operators of agentic AI systems including acceptable use
-
-
-    9.4 - Notebook environment security (acceptable use, login banners); 10.4 - Rules of behavior for AI platform users'
-  control_id: SAF-K8S-1004-001
   relation_type: supports
   strength_level: moderate
   applicability: required
@@ -15810,38 +15740,6 @@
   applicability: "conditional"
   applicability_condition: "The organization uses dated evidence in its approved testing and monitoring planning process."
   strength_reason_code: "partial-control-coverage"
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: PM-15
-  framework_requirement_title: Security and Privacy Groups and Associations
-  framework_mapping_notes: 'Participation in AI security communities informs agentic AI threat awareness
-
-
-    10.4 - Threat intelligence (participation in K8s and AI security groups and associations)'
-  control_id: SAF-K8S-1004-001
-  relation_type: supports
-  strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: PM-16(1)
-  framework_requirement_title: Automated Means for Sharing Threat Intelligence
-  framework_mapping_notes: 'Automated threat intelligence sharing helps defend against evolving agentic AI threats
-
-
-    10.4 - Threat intelligence (automated sharing of threat intel, CVE feeds, attack pattern libraries)'
-  control_id: SAF-K8S-1004-001
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -16262,22 +16160,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: PS-6
-  framework_requirement_title: Access Agreements
-  framework_mapping_notes: 'Access agreements for agentic AI system operators establish acceptable use and security obligations
-
-
-    9.4 - Notebook environment security (acceptable use agreements); 10.4 - Compliance governance (access agreements)'
-  control_id: SAF-K8S-1004-001
-  relation_type: supports
-  strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: PT-2(1)
   framework_requirement_title: Data Tagging
   framework_mapping_notes: 'Data tagging enables agentic AI systems to identify and properly handle PII in context
@@ -16568,22 +16450,6 @@
   framework_version: 5.2.0
   framework_requirement_id: RA-3(1)
   framework_requirement_title: Supply Chain Risk Assessment
-  framework_mapping_notes: 'Supply chain risk assessment is critical for AI model, plugin, and tool supply chains
-
-
-    10.4 - SSC threat model per 800-204D; 9.5 - ML dependency vulnerability management (supply chain risk)'
-  control_id: SAF-K8S-1004-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: RA-3(1)
-  framework_requirement_title: Supply Chain Risk Assessment
   framework_mapping_notes: NIST SP 800-204D provides actionable strategies for integrating software supply-chain security into DevSecOps CI/CD pipelines. The control's documented lifecycle threat model can contribute the supply-chain portion of RA-3(1); its synthetic provenance-gate evidence alone does not establish an organizational risk assessment.
   control_id: SAF-K8S-1004-002
   relation_type: partial
@@ -16597,19 +16463,6 @@
   framework_version: 5.2.0
   framework_requirement_id: RA-3(2)
   framework_requirement_title: Use of All-source Intelligence
-  framework_mapping_notes: "All-source threat intelligence informs risk assessment for agentic AI attack vectors\n\n10.4 - Threat intelligence integration (consuming K8s CVE feeds, runtime threat intel, NISTIR 8269)\n\nThe historical mapping text above cites the 2019 initial public draft NISTIR 8269. Use the final March 2025 NIST AI 100-2e2025 publication when citing the current adversarial ML taxonomy. The retained passage records the source mapping context."
-  control_id: SAF-K8S-1004-001
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: RA-3(2)
-  framework_requirement_title: Use of All-source Intelligence
   framework_mapping_notes: The classification and pattern library can contribute threat information to risk analysis when populated with relevant documented intelligence. RA-3(2) requires the organization to use all-source intelligence in its risk assessment.
   control_id: SAF-K8S-1004-005
   relation_type: partial
@@ -16617,22 +16470,6 @@
   applicability: conditional
   applicability_condition: The organization uses intelligence recorded in the maintained pattern library alongside other intelligence sources in a documented risk assessment.
   strength_reason_code: partial-control-coverage
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: RA-3(3)
-  framework_requirement_title: Dynamic Threat Awareness
-  framework_mapping_notes: 'Dynamic threat awareness keeps agentic AI risk assessments current with evolving attacks
-
-
-    10.4 - Threat intelligence (dynamic threat awareness from MITRE ATT&CK for Containers, ATLAS)'
-  control_id: SAF-K8S-1004-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -17269,22 +17106,6 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SA-15(8)
-  framework_requirement_title: Reuse of Threat and Vulnerability Information
-  framework_mapping_notes: 'Reusing threat intelligence across agent development projects improves security posture
-
-
-    10.4 - Threat intelligence (reusing threat info from MITRE ATT&CK for Containers, ATLAS, CVE feeds)'
-  control_id: SAF-K8S-1004-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -18041,16 +17862,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SA-3
   framework_requirement_title: System Development Life Cycle
-  framework_mapping_notes: 'SDLC for agentic AI must integrate security at every phase including model training and deployment
-
-
-    6.6 - CNCF lifecycle security (Develop-Distribute-Deploy); 10.4 - SSDF v1.1 alignment for SDLC'
+  framework_mapping_notes: 'Threat-class mapping can inform selected lifecycle security activities, but does not establish a complete secure SDLC or lifecycle roles. CTA taxonomy conformance requires authorized normative text. NIST SP 800-53 Rev. 5 SA-3 source: https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final.'
   control_id: SAF-K8S-1004-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: partial
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The organization incorporates the verified taxonomy mapping into the security considerations and defined roles of the in-scope system development life cycle, and records the lifecycle decisions; the mapping remains one supporting input to SA-3.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -26899,22 +26717,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: SI-4(24)
-  framework_requirement_title: Indicators of Compromise
-  framework_mapping_notes: 'Indicators of compromise detection for agent systems identifies active threats
-
-
-    10.4 - Threat intelligence integration (consuming IoCs); 2.4 - Detection rule development (IoC-based rules)'
-  control_id: SAF-K8S-1004-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: SI-4(25)
   framework_requirement_title: Optimize Network Traffic Analysis
   framework_mapping_notes: 'Optimized traffic analysis for agent networks improves detection of subtle attacks
@@ -29443,13 +29245,13 @@
   framework_version: '1.1'
   framework_requirement_id: PW.1.1
   framework_requirement_title: Use forms of risk modeling -- such as threat modeling, attack modeling, or attack surface mapping -- to help assess the security risk.
-  framework_mapping_notes: 'SAF-K8S includes dedicated threat modeling controls: STRIDE for Kubernetes AI systems, OCTAVE risk assessment, and MITRE ATT&CK for Containers mapping. These apply to the infrastructure platform, not to application software design.'
+  framework_mapping_notes: 'The control''s threat-modeling scope and attack-surface map can contribute to PW.1.1, but do not establish the producer''s full design risk model. Exact CTA class attribution is unverified until checked against authorized normative text. NIST SP 800-218, PW.1.1: https://csrc.nist.gov/pubs/sp/800/218/final.'
   control_id: SAF-K8S-1004-001
-  relation_type: supports
+  relation_type: partial
   strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  applicability: conditional
+  applicability_condition: The software producer includes the in-scope Kubernetes AI platform and uses the verified taxonomy mapping as one threat-modeling or attack-surface input in its software design risk analysis.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SSDF 1.1
   framework_code: NIST-SSDF
   framework_name: 'NIST SP 800-218: Secure Software Development Framework (SSDF) Version 1.1'

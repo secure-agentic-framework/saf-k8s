@@ -5,7 +5,7 @@
 
 ## Mapping Notes
 
-ML threat taxonomy (CTA-2114) characterizes AI-specific harms including data poisoning, model disclosure, and evasion attacks. MITRE ATT&CK mapping documents infrastructure attack surfaces and potential harms.
+The mapping can help identify attack-related scenarios and infrastructure surfaces; it does not establish system-specific harms, intended-use context, or lifecycle impact analysis. NIST AI RMF 1.0 Table 2: https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.100-1.pdf. CTA class names and distinctions require authorized-text verification.
 
 ## SAF-K8S Controls
 
@@ -13,7 +13,7 @@ ML threat taxonomy (CTA-2114) characterizes AI-specific harms including data poi
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.4
-- Relation Type: supports
+- Relation Type: partial
 - Strength: moderate
-- Applicability: required
-- Strength Reason Code: framework-language-interpretation
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage

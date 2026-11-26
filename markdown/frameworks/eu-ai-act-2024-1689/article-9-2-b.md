@@ -33,5 +33,5 @@ The adopted STRIDE assessment contributes documented infrastructure-level scenar
 - Knowledge Area: 10.4
 - Relation Type: partial
 - Strength: moderate
-- Applicability: required
-- Strength Reason Code: n/a
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage

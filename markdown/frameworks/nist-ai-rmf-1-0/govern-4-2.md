@@ -31,7 +31,7 @@ The reviewed component and trust-boundary threat model can document Kubernetes i
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.4
-- Relation Type: supports
+- Relation Type: partial
 - Strength: moderate
-- Applicability: required
-- Strength Reason Code: framework-language-interpretation
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
