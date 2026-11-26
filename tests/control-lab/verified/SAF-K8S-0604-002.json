@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0604-002",
-  "catalog_revision": "8d9ce6578e30dfcfc1cd25b4c65cc8f7d109cdfe",
-  "catalog_sha256": "156cd3a84bb6feb02e94c9bc44e794b8712af2241d904d0cba01a193db4cceb7",
+  "catalog_revision": "5c35dd2a43235883edfca56e842a56e15209008d",
+  "catalog_sha256": "f90c94c673d20660168dfaa86a14af064fc386b44cfe4af6b5263d264c1e59b3",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "e2fda10498fa2c6a7c742d86d7fecfea7529ad4e2c4a828f35b3c90c5dcfb2a2",
   "scope": "Generate and validate a CycloneDX 1.7 inventory for a harmless deterministic model in a disposable Kind cluster. The release Job checks the model and dataset hashes, model-card fields and dependency graph. Actual publisher custody, training history, production data rights and regulatory obligations require independent evidence.",
-  "cluster": "saf-lab-27d45a241831",
+  "cluster": "saf-lab-c1d98eb25867",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
