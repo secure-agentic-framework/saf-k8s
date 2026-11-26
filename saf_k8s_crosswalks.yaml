@@ -56953,10 +56953,7 @@
   framework_version: 5.2.0
   framework_requirement_id: SI-7(6)
   framework_requirement_title: Cryptographic Protection
-  framework_mapping_notes: 'Cryptographic integrity protection for agent binaries and models prevents tampering
-
-
-    6.2 - Image signing with Sigstore/cosign (cryptographic integrity); 9.5 - Model signing; 6.3 - Cryptographic agility'
+  framework_mapping_notes: The reference admission webhook verifies Ed25519 signatures over the approved manifest projection. It checks selected ConfigMap fields for CREATE and UPDATE and the Pod spec for server dry-run CREATE. The mapping applies only where the deployed verifier checks the authorized signer and exact manifest fields. Verify signer custody, key lifecycle, registered kinds and fields, and each deployment path separately.
   control_id: SAF-K8S-0606-022
   relation_type: supports
   strength_level: moderate
