@@ -29,15 +29,6 @@ Agent communications must be protected for confidentiality and integrity in tran
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAF-K8S-0502-004 - CNI plugin hardening and lifecycle management](../../controls/SAF-K8S-0502-004.md)
-
-- Domain: D05 - Network Security and Communication
-- Knowledge Area: 5.2
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
-
 ### [SAF-K8S-0502-005 - AI workload data path encryption in transit](../../controls/SAF-K8S-0502-005.md)
 
 - Domain: D05 - Network Security and Communication

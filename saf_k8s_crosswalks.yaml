@@ -13198,22 +13198,6 @@
 
 
     5.2 - Secure CNI plugins (pod-to-pod encryption: WireGuard, IPsec); 5.4 - Service mesh mTLS for encrypted flow control'
-  control_id: SAF-K8S-0502-004
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-4(4)
-  framework_requirement_title: Flow Control of Encrypted Information
-  framework_mapping_notes: 'Managing encrypted data flows between agents
-
-
-    5.2 - Secure CNI plugins (pod-to-pod encryption: WireGuard, IPsec); 5.4 - Service mesh mTLS for encrypted flow control'
   control_id: SAF-K8S-0502-005
   relation_type: supports
   strength_level: strong
@@ -22957,22 +22941,6 @@
 
 
     5.2 - CNI plugin selection covers alternate communication protocol capabilities; 8.3 - Interconnect alternatives (InfiniBand, RoCE, DPU/SmartNIC) provide fallback communication paths'
-  control_id: SAF-K8S-0502-004
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: CP-11
-  framework_requirement_title: Alternate Communications Protocols
-  framework_mapping_notes: 'Fallback communication protocols for agents
-
-
-    5.2 - CNI plugin selection covers alternate communication protocol capabilities; 8.3 - Interconnect alternatives (InfiniBand, RoCE, DPU/SmartNIC) provide fallback communication paths'
   control_id: SAF-K8S-0502-005
   relation_type: supports
   strength_level: strong
@@ -26801,22 +26769,6 @@
 
     5.2 - Secure CNI plugins (IPAM security, dynamic address allocation, IP spoofing protection)'
   control_id: SAF-K8S-0502-002
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: IA-3(3)
-  framework_requirement_title: Dynamic Address Allocation
-  framework_mapping_notes: 'Dynamic identity for ephemeral agent instances
-
-
-    5.2 - Secure CNI plugins (IPAM security, dynamic address allocation, IP spoofing protection)'
-  control_id: SAF-K8S-0502-004
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -30681,22 +30633,6 @@
 
     6.2 - Multiple signing tools (Sigstore, Notary diversity); 5.2 - CNI plugin selection (supplier diversity)'
   control_id: SAF-K8S-0502-002
-  relation_type: supports
-  strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: PL-8(2)
-  framework_requirement_title: Supplier Diversity
-  framework_mapping_notes: 'Supplier diversity for AI model providers and tool integrations reduces single-vendor risk
-
-
-    6.2 - Multiple signing tools (Sigstore, Notary diversity); 5.2 - CNI plugin selection (supplier diversity)'
-  control_id: SAF-K8S-0502-004
   relation_type: supports
   strength_level: moderate
   applicability: required
@@ -35125,22 +35061,6 @@
 
     5.2 - CNI plugin diversity; 2.2 - RuntimeClass diversity (gVisor, Kata Containers design diversity)'
   control_id: SAF-K8S-0502-002
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SA-17(9)
-  framework_requirement_title: Design Diversity
-  framework_mapping_notes: 'Design diversity in agent architectures prevents single-mode failures and common vulnerabilities
-
-
-    5.2 - CNI plugin diversity; 2.2 - RuntimeClass diversity (gVisor, Kata Containers design diversity)'
-  control_id: SAF-K8S-0502-004
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -39893,22 +39813,6 @@
 
 
     5.2 - IP spoofing protection; 5.4 - SPIFFE (cryptographic identity anti-spoofing mechanisms)'
-  control_id: SAF-K8S-0502-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-16(2)
-  framework_requirement_title: Anti-spoofing Mechanisms
-  framework_mapping_notes: 'Anti-spoofing prevents agents from impersonating other agents or trusted entities
-
-
-    5.2 - IP spoofing protection; 5.4 - SPIFFE (cryptographic identity anti-spoofing mechanisms)'
   control_id: SAF-K8S-0502-005
   relation_type: direct
   strength_level: strong
@@ -41700,22 +41604,6 @@
 
 
     2.2 - RuntimeClass diversity (multiple runtime options); 5.2 - CNI plugin selection (heterogeneity)'
-  control_id: SAF-K8S-0502-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-29
-  framework_requirement_title: Heterogeneity
-  framework_mapping_notes: 'Heterogeneity in agent infrastructure prevents single-exploit compromise of all systems
-
-
-    2.2 - RuntimeClass diversity (multiple runtime options); 5.2 - CNI plugin selection (heterogeneity)'
   control_id: SAF-K8S-0502-005
   relation_type: direct
   strength_level: strong
@@ -42133,22 +42021,6 @@
 
     5.2 - IPAM (randomized IP assignment); 9.8 - Differential privacy (output randomization for information protection)'
   control_id: SAF-K8S-0502-002
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-30(2)
-  framework_requirement_title: Randomness
-  framework_mapping_notes: 'Randomization of agent deployment characteristics prevents predictable attack patterns
-
-
-    5.2 - IPAM (randomized IP assignment); 9.8 - Differential privacy (output randomization for information protection)'
-  control_id: SAF-K8S-0502-004
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -47133,22 +47005,6 @@
 
 
     5.2 - Pod-to-pod encryption; 5.4 - mTLS (transmission confidentiality and integrity)'
-  control_id: SAF-K8S-0502-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-8
-  framework_requirement_title: Transmission Confidentiality and Integrity
-  framework_mapping_notes: 'Agent communications must be protected for confidentiality and integrity in transit
-
-
-    5.2 - Pod-to-pod encryption; 5.4 - mTLS (transmission confidentiality and integrity)'
   control_id: SAF-K8S-0502-005
   relation_type: direct
   strength_level: strong
@@ -47272,22 +47128,6 @@
 
     5.2 - WireGuard, IPsec encryption; 5.4 - mTLS (cryptographic transmission protection)'
   control_id: SAF-K8S-0502-002
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-8(1)
-  framework_requirement_title: Cryptographic Protection
-  framework_mapping_notes: 'Cryptographic protection (TLS/mTLS) for agent-to-agent and agent-to-tool communications
-
-
-    5.2 - WireGuard, IPsec encryption; 5.4 - mTLS (cryptographic transmission protection)'
-  control_id: SAF-K8S-0502-004
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -47752,22 +47592,6 @@
 
     5.2 - Encrypted data paths (concealing training and inference communication patterns)'
   control_id: SAF-K8S-0502-002
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-8(4)
-  framework_requirement_title: Conceal or Randomize Communications
-  framework_mapping_notes: 'Concealing agent communication patterns prevents adversary traffic analysis
-
-
-    5.2 - Encrypted data paths (concealing training and inference communication patterns)'
-  control_id: SAF-K8S-0502-004
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -52606,22 +52430,6 @@
 
 
     5.4 - Service mesh mTLS (visibility into encrypted traffic); 5.2 - Pod-to-pod encryption (monitoring encrypted comms)'
-  control_id: SAF-K8S-0502-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-4(10)
-  framework_requirement_title: Visibility of Encrypted Communications
-  framework_mapping_notes: 'Visibility into encrypted agent communications enables inspection for malicious content
-
-
-    5.4 - Service mesh mTLS (visibility into encrypted traffic); 5.2 - Pod-to-pod encryption (monitoring encrypted comms)'
   control_id: SAF-K8S-0502-005
   relation_type: direct
   strength_level: strong
@@ -53652,22 +53460,6 @@
 
     5.2 - CNI plugin selection (optimizing network analysis); 5.1 - AI workload network segmentation'
   control_id: SAF-K8S-0502-002
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-4(25)
-  framework_requirement_title: Optimize Network Traffic Analysis
-  framework_mapping_notes: 'Optimized traffic analysis for agent networks improves detection of subtle attacks
-
-
-    5.2 - CNI plugin selection (optimizing network analysis); 5.1 - AI workload network segmentation'
-  control_id: SAF-K8S-0502-004
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -59898,4 +59690,17 @@
   strength_level: moderate
   applicability: conditional
   applicability_condition: The audit backend uses version-specific retention controls to prevent unauthorized deletion or replacement during an approved evidence window. The mapped contribution is limited to the protected-version behavior exercised here; verify remaining AU-9 access protection and alerting duties separately.
+  strength_reason_code: partial-control-coverage
+- mapping_set_name: SAF-K8S to NIST SP 800-53r5
+  framework_code: NIST-800-53R5
+  framework_name: NIST SP 800-53 Revision 5
+  framework_version: 5.2.0
+  framework_requirement_id: CM-3(2)
+  framework_requirement_title: Testing, Validation, and Documentation of Changes
+  framework_mapping_notes: 'The CNI fixture verifies a bounded change-validation and recovery slice: digest-pinned Cilium installation and readiness, pre-change and post-rollback connectivity, Kubernetes API rejection of an invalid readiness threshold, and Helm atomic rollback to the prior deployed values and CNI image pins. It does not apply a new Cilium version or observe a failed CNI agent/operator rollout; the mapping is therefore supporting and partial, not direct or strong. Production change authorization and documentation remain separately unverified.'
+  control_id: SAF-K8S-0502-004
+  relation_type: supports
+  strength_level: moderate
+  applicability: required
+  applicability_condition: null
   strength_reason_code: partial-control-coverage
