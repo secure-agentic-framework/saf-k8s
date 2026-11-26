@@ -38,15 +38,6 @@ Central management of security controls is important for governing distributed a
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAF-K8S-0910-028 - Unified multi-cluster compliance reporting](../../controls/SAF-K8S-0910-028.md)
-
-- Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
-- Knowledge Area: 9.10
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
-
 ### [SAF-K8S-0910-029 - Centralized multi-cluster secret, certificate, and incident governance coordination](../../controls/SAF-K8S-0910-029.md)
 
 - Domain: D09 - AI Workload Security: Training, Serving, and Pipelines

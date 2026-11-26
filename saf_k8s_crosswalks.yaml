@@ -18471,16 +18471,13 @@
   framework_version: 5.2.0
   framework_requirement_id: CA-7
   framework_requirement_title: Continuous Monitoring
-  framework_mapping_notes: 'Continuous monitoring of agent security posture
-
-
-    10.6 - Continuous compliance evidence collection; 10.7 - Security posture management (continuous assessment)'
+  framework_mapping_notes: This control supports the reporting and correlation part of continuous monitoring by preserving one control result, native audit event, member identity, exception and explicit missing/stale states in a protected report for independent review. Its three-check fixture is one-shot and covers only one Pod Security Admission/audit scenario on two owned API servers. It does not implement the full CA-7 strategy, continuous collection, response actions, trend analysis, or fleet-wide control coverage.
   control_id: SAF-K8S-0910-028
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Retain only when the adopter includes this protected multi-member report in a CA-7 continuous monitoring strategy with defined controls/metrics, collection and assessment frequencies, evidence freshness, response actions, and reporting roles. The case establishes one bounded report for one control and two members; it does not establish ongoing monitoring or fleet coverage.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -30298,22 +30295,6 @@
 
     6.6 - GitOps (Git as centralized management source of truth); 10.6 - Policy-as-code central management'
   control_id: SAF-K8S-0606-009
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: PL-9
-  framework_requirement_title: Central Management
-  framework_mapping_notes: 'Central management of security controls is important for governing distributed agent systems
-
-
-    6.6 - GitOps (Git as centralized management source of truth); 10.6 - Policy-as-code central management'
-  control_id: SAF-K8S-0910-028
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -53483,16 +53464,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SI-6(3)
   framework_requirement_title: Report Verification Results
-  framework_mapping_notes: 'Reporting security verification results provides evidence of agent control effectiveness
-
-
-    10.6 - Compliance evidence collection (reporting verification results); 10.7 - Security posture management'
+  framework_mapping_notes: NIST SI-6(3) concerns reporting results of security and privacy function verification. This fixture contributes only results for one harmless Pod Security Admission decision per member, with audit events and a protected report that an independently scoped reviewer can read. It does not verify every control or security function in the federation, define reporting recipients/cadence, or establish fleet-wide verification.
   control_id: SAF-K8S-0910-028
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Retain only when the reported Kubernetes result is part of a defined security-function verification activity and the resulting report is delivered to organization-defined personnel or roles. The fixture tests one PSA disposition per member and one corresponding audit event; it is not periodic/distributed verification of all security and privacy functions.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -57883,19 +57861,6 @@
   framework_mapping_notes: Model signing and provenance verification ensures pre-trained model integrity. Model registry hardening protects stored models. ML dependency vulnerability management tracks vulnerabilities in model dependencies.
   control_id: SAF-K8S-0905-056
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-AI-RMF
-  framework_name: NIST AI Risk Management Framework
-  framework_version: '1.0'
-  framework_requirement_id: MAP 4.2
-  framework_requirement_title: Internal risk controls for components of the AI system, including third-party AI technologies, are identified and documented.
-  framework_mapping_notes: Compliance mapping maintains documented control-to-framework mappings. Automated audit readiness generates continuous compliance evidence showing control coverage.
-  control_id: SAF-K8S-0910-028
-  relation_type: direct
   strength_level: strong
   applicability: required
   applicability_condition: null
