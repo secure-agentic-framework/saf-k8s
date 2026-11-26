@@ -1,5 +1,6 @@
 """Demonstrate bounded training/production separation with Kubernetes APIs."""
 import json
+import subprocess
 import time
 
 NAMESPACE_TRAINING = "saf-test"
@@ -172,6 +173,132 @@ def _is_policy_denial(result):
             and "production Pods cannot reference the training input ConfigMap" in message)
 
 
+def _worker_script(namespace, own_cm, other_namespace, other_cm, expected_reference):
+    """Return a fixed script; it reports only status and a boolean, never token/body errors."""
+    return f'''import json, ssl, time, urllib.error, urllib.request
+token = open("/var/run/projected/token", encoding="utf-8").read().strip()
+ctx = ssl.create_default_context(cafile="/var/run/projected/ca.crt")
+def get(ns, name):
+    req = urllib.request.Request(
+        "https://kubernetes.default.svc/api/v1/namespaces/" + ns + "/configmaps/" + name,
+        headers={{"Authorization": "Bearer " + token}},
+    )
+    try:
+        with urllib.request.urlopen(req, context=ctx, timeout=8) as response:
+            status = response.status
+            data = json.loads(response.read())
+            match = data.get("data", {{}}).get("reference") == {expected_reference!r}
+    except urllib.error.HTTPError as exc:
+        status, match = exc.code, False
+    except Exception:
+        status, match = 0, False
+    return status, match
+own_status, own_match = get({namespace!r}, {own_cm!r})
+other_status, _ = get({other_namespace!r}, {other_cm!r})
+print(json.dumps({{"own_status": own_status, "own_reference_matches": own_match,
+                  "other_status": other_status}}), flush=True)
+time.sleep(240)
+'''
+
+
+def _identity_worker(namespace, pod_name, service_account, script_cm):
+    return {
+        "apiVersion": "v1", "kind": "Pod",
+        "metadata": {"name": pod_name, "namespace": namespace,
+                     "labels": {"saf-k8s.example/workload": "projected-identity-fixture"}},
+        "spec": {
+            "serviceAccountName": service_account,
+            "automountServiceAccountToken": False,
+            "restartPolicy": "Never",
+            "containers": [{"name": "identity-check",
+                "image": "docker.io/library/python:3.13-slim@sha256:e48f59cdba69a3cbd9ed2cf0f348d90d45a8d350d98134cf1070bc106ee9ed90",
+                "command": ["python", "-c", "import runpy; runpy.run_path('/fixture/check.py', run_name='__main__')"],
+                "resources": {"requests": {"cpu": "10m", "memory": "32Mi"},
+                              "limits": {"cpu": "100m", "memory": "96Mi"}},
+                "volumeMounts": [{"name": "identity", "mountPath": "/var/run/projected", "readOnly": True},
+                                 {"name": "script", "mountPath": "/fixture", "readOnly": True}],
+                "securityContext": {"allowPrivilegeEscalation": False,
+                                    "runAsNonRoot": True, "runAsUser": 1000,
+                                    "readOnlyRootFilesystem": True,
+                                    "capabilities": {"drop": ["ALL"]}}}],
+            "volumes": [
+                {"name": "identity", "projected": {"sources": [
+                    {"serviceAccountToken": {"path": "token", "expirationSeconds": 600}},
+                    {"configMap": {"name": "kube-root-ca.crt",
+                                    "items": [{"key": "ca.crt", "path": "ca.crt"}]}}]}},
+                {"name": "script", "configMap": {"name": script_cm,
+                    "items": [{"key": "check.py", "path": "check.py"}]}}],
+        },
+    }
+
+
+def _private_kubectl(lab, namespace, *args, payload=None):
+    """Keep projected bearer values and TokenReview bodies outside runner evidence."""
+    command = ["kubectl", "--kubeconfig", str(lab.kubeconfig), "--context",
+               f"kind-{lab.cluster}", "-n", namespace, "--request-timeout=8s", *args]
+    try:
+        result = subprocess.run(command, input=payload, text=True, capture_output=True,
+                                env=lab.env, timeout=12)
+    except (OSError, subprocess.TimeoutExpired):
+        lab.block("Private projected-identity observation failed (response suppressed)")
+    if result.returncode:
+        lab.block("Private projected-identity observation failed (response suppressed)")
+    return result.stdout.strip()
+
+
+def _observe_projected_identity(lab, namespace, pod_name, service_account,
+                                own_namespace, own_cm, other_namespace, other_cm,
+                                expected_reference):
+    # Pod output is a fixed three-field JSON record; raw API payloads and errors are suppressed.
+    deadline = time.monotonic() + 45
+    result = None
+    while time.monotonic() < deadline:
+        try:
+            result = json.loads(lab.kubectl("-n", namespace, "logs", pod_name).stdout.strip())
+            break
+        except (json.JSONDecodeError, Exception):
+            time.sleep(0.5)
+    if not isinstance(result, dict) or set(result) != {
+            "own_status", "own_reference_matches", "other_status"}:
+        lab.block("Projected-identity worker did not produce its bounded result")
+
+    # Token stdout is captured directly by subprocess and held only in this local variable.
+    token = _private_kubectl(lab, namespace, "exec", pod_name, "--", "cat",
+                             "/var/run/projected/token")
+    if not token or "\n" in token:
+        lab.block("Projected identity did not contain one token (value suppressed)")
+    review = {"apiVersion": "authentication.k8s.io/v1", "kind": "TokenReview",
+              "spec": {"token": token}}
+    try:
+        response = json.loads(_private_kubectl(
+            lab, namespace, "create", "-f", "-", "-o", "json",
+            payload=json.dumps(review)))
+    except (json.JSONDecodeError, Exception):
+        lab.block("Projected identity TokenReview failed (response suppressed)")
+    finally:
+        token = None
+        review = None
+    status = response.get("status", {})
+    authenticated = status.get("authenticated") is True
+    user = status.get("user", {})
+    expected_user = f"system:serviceaccount:{namespace}:{service_account}"
+    observed = {
+        "authenticated": authenticated,
+        "username_matches": authenticated and user.get("username") == expected_user,
+        "groups_include_namespace": authenticated and
+            f"system:serviceaccounts:{namespace}" in user.get("groups", []),
+        "audience_returned": bool(status.get("audiences")),
+        "own_get_status": result["own_status"],
+        "own_reference_matches": result["own_reference_matches"] is True,
+        "cross_namespace_get_status": result["other_status"],
+    }
+    ok = (observed["authenticated"] and observed["username_matches"]
+          and observed["groups_include_namespace"] and observed["audience_returned"]
+          and observed["own_get_status"] == 200 and observed["own_reference_matches"]
+          and observed["cross_namespace_get_status"] == 403)
+    return ok, observed
+
+
 def _create(lab, obj):
     namespace = obj.get("metadata", {}).get("namespace")
     if namespace is None:
@@ -268,3 +395,34 @@ def run(lab):
     observed = lab.kubectl("-n", NAMESPACE_PRODUCTION, "logs", pod).stdout.strip()
     lab.check("positive", "The stored inference Pod completes and reads the expected inert production reference",
               observed == "app://synthetic/production/input-v1", {"read_reference": observed})
+
+    # Independently exercise actual short-lived projected API credentials in each scope.
+    workers = (
+        (NAMESPACE_TRAINING, "saf-0905-012-training-identity", TRAINING_SA,
+         "saf-0905-012-training-identity-script", TRAINING_CM,
+         NAMESPACE_PRODUCTION, PRODUCTION_CM, "app://synthetic/training/input-v1"),
+        (NAMESPACE_PRODUCTION, "saf-0905-012-production-identity", PRODUCTION_SA,
+         "saf-0905-012-production-identity-script", PRODUCTION_CM,
+         NAMESPACE_TRAINING, TRAINING_CM, "app://synthetic/production/input-v1"),
+    )
+    identity_results = []
+    for namespace, pod_name, service_account, script_cm, own_cm, other_namespace, other_cm, reference in workers:
+        script = _worker_script(namespace, own_cm, other_namespace, other_cm, reference)
+        _create(lab, {"apiVersion": "v1", "kind": "ConfigMap",
+                      "metadata": {"name": script_cm, "namespace": namespace},
+                      "data": {"check.py": script}})
+        _create(lab, _identity_worker(namespace, pod_name, service_account, script_cm))
+        lab.kubectl("-n", namespace, "wait", "--for=condition=Ready",
+                    f"pod/{pod_name}", "--timeout=60s", timeout=70)
+        identity_results.append(_observe_projected_identity(
+            lab, namespace, pod_name, service_account, namespace, own_cm,
+            other_namespace, other_cm, reference))
+    projected_ok = all(ok for ok, _ in identity_results)
+    lab.check("positive", "Projected tokens are issued to the actual case ServiceAccounts, authorize their own ConfigMap reads, and deny cross-namespace reads",
+              projected_ok, {"training": identity_results[0][1],
+                             "production": identity_results[1][1],
+                             "token_values_recorded": False,
+                             "token_review_errors_recorded": False})
+    for namespace, pod_name, _, script_cm, *_ in workers:
+        lab.kubectl("-n", namespace, "delete", "pod", pod_name, "--wait=true")
+        lab.kubectl("-n", namespace, "delete", "configmap", script_cm, "--wait=true")
