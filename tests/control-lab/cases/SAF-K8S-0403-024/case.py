@@ -2,6 +2,7 @@
 import json
 import time
 from urllib.parse import quote_plus
+from datetime import datetime, timedelta, timezone
 
 
 CASE_ID = "SAF-K8S-0403-024"
@@ -25,8 +26,8 @@ SCOPE = (
     "Prometheus instance scrapes that Service every 2 seconds and queries its samples. "
     "The synthetic event window is exactly 300 seconds; issuance rate is events per "
     "second. No credential value or external scrape target is used. This tests the "
-    "fixture producer and scrape/query path only, not ingestion from Vault, cloud IAM, "
-    "Kubernetes token issuers, API-key stores, model registries, dashboards, review "
+    "fixture producer and scrape/query path, plus native empty Secret metadata aggregation; "
+    "provider issuer ingestion, workload use, dashboards and review "
     "workflows, or production coverage."
 )
 
@@ -62,6 +63,7 @@ from pathlib import Path
 
 CASE = "SAF-K8S-0403-024"
 DATA = Path("/fixture/events.json")
+NATIVE = Path("/fixture/native-summary.json")
 
 def render():
     fixture = json.loads(DATA.read_text())
@@ -105,9 +107,35 @@ def render():
                       f"# TYPE {name} {kind}", f'{name}{{case_id="{CASE}"}} {value}'])
     return "\n".join(lines) + "\n"
 
+def render_native():
+    if not NATIVE.exists():
+        return b"# Native metadata snapshot not yet seeded.\n"
+    summary = json.loads(NATIVE.read_text())
+    rows = [
+        ("saf_credential_native_inventory_records", "gauge", summary["inventory_records"], "records"),
+        ("saf_credential_native_stale_records", "gauge", summary["stale_records"], "records"),
+        ("saf_credential_native_expired_records", "gauge", summary["expired_records"], "records"),
+        ("saf_credential_native_missing_expiry_records", "gauge", summary["missing_expiry_records"], "records"),
+    ]
+    lines = []
+    for name, kind, value, unit in rows:
+        lines.extend([f"# HELP {name} Allowlisted native metadata aggregate; unit: {unit}.",
+                      f"# TYPE {name} {kind}",
+                      f'{name}{{case_id="{CASE}"}} {value}'])
+    if summary["groups"]:
+        name = "saf_credential_native_class_records"
+        lines.extend([f"# HELP {name} Native Secret metadata records by bounded type and issuer class.",
+                      f"# TYPE {name} gauge"])
+    for row in summary["groups"]:
+        name = "saf_credential_native_class_records"
+        lines.append(f'{name}{{case_id="{CASE}",issuer="{row["issuer"]}",credential_type="{row["credential_type"]}",credential_class="{row["credential_class"]}"}} {row["count"]}')
+    return ("\n".join(lines) + "\n").encode()
+
 class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
-        if self.path == "/baseline":
+        if self.path == "/native-metrics":
+            body = render_native()
+        elif self.path == "/baseline":
             body = b"# Synthetic empty baseline: no credential lifecycle samples.\n"
         elif self.path == "/metrics":
             body = render().encode()
@@ -287,7 +315,7 @@ def check_active_targets(lab):
               {"active_targets": observed, "external_targets": 0})
 
 
-def run(lab):
+def _test_synthetic_metrics(lab):
     # This is a fixture inspection only: every field is synthetic metadata and
     # no credential value, secret material, or backend API is represented.
     lab.check("positive", "Prometheus scrape targets are only the in-cluster fixture Service",
@@ -341,3 +369,300 @@ def run(lab):
                          for item in producer_series))
     lab.check("positive", "Published series contain only bounded case/job/instance labels",
               labels_ok, {"producer_labels": ["case_id"], "event_or_credential_labels": 0})
+
+# Additive native-metadata ingestion path. It reads only explicitly selected
+# fields from empty, case-owned Kubernetes Secrets and exports aggregates.
+NATIVE_OWNER = "saf.example/credential-metrics-case"
+NATIVE_ISSUER = "saf.example/issuer-class"
+NATIVE_CLASS = "saf.example/credential-class"
+NATIVE_OBSERVED = "saf.example/metadata-observed-at"
+NATIVE_EXPIRES = "saf.example/expires-at"
+NATIVE_NAMES = ("saf-0403-024-native-a", "saf-0403-024-native-b", "saf-0403-024-native-c")
+NATIVE_ALLOWED_ISSUERS = {"fixture-local", "fixture-federated"}
+NATIVE_ALLOWED_TYPES = {"Opaque", "saf.example/credential-metadata"}
+NATIVE_ALLOWED_CLASSES = {"static-fixture", "federated-fixture"}
+NATIVE_JOB = "credential-native-k8s-metadata"
+
+
+def iso_time(value):
+    return value.astimezone(timezone.utc).isoformat().replace("+00:00", "Z")
+
+
+def native_secret(name, *, secret_type, issuer_class, credential_class,
+                  observed_at, expires_at=None):
+    annotations = {NATIVE_OBSERVED: observed_at}
+    if expires_at is not None:
+        annotations[NATIVE_EXPIRES] = expires_at
+    return {
+        "apiVersion": "v1", "kind": "Secret",
+        "metadata": {"name": name,
+                     "labels": {NATIVE_OWNER: CASE_ID, NATIVE_ISSUER: issuer_class,
+                                NATIVE_CLASS: credential_class},
+                     "annotations": annotations},
+        "type": secret_type,
+    }
+
+
+def read_native_metadata(lab, name):
+    # Render only allowlisted metadata. All live Secret fixtures are empty.
+    template = (
+        'go-template={{.metadata.name}}|{{.metadata.uid}}|{{.type}}|'
+        '{{with .metadata.labels}}{{index . "' + NATIVE_OWNER + '"}}{{end}}|'
+        '{{with .metadata.labels}}{{index . "' + NATIVE_ISSUER + '"}}{{end}}|'
+        '{{with .metadata.labels}}{{index . "' + NATIVE_CLASS + '"}}{{end}}|'
+        '{{with .metadata.annotations}}{{index . "' + NATIVE_OBSERVED + '"}}{{end}}|'
+        '{{with .metadata.annotations}}{{with index . "' + NATIVE_EXPIRES + '"}}{{.}}{{end}}{{end}}'
+    )
+    result = lab.kubectl("-n", NAMESPACE, "get", "secret", name, "-o", template,
+                         timeout=15)
+    fields = result.stdout.strip().split("|")
+    if len(fields) != 8:
+        lab.block("Native Secret metadata read returned an unexpected allowlisted shape")
+    return {"name": fields[0], "uid": fields[1], "secret_type": fields[2],
+            "owner": fields[3], "issuer": fields[4], "credential_class": fields[5],
+            "observed_at": fields[6], "expires_at": fields[7]}
+
+
+def scan_native_metadata(lab):
+    records = [read_native_metadata(lab, name) for name in NATIVE_NAMES]
+    now = datetime.now(timezone.utc)
+    groups = {}
+    stale = expired = missing_expiry = 0
+    for record in records:
+        if (record["owner"] != CASE_ID or record["issuer"] not in NATIVE_ALLOWED_ISSUERS
+                or record["secret_type"] not in NATIVE_ALLOWED_TYPES
+                or record["credential_class"] not in NATIVE_ALLOWED_CLASSES):
+            lab.block("Native metadata contains an unapproved fixture classification")
+        observed_at = datetime.fromisoformat(record["observed_at"].replace("Z", "+00:00"))
+        stale += int((now - observed_at).total_seconds() > 300)
+        if record["expires_at"]:
+            expires_at = datetime.fromisoformat(record["expires_at"].replace("Z", "+00:00"))
+            expired += int(expires_at <= now)
+        else:
+            missing_expiry += 1
+        key = (record["issuer"], record["secret_type"], record["credential_class"])
+        groups[key] = groups.get(key, 0) + 1
+    summary = {
+        "inventory_records": len(records), "stale_records": stale,
+        "expired_records": expired, "missing_expiry_records": missing_expiry,
+        "groups": [{"issuer": key[0], "credential_type": key[1],
+                    "credential_class": key[2], "count": count}
+                   for key, count in sorted(groups.items())],
+    }
+    return records, summary
+
+
+def publish_native_snapshot(lab, summary):
+    # Aggregated values only; no names, UIDs, timestamps, annotations or data.
+    payload = json.dumps(summary, sort_keys=True, separators=(",", ":"))
+    patch = json.dumps({"data": {"native-summary.json": payload}})
+    lab.kubectl("-n", NAMESPACE, "patch", "configmap", f"{EXPORTER}-fixture",
+                 "--type=merge", "-p", patch, timeout=15)
+    lab.kubectl("-n", NAMESPACE, "annotate", "pods", "-l", f"app={EXPORTER}",
+                 f"saf.example/fixture-refresh={time.time_ns()}", "--overwrite", timeout=15)
+
+
+def add_native_scrape_job(lab):
+    current = json.loads(lab.kubectl(
+        "-n", NAMESPACE, "get", "configmap", f"{PROMETHEUS}-config", "-o", "json"
+    ).stdout)
+    config = current["data"]["prometheus.yml"]
+    stanza = (
+        f"  - job_name: {NATIVE_JOB}\n"
+        "    metrics_path: /native-metrics\n"
+        "    static_configs:\n"
+        f"      - targets: ['{EXPORTER}:9400']\n"
+    )
+    if f"job_name: {NATIVE_JOB}" not in config:
+        config = config.rstrip() + "\n" + stanza
+    patch = json.dumps({"data": {"prometheus.yml": config}})
+    lab.kubectl("-n", NAMESPACE, "patch", "configmap", f"{PROMETHEUS}-config",
+                 "--type=merge", "-p", patch, timeout=15)
+    lab.kubectl("-n", NAMESPACE, "rollout", "restart", f"deployment/{PROMETHEUS}",
+                timeout=20)
+    lab.kubectl("-n", NAMESPACE, "rollout", "status", f"deployment/{PROMETHEUS}",
+                "--timeout=90s", timeout=95)
+
+
+def native_metric(lab, metric):
+    return one_value(lab, f'{metric}{{job="{NATIVE_JOB}",case_id="{CASE_ID}"}}')
+
+
+def wait_native_values(lab, expected, timeout_seconds=60):
+    deadline = time.monotonic() + timeout_seconds
+    while time.monotonic() < deadline:
+        values = {name: native_metric(lab, name) for name in expected}
+        if all(value is not None and value == target for name, target in expected.items()
+               for value in [values[name]]):
+            return values
+        time.sleep(2)
+    return values
+
+
+def run_native_metadata_supplement(lab):
+    now = datetime.now(timezone.utc)
+    created = []
+    try:
+        fixtures = [
+            native_secret(NATIVE_NAMES[0], secret_type="Opaque", issuer_class="fixture-local",
+                          credential_class="static-fixture", observed_at=iso_time(now - timedelta(minutes=20)),
+                          expires_at=iso_time(now - timedelta(minutes=1))),
+            native_secret(NATIVE_NAMES[1], secret_type="Opaque", issuer_class="fixture-local",
+                          credential_class="static-fixture", observed_at=iso_time(now), expires_at=None),
+            native_secret(NATIVE_NAMES[2], secret_type="saf.example/credential-metadata", issuer_class="fixture-federated",
+                          credential_class="federated-fixture", observed_at=iso_time(now),
+                          expires_at=iso_time(now + timedelta(hours=1))),
+        ]
+        for fixture in fixtures:
+            lab.create(fixture)
+            created.append(fixture["metadata"]["name"])
+        records, summary = scan_native_metadata(lab)
+        exact_seed = (summary["inventory_records"] == 3
+                      and summary["stale_records"] == 1
+                      and summary["expired_records"] == 1
+                      and summary["missing_expiry_records"] == 1
+                      and {record["secret_type"] for record in records} == NATIVE_ALLOWED_TYPES
+                      and {record["issuer"] for record in records} == NATIVE_ALLOWED_ISSUERS
+                      and all(record["owner"] == CASE_ID for record in records))
+        lab.check(
+            "positive", "Native empty Secret metadata provides bounded type, issuer, expiry and freshness inputs",
+            exact_seed,
+            {"native_records": summary["inventory_records"],
+             "native_types_observed": sorted({record["secret_type"] for record in records}),
+             "issuer_classes_observed": sorted({record["issuer"] for record in records}),
+             "stale_records": summary["stale_records"], "expired_records": summary["expired_records"],
+             "missing_expiry_records": summary["missing_expiry_records"],
+             "data_fields_rendered": False},
+        )
+        publish_native_snapshot(lab, summary)
+        add_native_scrape_job(lab)
+        deadline = time.monotonic() + 45
+        native_up = False
+        while time.monotonic() < deadline:
+            results = query(lab, 'up{job=~"credential-(empty-baseline|metadata-fixture)|credential-native-k8s-metadata"}') or []
+            observed_jobs = {item["metric"].get("job"): item["value"][1] for item in results}
+            if observed_jobs == {"credential-empty-baseline": "1",
+                                 "credential-metadata-fixture": "1",
+                                 NATIVE_JOB: "1"}:
+                native_up = True
+                break
+            time.sleep(0.5)
+        if not native_up:
+            lab.block("Prometheus did not scrape all three case-owned metadata paths")
+        first = wait_native_values(lab, {
+            "saf_credential_native_inventory_records": 3,
+            "saf_credential_native_stale_records": 1,
+            "saf_credential_native_expired_records": 1,
+            "saf_credential_native_missing_expiry_records": 1,
+        })
+        grouped = query(lab, f'saf_credential_native_class_records{{job="{NATIVE_JOB}",case_id="{CASE_ID}"}}') or []
+        group_values = {(item["metric"].get("issuer"), item["metric"].get("credential_type"),
+                         item["metric"].get("credential_class")): float(item["value"][1])
+                        for item in grouped}
+        expected_groups = {
+            ("fixture-local", "Opaque", "static-fixture"): 2,
+            ("fixture-federated", "saf.example/credential-metadata", "federated-fixture"): 1,
+        }
+        first_ok = first == {"saf_credential_native_inventory_records": 3.0,
+                             "saf_credential_native_stale_records": 1.0,
+                             "saf_credential_native_expired_records": 1.0,
+                             "saf_credential_native_missing_expiry_records": 1.0}
+        all_series = query(lab, f'{{job="{NATIVE_JOB}",case_id="{CASE_ID}"}}') or []
+        group_label_keys = {"__name__", "job", "instance", "case_id", "issuer",
+                            "credential_type", "credential_class"}
+        scalar_label_keys = {"__name__", "job", "instance", "case_id"}
+        labels_private = (len(all_series) == 6 and all(
+            set(item["metric"]) == (group_label_keys if item["metric"].get("__name__")
+                                     == "saf_credential_native_class_records" else scalar_label_keys)
+            for item in all_series))
+        lab.check(
+            "positive", "Prometheus series contain only allowlisted aggregate labels and no record identity",
+            labels_private,
+            {"series_count": len(all_series), "record_name_or_uid_labels": 0,
+             "credential_values_exported": 0},
+        )
+        lab.check(
+            "green", "Pinned Prometheus publishes exact aggregate values and bounded native type/issuer groups",
+            first_ok and group_values == expected_groups,
+            {"inventory_records": first.get("saf_credential_native_inventory_records"),
+             "stale_records": first.get("saf_credential_native_stale_records"),
+             "expired_records": first.get("saf_credential_native_expired_records"),
+             "missing_expiry_records": first.get("saf_credential_native_missing_expiry_records"),
+             "bounded_group_count": len(group_values), "record_name_or_uid_labels": 0,
+             "credential_values_exported": 0},
+        )
+
+        # Refresh the stale/expired metadata record. The source is an empty
+        # native Secret; only labels/annotations are changed and no data moves.
+        refreshed = iso_time(datetime.now(timezone.utc))
+        future = iso_time(datetime.now(timezone.utc) + timedelta(hours=1))
+        patch = json.dumps({"metadata": {"annotations": {
+            NATIVE_OBSERVED: refreshed, NATIVE_EXPIRES: future}}})
+        lab.kubectl("-n", NAMESPACE, "patch", "secret", NATIVE_NAMES[0],
+                     "--type=merge", "-p", patch, timeout=15)
+        _, summary_after = scan_native_metadata(lab)
+        publish_native_snapshot(lab, summary_after)
+        updated = wait_native_values(lab, {
+            "saf_credential_native_inventory_records": 3,
+            "saf_credential_native_stale_records": 0,
+            "saf_credential_native_expired_records": 0,
+            "saf_credential_native_missing_expiry_records": 1,
+        })
+        update_ok = (summary_after["stale_records"] == 0
+                     and summary_after["expired_records"] == 0
+                     and updated.get("saf_credential_native_stale_records") == 0
+                     and updated.get("saf_credential_native_expired_records") == 0)
+        lab.check(
+            "positive", "Prometheus observes the bounded freshness and expiry metric update after native metadata refresh",
+            update_ok,
+            {"stale_records_after": summary_after["stale_records"],
+             "expired_records_after": summary_after["expired_records"],
+             "prometheus_stale_sample_updated": updated.get("saf_credential_native_stale_records") == 0,
+             "prometheus_expiry_sample_updated": updated.get("saf_credential_native_expired_records") == 0,
+             "within_seconds": 60},
+        )
+
+        # Delete only exact names created here, gated by captured case marker and
+        # UID; then publish and observe the zero inventory without values.
+        provenance = all(
+            read_native_metadata(lab, name)["owner"] == CASE_ID
+            and read_native_metadata(lab, name)["uid"] == next(
+                record["uid"] for record in records if record["name"] == name)
+            for name in created
+        )
+        if not provenance:
+            lab.block("Native metadata cleanup provenance did not match the owned fixture")
+        for name in created:
+            lab.kubectl("-n", NAMESPACE, "delete", "secret", name,
+                        "--wait=true", "--timeout=20s", timeout=25)
+        still_present = lab.kubectl("-n", NAMESPACE, "get", "secret", *created,
+                                   "--ignore-not-found=true", "-o", "name")
+        if still_present.stdout.strip():
+            lab.block("The removed fixture records are still present in Kubernetes")
+        empty = {"inventory_records": 0, "stale_records": 0, "expired_records": 0,
+                 "missing_expiry_records": 0, "groups": []}
+        publish_native_snapshot(lab, empty)
+        cleared = wait_native_values(lab, {
+            "saf_credential_native_inventory_records": 0,
+            "saf_credential_native_stale_records": 0,
+            "saf_credential_native_expired_records": 0,
+            "saf_credential_native_missing_expiry_records": 0,
+        })
+        lab.check(
+            "positive", "Exact owned native metadata cleanup returns Prometheus aggregates to zero",
+            all(cleared.get(name) == 0 for name in (
+                "saf_credential_native_inventory_records", "saf_credential_native_stale_records",
+                "saf_credential_native_expired_records", "saf_credential_native_missing_expiry_records")),
+            {"owned_fixture_records_deleted": len(created),
+             "inventory_records_after": cleared.get("saf_credential_native_inventory_records"),
+             "credential_values_exported": 0},
+        )
+    finally:
+        for name in created:
+            lab.kubectl("-n", NAMESPACE, "delete", "secret", name,
+                        "--ignore-not-found=true", "--wait=false", timeout=15, allow_failure=True)
+
+
+def run(lab):
+    _test_synthetic_metrics(lab)
+    run_native_metadata_supplement(lab)

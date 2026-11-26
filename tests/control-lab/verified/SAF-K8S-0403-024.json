@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0403-024",
-  "catalog_revision": "8499ab6eef453f23e74e24a1ab43555af4bd89f0",
-  "catalog_sha256": "115d55b7443aed0213c5b909968f35b73439c1376fb56857836f63c2b08ce322",
+  "catalog_revision": "03197b5f34c07adf30de371cb78cb9f0dfb5587b",
+  "catalog_sha256": "f22ac63bf97577c04a89f43196dc2de2eb4f5a9eeaa472fe2152cbf36c1b213b",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "e7758d2cb79b1cabc2a52aeb9bc1af75823d7c4a412fe41a91b06fb24ffe65c8",
-  "scope": "One case-owned Python producer serves allowlisted aggregate metrics computed from a fixed set of synthetic credential metadata events in Kind. A live digest-pinned Prometheus instance scrapes that Service every 2 seconds and queries its samples. The synthetic event window is exactly 300 seconds; issuance rate is events per second. No credential value or external scrape target is used. This tests the fixture producer and scrape/query path only, not ingestion from Vault, cloud IAM, Kubernetes token issuers, API-key stores, model registries, dashboards, review workflows, or production coverage.",
-  "cluster": "saf-lab-cfd083ddf16b",
+  "scope": "One case-owned Python producer serves allowlisted aggregate metrics computed from a fixed set of synthetic credential metadata events in Kind. A live digest-pinned Prometheus instance scrapes that Service every 2 seconds and queries its samples. The synthetic event window is exactly 300 seconds; issuance rate is events per second. No credential value or external scrape target is used. This tests the fixture producer and scrape/query path, plus native empty Secret metadata aggregation; provider issuer ingestion, workload use, dashboards and review workflows, or production coverage.",
+  "cluster": "saf-lab-5ee1b87cd079",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -106,6 +106,72 @@
           "case_id"
         ],
         "event_or_credential_labels": 0
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Native empty Secret metadata provides bounded type, issuer, expiry and freshness inputs",
+      "matched": true,
+      "observed": {
+        "native_records": 3,
+        "native_types_observed": [
+          "Opaque",
+          "saf.example/credential-metadata"
+        ],
+        "issuer_classes_observed": [
+          "fixture-federated",
+          "fixture-local"
+        ],
+        "stale_records": 1,
+        "expired_records": 1,
+        "missing_expiry_records": 1,
+        "data_fields_rendered": false
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Prometheus series contain only allowlisted aggregate labels and no record identity",
+      "matched": true,
+      "observed": {
+        "series_count": 6,
+        "record_name_or_uid_labels": 0,
+        "credential_values_exported": 0
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Pinned Prometheus publishes exact aggregate values and bounded native type/issuer groups",
+      "matched": true,
+      "observed": {
+        "inventory_records": 3.0,
+        "stale_records": 1.0,
+        "expired_records": 1.0,
+        "missing_expiry_records": 1.0,
+        "bounded_group_count": 2,
+        "record_name_or_uid_labels": 0,
+        "credential_values_exported": 0
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Prometheus observes the bounded freshness and expiry metric update after native metadata refresh",
+      "matched": true,
+      "observed": {
+        "stale_records_after": 0,
+        "expired_records_after": 0,
+        "prometheus_stale_sample_updated": true,
+        "prometheus_expiry_sample_updated": true,
+        "within_seconds": 60
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Exact owned native metadata cleanup returns Prometheus aggregates to zero",
+      "matched": true,
+      "observed": {
+        "owned_fixture_records_deleted": 3,
+        "inventory_records_after": 0.0,
+        "credential_values_exported": 0
       }
     }
   ]
