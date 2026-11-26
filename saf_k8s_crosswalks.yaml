@@ -6572,22 +6572,6 @@
 
 
     5.3 - Harden ingress (managed access control points); 5.5 - API server network access (managed endpoint access)'
-  control_id: SAF-K8S-0503-006
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-17(3)
-  framework_requirement_title: Managed Access Control Points
-  framework_mapping_notes: 'API gateways as managed access points for agents
-
-
-    5.3 - Harden ingress (managed access control points); 5.5 - API server network access (managed endpoint access)'
   control_id: SAF-K8S-0505-005
   relation_type: supports
   strength_level: strong
@@ -38466,16 +38450,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SC-7(11)
   framework_requirement_title: Restrict Incoming Communications Traffic
-  framework_mapping_notes: 'Restricting inbound traffic to agent systems limits exposure to external attacks
-
-
-    5.1 - Default deny ingress; 5.3 - Ingress controller WAF integration, request filtering'
+  framework_mapping_notes: 'The reference case demonstrates an admission prerequisite: a scoped Service writer may select exactly one ID from a read-only governed list, while unapproved or missing IDs and updates are denied. SC-7(11) requires that only authorized sources are routed to authorized destinations. The selected security group must therefore be separately checked for effective source, destination, protocol, port and address-family rules after controller reconciliation; admission acceptance alone is not evidence of this outcome.'
   control_id: SAF-K8S-0503-006
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: weak
+  applicability: conditional
+  applicability_condition: Only where this AWS Load Balancer Controller NLB is an in-scope managed boundary and the independently governed, allowlisted frontend security-group ID is verified to contain the organization-approved source-to-destination rules for the actual listener and address family. The portable fixture validates only Service admission against a fixed synthetic list of group IDs; it does not inspect SG rules or prove effective filtering.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -39194,22 +39175,6 @@
   framework_version: 5.2.0
   framework_requirement_id: SC-7(3)
   framework_requirement_title: Access Points
-  framework_mapping_notes: 'Limiting network access points to agent systems reduces attack surface
-
-
-    5.3 - Harden ingress (managed access points); 5.5 - Protect API server and service exposure (LoadBalancer, NodePort, ExternalIP restriction)'
-  control_id: SAF-K8S-0503-006
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-7(3)
-  framework_requirement_title: Access Points
   framework_mapping_notes: Rejecting unapproved exposure-generating settings supports limiting Service-derived external connection points. Independently verify the effective set of external connections, including alternate ways to expose workloads.
   control_id: SAF-K8S-0505-002
   relation_type: supports
@@ -39229,22 +39194,6 @@
     5.3 - Harden ingress (managed access points); 5.5 - Protect API server and service exposure (LoadBalancer, NodePort, ExternalIP restriction)'
   control_id: SAF-K8S-0505-005
   relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-7(4)
-  framework_requirement_title: External Telecommunications Services
-  framework_mapping_notes: 'External communication services used by agents must be secured at boundary points
-
-
-    5.3 - External traffic policy (LoadBalancer, NodePort, and ExternalIP restriction for external telecommunications)'
-  control_id: SAF-K8S-0503-006
-  relation_type: supports
   strength_level: strong
   applicability: required
   applicability_condition: null
