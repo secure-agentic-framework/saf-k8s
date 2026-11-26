@@ -20,16 +20,7 @@ SAF-K8S GPU tracking (D8), resource quota management, and training pipeline tele
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAF-K8S-0904-001 - Pipeline orchestrator hardening](../../controls/SAF-K8S-0904-001.md)
-
-- Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
-- Knowledge Area: 9.4
-- Relation Type: partial
-- Strength: moderate
-- Applicability: required
-- Strength Reason Code: n/a
-
-### [SAF-K8S-0906-002 - Large-scale data integrity verification](../../controls/SAF-K8S-0906-002.md)
+### [SAF-K8S-0906-002 - Segmented dataset integrity verification](../../controls/SAF-K8S-0906-002.md)
 
 - Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
 - Knowledge Area: 9.6

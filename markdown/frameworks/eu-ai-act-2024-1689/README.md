@@ -2,8 +2,8 @@
 
 - Framework Code: EU-AI-ACT
 - Version: 2024/1689
-- Total Reverse Mappings: 171
-- Distinct Requirements Mapped: 72
+- Total Reverse Mappings: 167
+- Distinct Requirements Mapped: 70
 
 ## Requirements
 
@@ -32,7 +32,6 @@
 - [Annex-XI.1.1 - Technical documentation referred to in Article 53(1), point (a) — technical documentation for providers of general-purpose AI models](annex-xi-1-1.md)
 - [Annex-XI.1.1.d - Technical documentation referred to in Article 53(1), point (a) — technical documentation for providers of general-purpose AI models](annex-xi-1-1-d.md)
 - [Annex-XI.1.1.e - Technical documentation referred to in Article 53(1), point (a) — technical documentation for providers of general-purpose AI models](annex-xi-1-1-e.md)
-- [Annex-XI.1.2.b - Technical documentation referred to in Article 53(1), point (a) — technical documentation for providers of general-purpose AI models](annex-xi-1-2-b.md)
 - [Annex-XI.1.2.c - Technical documentation referred to in Article 53(1), point (a) — technical documentation for providers of general-purpose AI models](annex-xi-1-2-c.md)
 - [Annex-XI.1.2.d - Technical documentation referred to in Article 53(1), point (a) — technical documentation for providers of general-purpose AI models](annex-xi-1-2-d.md)
 - [Annex-XI.2.1 - Technical documentation referred to in Article 53(1), point (a) — technical documentation for providers of general-purpose AI models](annex-xi-2-1.md)
@@ -40,7 +39,6 @@
 - [Article-10.1 - Data and data governance](article-10-1.md)
 - [Article-10.2 - Data and data governance](article-10-2.md)
 - [Article-10.2.b - Data and data governance](article-10-2-b.md)
-- [Article-10.2.c - Data and data governance](article-10-2-c.md)
 - [Article-11.1 - Technical documentation](article-11-1.md)
 - [Article-12.1 - Record-keeping](article-12-1.md)
 - [Article-12.2 - Record-keeping](article-12-2.md)

@@ -2,15 +2,14 @@
 
 - Framework Code: NIST-800-53R5
 - Version: 5.2.0
-- Total Reverse Mappings: 1903
-- Distinct Requirements Mapped: 614
+- Total Reverse Mappings: 1866
+- Distinct Requirements Mapped: 602
 
 ## Requirements
 
 - [AC-1 - Policy and Procedures](ac-1.md)
 - [AC-10 - Concurrent Session Control](ac-10.md)
 - [AC-12 - Session Termination](ac-12.md)
-- [AC-12(1) - User-initiated Logouts](ac-12-1.md)
 - [AC-14 - Permitted Actions Without Identification or Authentication](ac-14.md)
 - [AC-16 - Security and Privacy Attributes](ac-16.md)
 - [AC-16(1) - Dynamic Attribute Association](ac-16-1.md)
@@ -36,7 +35,6 @@
 - [AC-2(2) - Automated Temporary and Emergency Account Management](ac-2-2.md)
 - [AC-2(3) - Disable Accounts](ac-2-3.md)
 - [AC-2(4) - Automated Audit Actions](ac-2-4.md)
-- [AC-2(5) - Inactivity Logout](ac-2-5.md)
 - [AC-2(7) - Privileged User Accounts](ac-2-7.md)
 - [AC-2(8) - Dynamic Account Management](ac-2-8.md)
 - [AC-2(9) - Restrictions on Use of Shared and Group Accounts](ac-2-9.md)
@@ -85,14 +83,11 @@
 - [AC-4(26) - Audit Filtering Actions](ac-4-26.md)
 - [AC-4(27) - Redundant/Independent Filtering Mechanisms](ac-4-27.md)
 - [AC-4(28) - Linear Filter Pipelines](ac-4-28.md)
-- [AC-4(29) - Filter Orchestration Engines](ac-4-29.md)
 - [AC-4(3) - Dynamic Information Flow Control](ac-4-3.md)
 - [AC-4(30) - Filter Mechanisms Using Multiple Processes](ac-4-30.md)
 - [AC-4(31) - Failed Content Transfer Prevention](ac-4-31.md)
-- [AC-4(32) - Process Requirements for Information Transfer](ac-4-32.md)
 - [AC-4(4) - Flow Control of Encrypted Information](ac-4-4.md)
 - [AC-4(5) - Embedded Data Types](ac-4-5.md)
-- [AC-4(6) - Metadata](ac-4-6.md)
 - [AC-4(8) - Security and Privacy Policy Filters](ac-4-8.md)
 - [AC-4(9) - Human Reviews](ac-4-9.md)
 - [AC-5 - Separation of Duties](ac-5.md)
@@ -175,7 +170,6 @@
 - [CA-2(2) - Specialized Assessments](ca-2-2.md)
 - [CA-2(3) - Leveraging Results from External Organizations](ca-2-3.md)
 - [CA-3 - Information Exchange](ca-3.md)
-- [CA-3(6) - Transfer Authorizations](ca-3-6.md)
 - [CA-5 - Plan of Action and Milestones](ca-5.md)
 - [CA-5(1) - Automation Support for Accuracy and Currency](ca-5-1.md)
 - [CA-6 - Authorization](ca-6.md)
@@ -389,7 +383,6 @@
 - [SA-23 - Specialization](sa-23.md)
 - [SA-24 - Design For Cyber Resiliency](sa-24.md)
 - [SA-3 - System Development Life Cycle](sa-3.md)
-- [SA-3(1) - Manage Preproduction Environment](sa-3-1.md)
 - [SA-3(3) - Technology Refresh](sa-3-3.md)
 - [SA-4 - Acquisition Process](sa-4.md)
 - [SA-4(1) - Functional Properties of Controls](sa-4-1.md)
@@ -409,7 +402,6 @@
 - [SA-8(18) - Trusted Communications Channels](sa-8-18.md)
 - [SA-8(19) - Continuous Protection](sa-8-19.md)
 - [SA-8(2) - Least Common Mechanism](sa-8-2.md)
-- [SA-8(20) - Secure Metadata Management](sa-8-20.md)
 - [SA-8(21) - Self-analysis](sa-8-21.md)
 - [SA-8(22) - Accountability and Traceability](sa-8-22.md)
 - [SA-8(23) - Secure Defaults](sa-8-23.md)
@@ -448,7 +440,6 @@
 - [SC-18(4) - Prevent Automatic Execution](sc-18-4.md)
 - [SC-18(5) - Allow Execution Only in Confined Environments](sc-18-5.md)
 - [SC-2 - Separation of System and User Functionality](sc-2.md)
-- [SC-2(1) - Interfaces for Non-privileged Users](sc-2-1.md)
 - [SC-23 - Session Authenticity](sc-23.md)
 - [SC-23(1) - Invalidate Session Identifiers at Logout](sc-23-1.md)
 - [SC-23(3) - Unique System-generated Session Identifiers](sc-23-3.md)
@@ -462,7 +453,6 @@
 - [SC-29(1) - Virtualization Techniques](sc-29-1.md)
 - [SC-3 - Security Function Isolation](sc-3.md)
 - [SC-3(2) - Access and Flow Control Functions](sc-3-2.md)
-- [SC-3(4) - Module Coupling and Cohesiveness](sc-3-4.md)
 - [SC-30(2) - Randomness](sc-30-2.md)
 - [SC-30(3) - Change Processing and Storage Locations](sc-30-3.md)
 - [SC-30(5) - Concealment of System Components](sc-30-5.md)
@@ -560,7 +550,6 @@
 - [SI-2(6) - Removal of Previous Versions of Software and Firmware](si-2-6.md)
 - [SI-2(7) - Root Cause Analysis](si-2-7.md)
 - [SI-20 - Tainting](si-20.md)
-- [SI-21 - Information Refresh](si-21.md)
 - [SI-22 - Information Diversity](si-22.md)
 - [SI-23 - Information Fragmentation](si-23.md)
 - [SI-3(10) - Malicious Code Analysis](si-3-10.md)
@@ -604,7 +593,6 @@
 - [SR-11(1) - Anti-counterfeit Training](sr-11-1.md)
 - [SR-11(2) - Configuration Control for Component Service and Repair](sr-11-2.md)
 - [SR-12 - Component Disposal](sr-12.md)
-- [SR-2 - Supply Chain Risk Management Plan](sr-2.md)
 - [SR-2(1) - Establish SCRM Team](sr-2-1.md)
 - [SR-3 - Supply Chain Controls and Processes](sr-3.md)
 - [SR-3(1) - Diverse Supply Base](sr-3-1.md)
