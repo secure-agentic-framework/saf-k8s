@@ -117,6 +117,15 @@
       "risk_flag": "unplanned_zone_access_review",
       "cluster": "kind-fixture",
       "namespace": "saf-test"
+    },
+    {
+      "record_id": "CTX-A-UNAUTHORIZED-SYNTHETIC",
+      "workload_id": "workload-synthetic-a",
+      "observed_at": "2026-11-22T12:02:00Z",
+      "source_class": "unapproved_synthetic_feed",
+      "risk_flag": "invented_unapproved_context",
+      "cluster": "kind-fixture",
+      "namespace": "saf-test"
     }
   ],
   "business_context": [
@@ -193,5 +202,8 @@
     "ambiguous_event": "TECH-F",
     "critical_event": "TECH-E"
   },
-  "review_time": "2026-11-22T12:03:00Z"
+  "review_time": "2026-11-22T12:03:00Z",
+  "authorized_source_classes": [
+    "facility_status"
+  ]
 }

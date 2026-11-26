@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-1004-006",
-  "catalog_revision": "957e1bbcd51c01ae43bfd37948f816f9b02f71d8",
-  "catalog_sha256": "447cb12ccdce0e5a4bcc9ea89ab82e06538b99fb9190e6fcd45c22d2f8af8701",
+  "catalog_revision": "928c0e91424271ef8fcddc20f6d28548cf81351d",
+  "catalog_sha256": "3f6d0b09957f7ae05620954a6210b52df977b8cbc7dcdd43769137d72662c8bb",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "9231ef42b8978d9f2c43f75df5a37f2af85d8cc86d788ee8f8f119c51dc3e8f2",
-  "scope": "One disposable Kind v1.36.1 cluster. Two restricted, tokenless Jobs process only bundled, invented defensive metadata. Correlation requires exact cluster, namespace, workload and a five-minute event-time window; business context is validity-bounded and can change analyst review urgency. The fixture makes no attribution or employment decision. It does not collect live audit, physical, organizational, HR, or SIEM/SOAR data and does not establish deployed coverage or control operation.",
-  "cluster": "saf-lab-5aceb0b57e1b",
+  "scope": "One disposable Kind v1.36.1 cluster. Two restricted, tokenless Jobs process only bundled, invented defensive metadata. Correlation requires exact cluster, namespace, workload and a five-minute event-time window; business context is validity-bounded and can change analyst review urgency. Only fixture-listed synthetic source classes are eligible for correlation. The fixture makes no attribution or employment decision. It does not collect live audit, physical, organizational, HR, or SIEM/SOAR data and does not establish deployed coverage or control operation.",
+  "cluster": "saf-lab-d155a1d3f255",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -94,6 +94,19 @@
         "expired_status": "expired",
         "ambiguous_status": "ambiguous",
         "no_attribution_or_employment_decision": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Authorized synthetic source contributes while equally scoped unapproved source is excluded without attribution",
+      "matched": true,
+      "observed": {
+        "authorized_join_ids": [
+          "CTX-A"
+        ],
+        "unapproved_record_excluded": true,
+        "review_urgency": "urgent",
+        "attribution_and_employment_unchanged": true
       }
     }
   ]

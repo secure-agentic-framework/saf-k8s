@@ -14,7 +14,8 @@ SCOPE = (
     "One disposable Kind v1.36.1 cluster. Two restricted, tokenless Jobs process only bundled, "
     "invented defensive metadata. Correlation requires exact cluster, namespace, workload and a five-minute "
     "event-time window; business context is validity-bounded and can change analyst review urgency. "
-    "The fixture makes no attribution or employment decision. It does not collect live audit, physical, "
+    "Only fixture-listed synthetic source classes are eligible for correlation. The fixture makes no "
+    "attribution or employment decision. It does not collect live audit, physical, "
     "organizational, HR, or SIEM/SOAR data and does not establish deployed coverage or control operation."
 )
 
@@ -68,7 +69,7 @@ def run(lab):
         same_candidates and severity_ids[0] == expected["severity_only_first"]
         and contextual_ids[:2] == [expected["contextual_first"], expected["contextual_second"]]
         and by_id[expected["critical_event"]]["review_urgency"] == "urgent"
-        and exact["matched_nontechnical_record_ids"] == ["CTX-A"]
+        and exact["matched_nontechnical_record_ids"].count("CTX-A") == 1
         and exact["business_context_record_id"] == "BIZ-A"
         and exact["review_urgency"] == "urgent"
         and exact["analyst_review_recommended"]
@@ -107,6 +108,8 @@ def run(lab):
     )
     evidence = {"single_signal": severity, "correlated": contextual,
                 "fixture_notice": fixture["notice"],
+                "authorized_source_classes": fixture["authorized_source_classes"],
+                "unapproved_synthetic_record_id": "CTX-A-UNAUTHORIZED-SYNTHETIC",
                 "correlation_window_seconds": fixture["correlation_window_seconds"]}
     (lab.evidence / "synthetic-triage-raw.json").write_text(json.dumps(evidence, indent=2) + "\n")
     lab.check("positive", "Out-of-scope, expired and ambiguously matched context cannot increase review urgency",
@@ -118,3 +121,19 @@ def run(lab):
                "expired_status": expired["business_context_status"],
                "ambiguous_status": ambiguous["business_context_status"],
                "no_attribution_or_employment_decision": safe_outputs})
+    unauthorized_id = "CTX-A-UNAUTHORIZED-SYNTHETIC"
+    authorized_source_gated = (
+        exact["matched_nontechnical_record_ids"] == ["CTX-A"]
+        and unauthorized_id not in exact["matched_nontechnical_record_ids"]
+        and by_id[expected["exact_join_event"]]["review_urgency"] == "urgent"
+        and all(row["attribution"] == "not_assessed"
+                and row["employment_decision"] == "not_applicable" for row in contextual)
+    )
+    lab.check("positive", "Authorized synthetic source contributes while equally scoped unapproved source is excluded without attribution",
+              authorized_source_gated,
+              {"authorized_join_ids": exact["matched_nontechnical_record_ids"],
+               "unapproved_record_excluded": unauthorized_id not in exact["matched_nontechnical_record_ids"],
+               "review_urgency": exact["review_urgency"],
+               "attribution_and_employment_unchanged": all(
+                   row["attribution"] == "not_assessed"
+                   and row["employment_decision"] == "not_applicable" for row in contextual)})

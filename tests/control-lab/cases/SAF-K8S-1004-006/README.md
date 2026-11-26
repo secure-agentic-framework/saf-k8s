@@ -41,3 +41,8 @@ Do not point this synthetic exercise at production or third-party endpoints. Ver
 ## Authoritative source
 
 NIST SP 800-53 Rev. 5, AU-6(9), states: “Correlate information from nontechnical sources with audit record information to enhance organization-wide situational awareness.” Its discussion identifies the sensitive nature of some nontechnical records, need-to-know access limits, and legal advice before correlation involving suspected individuals. Source: https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-53r5.pdf (AU-6(9), p. 72); publication/release page: https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final.
+
+
+## Scratch-only authorization counterfactual
+
+The paired replay adds one invented context record that matches TECH-A's cluster, namespace, workload and event-time window but comes from `unapproved_synthetic_feed`. Only the fixture-declared `facility_status` class is eligible; the approved CTX-A record contributes and the equally matching unapproved record is excluded. One additional normalized check retains the existing no-attribution/no-employment-decision outputs. This verifies only the comparator's fixture allowlist behavior, not any real source approval, legal basis, privacy review, or deployed access enforcement.

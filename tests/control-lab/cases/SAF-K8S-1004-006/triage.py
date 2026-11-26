@@ -16,10 +16,12 @@ def scope(record):
     return record["cluster"], record["namespace"], record["workload_id"]
 
 
-def correlated(event, records, window, review_time):
+def correlated(event, records, window, review_time, authorized_source_classes):
     event_time = timestamp(event["observed_at"])
     matches = []
     for record in records:
+        if record.get("source_class") not in authorized_source_classes:
+            continue
         if scope(record) != scope(event):
             continue
         observed = timestamp(record["observed_at"])
@@ -49,7 +51,8 @@ def rank(fixtures, mode):
     window = fixtures["correlation_window_seconds"]
     review_time = timestamp(fixtures["review_time"])
     for event in fixtures["technical_events"]:
-        context_matches = correlated(event, fixtures["nontechnical_context"], window, review_time)
+        context_matches = correlated(event, fixtures["nontechnical_context"], window, review_time,
+                                     set(fixtures["authorized_source_classes"]))
         business, business_status = business_record(event, fixtures["business_context"])
         if mode == "single-signal":
             urgency = "urgent" if event["severity"] == "critical" else (
