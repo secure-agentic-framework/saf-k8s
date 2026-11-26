@@ -19228,16 +19228,13 @@
   framework_version: 5.2.0
   framework_requirement_id: CM-3(6)
   framework_requirement_title: Cryptography Management
-  framework_mapping_notes: 'Managing cryptographic configs for agent systems
-
-
-    6.3 - Cryptographic agility and post-quantum readiness (algorithm selection, migration planning)'
+  framework_mapping_notes: 'This TUF control contributes only the configured update-verification behavior: role thresholds, expiry/version/metadata binding, target hash and length checks, rollback protection, and root rotation. It does not establish that cryptographic mechanisms are under configuration management, nor cryptographic agility or post-quantum migration planning. Retain this conditional relationship only when the adopter separately demonstrates CM control over the TUF cryptographic configuration.'
   control_id: SAF-K8S-0603-006
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  strength_level: weak
+  applicability: conditional
+  applicability_condition: Retain only when the organization includes TUF role keys, signature thresholds, algorithm choices, and client verification configuration among cryptographic mechanisms managed under its CM-3 process, with separate change-control evidence. The fixture verifies TUF update decisions; it does not test configuration-management workflow.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -23812,22 +23809,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: IA-13(1)
-  framework_requirement_title: Protection of Cryptographic Keys
-  framework_mapping_notes: 'Protecting IdP keys for agent auth
-
-
-    4.4 - cert-manager (certificate key protection); 6.3 - TUF HSM-based key storage for signing roles'
-  control_id: SAF-K8S-0603-006
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: IA-13(2)
   framework_requirement_title: Verification of Identity Assertions and Access Tokens
   framework_mapping_notes: 'Verifying agent tokens and assertions
@@ -25932,22 +25913,6 @@
 
     6.3 - Cryptographic module authentication and FIPS 140 compliance for signing and verification operations; 4.4 - TLS/mTLS configuration'
   control_id: SAF-K8S-0603-005
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: IA-7
-  framework_requirement_title: Cryptographic Module Authentication
-  framework_mapping_notes: 'Cryptographic module auth for agent systems
-
-
-    6.3 - Cryptographic module authentication and FIPS 140 compliance for signing and verification operations; 4.4 - TLS/mTLS configuration'
-  control_id: SAF-K8S-0603-006
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -32978,22 +32943,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: SA-4(6)
-  framework_requirement_title: Use of Information Assurance Products
-  framework_mapping_notes: 'Information assurance products (cryptographic modules, etc.) apply to securing agent communications
-
-
-    6.3 - Sigstore, TUF (approved information assurance products for image/model signing and verification)'
-  control_id: SAF-K8S-0603-006
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: SA-4(8)
   framework_requirement_title: Continuous Monitoring Plan for Controls
   framework_mapping_notes: 'Continuous monitoring plans for agentic AI security controls enable ongoing assurance
@@ -35716,16 +35665,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SC-12
   framework_requirement_title: Cryptographic Key Establishment and Management
-  framework_mapping_notes: SAF-K8S-0603-006 can support approved TUF key custody, rotation and recovery. SAF-K8S-0403-017
-    covers independent key domains and lifecycle. SAF-K8S-0403-018 covers operation permissions and SAF-K8S-0403-019
-    covers Kubernetes Secrets KMS integration.
+  framework_mapping_notes: The fixture demonstrates TUF root-key rotation acceptance when both the prior and new root thresholds authorize the new root, and rejection when the required prior-root authorization is absent. This is a limited contribution to SC-12 key lifecycle management. Actual key generation, custody, access controls, recovery, and destruction require adopter evidence; software-generated fixture keys are not custody evidence.
   control_id: SAF-K8S-0603-006
   relation_type: supports
   strength_level: moderate
   applicability: conditional
-  applicability_condition: Verify the actual TUF key establishment, custody, rotation and recovery against the approved
-    key-management policy.
-  strength_reason_code: null
+  applicability_condition: Retain only when the deployed TUF role keys and their generation, distribution, storage, access, rotation, recovery, and destruction are assessed against the organization’s approved key-management policy. The portable fixture covers root-rotation decision behavior only; it does not establish custody, recovery, or key destruction.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -35824,16 +35770,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SC-13
   framework_requirement_title: Cryptographic Protection
-  framework_mapping_notes: 'Cryptographic protection mechanisms secure agent data at rest, in transit, and in use
-
-
-    6.3 - Cryptographic agility and post-quantum readiness (overall cryptographic protection strategy)'
+  framework_mapping_notes: The fixture verifies cryptographic signatures and hashes for one synthetic TUF update path, including role thresholds and target integrity. It does not establish cryptographic protection at rest or in use, the organization’s selection of required cryptographic types, validated module status, algorithm migration, or post-quantum readiness.
   control_id: SAF-K8S-0603-006
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Retain only when the organization has selected TUF signatures and hashes as required cryptographic uses for an in-scope update path and separately demonstrates the required cryptographic types, parameters, and validation status. The fixture’s Ed25519 implementation does not prove an organization-wide cryptographic policy, FIPS validation, agility, or post-quantum readiness.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -45876,22 +45819,6 @@
 
 
     6.3 - Cryptographic agility (validated cryptographic algorithms); 9.5 - ML dependency vulnerability management'
-  control_id: SAF-K8S-0603-006
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-19(7)
-  framework_requirement_title: Validated Algorithms and Software
-  framework_mapping_notes: 'Validated de-identification algorithms ensure agent privacy controls are effective
-
-
-    6.3 - Cryptographic agility (validated cryptographic algorithms); 9.5 - ML dependency vulnerability management'
   control_id: SAF-K8S-0905-001
   relation_type: supports
   strength_level: strong
@@ -46207,22 +46134,6 @@
 
     1.4 - CVE response (patch prioritization timelines); 6.3 - Vulnerability prioritization (remediation benchmarks)'
   control_id: SAF-K8S-0603-005
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-2(3)
-  framework_requirement_title: Time to Remediate Flaws and Benchmarks for Corrective Actions
-  framework_mapping_notes: 'Remediation time benchmarks for agent vulnerabilities drive timely patching
-
-
-    1.4 - CVE response (patch prioritization timelines); 6.3 - Vulnerability prioritization (remediation benchmarks)'
-  control_id: SAF-K8S-0603-006
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -49923,16 +49834,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SI-7(6)
   framework_requirement_title: Cryptographic Protection
-  framework_mapping_notes: 'Cryptographic integrity protection for agent binaries and models prevents tampering
-
-
-    6.2 - Image signing with Sigstore/cosign (cryptographic integrity); 9.5 - Model signing; 6.3 - Cryptographic agility'
+  framework_mapping_notes: The fixture demonstrates that the TUF client rejects a target whose content does not match its signed target metadata and accepts the exact authorized target. This supports detection of unauthorized change during the tested update-distribution path. It does not establish installed-file, runtime, at-rest, or fleet-wide integrity verification.
   control_id: SAF-K8S-0603-006
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Retain only when TUF-delivered software, firmware, or information is included in the organization-defined SI-7 scope. Verify the production consumer checks the TUF target before use and separately assess integrity after installation or at rest where required.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -51398,22 +51306,6 @@
 
     6.3 - SLSA provenance, in-toto attestations; 9.5 - Model signing and provenance; 6.6 - Build attestation per NIST SP 800-204D'
   control_id: SAF-K8S-0603-005
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SR-4
-  framework_requirement_title: Provenance
-  framework_mapping_notes: 'Provenance tracking for AI models, training data, and agent tools verifies origin and integrity
-
-
-    6.3 - SLSA provenance, in-toto attestations; 9.5 - Model signing and provenance; 6.6 - Build attestation per NIST SP 800-204D'
-  control_id: SAF-K8S-0603-006
   relation_type: direct
   strength_level: strong
   applicability: required

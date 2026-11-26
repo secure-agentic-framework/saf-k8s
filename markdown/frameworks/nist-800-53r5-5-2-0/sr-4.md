@@ -29,15 +29,6 @@ Provenance tracking for AI models, training data, and agent tools verifies origi
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAF-K8S-0603-006 - TUF-based secure software update systems](../../controls/SAF-K8S-0603-006.md)
-
-- Domain: D06 - Supply Chain, Images, and Admission Control
-- Knowledge Area: 6.3
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
-
 ### [SAF-K8S-0606-002 - CI/CD build environment hardening](../../controls/SAF-K8S-0606-002.md)
 
 - Domain: D06 - Supply Chain, Images, and Admission Control
