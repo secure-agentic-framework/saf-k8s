@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0906-005",
-  "catalog_revision": "e8cb72dbd0c3bf662f3404b8f9be86ff7dcff9a4",
-  "catalog_sha256": "c1a14a1b203bdfe8828a691f5c30058745d96afefca29c70b370256b29cdb06d",
+  "catalog_revision": "8bb2d8d5903d4fb24f3142f919684f4371f559bd",
+  "catalog_sha256": "dede1d9259de5189313db60e51a83642e6553720a862b2f1ccfc404eac488add",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "c775cc2f7c87b02606abf45ad3c585ab9e2e883667877582c8352c902cfd30c9",
+  "control_sha256": "343ed0785f715ebf6aed645247a4f6b1f07e711e1ddd8578bf5db3675c093ae9",
   "scope": "Live Kubernetes service-account impersonation exercises named RBAC on benign synthetic reviewer and curator records. A workload compares an unchecked release with a governed decision for the exact dataset version. An independent read-only Pod confirms the persisted release and which rows are held.",
-  "cluster": "saf-lab-de93eb747242",
+  "cluster": "saf-lab-aabb89afca65",
   "kubernetes": {
     "clientVersion": {
       "major": "1",

@@ -2829,8 +2829,8 @@
     "SAF-K8S-0906-005": {
       "catalog_status": "draft",
       "domain": "D09",
-      "sha256": "c775cc2f7c87b02606abf45ad3c585ab9e2e883667877582c8352c902cfd30c9",
-      "title": "Annotation pipeline integrity and targeted label attack detection"
+      "sha256": "343ed0785f715ebf6aed645247a4f6b1f07e711e1ddd8578bf5db3675c093ae9",
+      "title": "Annotation workflow integrity and label-shift review"
     },
     "SAF-K8S-0906-006": {
       "catalog_status": "draft",
@@ -3572,7 +3572,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "511a78035433376fe77dfe6156b1e0c2810da1cf",
-  "sha256": "c11e20f1ec20d984db838c86fdb56b8f5655671774a59cb9d1cbc01f9889c3df",
+  "revision": "6c96bf851c11c61642eafce8a3395014a339c9e7",
+  "sha256": "dede1d9259de5189313db60e51a83642e6553720a862b2f1ccfc404eac488add",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

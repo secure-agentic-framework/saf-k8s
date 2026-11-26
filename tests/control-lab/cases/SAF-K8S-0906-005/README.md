@@ -12,3 +12,5 @@ The four checks use synthetic annotation and dataset records and native named-ac
 4. Preserve the protected change and review history, decision and artifact references, and ownership and retention evidence across correction and release paths.
 
 - [Kubernetes RBAC](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/rbac/)
+
+The reviewed histogram difference is a label-shift observation for quality review. Investigate its sampling, authorized changes and context before assigning a cause. The test compares the release decisions independently of that observation.
