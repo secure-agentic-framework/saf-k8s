@@ -2,8 +2,8 @@
 
 - Framework Code: NIST-800-53R5
 - Version: 5.2.0
-- Total Reverse Mappings: 3204
-- Distinct Requirements Mapped: 707
+- Total Reverse Mappings: 3198
+- Distinct Requirements Mapped: 704
 
 ## Requirements
 
@@ -30,12 +30,10 @@
 - [AC-17(3) - Managed Access Control Points](ac-17-3.md)
 - [AC-17(4) - Privileged Commands and Access](ac-17-4.md)
 - [AC-17(6) - Protection of Mechanism Information](ac-17-6.md)
-- [AC-17(9) - Disconnect or Disable Access](ac-17-9.md)
 - [AC-2 - Account Management](ac-2.md)
 - [AC-2(1) - Automated System Account Management](ac-2-1.md)
 - [AC-2(11) - Usage Conditions](ac-2-11.md)
 - [AC-2(12) - Account Monitoring for Atypical Usage](ac-2-12.md)
-- [AC-2(13) - Disable Accounts for High-risk Individuals](ac-2-13.md)
 - [AC-2(2) - Automated Temporary and Emergency Account Management](ac-2-2.md)
 - [AC-2(3) - Disable Accounts](ac-2-3.md)
 - [AC-2(4) - Automated Audit Actions](ac-2-4.md)
@@ -67,7 +65,6 @@
 - [AC-3(4) - Discretionary Access Control](ac-3-4.md)
 - [AC-3(5) - Security-relevant Information](ac-3-5.md)
 - [AC-3(7) - Role-based Access Control](ac-3-7.md)
-- [AC-3(8) - Revocation of Access Authorizations](ac-3-8.md)
 - [AC-3(9) - Controlled Release](ac-3-9.md)
 - [AC-4 - Information Flow Enforcement](ac-4.md)
 - [AC-4(1) - Object Security and Privacy Attributes](ac-4-1.md)

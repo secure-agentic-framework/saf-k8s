@@ -6974,22 +6974,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: AC-17(9)
-  framework_requirement_title: Disconnect or Disable Access
-  framework_mapping_notes: 'Ability to cut off agent remote access
-
-
-    10.5 - Incident response containment (draining nodes, isolating namespaces, revoking credentials, disconnecting access)'
-  control_id: SAF-K8S-1005-001
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: AC-2
   framework_requirement_title: Account Management
   framework_mapping_notes: 'Agent/service account lifecycle management
@@ -7376,22 +7360,6 @@
   applicability: conditional
   applicability_condition: The deployed system monitors applicable system accounts for the organization-defined atypical
     impersonation activity and reports findings to the defined personnel
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-2(13)
-  framework_requirement_title: Disable Accounts for High-risk Individuals
-  framework_mapping_notes: 'Disabling agent accounts during security events
-
-
-    4.5 - Detect and mitigate identity abuse; 10.5 - Incident response (revoking credentials, suspending workloads during security events)'
-  control_id: SAF-K8S-1005-001
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
   strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
@@ -10151,22 +10119,6 @@
 
     4.1 - Design and enforce RBAC (RBAC primitives: Roles, ClusterRoles, RoleBindings, ClusterRoleBindings)'
   control_id: SAF-K8S-0910-025
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-3(8)
-  framework_requirement_title: Revocation of Access Authorizations
-  framework_mapping_notes: 'Revoking agent permissions in real-time
-
-
-    4.5 - Detect and mitigate identity abuse (credential revocation); 10.5 - Incident response (revoking credentials during containment)'
-  control_id: SAF-K8S-1005-001
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -14202,22 +14154,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: AT-2(1)
-  framework_requirement_title: Practical Exercises
-  framework_mapping_notes: 'Hands-on exercises with agentic security scenarios
-
-
-    10.5 - Incident response (practical exercises, tabletop scenarios); 10.3 - Threat modeling exercises'
-  control_id: SAF-K8S-1005-001
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: AT-2(2)
   framework_requirement_title: Insider Threat
   framework_mapping_notes: 'Awareness of agent misuse/insider threat vectors
@@ -14393,22 +14329,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: AT-2(5)
-  framework_requirement_title: Advanced Persistent Threat
-  framework_mapping_notes: 'APT awareness for agent-targeted attacks
-
-
-    10.3 - Threat modeling (MITRE ATT&CK for Containers, APT awareness); 10.5 - IR for K8s environments'
-  control_id: SAF-K8S-1005-001
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: AT-2(6)
   framework_requirement_title: Cyber Threat Environment
   framework_mapping_notes: 'Threat landscape awareness for agentic systems
@@ -14533,22 +14453,6 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AT-3(3)
-  framework_requirement_title: Practical Exercises
-  framework_mapping_notes: 'Hands-on exercises for agent security roles
-
-
-    10.5 - IR practical exercises; 7.3 - Chaos engineering for GPU/AI resource controls'
-  control_id: SAF-K8S-1005-001
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -29509,16 +29413,13 @@
   framework_version: 5.2.0
   framework_requirement_id: PM-14
   framework_requirement_title: Testing, Training, and Monitoring
-  framework_mapping_notes: 'Testing and monitoring of agentic AI security controls is essential for ongoing assurance
-
-
-    10.5 - IR exercises; 10.2 - Continuous monitoring; 10.6 - Compliance testing and training'
+  framework_mapping_notes: The synthetic case supplies one repeatable technical incident-response exercise. It does not establish or maintain organizational testing, training, and monitoring plans, ensure their ongoing execution, provide training, or monitor deployed systems. Count it only as a test component of the broader PM-14 process when the adopter supplies the plans, recurring execution records, strategy-alignment review, and separate training and monitoring evidence.
   control_id: SAF-K8S-1005-001
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  strength_level: weak
+  applicability: conditional
+  applicability_condition: Only as one technical test contribution when the adopter incorporates this case into maintained organizational security and privacy testing, training, and monitoring plans, continues execution of those plans, and reviews them for alignment with the organizational risk management strategy and priorities.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
