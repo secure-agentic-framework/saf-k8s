@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-1001-027",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "5d09ad15b63defddfa7cc8e9087f64ad76d53dee",
+  "catalog_sha256": "447cb12ccdce0e5a4bcc9ea89ab82e06538b99fb9190e6fcd45c22d2f8af8701",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "91390198c97536bcc6221ee1936649206d2d31493e91932c1b4f6e2b36b53753",
   "scope": "A disposable Kubernetes v1.36.1 Kind control plane writes a native Metadata-level audit event for one case-owned ConfigMap create. The case preserves that exact JSONL record and stores identical bytes in an unlocked S3 version and a version inheriting a synthetic three-day COMPLIANCE bucket default. The S3 API observations verify the configured default, effective per-version retention, successful deletion of the unlocked counterpart, denial of early protected-version deletion or shortening, and exact-version retrieval after a benign replacement. This tests the pinned Versity gateway data plane only; it does not establish production log coverage, provider equivalence, legal retention requirements, administrative separation, storage capacity, or sustained durability.",
-  "cluster": "saf-lab-b585c6a45ccf",
+  "cluster": "saf-lab-42bac8862525",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
