@@ -11,15 +11,6 @@ Security architecture is critical for agentic AI systems with complex trust boun
 
 ## SAF-K8S Controls
 
-### [SAF-K8S-0504-001 - Zero trust networking principles for Kubernetes](../../controls/SAF-K8S-0504-001.md)
-
-- Domain: D05 - Network Security and Communication
-- Knowledge Area: 5.4
-- Relation Type: supports
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
-
 ### [SAF-K8S-0504-002 - Service mesh mTLS and authorization policies](../../controls/SAF-K8S-0504-002.md)
 
 - Domain: D05 - Network Security and Communication

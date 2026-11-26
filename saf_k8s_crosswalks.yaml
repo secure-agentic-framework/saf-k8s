@@ -6818,22 +6818,6 @@
 
 
     1.1 - Secure API server (TLS configuration); 5.4 - Implement zero trust (mTLS for encrypted remote access)'
-  control_id: SAF-K8S-0504-001
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-17(2)
-  framework_requirement_title: Protection of Confidentiality and Integrity Using Encryption
-  framework_mapping_notes: 'Encrypting agent API communications (TLS/mTLS)
-
-
-    1.1 - Secure API server (TLS configuration); 5.4 - Implement zero trust (mTLS for encrypted remote access)'
   control_id: SAF-K8S-0504-002
   relation_type: supports
   strength_level: strong
@@ -9145,22 +9129,6 @@
 
 
     4.2 - Projected service account tokens (transmitting authorization info); 5.4 - SPIFFE/SPIRE identity propagation'
-  control_id: SAF-K8S-0504-001
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-24(1)
-  framework_requirement_title: Transmit Access Authorization Information
-  framework_mapping_notes: 'Passing agent auth context between services
-
-
-    4.2 - Projected service account tokens (transmitting authorization info); 5.4 - SPIFFE/SPIRE identity propagation'
   control_id: SAF-K8S-0504-002
   relation_type: supports
   strength_level: strong
@@ -11026,22 +10994,6 @@
 
 
     5.4 - Implement zero trust (SPIFFE/SPIRE workload identity, cross-domain authentication); 4.4 - Certificate management and mTLS'
-  control_id: SAF-K8S-0504-001
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-4(17)
-  framework_requirement_title: Domain Authentication
-  framework_mapping_notes: 'Authenticating agent communication domains
-
-
-    5.4 - Implement zero trust (SPIFFE/SPIRE workload identity, cross-domain authentication); 4.4 - Certificate management and mTLS'
   control_id: SAF-K8S-0504-002
   relation_type: supports
   strength_level: strong
@@ -12610,22 +12562,6 @@
 
 
     5.1 - Implement network policies (dynamic egress controls); 5.4 - Service mesh authorization policies for dynamic flow control'
-  control_id: SAF-K8S-0504-001
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-4(3)
-  framework_requirement_title: Dynamic Information Flow Control
-  framework_mapping_notes: 'Dynamic flow control as agent context changes
-
-
-    5.1 - Implement network policies (dynamic egress controls); 5.4 - Service mesh authorization policies for dynamic flow control'
   control_id: SAF-K8S-0504-002
   relation_type: supports
   strength_level: strong
@@ -12883,22 +12819,6 @@
 
     5.2 - Secure CNI plugins (pod-to-pod encryption: WireGuard, IPsec); 5.4 - Service mesh mTLS for encrypted flow control'
   control_id: SAF-K8S-0502-005
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-4(4)
-  framework_requirement_title: Flow Control of Encrypted Information
-  framework_mapping_notes: 'Managing encrypted data flows between agents
-
-
-    5.2 - Secure CNI plugins (pod-to-pod encryption: WireGuard, IPsec); 5.4 - Service mesh mTLS for encrypted flow control'
-  control_id: SAF-K8S-0504-001
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -18223,22 +18143,6 @@
 
 
     5.4 - Service mesh (controlling transitive trust chains in multi-hop service communication)'
-  control_id: SAF-K8S-0504-001
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: CA-3(7)
-  framework_requirement_title: Transitive Information Exchanges
-  framework_mapping_notes: 'Transitive trust in multi-agent data flows
-
-
-    5.4 - Service mesh (controlling transitive trust chains in multi-hop service communication)'
   control_id: SAF-K8S-0504-002
   relation_type: supports
   strength_level: strong
@@ -22699,22 +22603,6 @@
 
 
     5.4 - Zero trust architecture provides layered alternative security mechanisms (mTLS, network policies, service mesh, SPIFFE/SPIRE) as defense in depth when any single mechanism is unavailable'
-  control_id: SAF-K8S-0504-001
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: CP-13
-  framework_requirement_title: Alternative Security Mechanisms
-  framework_mapping_notes: 'Fallback security for agent systems
-
-
-    5.4 - Zero trust architecture provides layered alternative security mechanisms (mTLS, network policies, service mesh, SPIFFE/SPIRE) as defense in depth when any single mechanism is unavailable'
   control_id: SAF-K8S-0504-002
   relation_type: supports
   strength_level: strong
@@ -26302,22 +26190,6 @@
 
 
     5.4 - Implement zero trust (mTLS bidirectional cryptographic authentication); 4.4 - Certificate management'
-  control_id: SAF-K8S-0504-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: IA-3(1)
-  framework_requirement_title: Cryptographic Bidirectional Authentication
-  framework_mapping_notes: 'Mutual TLS for agent-to-agent authentication
-
-
-    5.4 - Implement zero trust (mTLS bidirectional cryptographic authentication); 4.4 - Certificate management'
   control_id: SAF-K8S-0504-002
   relation_type: direct
   strength_level: strong
@@ -26920,22 +26792,6 @@
 
 
     4.2 - Workload identity federation (cross-cloud, cross-cluster identity); 5.4 - SPIFFE trust domain management'
-  control_id: SAF-K8S-0504-001
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: IA-4(6)
-  framework_requirement_title: Cross-organization Management
-  framework_mapping_notes: 'Cross-org agent identity management
-
-
-    4.2 - Workload identity federation (cross-cloud, cross-cluster identity); 5.4 - SPIFFE trust domain management'
   control_id: SAF-K8S-0504-002
   relation_type: supports
   strength_level: strong
@@ -27424,22 +27280,6 @@
   applicability: conditional
   applicability_condition: The organization governs approved API extension trust anchors and independently verifies distribution
     and removal
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: IA-5(14)
-  framework_requirement_title: Managing Content of PKI Trust Stores
-  framework_mapping_notes: 'Managing agent trust stores
-
-
-    4.4 - cert-manager (Issuers, ClusterIssuers, PKI trust store management); 5.4 - SPIFFE trust domains'
-  control_id: SAF-K8S-0504-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
   strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
@@ -28071,22 +27911,6 @@
 
 
     4.2 - OIDC external identity providers (accepting external authenticators); 5.4 - SPIFFE cross-cluster federation'
-  control_id: SAF-K8S-0504-001
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: IA-8(2)
-  framework_requirement_title: Acceptance of External Authenticators
-  framework_mapping_notes: 'Accepting external agent credentials
-
-
-    4.2 - OIDC external identity providers (accepting external authenticators); 5.4 - SPIFFE cross-cluster federation'
   control_id: SAF-K8S-0504-002
   relation_type: supports
   strength_level: strong
@@ -28225,16 +28049,13 @@
   framework_version: 5.2.0
   framework_requirement_id: IA-9
   framework_requirement_title: Service Identification and Authentication
-  framework_mapping_notes: 'Core -- agent service-to-service authentication
-
-
-    5.4 - SPIFFE/SPIRE workload identity (service-to-service identification and authentication); 4.4 - mTLS'
+  framework_mapping_notes: The owned target authenticates two workload service identities through mTLS peer URI SANs and applies identity-and-path authorization. This supports service identification and authentication on the tested route only; it does not establish fleet-wide identity governance or coverage.
   control_id: SAF-K8S-0504-001
-  relation_type: direct
-  strength_level: strong
+  relation_type: supports
+  strength_level: moderate
   applicability: required
   applicability_condition: null
-  strength_reason_code: null
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -30070,22 +29891,6 @@
 
 
     5.4 - Zero trust architecture; 10.3 - Threat modeling (security architecture design for K8s AI)'
-  control_id: SAF-K8S-0504-001
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: PL-8
-  framework_requirement_title: Security and Privacy Architectures
-  framework_mapping_notes: 'Security architecture is critical for agentic AI systems with complex trust boundaries and data flows
-
-
-    5.4 - Zero trust architecture; 10.3 - Threat modeling (security architecture design for K8s AI)'
   control_id: SAF-K8S-0504-002
   relation_type: supports
   strength_level: strong
@@ -30136,22 +29941,6 @@
     5.4 - Zero trust architecture; 10.3 - Threat modeling (security architecture design for K8s AI)'
   control_id: SAF-K8S-1003-002
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: PL-8(1)
-  framework_requirement_title: Defense in Depth
-  framework_mapping_notes: 'Defense in depth is essential for layered security in multi-agent architectures
-
-
-    5.4 - Zero trust + network policies + mTLS + admission control (defense in depth architecture)'
-  control_id: SAF-K8S-0504-001
-  relation_type: direct
   strength_level: strong
   applicability: required
   applicability_condition: null
@@ -35855,22 +35644,6 @@
 
 
     5.4 - Zero trust architecture principles; 3.4 - Cloud Native 8 secure defaults (engineering principles)'
-  control_id: SAF-K8S-0504-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SA-8
-  framework_requirement_title: Security and Privacy Engineering Principles
-  framework_mapping_notes: 'Security engineering principles guide secure design of agentic AI architectures
-
-
-    5.4 - Zero trust architecture principles; 3.4 - Cloud Native 8 secure defaults (engineering principles)'
   control_id: SAF-K8S-0504-002
   relation_type: direct
   strength_level: strong
@@ -35925,22 +35698,6 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SA-8(10)
-  framework_requirement_title: Hierarchical Trust
-  framework_mapping_notes: 'Hierarchical trust models govern how agents delegate authority and validate subordinate actions
-
-
-    5.4 - SPIFFE/SPIRE trust domains (hierarchical trust chains); 4.4 - PKI trust hierarchy via cert-manager'
-  control_id: SAF-K8S-0504-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -36308,22 +36065,6 @@
 
 
     9.1 - Distributed training security (secure multi-node composition); 5.4 - Service mesh for distributed systems'
-  control_id: SAF-K8S-0504-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SA-8(17)
-  framework_requirement_title: Secure Distributed Composition
-  framework_mapping_notes: 'Secure composition of distributed multi-agent systems is a core architectural challenge
-
-
-    9.1 - Distributed training security (secure multi-node composition); 5.4 - Service mesh for distributed systems'
   control_id: SAF-K8S-0504-002
   relation_type: direct
   strength_level: strong
@@ -36437,22 +36178,6 @@
 
     9.1 - Distributed training security (secure multi-node composition); 5.4 - Service mesh for distributed systems'
   control_id: SAF-K8S-0901-007
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SA-8(18)
-  framework_requirement_title: Trusted Communications Channels
-  framework_mapping_notes: 'Trusted channels between agents and tools prevent tampering and interception
-
-
-    5.4 - mTLS (trusted communication channels); 9.1 - Encrypted gradient communication (NCCL, MPI)'
-  control_id: SAF-K8S-0504-001
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -37295,22 +37020,6 @@
 
 
     5.4 - mTLS overhead on GPU training traffic; 9.2 - Inference resource controls (performance vs security tradeoffs)'
-  control_id: SAF-K8S-0504-001
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SA-8(26)
-  framework_requirement_title: Performance Security
-  framework_mapping_notes: 'Security mechanisms must not degrade agent performance to the point users bypass them
-
-
-    5.4 - mTLS overhead on GPU training traffic; 9.2 - Inference resource controls (performance vs security tradeoffs)'
   control_id: SAF-K8S-0504-002
   relation_type: supports
   strength_level: strong
@@ -37584,22 +37293,6 @@
 
     6.6 - GitOps (repeatable, documented deployment procedures via Git as source of truth)'
   control_id: SAF-K8S-0606-009
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SA-8(3)
-  framework_requirement_title: Modularity and Layering
-  framework_mapping_notes: 'Modularity and layering in agent architectures enables isolation and independent security validation
-
-
-    5.4 - Service mesh layered security; 3.3 - Layered MAC enforcement (seccomp + AppArmor + SELinux)'
-  control_id: SAF-K8S-0504-001
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -38807,22 +38500,6 @@
 
 
     5.4 - mTLS and SPIFFE/SPIRE (establishing trusted communication paths between services)'
-  control_id: SAF-K8S-0504-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-11
-  framework_requirement_title: Trusted Path
-  framework_mapping_notes: 'Trusted path ensures agent administrative communications cannot be intercepted or modified
-
-
-    5.4 - mTLS and SPIFFE/SPIRE (establishing trusted communication paths between services)'
   control_id: SAF-K8S-0504-002
   relation_type: direct
   strength_level: strong
@@ -38840,22 +38517,6 @@
 
     5.4 - mTLS and SPIFFE/SPIRE (establishing trusted communication paths between services)'
   control_id: SAF-K8S-0504-005
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-11(1)
-  framework_requirement_title: Irrefutable Communications Path
-  framework_mapping_notes: 'Irrefutable communication paths provide non-repudiation for critical agent operations
-
-
-    5.4 - SPIFFE/SPIRE (cryptographically verified irrefutable communications paths)'
-  control_id: SAF-K8S-0504-001
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -39168,22 +38829,6 @@
 
 
     5.4 - SPIFFE/SPIRE (transmitting workload identity and security attributes in service mesh)'
-  control_id: SAF-K8S-0504-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-16
-  framework_requirement_title: Transmission of Security and Privacy Attributes
-  framework_mapping_notes: 'Transmitting security attributes with agent messages enables context-aware access control
-
-
-    5.4 - SPIFFE/SPIRE (transmitting workload identity and security attributes in service mesh)'
   control_id: SAF-K8S-0504-002
   relation_type: direct
   strength_level: strong
@@ -39297,22 +38942,6 @@
 
     5.2 - IP spoofing protection; 5.4 - SPIFFE (cryptographic identity anti-spoofing mechanisms)'
   control_id: SAF-K8S-0502-005
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-16(2)
-  framework_requirement_title: Anti-spoofing Mechanisms
-  framework_mapping_notes: 'Anti-spoofing prevents agents from impersonating other agents or trusted entities
-
-
-    5.2 - IP spoofing protection; 5.4 - SPIFFE (cryptographic identity anti-spoofing mechanisms)'
-  control_id: SAF-K8S-0504-001
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -41311,22 +40940,6 @@
 
 
     9.4 - Pipeline step isolation (loosely coupled pipeline stages); 5.4 - Service mesh modularity'
-  control_id: SAF-K8S-0504-001
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-3(4)
-  framework_requirement_title: Module Coupling and Cohesiveness
-  framework_mapping_notes: 'Loose coupling of agent modules limits blast radius of component compromise
-
-
-    9.4 - Pipeline step isolation (loosely coupled pipeline stages); 5.4 - Service mesh modularity'
   control_id: SAF-K8S-0504-002
   relation_type: supports
   strength_level: strong
@@ -41377,22 +40990,6 @@
     9.4 - Pipeline step isolation (loosely coupled pipeline stages); 5.4 - Service mesh modularity'
   control_id: SAF-K8S-0904-003
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-3(5)
-  framework_requirement_title: Layered Structures
-  framework_mapping_notes: 'Layered security structures in agent architectures enable defense in depth
-
-
-    3.3 - Layered MAC (seccomp + AppArmor + SELinux); 5.4 - Zero trust layered security structures'
-  control_id: SAF-K8S-0504-001
-  relation_type: direct
   strength_level: strong
   applicability: required
   applicability_condition: null
@@ -43694,22 +43291,6 @@
 
 
     7.2 - Namespace isolation (cross-domain policy enforcement between tenants); 5.4 - Service mesh authorization policies'
-  control_id: SAF-K8S-0504-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-46
-  framework_requirement_title: Cross Domain Policy Enforcement
-  framework_mapping_notes: 'Cross-domain policy enforcement controls agent data flows between different trust domains
-
-
-    7.2 - Namespace isolation (cross-domain policy enforcement between tenants); 5.4 - Service mesh authorization policies'
   control_id: SAF-K8S-0504-002
   relation_type: direct
   strength_level: strong
@@ -43793,22 +43374,6 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-47
-  framework_requirement_title: Alternate Communications Paths
-  framework_mapping_notes: 'Alternate communication paths for agent management ensure resilient security operations
-
-
-    10.5 - IR containment (alternate communication paths during incidents); 5.4 - Service mesh redundancy'
-  control_id: SAF-K8S-0504-001
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -45157,22 +44722,6 @@
 
 
     5.4 - L7 authorization policies (automated protocol format enforcement via service mesh)'
-  control_id: SAF-K8S-0504-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-7(17)
-  framework_requirement_title: Automated Enforcement of Protocol Formats
-  framework_mapping_notes: 'Automated protocol enforcement validates agent communication format compliance
-
-
-    5.4 - L7 authorization policies (automated protocol format enforcement via service mesh)'
   control_id: SAF-K8S-0504-002
   relation_type: direct
   strength_level: strong
@@ -46075,16 +45624,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SC-7(8)
   framework_requirement_title: Route Traffic to Authenticated Proxy Servers
-  framework_mapping_notes: 'Routing agent traffic through authenticated proxies enables inspection and control
-
-
-    5.4 - Service mesh (routing traffic through authenticated sidecar proxies for mTLS enforcement)'
+  framework_mapping_notes: The tested owned Service path is handled by Istio sidecar proxies, and the destination proxy records the authenticated peer identity. This supports one authenticated-proxy path; it does not establish that all deployed traffic is routed through authenticated proxies.
   control_id: SAF-K8S-0504-001
-  relation_type: direct
-  strength_level: strong
+  relation_type: supports
+  strength_level: moderate
   applicability: required
   applicability_condition: null
-  strength_reason_code: null
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -46296,16 +45842,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SC-8
   framework_requirement_title: Transmission Confidentiality and Integrity
-  framework_mapping_notes: 'Agent communications must be protected for confidentiality and integrity in transit
-
-
-    5.2 - Pod-to-pod encryption; 5.4 - mTLS (transmission confidentiality and integrity)'
+  framework_mapping_notes: STRICT mTLS is configured for the owned target and the destination proxy confirms authenticated mTLS peers on tested requests. This supports transmission confidentiality and integrity for this fixture path only.
   control_id: SAF-K8S-0504-001
-  relation_type: direct
-  strength_level: strong
+  relation_type: supports
+  strength_level: moderate
   applicability: required
   applicability_condition: null
-  strength_reason_code: null
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -46434,16 +45977,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SC-8(1)
   framework_requirement_title: Cryptographic Protection
-  framework_mapping_notes: 'Cryptographic protection (TLS/mTLS) for agent-to-agent and agent-to-tool communications
-
-
-    5.2 - WireGuard, IPsec encryption; 5.4 - mTLS (cryptographic transmission protection)'
+  framework_mapping_notes: STRICT mTLS is configured for the owned target and the destination proxy confirms authenticated mTLS peers on tested requests. This supports cryptographic protection for this fixture path only.
   control_id: SAF-K8S-0504-001
-  relation_type: direct
-  strength_level: strong
+  relation_type: supports
+  strength_level: moderate
   applicability: required
   applicability_condition: null
-  strength_reason_code: null
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -46680,22 +46220,6 @@
     9.1 - Checkpoint security (pre/post-transmission integrity); 9.2 - Input/output validation and handling'
   control_id: SAF-K8S-0902-009
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-8(3)
-  framework_requirement_title: Cryptographic Protection for Message Externals
-  framework_mapping_notes: 'Protecting message metadata prevents traffic analysis of agent communication patterns
-
-
-    5.4 - mTLS (protecting message headers and metadata); 9.2 - TLS termination for inference endpoints'
-  control_id: SAF-K8S-0504-001
-  relation_type: direct
   strength_level: strong
   applicability: required
   applicability_condition: null
@@ -51710,22 +51234,6 @@
 
     5.4 - Service mesh mTLS (visibility into encrypted traffic); 5.2 - Pod-to-pod encryption (monitoring encrypted comms)'
   control_id: SAF-K8S-0502-005
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-4(10)
-  framework_requirement_title: Visibility of Encrypted Communications
-  framework_mapping_notes: 'Visibility into encrypted agent communications enables inspection for malicious content
-
-
-    5.4 - Service mesh mTLS (visibility into encrypted traffic); 5.2 - Pod-to-pod encryption (monitoring encrypted comms)'
-  control_id: SAF-K8S-0504-001
   relation_type: direct
   strength_level: strong
   applicability: required
