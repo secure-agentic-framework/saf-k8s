@@ -196,3 +196,14 @@ entitlements, sustained fairness, accelerator scheduling and deployed settings.
 - [Volcano v1.16.1 release](https://github.com/volcano-sh/volcano/releases/tag/v1.16.1)
 - [Volcano Queue](https://volcano.sh/docs/v1.16.0/concepts/queue/)
 - [Volcano PodGroup](https://volcano.sh/docs/v1.16.0/concepts/podgroup/)
+
+## Namespace Job intake
+
+A separate namespace uses Kubernetes `count/jobs.batch` object-count quota.
+The API keeps a completed Job and a suspended Job in the count while their
+objects exist, refuses a further create at the quota, and allows a new create
+after the completed Job is deleted. The test records exact Job and quota
+observations. Per-queue pending-only intake enforcement needs evidence from
+its configured admission mechanism.
+
+- [Kubernetes v1.36 object-count quota](https://v1-36.docs.kubernetes.io/docs/concepts/policy/resource-quotas/#object-count-quota)

@@ -35,7 +35,9 @@ SCOPE = (
     "preemption; it observes a 100m victim's eviction by a higher-priority Job and recovery of the same victim Job with a "
     "replacement Ready Pod after exact preemptor Job, Workload and owned Pod cleanup. A separate Volcano v1.16.1 "
     "fixture verifies the exact controller and scheduler inputs, scoped authorization and a two-worker CPU group "
-    "held below its Queue capacity requirement and admitted after capacity is raised. Accelerator quotas, "
+    "held below its Queue capacity requirement and admitted after capacity is raised. A separate "
+    "namespace verifies that object-count admission counts completed as well as suspended Jobs. "
+    "Accelerator quotas, "
     "representative workload demand and adopted deployments remain distinct evidence requirements."
 )
 
@@ -204,3 +206,4 @@ def run(lab):
     runpy.run_path(str(HERE / "kueue_priority_preemption.py"))["run"](lab)
     runpy.run_path(str(HERE / "volcano_install.py"))["run"](lab)
     runpy.run_path(str(HERE / "volcano_workload.py"))["run"](lab)
+    runpy.run_path(str(HERE / "queue_intake_object_count.py"))["run"](lab)
