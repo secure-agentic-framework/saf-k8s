@@ -1,0 +1,90 @@
+{
+  "realm": "fixture-mfa",
+  "enabled": true,
+  "sslRequired": "external",
+  "registrationAllowed": false,
+  "resetPasswordAllowed": false,
+  "rememberMe": false,
+  "browserFlow": "browser",
+  "otpPolicyType": "totp",
+  "otpPolicyAlgorithm": "HmacSHA1",
+  "otpPolicyDigits": 6,
+  "otpPolicyPeriod": 30,
+  "attributes": {
+    "acr.loa.map": "{\"1\":1,\"2\":2}"
+  },
+  "defaultDefaultClientScopes": [
+    "basic",
+    "profile"
+  ],
+  "defaultOptionalClientScopes": [
+    "email"
+  ],
+  "clients": [
+    {
+      "clientId": "fixture-mfa-relying-party",
+      "name": "SAF fixture API relying party",
+      "enabled": true,
+      "publicClient": true,
+      "protocol": "openid-connect",
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "implicitFlowEnabled": false,
+      "serviceAccountsEnabled": false,
+      "redirectUris": [
+        "https://127.0.0.1:17443/fixture-local-callback"
+      ],
+      "webOrigins": [],
+      "defaultClientScopes": [
+        "basic",
+        "profile"
+      ],
+      "optionalClientScopes": [],
+      "attributes": {
+        "pkce.code.challenge.method": "S256"
+      },
+      "protocolMappers": [
+        {
+          "name": "fixture-api-audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.custom.audience": "saf-k8s-mfa-api",
+            "id.token.claim": "false",
+            "access.token.claim": "true"
+          }
+        },
+        {
+          "name": "acr loa level",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-acr-mapper",
+          "consentRequired": false,
+          "config": {
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "userinfo.token.claim": "true"
+          }
+        }
+      ]
+    }
+  ],
+  "users": [
+    {
+      "username": "fixture-privileged-reviewer",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Fixture",
+      "lastName": "Reviewer",
+      "email": "fixture-privileged-reviewer@example.invalid",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "FIXTURE_PASSWORD_SENTINEL",
+          "temporary": false
+        }
+      ]
+    }
+  ],
+  "accessTokenLifespan": 600
+}
