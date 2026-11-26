@@ -648,6 +648,40 @@ def run(lab):
     lab.check("positive", "SeaweedFS stores and reads back distinct stage-bucket lifecycle rules",
               lifecycle_ok, lifecycle)
 
+    # The deployed 1-day / 2-day policies remain untouched. A fixed past Date
+    # rule selects exactly one inert key so the pinned lifecycle worker can be
+    # invoked once without waiting for a day or changing any clock.
+    expiry_seed = probe(lab, "expiry-seed")
+    expiry_seed_ok = (
+        expiry_seed.get("target_put_status") in (200, 204)
+        and expiry_seed.get("target_before_status") == 200
+        and expiry_seed.get("target_before_sha256") == expiry_seed.get("target_expected_sha256")
+        and expiry_seed.get("retained_put_status") in (200, 204)
+        and expiry_seed.get("retained_before_status") == 200
+        and expiry_seed.get("retained_before_sha256") == expiry_seed.get("retained_expected_sha256")
+    )
+    lab.check("positive", "Exact due-date marker and nonmatching comparator are present before the one-pass lifecycle run",
+              expiry_seed_ok, expiry_seed)
+
+    worker_result = lab.kubectl(
+        "exec", f"pod/{STORE}", "--", "/bin/sh", "-c",
+        "printf '%s\\n' 's3.lifecycle.run-shard -shards 0-15 -s3 localhost:18333 -refresh 0s -runtime 25s' | weed shell -master localhost:9333",
+        timeout=40, allow_failure=True,
+    )
+    expiry_after = probe(lab, "expiry-verify")
+    expiry_ok = (
+        worker_result.returncode == 0
+        and expiry_after.get("target_after_status") == 404
+        and expiry_after.get("retained_after_status") == 200
+        and expiry_after.get("retained_after_sha256") == expiry_after.get("retained_expected_sha256")
+    )
+    lab.check("positive", "One bounded SeaweedFS lifecycle worker pass expires only the exact due marker and preserves the nonmatching object",
+              expiry_ok, {"worker_exit_code": worker_result.returncode,
+                          "target_after_status": expiry_after.get("target_after_status"),
+                          "retained_after_status": expiry_after.get("retained_after_status"),
+                          "retained_after_sha256": expiry_after.get("retained_after_sha256"),
+                          "retained_expected_sha256": expiry_after.get("retained_expected_sha256")})
+
     # Native Kubernetes TokenRequest projection feeds SeaweedFS 4.53 STS. The
     # probe prints only fixed statuses/digests/booleans; bearer and session
     # values remain in Pod memory and never enter kubectl output or evidence.

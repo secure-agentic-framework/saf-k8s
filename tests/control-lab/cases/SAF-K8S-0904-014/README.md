@@ -14,3 +14,5 @@ Fifteen checks verify stage-scoped operations on a pinned disposable SeaweedFS 4
 - [Kubernetes ServiceAccount issuer discovery](https://v1-36.docs.kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/)
 - [SeaweedFS 4.53 OIDC audience validation](https://github.com/seaweedfs/seaweedfs/blob/4.53/weed/iam/oidc/oidc_provider.go#L718-L750)
 - [SeaweedFS 4.53 role trust context](https://github.com/seaweedfs/seaweedfs/blob/4.53/weed/iam/integration/iam_manager.go#L1924-L2003)
+
+A separate owned bucket holds one inert due marker and one nonmatching comparator. The case checks both exact objects before manually invoking one bounded SeaweedFS lifecycle worker pass. It observes removal of the due marker and retains the exact comparator digest. The manual pass demonstrates selected expiration behavior. Verify automatic scheduling, versions, replicas, retention exceptions and physical reclamation in the actual provider environment.

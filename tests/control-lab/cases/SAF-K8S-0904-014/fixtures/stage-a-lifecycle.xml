@@ -5,4 +5,10 @@
     <Status>Enabled</Status>
     <Expiration><Days>1</Days></Expiration>
   </Rule>
+  <Rule>
+    <ID>saf-0904-014-expiry-witness</ID>
+    <Filter><Prefix>lifecycle-probe/expired/</Prefix></Filter>
+    <Status>Enabled</Status>
+    <Expiration><Date>2020-01-01T00:00:00Z</Date></Expiration>
+  </Rule>
 </LifecycleConfiguration>

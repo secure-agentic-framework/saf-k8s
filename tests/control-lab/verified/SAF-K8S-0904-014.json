@@ -5,7 +5,7 @@
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "83b58f488ebb0d373f3a7818c9faaa8828daf1d3eb25c976aeaf58984b9deabb",
   "scope": "One fresh Kind v1.36.1 cluster runs the digest-pinned SeaweedFS 4.53 mini S3 backend with emptyDir data and a standard-library SigV4 client. Two static stage identities first have broad Read/Write access to both stage buckets, then the mounted static IAM config changes only their action scopes and the same SeaweedFS container process restarts inside the same Pod. The case checks unchanged credentials, Pod UID, Service ClusterIP, image and S3 marker hashes, then verifies cross-bucket denies, own-stage reads/writes, and stage-specific lifecycle config readback. An additive phase uses native Kubernetes TokenRequest projected ServiceAccount tokens with the disposable API server's discovered OIDC issuer/JWKS, SeaweedFS STS and synthetic bucket-scoped roles; its short configured-default STS credentials are checked before and after actual elapsed expiry. No production controller/provider behavior is claimed. The case does not establish production storage, encryption, or backing-byte reclamation.",
-  "cluster": "saf-lab-bd23aee12b12",
+  "cluster": "saf-lab-57fa84503257",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -210,9 +210,17 @@
           "bucket": "saf0904014-stage-a",
           "expected_rules": [
             {
+              "date": null,
               "days": "1",
               "id": "saf-0904-014-stage-a-classification-window",
               "prefix": "artifacts/",
+              "status": "Enabled"
+            },
+            {
+              "date": "2020-01-01T00:00:00Z",
+              "days": null,
+              "id": "saf-0904-014-expiry-witness",
+              "prefix": "lifecycle-probe/expired/",
               "status": "Enabled"
             }
           ],
@@ -221,9 +229,17 @@
           "put_status": 200,
           "rules": [
             {
+              "date": null,
               "days": "1",
               "id": "saf-0904-014-stage-a-classification-window",
               "prefix": "artifacts/",
+              "status": "Enabled"
+            },
+            {
+              "date": "2020-01-01T00:00:00Z",
+              "days": null,
+              "id": "saf-0904-014-expiry-witness",
+              "prefix": "lifecycle-probe/expired/",
               "status": "Enabled"
             }
           ]
@@ -232,6 +248,7 @@
           "bucket": "saf0904014-stage-b",
           "expected_rules": [
             {
+              "date": null,
               "days": "2",
               "id": "saf-0904-014-stage-b-classification-window",
               "prefix": "artifacts/",
@@ -243,6 +260,7 @@
           "put_status": 200,
           "rules": [
             {
+              "date": null,
               "days": "2",
               "id": "saf-0904-014-stage-b-classification-window",
               "prefix": "artifacts/",
@@ -251,6 +269,34 @@
           ]
         }
       ]
+    },
+    {
+      "phase": "positive",
+      "claim": "Exact due-date marker and nonmatching comparator are present before the one-pass lifecycle run",
+      "matched": true,
+      "observed": {
+        "operation": "expiry-seed",
+        "retained_before_sha256": "86b2a224221603f76636b2640a6afe2a03e48236020466f56b1e781df82adc52",
+        "retained_before_status": 200,
+        "retained_expected_sha256": "86b2a224221603f76636b2640a6afe2a03e48236020466f56b1e781df82adc52",
+        "retained_put_status": 200,
+        "target_before_sha256": "40fab9d812753a4fd1565aab8850d4497cc41b8ba4732b988fec2f180d874cc4",
+        "target_before_status": 200,
+        "target_expected_sha256": "40fab9d812753a4fd1565aab8850d4497cc41b8ba4732b988fec2f180d874cc4",
+        "target_put_status": 200
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "One bounded SeaweedFS lifecycle worker pass expires only the exact due marker and preserves the nonmatching object",
+      "matched": true,
+      "observed": {
+        "worker_exit_code": 0,
+        "target_after_status": 404,
+        "retained_after_status": 200,
+        "retained_after_sha256": "86b2a224221603f76636b2640a6afe2a03e48236020466f56b1e781df82adc52",
+        "retained_expected_sha256": "86b2a224221603f76636b2640a6afe2a03e48236020466f56b1e781df82adc52"
+      }
     },
     {
       "phase": "positive",

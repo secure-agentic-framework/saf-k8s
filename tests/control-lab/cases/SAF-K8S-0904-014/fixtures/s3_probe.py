@@ -31,6 +31,10 @@ ALLOWED_WRITES = {
     "a": (BUCKET_A, "artifacts/stage-a/allowed-after-scope.txt", b"SAF-K8S-0904-014 allowed stage-a write v1\n"),
     "b": (BUCKET_B, "artifacts/stage-b/allowed-after-scope.txt", b"SAF-K8S-0904-014 allowed stage-b write v1\n"),
 }
+EXPIRY_KEY = "lifecycle-probe/expired/one-marker.txt"
+RETAINED_KEY = "lifecycle-probe/retained/one-marker.txt"
+EXPIRY_BODY = b"SAF-K8S-0904-014 synthetic expiration witness v1\n"
+RETAINED_BODY = b"SAF-K8S-0904-014 nonmatching retained comparator v1\n"
 
 
 def hmac_bytes(key, value):
@@ -104,9 +108,14 @@ def lifecycle_result(bucket, config_path, expected_id, expected_days):
                 "status": rule.findtext("s3:Status", namespaces=ns),
                 "prefix": rule.findtext("s3:Filter/s3:Prefix", namespaces=ns),
                 "days": rule.findtext("s3:Expiration/s3:Days", namespaces=ns),
+                "date": rule.findtext("s3:Expiration/s3:Date", namespaces=ns),
             })
     expected = [{"id": expected_id, "status": "Enabled", "prefix": "artifacts/",
-                 "days": str(expected_days)}]
+                 "days": str(expected_days), "date": None}]
+    if bucket == BUCKET_A:
+        expected.append({"id": "saf-0904-014-expiry-witness", "status": "Enabled",
+                         "prefix": "lifecycle-probe/expired/", "days": None,
+                         "date": "2020-01-01T00:00:00Z"})
     return {"bucket": bucket, "put_status": put_status, "get_status": get_status,
             "rules": rules, "expected_rules": expected, "matches": rules == expected}
 
@@ -209,6 +218,37 @@ def main(operation):
             result[bucket] = {"status": status,
                               "sha256": hashlib.sha256(body).hexdigest() if status == 200 else None}
         output(operation, markers=result)
+        return
+
+    if operation == "expiry-seed":
+        target_status, _ = request("PUT", BUCKET_A, EXPIRY_KEY, EXPIRY_BODY, ADMIN,
+                                   content_type="text/plain")
+        retained_status, _ = request("PUT", BUCKET_B, RETAINED_KEY, RETAINED_BODY, ADMIN,
+                                     content_type="text/plain")
+        target_read, target_body = request("GET", BUCKET_A, EXPIRY_KEY, credentials=ADMIN)
+        retained_read, retained_body = request("GET", BUCKET_B, RETAINED_KEY,
+                                               credentials=ADMIN)
+        output(operation, target_put_status=target_status,
+               target_before_status=target_read,
+               target_before_sha256=hashlib.sha256(target_body).hexdigest()
+                   if target_read == 200 else None,
+               target_expected_sha256=hashlib.sha256(EXPIRY_BODY).hexdigest(),
+               retained_put_status=retained_status,
+               retained_before_status=retained_read,
+               retained_before_sha256=hashlib.sha256(retained_body).hexdigest()
+                   if retained_read == 200 else None,
+               retained_expected_sha256=hashlib.sha256(RETAINED_BODY).hexdigest())
+        return
+
+    if operation == "expiry-verify":
+        target_status, _ = request("GET", BUCKET_A, EXPIRY_KEY, credentials=ADMIN)
+        retained_status, retained_body = request("GET", BUCKET_B, RETAINED_KEY,
+                                                 credentials=ADMIN)
+        output(operation, target_after_status=target_status,
+               retained_after_status=retained_status,
+               retained_after_sha256=hashlib.sha256(retained_body).hexdigest()
+                   if retained_status == 200 else None,
+               retained_expected_sha256=hashlib.sha256(RETAINED_BODY).hexdigest())
         return
 
     raise ValueError(f"unknown fixed fixture operation: {operation}")
