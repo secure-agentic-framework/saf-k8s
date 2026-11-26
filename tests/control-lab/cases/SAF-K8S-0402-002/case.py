@@ -1,5 +1,6 @@
 """Review and retire only explicitly approved, case-owned ServiceAccount credentials."""
 import base64
+import importlib.util
 from datetime import datetime, timezone
 import json
 from pathlib import Path
@@ -41,7 +42,8 @@ SCOPE = (
     "credential creation time to selection. A separate credential proves direct "
     "API-read authorization before and denial after its Secret is deleted. Another "
     "credential is invalidated without deleting the Secret. An unaffected identity "
-    "retains access. The fixture does not establish production inactivity "
+    "retains access. A native CronJob consumes the reviewed eligibility decision and revokes the "
+    "exact approved credential under a named grant. The fixture does not establish production inactivity "
     "windows, history before this cluster, external identity revocation, managed "
     "cluster audit coverage, or year-scale cleanup timing. Credentials are held in "
     "memory and omitted from command transcripts and results; no impersonation is used."
@@ -50,7 +52,7 @@ SCOPE = (
 
 def prepare_kind(lab, temporary: Path) -> Path:
     policy = temporary / "saf-0402-002-audit.yaml"
-    policy.write_text(f"""apiVersion: audit.k8s.io/v1
+    policy.write_text("""apiVersion: audit.k8s.io/v1
 kind: Policy
 omitStages: [RequestReceived]
 rules:
@@ -381,7 +383,14 @@ def run(lab):
          "unselected_identities": [f"{NAMESPACE}/{IDENTITIES[key]}" for key in tokens]},
     )
 
-    lab.kubectl("delete", "secret", SECRET_NAMES["unused"], "--wait=true")
+    scheduled_file = HERE / "scheduled_case.py"
+    spec = importlib.util.spec_from_file_location("saf_scheduled_retirement", scheduled_file)
+    if spec is None or spec.loader is None:
+        lab.block("The scheduled credential case helper is unavailable")
+    schedule = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(schedule)
+    schedule.revoke_approved_credential(lab, approval["approval_id"], SECRET_NAMES["unused"],
+                                        SECRET_NAMES["unaffected"], read_audit_events)
     unused_secret = lab.kubectl(
         "get", "secret", SECRET_NAMES["unused"], "--ignore-not-found", "-o", "name",
     ).stdout.strip()

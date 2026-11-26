@@ -39,3 +39,20 @@ evidence.
 Define the in-scope namespaces, identity authorities, inactivity and retirement windows, approved exceptions and owners. Verify that collected audit records cover the complete window before treating absence of observed activity as inactivity. Select an owned identity, keep its scoped authorized comparison, and document the approval. Run the effective disablement or retirement workflow and confirm API refusal and removal of the selected grants. Independently verify revocation at each external service for the credentials it accepts. Record the before/after decision, observed request outcomes and retained audit references without keeping token bytes.
 
 For installations that rely on automatic legacy-token cleanup, confirm Kubernetes release behavior, tracked legacy Secret inventory and the approved configured cadence. The local case observes the effect of the invalidation marker and Secret removal. It uses a bounded history and case approval for the retirement decision.
+
+
+## Scheduled credential retirement
+
+The native CronJob starts suspended. After the fixture verifies the
+observed history and exact approved identity, it records that decision
+and enables the schedule. The Kubernetes controller creates a Job with
+the expected owner UID. A dedicated ServiceAccount may delete only one
+named Secret and its Job does so using the verified API connection.
+Independent object and audit reads confirm the credential is absent,
+the unrelated credential remains, and the scheduler identity performed
+the approved operation. The fixture then completes the separately
+observed account and binding retirement.
+
+Verify the adopted review and schedule, audit-window coverage, system
+exceptions, actual external credential authorities and rollback and
+retention policy.
