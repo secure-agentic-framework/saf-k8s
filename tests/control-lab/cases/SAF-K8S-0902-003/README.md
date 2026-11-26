@@ -34,3 +34,5 @@ model path compares the model's own enabled validation.
    for changes to gateways, routing or model serving.
 
 [NIST SP 800-53 Rev. 5](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final).
+
+The fixture also sends the same valid benign JSON bytes with `application/json` or `text/plain`. It compares acceptance with enforcement disabled and refusal at the governed gateway and model after activation. The independent recorder remains unchanged on refused input. The gateway-only arm keeps model enforcement off to identify which boundary stopped dispatch.

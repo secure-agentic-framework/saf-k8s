@@ -71,6 +71,10 @@ class Handler(BaseHTTPRequestHandler):
             self.json_reply(404, {"status": "not_found"})
             return
         if MODE in {"gateway", "model"}:
+            content_type = self.headers.get("Content-Type", "").split(";", 1)[0].strip().lower()
+            if ENFORCE and content_type != "application/json":
+                self.json_reply(415, {"status": "unsupported_content_type"})
+                return
             try:
                 length = int(self.headers.get("Content-Length", "-1"))
             except ValueError:

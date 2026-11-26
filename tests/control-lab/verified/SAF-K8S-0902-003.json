@@ -4,8 +4,8 @@
   "catalog_sha256": "b83ac9038446573762aca936c7046a45989069b1ebe83a7a085b1cabd514e9a3",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "80d96812fd6562fa377c475c63513062c135b317ff416a61f78f398e24848207",
-  "scope": "One disposable Kind v1.36.1 cluster runs case-owned gateway, model, and backend mock processes from a digest-pinned official Python image. The gateway and mock model each enforce the exact two-field JSON object schema and a 128-byte request-body limit. Benign typed fixtures test one schema-invalid object and one otherwise-valid object exactly one byte over the limit; valid requests must return the exact mock marker. With checks disabled, both benign comparators reach the recorder. An independently queried backend counter and request ID establish which requests reached the local backend. No external targets, feeds, model, gateway product, injection content, adversarial input, exploit, or production workload is used. This does not establish adversarial detection, sanitization, injection prevention, model robustness, batch/gRPC/streaming coverage, or organization-wide deployment.",
-  "cluster": "saf-lab-b295bb64af6f",
+  "scope": "One disposable Kind v1.36.1 cluster runs case-owned gateway, model, and backend mock processes from a digest-pinned official Python image. The gateway and mock model each enforce the exact two-field JSON object schema, application/json content type, and a 128-byte request-body limit. Fixed benign fixtures test one wrong-content-type request, one schema-invalid object, and one otherwise-valid object exactly one byte over the limit; valid requests must return the exact mock marker. With checks disabled, both benign comparators reach the recorder. An independently queried backend counter and request ID establish which requests reached the local backend. No external targets, feeds, model, gateway product, injection content, adversarial input, exploit, or production workload is used. This does not establish adversarial detection, sanitization, injection prevention, model robustness, batch/gRPC/streaming coverage, or organization-wide deployment.",
+  "cluster": "saf-lab-a9ad3afbd62b",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -63,6 +63,20 @@
       }
     },
     {
+      "phase": "red",
+      "claim": "With checks disabled, both owned stages accept the fixed valid JSON body as text/plain",
+      "matched": true,
+      "observed": {
+        "gateway_status": 200,
+        "gateway_marker_exact": true,
+        "gateway_backend_calls": 3,
+        "model_status": 200,
+        "model_marker_exact": true,
+        "model_backend_calls": 4,
+        "content_type": "text/plain"
+      }
+    },
+    {
       "phase": "positive",
       "claim": "Case-owned backend recorder starts with zero accepted requests",
       "matched": true,
@@ -111,6 +125,20 @@
       "observed": {
         "before": 0,
         "after": 0
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "gateway rejects the fixed valid JSON body with unsupported content type before dispatch",
+      "matched": true,
+      "observed": {
+        "status": 415,
+        "error": {
+          "status": "unsupported_content_type"
+        },
+        "content_type": "text/plain",
+        "backend_calls_before": 0,
+        "backend_calls_after": 0
       }
     },
     {
@@ -169,6 +197,20 @@
       }
     },
     {
+      "phase": "green",
+      "claim": "model rejects the fixed valid JSON body with unsupported content type before dispatch",
+      "matched": true,
+      "observed": {
+        "status": 415,
+        "error": {
+          "status": "unsupported_content_type"
+        },
+        "content_type": "text/plain",
+        "backend_calls_before": 1,
+        "backend_calls_after": 1
+      }
+    },
+    {
       "phase": "positive",
       "claim": "Model service independently enforces policy and accepts the exact valid fixture",
       "matched": true,
@@ -215,6 +257,20 @@
         },
         "body_bytes": 129,
         "limit_bytes": 128,
+        "backend_calls_before": 0,
+        "backend_calls_after": 0
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Gateway-only validation rejects text/plain before dispatch with model validation off",
+      "matched": true,
+      "observed": {
+        "http_status": 415,
+        "error": {
+          "status": "unsupported_content_type"
+        },
+        "content_type": "text/plain",
         "backend_calls_before": 0,
         "backend_calls_after": 0
       }

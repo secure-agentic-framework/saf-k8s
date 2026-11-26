@@ -17,11 +17,13 @@ PYTHON_IMAGE = (
 )
 LABEL = "saf-lab.example/control"
 APP = "saf-0902-003"
+CONTENT_TYPE_CANARY = "text/plain"
 SCOPE = (
     "One disposable Kind v1.36.1 cluster runs case-owned gateway, model, and backend mock "
     "processes from a digest-pinned official Python image. The gateway and mock model each "
-    "enforce the exact two-field JSON object schema and a 128-byte request-body limit. "
-    "Benign typed fixtures test one schema-invalid object and one otherwise-valid object "
+    "enforce the exact two-field JSON object schema, application/json content type, and "
+    "a 128-byte request-body limit. Fixed benign fixtures test one wrong-content-type "
+    "request, one schema-invalid object, and one otherwise-valid object "
     "exactly one byte over the limit; valid requests must return the exact mock marker. "
     "With checks disabled, both benign comparators reach the recorder. "
     "An independently queried backend counter and request ID establish which requests "
@@ -126,10 +128,10 @@ def _forward(lab, service, target_port):
     raise RuntimeError(f"Timed out starting port-forward for case-owned service {service}")
 
 
-def _request(port, method, path, body=None):
+def _request(port, method, path, body=None, content_type="application/json"):
     connection = http.client.HTTPConnection("127.0.0.1", port, timeout=5)
     try:
-        headers = {"Content-Type": "application/json"} if body is not None else {}
+        headers = {"Content-Type": content_type} if body is not None else {}
         connection.request(method, path, body=body, headers=headers)
         response = connection.getresponse()
         return response.status, response.read()
@@ -148,7 +150,7 @@ def _backend_state(port):
 
 
 def _assert_denial(lab, phase, component, component_port, invalid_body, size_body,
-                   backend_port, expected_count):
+                   content_type_body, backend_port, expected_count):
     before = _backend_state(backend_port)
     schema_status, schema_response = _request(component_port, "POST", "/infer", invalid_body)
     schema_result = {"status": schema_status, "response": json.loads(schema_response)}
@@ -172,6 +174,23 @@ def _assert_denial(lab, phase, component, component_port, invalid_body, size_bod
               after_size["accepted_calls"] == expected_count,
               {"before": after_schema["accepted_calls"], "after": after_size["accepted_calls"]})
 
+    content_type_status, content_type_response = _request(
+        component_port, "POST", "/infer", content_type_body, content_type=CONTENT_TYPE_CANARY
+    )
+    after_content_type = _backend_state(backend_port)
+    content_type_result = {
+        "status": content_type_status,
+        "error": json.loads(content_type_response),
+        "content_type": CONTENT_TYPE_CANARY,
+        "backend_calls_before": expected_count,
+        "backend_calls_after": after_content_type["accepted_calls"],
+    }
+    lab.check(phase, f"{component} rejects the fixed valid JSON body with unsupported content type before dispatch",
+              content_type_status == 415
+              and content_type_result["error"] == {"status": "unsupported_content_type"}
+              and after_content_type["accepted_calls"] == expected_count,
+              content_type_result)
+
 
 def run(lab):
     policy = json.loads((FIXTURES / "policy.json").read_text(encoding="utf-8"))
@@ -181,6 +200,7 @@ def run(lab):
     valid["input"] += "x" * (policy["max_body_bytes"] - len(valid_body))
     valid_body = json.dumps(valid, sort_keys=True, separators=(",", ":")).encode()
     invalid_body = json.dumps(invalid, sort_keys=True, separators=(",", ":")).encode()
+    content_type_body = valid_body
     if len(valid_body) != policy["max_body_bytes"]:
         lab.block("The benign valid fixture must match its exact declared fixture threshold")
     oversized = {"request_id": "fixture-0902-003-size", "input": ""}
@@ -214,6 +234,27 @@ def run(lab):
                       status == 200 and marker == policy["accepted_marker"].encode()
                       and state == {"accepted_calls": count, "last_request_id": request_id},
                       {"http_status": status, "backend": state})
+        gateway_type_status, gateway_type_marker = _request(
+            gateway_port, "POST", "/infer", content_type_body, content_type=CONTENT_TYPE_CANARY
+        )
+        gateway_type_state = _backend_state(backend_port)
+        model_type_status, model_type_marker = _request(
+            model_port, "POST", "/infer", content_type_body, content_type=CONTENT_TYPE_CANARY
+        )
+        model_type_state = _backend_state(backend_port)
+        baseline_type_ok = (
+            gateway_type_status == 200 and gateway_type_marker == policy["accepted_marker"].encode()
+            and gateway_type_state == {"accepted_calls": 3, "last_request_id": valid["request_id"]}
+            and model_type_status == 200 and model_type_marker == policy["accepted_marker"].encode()
+            and model_type_state == {"accepted_calls": 4, "last_request_id": valid["request_id"]}
+        )
+        lab.check("red", "With checks disabled, both owned stages accept the fixed valid JSON body as text/plain",
+                  baseline_type_ok,
+                  {"gateway_status": gateway_type_status, "gateway_marker_exact": gateway_type_marker == policy["accepted_marker"].encode(),
+                   "gateway_backend_calls": gateway_type_state["accepted_calls"],
+                   "model_status": model_type_status, "model_marker_exact": model_type_marker == policy["accepted_marker"].encode(),
+                   "model_backend_calls": model_type_state["accepted_calls"],
+                   "content_type": CONTENT_TYPE_CANARY})
     finally:
         _stop_forwards(forwards)
 
@@ -232,7 +273,7 @@ def run(lab):
         lab.check("positive", "Case-owned backend recorder starts with zero accepted requests",
                   initial == {"accepted_calls": 0, "last_request_id": None}, initial)
 
-        _assert_denial(lab, "green", "gateway", gateway_port, invalid_body, size_body,
+        _assert_denial(lab, "green", "gateway", gateway_port, invalid_body, size_body, content_type_body,
                        backend_port, 0)
         gateway_status, gateway_marker = _request(gateway_port, "POST", "/infer", valid_body)
         after_gateway = _backend_state(backend_port)
@@ -244,7 +285,7 @@ def run(lab):
                   {"status": gateway_status, "marker_exact": gateway_marker == policy["accepted_marker"].encode(),
                    "backend": after_gateway})
 
-        _assert_denial(lab, "green", "model", model_port, invalid_body, size_body,
+        _assert_denial(lab, "green", "model", model_port, invalid_body, size_body, content_type_body,
                        backend_port, 1)
         model_status, model_marker = _request(model_port, "POST", "/infer", valid_body)
         after_model = _backend_state(backend_port)
@@ -262,12 +303,12 @@ def run(lab):
         json.dumps({"observations": lab.checks, "case_body_limit_bytes": policy["max_body_bytes"]},
                    indent=2, sort_keys=True) + "\n")
 
-    _gateway_only_attribution(lab, invalid_body, size_body)
+    _gateway_only_attribution(lab, invalid_body, size_body, content_type_body)
 
 
 
 
-def _gateway_only_attribution(lab, invalid_body, size_body):
+def _gateway_only_attribution(lab, invalid_body, size_body, content_type_body):
     # Change both effective checks in one Deployment generation: gateway on, model off.
     patch = {"spec": {"template": {"spec": {"containers": [
         {"name": "gateway", "env": [{"name": "FIXTURE_ENFORCE", "value": "true"}]},
@@ -315,12 +356,28 @@ def _gateway_only_attribution(lab, invalid_body, size_body):
                   size_ok, {"http_status": size_status, "size_error": json.loads(response_body),
                             "body_bytes": len(size_body), "limit_bytes": 128,
                             "backend_calls_before": initial["accepted_calls"], "backend_calls_after": size_state["accepted_calls"]})
+        content_type_status, content_type_body_response = _request(
+            gateway_port, "POST", "/infer", content_type_body, content_type=CONTENT_TYPE_CANARY
+        )
+        content_type_state = _backend_state(backend_port)
+        content_type_ok = (
+            content_type_status == 415
+            and json.loads(content_type_body_response) == {"status": "unsupported_content_type"}
+            and content_type_state == initial
+        )
+        lab.check("green", "Gateway-only validation rejects text/plain before dispatch with model validation off",
+                  content_type_ok,
+                  {"http_status": content_type_status,
+                   "error": json.loads(content_type_body_response),
+                   "content_type": CONTENT_TYPE_CANARY,
+                   "backend_calls_before": initial["accepted_calls"],
+                   "backend_calls_after": content_type_state["accepted_calls"]})
     finally:
         _stop_forwards(forwards)
     (lab.evidence / "gateway-attribution.json").write_text(
         json.dumps({"gateway_validation": "enabled", "model_validation": "disabled",
                     "requests_are_fixed_benign_fixtures": True, "request_bodies_retained": False,
-                    "additional_checks": lab.checks[-3:]}, indent=2, sort_keys=True) + "\n")
+                    "additional_checks": lab.checks[-4:]}, indent=2, sort_keys=True) + "\n")
 
 
 def _stop_forwards(forwards):
