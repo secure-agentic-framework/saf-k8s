@@ -2,8 +2,8 @@
 
 - Framework Code: NIST-AI-RMF
 - Version: 1.0
-- Total Reverse Mappings: 92
-- Distinct Requirements Mapped: 44
+- Total Reverse Mappings: 91
+- Distinct Requirements Mapped: 43
 
 ## Requirements
 
@@ -17,7 +17,6 @@
 - [GOVERN 2.1 - Roles and responsibilities and lines of communication related to mapping, measuring, and managing AI risks are documented and are clear to individuals and teams throughout the organization.](govern-2-1.md)
 - [GOVERN 2.2 - The organization's personnel and partners receive AI risk management training to enable them to perform their duties and responsibilities consistent with related policies, procedures, and agreements.](govern-2-2.md)
 - [GOVERN 3.2 - Policies and procedures are in place to define and differentiate roles and responsibilities for human-AI configurations and oversight of AI systems.](govern-3-2.md)
-- [GOVERN 4.1 - Organizational policies and practices are in place to foster a critical thinking and safety-first mindset in the design, development, deployment, and uses of AI systems to minimize potential negative impacts.](govern-4-1.md)
 - [GOVERN 4.2 - Organizational teams document the risks and potential impacts of the AI technology they design, develop, deploy, or use, and communicate about the impacts more broadly.](govern-4-2.md)
 - [GOVERN 4.3 - Organizational practices are in place to enable AI testing, identification of incidents, and information sharing.](govern-4-3.md)
 - [GOVERN 6.1 - Policies and procedures are in place that address AI risks associated with third-party entities, including risks of infringement of a third-party's intellectual property or other rights.](govern-6-1.md)

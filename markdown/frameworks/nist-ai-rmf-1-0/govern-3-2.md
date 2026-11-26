@@ -5,7 +5,7 @@
 
 ## Mapping Notes
 
-AI system classification assigns control profiles based on risk tier, implicitly defining human oversight requirements. Model promotion gates enforce approval workflows requiring human review before deployment.
+A separate evaluator Job and reviewer ServiceAccount with distinct read/write permissions illustrate separation of the technical paths. Human oversight and assigned responsibilities require independent evidence of the organization's actual roles and procedures.
 
 ## SAF-K8S Controls
 
@@ -15,8 +15,8 @@ AI system classification assigns control profiles based on risk tier, implicitly
 - Knowledge Area: 9.5
 - Relation Type: supports
 - Strength: moderate
-- Applicability: required
-- Strength Reason Code: n/a
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-0905-050 - Authenticated reviewer identity validation for model promotion approvals](../../controls/SAF-K8S-0905-050.md)
 

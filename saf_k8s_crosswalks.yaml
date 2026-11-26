@@ -21978,22 +21978,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: SA-11(8)
-  framework_requirement_title: Dynamic Code Analysis
-  framework_mapping_notes: 'Dynamic analysis of running agent systems detects runtime vulnerabilities and anomalies
-
-
-    6.6 - CI pipeline security gates (DAST -- dynamic application security testing integration)'
-  control_id: SAF-K8S-0905-045
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: SA-11(9)
   framework_requirement_title: Interactive Application Security Testing
   framework_mapping_notes: 'IAST combines static and dynamic analysis for comprehensive agent security testing
@@ -36768,13 +36752,13 @@
   framework_version: '1.0'
   framework_requirement_id: GOVERN 3.2
   framework_requirement_title: Policies and procedures are in place to define and differentiate roles and responsibilities for human-AI configurations and oversight of AI systems.
-  framework_mapping_notes: AI system classification assigns control profiles based on risk tier, implicitly defining human oversight requirements. Model promotion gates enforce approval workflows requiring human review before deployment.
+  framework_mapping_notes: A separate evaluator Job and reviewer ServiceAccount with distinct read/write permissions illustrate separation of the technical paths. Human oversight and assigned responsibilities require independent evidence of the organization's actual roles and procedures.
   control_id: SAF-K8S-0905-045
   relation_type: supports
   strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  applicability: conditional
+  applicability_condition: When the organization adopts an equivalent differentiated evaluator/reviewer responsibility model with defined procedures. The reference case demonstrates separate fixture identities and RBAC only; it does not establish organizational policy or human reviewer identity.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-AI-RMF
   framework_name: NIST AI Risk Management Framework
@@ -36801,19 +36785,6 @@
   applicability: conditional
   applicability_condition: Only when the organization has defined and differentiated reviewer, publisher and workload responsibilities for the applicable AI oversight workflow, and the deployed identity mapping and authorization implement those roles. The reference's OIDC reviewer and Role are synthetic examples, not organizational policy evidence.
   strength_reason_code: partial-control-coverage
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-AI-RMF
-  framework_name: NIST AI Risk Management Framework
-  framework_version: '1.0'
-  framework_requirement_id: GOVERN 4.1
-  framework_requirement_title: Organizational policies and practices are in place to foster a critical thinking and safety-first mindset in the design, development, deployment, and uses of AI systems to minimize potential negative impacts.
-  framework_mapping_notes: AI system classification enforces risk-proportionate controls. Model promotion gates require validation before deployment, embedding a safety-first workflow in the AI lifecycle.
-  control_id: SAF-K8S-0905-045
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-AI-RMF
   framework_name: NIST AI Risk Management Framework
