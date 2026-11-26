@@ -13,6 +13,7 @@ APPROVED = {
     "stage1": "332ef3e0470b05b5d95355b9a838b6ee42b5e11c7fac6e36b21944fdbf4b5c6b",
     "stage2": "928f96382e91d258b9902faaf75a5475385d59eb112f18c80e0d4680379758b2",
 }
+VERSIONS = {"stage1": "fixture-transform-one/v1", "stage2": "fixture-transform-two/v1"}
 SCOPE = (
     "Two deterministic transformations of benign synthetic JSON run in local Kind. SHA-256 stage "
     "digests are locked in the fixture and immutable trust ConfigMap; a Kubernetes Validating "
@@ -43,12 +44,15 @@ def command(lab, target, *args):
     return json.loads(result.stdout)
 
 
-def stage_record(name, stage, payload, checksum):
+def stage_record(name, stage, payload, checksum, parent, version=None):
+    if version is None:
+        version = VERSIONS[stage]
     return {"apiVersion": "v1", "kind": "ConfigMap",
             "metadata": {"name": name, "namespace": NS,
                          "labels": {"saf.example/stage-record": "true", "saf.example/stage": stage}},
             "immutable": True,
-            "data": {"stage": stage, "sha256": checksum, "payload.json": payload}}
+            "data": {"stage": stage, "sha256": checksum, "input_sha256": parent,
+                     "stage_version": version, "payload.json": payload}}
 
 
 def submit(lab, record, dry=False):
@@ -59,11 +63,14 @@ def submit(lab, record, dry=False):
 
 def policy(lab, stage1, stage2):
     rules = []
-    for stage, checksum, payload in (("stage1", APPROVED["stage1"], stage1),
-                                     ("stage2", APPROVED["stage2"], stage2)):
+    for stage, checksum, parent, version, payload in (
+            ("stage1", APPROVED["stage1"], APPROVED["input"], VERSIONS["stage1"], stage1),
+            ("stage2", APPROVED["stage2"], APPROVED["stage1"], VERSIONS["stage2"], stage2)):
         rules.append(f'(object.data["stage"] == "{stage}" && object.data["sha256"] == "{checksum}" '
+                     f'&& object.data["input_sha256"] == "{parent}" '
+                     f'&& object.data["stage_version"] == "{version}" '
                      f'&& object.data["payload.json"] == \'{payload}\')')
-    expression = "has(object.data) && object.data.size() == 3 && (" + " || ".join(rules) + ")"
+    expression = "has(object.data) && object.data.size() == 5 && (" + " || ".join(rules) + ")"
     create(lab, "ValidatingAdmissionPolicy", "fixture-stage-integrity", "admissionregistration.k8s.io/v1",
            spec={"failurePolicy": "Fail",
                  "matchConstraints": {"resourceRules": [{"apiGroups": [""], "apiVersions": ["v1"],
@@ -135,9 +142,14 @@ def run(lab):
     policy(lab, approved_stage1, approved_stage2)
     rejected = [
         stage_record(f"fixture-alternate-stage{index}", f"stage{index}", payload,
-                     APPROVED[f"stage{index}"])
+                     APPROVED[f"stage{index}"],
+                     APPROVED["input"] if index == 1 else APPROVED["stage1"])
         for index, payload in enumerate(baseline_files, start=1)
     ]
+    wrong_parent = stage_record("fixture-stale-parent-stage1", "stage1", approved_stage1,
+                                APPROVED["stage1"], APPROVED["stage2"])
+    wrong_version = stage_record("fixture-stale-version-stage2", "stage2", approved_stage2,
+                                  APPROVED["stage2"], APPROVED["stage1"], "fixture-transform-two/v0")
     deadline = time.monotonic() + 12
     while True:
         dry = submit(lab, rejected[0], dry=True)
@@ -161,14 +173,23 @@ def run(lab):
             "decision": "rejected", "transition": "input", "writes": 0
         } and baseline_files == after_rejection,
     }
+    lineage_denials = [submit(lab, wrong_parent, dry=True), submit(lab, wrong_version, dry=True)]
+    lineage_absent = [lab.kubectl("get", "-n", NS, "configmap", record["metadata"]["name"],
+                                  "-o", "name", allow_failure=True)
+                      for record in (wrong_parent, wrong_version)]
 
     checked = command(lab, "fixture-pipeline", "checked", "approved")
-    approved_records = [submit(lab, stage_record("fixture-approved-stage1", "stage1", approved_stage1,
-                                                APPROVED["stage1"])),
-                       submit(lab, stage_record("fixture-approved-stage2", "stage2", approved_stage2,
-                                                APPROVED["stage2"]))]
+    stage1_record = stage_record("fixture-approved-stage1", "stage1", approved_stage1,
+                                 APPROVED["stage1"], APPROVED["input"])
+    stage2_record = stage_record("fixture-approved-stage2", "stage2", approved_stage2,
+                                 APPROVED["stage2"], APPROVED["stage1"])
+    approved_records = [submit(lab, stage1_record), submit(lab, stage2_record)]
     published = command(lab, "fixture-pipeline", "publish", "approved")
     observed = command(lab, "fixture-downstream", "decide")
+    stage1_readback = json.loads(lab.kubectl("get", "-n", NS, "configmap",
+                                            "fixture-approved-stage1", "-o", "json").stdout)
+    stage2_readback = json.loads(lab.kubectl("get", "-n", NS, "configmap",
+                                            "fixture-approved-stage2", "-o", "json").stdout)
     green = {**green_gate,
              "locked_stage_records_admitted": all(item.returncode == 0 for item in approved_records),
              "checked_exact_approved_bytes_reach_stage_two": checked == {
@@ -182,6 +203,29 @@ def run(lab):
              "separate_downstream_consumer_accepts_expected_artifact": observed["decision"] == "accept"}
     lab.check("green", "Admission refuses alternate stage bytes without writes and admits locked records",
               all(green.values()), green)
+    lineage = {
+        "stale_parent_denied_without_persistence": lineage_denials[0].returncode != 0
+            and "stage record does not match locked approved bytes" in lineage_denials[0].stderr
+            and lineage_absent[0].returncode != 0 and "NotFound" in lineage_absent[0].stderr,
+        "stale_version_denied_without_persistence": lineage_denials[1].returncode != 0
+            and "stage record does not match locked approved bytes" in lineage_denials[1].stderr
+            and lineage_absent[1].returncode != 0 and "NotFound" in lineage_absent[1].stderr,
+        "admitted_parent_and_version_match_actual_checked_output":
+            all(item.returncode == 0 for item in approved_records)
+            and checked["stage1_sha256"] == stage1_readback["data"]["sha256"] == APPROVED["stage1"]
+            and stage1_readback["data"]["input_sha256"] == APPROVED["input"]
+            and stage1_readback["data"]["stage_version"] == VERSIONS["stage1"]
+            and checked["stage2_sha256"] == stage2_readback["data"]["sha256"] == APPROVED["stage2"]
+            and stage2_readback["data"]["input_sha256"] == stage1_readback["data"]["sha256"]
+            and stage2_readback["data"]["stage_version"] == VERSIONS["stage2"],
+        "published_outputs_repeat_admitted_digests_and_consumer_reads_stage2":
+            published["stage1_sha256"] == stage1_readback["data"]["sha256"]
+            and published["stage2_sha256"] == stage2_readback["data"]["sha256"]
+            and observed["stage2_sha256"] == stage2_readback["data"]["sha256"]
+            and observed["decision"] == "accept",
+    }
+    lab.check("positive", "Native admission rejects stale lineage/version and release readback matches admitted outputs",
+              all(lineage.values()), lineage)
     positive = {"approved_input_digest_matches_lock": APPROVED["input"] ==
                 "08a362b6a4f86ca8e61c2b7bccd4dca72c731af1338dfd796bb6d8871d2e8a0e",
                 "downstream_decision_is_independently_observed": observed == {
@@ -190,5 +234,5 @@ def run(lab):
               all(positive.values()), positive)
     (lab.evidence / "training-integrity-observations.json").write_text(json.dumps({
         "scope": "synthetic-local-fixture", "baseline": red, "governed": green,
-        "downstream": observed, "expected_sha256": APPROVED,
+        "lineage": lineage, "downstream": observed, "expected_sha256": APPROVED,
     }, sort_keys=True, indent=2) + "\n")
