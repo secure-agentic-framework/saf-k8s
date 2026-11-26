@@ -129,34 +129,23 @@ def check_offline_advisory_reference(lab):
     advisory = json.loads(advisory_bytes)
     provenance = json.loads(provenance_path.read_text(encoding="utf-8"))
     inventory = json.loads(inventory_path.read_text(encoding="utf-8"))
-    snapshot_digest = __import__("hashlib").sha256(
-        json.dumps(advisory, sort_keys=True, separators=(",", ":")).encode("utf-8")
-    ).hexdigest()
-    source_pinned = (
-        snapshot_digest == "0bcc64f4bce24ed35da702708e857a90e5a82513e59b202e21b36b4e338cc708"
-        and advisory.get("cve_id") == "CVE-2023-45803"
-        and provenance.get("record_id") == advisory.get("cve_id")
-        and provenance.get("repository") == "CVEProject/cvelistV5"
-        and provenance.get("path") == "cves/2023/45xxx/CVE-2023-45803.json"
-        and provenance.get("git_blob_sha1") == "8774a806fca4a0c5d3474e7671a609cd8c8ee5b2"
-        and provenance.get("raw_record_sha256") == "d0233f8d7c5614e1ae54db79c32ae2b166cd8801c8ef463e65fbe349b52f1e44"
-    )
+    snapshot_digest, source_pinned = _source_identity(advisory, provenance)
     lab.check("positive", "The normalized advisory fixture is bound to the frozen official CVE record identity",
               source_pinned, {"record_id": advisory.get("cve_id"),
                               "upstream_git_blob_sha1_matches": provenance.get("git_blob_sha1") == "8774a806fca4a0c5d3474e7671a609cd8c8ee5b2",
                               "normalized_snapshot_sha256": snapshot_digest})
 
-    affected = [item for item in advisory.get("affected_versions", []) if item.get("status") == "affected"]
-    expected_ranges = {">= 2.0.0, < 2.0.7", "< 1.26.18"}
-    parsed_ranges = {item.get("range") for item in affected}
-    rows = inventory.get("rows", [])
-    matches = []
-    for index, row in enumerate(rows):
-        if row.get("ecosystem") != "PyPI" or row.get("name", "").lower() != "urllib3":
-            continue
-        if any(_version_in_range(row.get("version", ""), expression) for expression in parsed_ranges):
-            matches.append(index)
-    range_match = (parsed_ranges == expected_ranges
+    evaluation = _evaluate_pinned_advisory(advisory, provenance, inventory)
+    if evaluation["source_pinned"]:
+        affected = [item for item in advisory.get("affected_versions", []) if item.get("status") == "affected"]
+        expected_ranges = {">= 2.0.0, < 2.0.7", "< 1.26.18"}
+        parsed_ranges = {item.get("range") for item in affected}
+    else:
+        # Do not interpret version ranges from an untrusted source fixture.
+        expected_ranges = parsed_ranges = set()
+    matches = evaluation["matching_synthetic_row_indexes"]
+    range_match = (evaluation["source_pinned"] and evaluation["comparison_performed"]
+                   and parsed_ranges == expected_ranges
                    and matches == inventory.get("expected_matching_rows") == [0, 2]
                    and inventory.get("inventory_kind") == "synthetic package metadata only; no distribution files or package code")
     lab.check("green", "The pinned advisory ranges match only the two expected synthetic urllib3 inventory rows",
@@ -164,11 +153,10 @@ def check_offline_advisory_reference(lab):
                             "expected_matching_synthetic_row_indexes": [0, 2],
                             "range_count": len(parsed_ranges)})
 
-    decisions = [{"row_index": index, "package": row.get("name"), "version": row.get("version"),
-                  "matched_advisory": index in matches,
-                  "disposition": "context_review_required" if index in matches else "outside_pinned_advisory_ranges"}
-                 for index, row in enumerate(rows)]
-    triage_review = (all(item["disposition"] == "context_review_required" for item in decisions if item["matched_advisory"])
+    decisions = evaluation["decisions"]
+    rows = inventory.get("rows", [])
+    triage_review = (evaluation["source_pinned"] and evaluation["comparison_performed"]
+                     and all(item["disposition"] == "context_review_required" for item in decisions if item["matched_advisory"])
                      and all(item["disposition"] == "outside_pinned_advisory_ranges" for item in decisions if not item["matched_advisory"])
                      and all("exploitability" not in item for item in decisions))
     lab.check("green", "A version match remains a review-needed finding without an exploitability conclusion",
@@ -181,6 +169,61 @@ def check_offline_advisory_reference(lab):
                     "inventory_kind": inventory["inventory_kind"],
                     "packages_installed_or_executed": False}, indent=2, sort_keys=True) + "\n",
         encoding="utf-8")
+
+    # A harmless provenance-field mismatch must stop the same business path before range parsing.
+    untrusted_provenance = dict(provenance)
+    untrusted_provenance["repository"] = "untrusted.example/fixture"
+    untrusted = _evaluate_pinned_advisory(advisory, untrusted_provenance, inventory)
+    closed = (not untrusted["source_pinned"] and not untrusted["comparison_performed"]
+              and untrusted["decision"] == "not_evaluated_untrusted_source"
+              and untrusted["matching_synthetic_row_indexes"] == []
+              and untrusted["decisions"] == [])
+    lab.check("green", "A source-identity mismatch stops advisory matching before producing findings or dispositions",
+              closed, {"source_pinned": untrusted["source_pinned"],
+                       "comparison_performed": untrusted["comparison_performed"],
+                       "decision": untrusted["decision"],
+                       "matching_row_count": len(untrusted["matching_synthetic_row_indexes"]),
+                       "disposition_count": len(untrusted["decisions"])})
+
+
+def _source_identity(advisory, provenance):
+    snapshot_digest = __import__("hashlib").sha256(
+        json.dumps(advisory, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    ).hexdigest()
+    source_pinned = (
+        snapshot_digest == "0bcc64f4bce24ed35da702708e857a90e5a82513e59b202e21b36b4e338cc708"
+        and advisory.get("cve_id") == "CVE-2023-45803"
+        and provenance.get("record_id") == advisory.get("cve_id")
+        and provenance.get("repository") == "CVEProject/cvelistV5"
+        and provenance.get("path") == "cves/2023/45xxx/CVE-2023-45803.json"
+        and provenance.get("git_blob_sha1") == "8774a806fca4a0c5d3474e7671a609cd8c8ee5b2"
+        and provenance.get("raw_record_sha256") == "d0233f8d7c5614e1ae54db79c32ae2b166cd8801c8ef463e65fbe349b52f1e44"
+    )
+    return snapshot_digest, source_pinned
+
+
+def _evaluate_pinned_advisory(advisory, provenance, inventory):
+    """The range matcher only runs for the exact pinned normalized source fixture."""
+    _, source_pinned = _source_identity(advisory, provenance)
+    if not source_pinned:
+        return {"source_pinned": False, "comparison_performed": False,
+                "decision": "not_evaluated_untrusted_source",
+                "matching_synthetic_row_indexes": [], "decisions": []}
+    affected = [item for item in advisory.get("affected_versions", []) if item.get("status") == "affected"]
+    ranges = {item.get("range") for item in affected}
+    rows = inventory.get("rows", [])
+    matches = []
+    for index, row in enumerate(rows):
+        if row.get("ecosystem") != "PyPI" or row.get("name", "").lower() != "urllib3":
+            continue
+        if any(_version_in_range(row.get("version", ""), expression) for expression in ranges):
+            matches.append(index)
+    decisions = [{"row_index": index, "package": row.get("name"), "version": row.get("version"),
+                  "matched_advisory": index in matches,
+                  "disposition": "context_review_required" if index in matches else "outside_pinned_advisory_ranges"}
+                 for index, row in enumerate(rows)]
+    return {"source_pinned": True, "comparison_performed": True, "decision": "comparison_complete",
+            "matching_synthetic_row_indexes": matches, "decisions": decisions}
 
 
 def run(lab):

@@ -13,3 +13,13 @@ The first three checks use a restricted Job with two fictitious metadata-only Py
 - [Python Core metadata](https://packaging.python.org/en/latest/specifications/core-metadata/)
 - [CVE Program official records](https://github.com/CVEProject/cvelistV5)
 - [NIST Secure Software Development Framework](https://csrc.nist.gov/pubs/sp/800/218/final)
+
+## Advisory source validation
+
+The seventh check changes the repository field in an in-memory copy of the
+provenance metadata. The same evaluator that accepts the pinned fixture
+refuses the altered source before reading ranges or producing findings.
+The fixture keeps the original record locator, raw hash and Git blob
+identifier. The paired comparison checks the normalized snapshot hash and
+expected identifiers locally. The adopter procedure covers the authoritative
+feed, freshness and current deployed inventory.

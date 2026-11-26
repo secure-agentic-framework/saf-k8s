@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0905-028",
-  "catalog_revision": "f0cb9e1f116a40d63d09cc01c60c224128f8fca3",
-  "catalog_sha256": "0c684a60a481d0f72cbdbdf6554f5c02f7d716f35b2c4db859aa99c54a378c4b",
+  "catalog_revision": "be51e36d445e3477ca7c4fbb30df96c0ea5716e9",
+  "catalog_sha256": "ab598c8d529e8c408b30d9da739ef2238baa30596e3a773e3ee16b614b6995c0",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "95a828d37e78f02ba1ea5da944324c8165c4646a50749c9281c4471a711f9764",
   "scope": "One disposable Kubernetes cluster job builds tiny metadata-only wheels for two fictitious packages, installs them with pip --no-index from local wheelhouse directories, and inspects installed metadata. The red observation records the same flagged installation as promotable under an explicitly inactive gate; green blocks it; positive installs a fresh patched fixture and confirms its direct-to-transitive dependency path. No real third-party package, CVE, package code, vulnerability behavior, or production promotion system is involved.",
-  "cluster": "saf-lab-b2b88fef4574",
+  "cluster": "saf-lab-61dd553d9052",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -180,6 +180,18 @@
         "exploitability_assessed": false,
         "package_code_present": false,
         "synthetic_inventory_rows": 5
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "A source-identity mismatch stops advisory matching before producing findings or dispositions",
+      "matched": true,
+      "observed": {
+        "source_pinned": false,
+        "comparison_performed": false,
+        "decision": "not_evaluated_untrusted_source",
+        "matching_row_count": 0,
+        "disposition_count": 0
       }
     }
   ]
