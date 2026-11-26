@@ -9445,7 +9445,7 @@
   domain_name: 'AI Workload Security: Training, Serving, and Pipelines'
   knowledge_area: '9.6'
   control_seq: '005'
-  control_title: Annotation pipeline integrity and targeted label attack detection
+  control_title: Annotation workflow integrity and label-shift review
   control_statement: Authenticate annotation contributors and bind each review to an exact dataset version and asset. Require independent approval or authorized adjudication, and hold unresolved records before training. Use agreement and historical label metrics to prioritize independent quality investigations.
   objective: Prevent unapproved or unverifiable annotations from entering training and identify changes that require review.
   rationale: Version and actor checks verify custody and review policy. Agreement and distribution checks summarize observed changes and require separate evidence to assess semantic correctness or intent.

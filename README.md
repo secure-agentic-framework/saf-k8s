@@ -1277,7 +1277,7 @@ This knowledge area focuses on: AI system lifecycle classification, Automated mo
 
 ### Description
 
-This knowledge area focuses on: Large-scale data integrity verification, Statistical drift, outlier, and input validation for training data poisoning detection, Annotation pipeline integrity and targeted label attack detection, Training data provenance tracking from ingestion through model training, and Integrity verification at each training data transformation stage.
+This knowledge area focuses on: Large-scale data integrity verification, Statistical drift, outlier, and input validation for training data poisoning detection, Annotation workflow integrity and label-shift review, Training data provenance tracking from ingestion through model training, and Integrity verification at each training data transformation stage.
 
 ### Controls
 
@@ -1285,7 +1285,7 @@ This knowledge area focuses on: Large-scale data integrity verification, Statist
 | --- | --- | --- | --- |
 | [SAF-K8S-0906-002](markdown/controls/SAF-K8S-0906-002.md) | Large-scale data integrity verification | Practitioner | ai-specific |
 | [SAF-K8S-0906-004](markdown/controls/SAF-K8S-0906-004.md) | Statistical drift, outlier, and input validation for training data poisoning detection | Practitioner | ai-specific |
-| [SAF-K8S-0906-005](markdown/controls/SAF-K8S-0906-005.md) | Annotation pipeline integrity and targeted label attack detection | Practitioner | ai-specific |
+| [SAF-K8S-0906-005](markdown/controls/SAF-K8S-0906-005.md) | Annotation workflow integrity and label-shift review | Practitioner | ai-specific |
 | [SAF-K8S-0906-006](markdown/controls/SAF-K8S-0906-006.md) | Training data provenance tracking from ingestion through model training | Practitioner | ai-specific |
 | [SAF-K8S-0906-007](markdown/controls/SAF-K8S-0906-007.md) | Integrity verification at each training data transformation stage | Practitioner | ai-specific |
 
