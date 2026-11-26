@@ -11,15 +11,6 @@ SAF-K8S-generated technical artifacts (system architecture, cybersecurity measur
 
 ## SAF-K8S Controls
 
-### [SAF-K8S-0604-001 - SBOM generation for container and AI artifacts](../../controls/SAF-K8S-0604-001.md)
-
-- Domain: D06 - Supply Chain, Images, and Admission Control
-- Knowledge Area: 6.4
-- Relation Type: partial
-- Strength: moderate
-- Applicability: required
-- Strength Reason Code: n/a
-
 ### [SAF-K8S-1007-005 - Change management for production AI model deployments](../../controls/SAF-K8S-1007-005.md)
 
 - Domain: D10 - Observability, Incident Response, and Governance

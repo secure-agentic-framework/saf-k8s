@@ -31,10 +31,10 @@ Runtime monitoring evidence supports the cybersecurity contribution for scoped c
 
 - Domain: D06 - Supply Chain, Images, and Admission Control
 - Knowledge Area: 6.4
-- Relation Type: partial
+- Relation Type: supports
 - Strength: moderate
-- Applicability: required
-- Strength Reason Code: n/a
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-1002-003 - AI workload telemetry integration into cluster monitoring](../../controls/SAF-K8S-1002-003.md)
 

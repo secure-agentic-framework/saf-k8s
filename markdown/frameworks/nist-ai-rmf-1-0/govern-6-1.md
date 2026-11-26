@@ -5,7 +5,7 @@
 
 ## Mapping Notes
 
-SBOM and ML-BOM generation documents third-party dependencies. CNCF lifecycle security and zero-trust CI/CD pipelines enforce supply chain controls. Restricted use policies govern external AI service consumption.
+A digest-bound software component list is an input to the third-party risk process. Verify actual policies, procedures and treatment decisions independently.
 
 ## SAF-K8S Controls
 
@@ -15,8 +15,8 @@ SBOM and ML-BOM generation documents third-party dependencies. CNCF lifecycle se
 - Knowledge Area: 6.4
 - Relation Type: supports
 - Strength: moderate
-- Applicability: required
-- Strength Reason Code: framework-language-interpretation
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-0604-002 - ML-BOM (ML Bill of Materials) generation](../../controls/SAF-K8S-0604-002.md)
 

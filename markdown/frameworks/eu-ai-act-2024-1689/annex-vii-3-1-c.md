@@ -5,9 +5,7 @@
 
 ## Mapping Notes
 
-the technical documentation for each AI system covered under the same quality management system;
-
-SAF-K8S generates technical documentation artifacts referenced in Annex IV (architecture records, cybersecurity controls, logging configurations, change tracking). These form a subset of the information package submitted with the application.
+A digest-bound component inventory can support that documentation. Verify the actual technical file, assessment and quality-management obligations separately.
 
 ## SAF-K8S Controls
 
@@ -17,8 +15,8 @@ SAF-K8S generates technical documentation artifacts referenced in Annex IV (arch
 - Knowledge Area: 6.4
 - Relation Type: partial
 - Strength: moderate
-- Applicability: required
-- Strength Reason Code: n/a
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-0604-002 - ML-BOM (ML Bill of Materials) generation](../../controls/SAF-K8S-0604-002.md)
 

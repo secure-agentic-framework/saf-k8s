@@ -11,15 +11,6 @@ Supplier assessments for AI model providers and tool vendors validate security p
 
 ## SAF-K8S Controls
 
-### [SAF-K8S-0604-001 - SBOM generation for container and AI artifacts](../../controls/SAF-K8S-0604-001.md)
-
-- Domain: D06 - Supply Chain, Images, and Admission Control
-- Knowledge Area: 6.4
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
-
 ### [SAF-K8S-0604-002 - ML-BOM (ML Bill of Materials) generation](../../controls/SAF-K8S-0604-002.md)
 
 - Domain: D06 - Supply Chain, Images, and Admission Control

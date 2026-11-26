@@ -91,13 +91,13 @@
   framework_requirement_id: Annex-IV.2.a
   legacy_requirement_id: Annex-IV:IV(1)(b)
   framework_requirement_title: Technical documentation referred to in Article 11(1)
-  framework_mapping_notes: "the methods and steps performed for the development of the AI system, including, where relevant, recourse to pre-trained systems or tools provided by third parties and how those were used, integrated or modified by the provider;\n\nSAF-K8S supply chain controls (D6) track ML-BOMs, model provenance, and container image lineage. Training pipeline orchestration metadata is captured via Kubernetes job records. Full development process documentation is organizational."
+  framework_mapping_notes: The exact image inventory can support the descriptions of relevant software components and integrations. Record the actual development methods and integrated pretrained systems separately.
   control_id: SAF-K8S-0604-001
   relation_type: partial
   strength_level: moderate
-  applicability: required
-  applicability_condition:
-  strength_reason_code:
+  applicability: conditional
+  applicability_condition: The governed release image is part of the covered AI system and its digest-bound component inventory is incorporated into the required technical documentation.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to EU AI Act 2024/1689
   framework_code: EU-AI-ACT
   framework_name: EU AI Act
@@ -408,13 +408,13 @@
   framework_requirement_id: Annex-IV.2.h
   legacy_requirement_id: Annex-IV:IV(4)
   framework_requirement_title: Technical documentation referred to in Article 11(1)
-  framework_mapping_notes: "cybersecurity measures put in place;\n\nSAF-K8S is directly scoped to provide comprehensive cybersecurity controls for AI workloads on Kubernetes. All 10 SAF-K8S domains collectively address Article 15 cybersecurity requirements including network security (D5), access control (D4), workload isolation (D3), supply chain integrity (D6), and incident response (D10)."
+  framework_mapping_notes: The inventory can supply evidence about component visibility and release coverage checks. Verify other cybersecurity measures and the required technical documentation independently.
   control_id: SAF-K8S-0604-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition:
-  strength_reason_code:
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The covered technical file records the digest-bound SBOM process as one implemented cybersecurity measure.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to EU AI Act 2024/1689
   framework_code: EU-AI-ACT
   framework_name: EU AI Act
@@ -683,23 +683,6 @@
   framework_name: EU AI Act
   framework_version: 2024/1689
   framework_requirement_id: Annex-VI.3
-  legacy_requirement_id: Annex-VI:VI(3)(a)
-  framework_requirement_title: Conformity assessment procedure based on internal control
-  framework_mapping_notes: |-
-    The provider examines the information contained in the technical documentation in order to assess the compliance of the AI system with the relevant essential requirements set out in Chapter III, Section 2.
-
-    SAF-K8S generates much of the technical documentation referenced in Annex IV: system architecture records, cybersecurity controls documentation, logging configurations, change tracking artifacts, and post-market monitoring infrastructure evidence. However, the act of examining documentation for compliance is an organizational activity.
-  control_id: SAF-K8S-0604-001
-  relation_type: partial
-  strength_level: moderate
-  applicability: required
-  applicability_condition:
-  strength_reason_code:
-- mapping_set_name: SAF-K8S to EU AI Act 2024/1689
-  framework_code: EU-AI-ACT
-  framework_name: EU AI Act
-  framework_version: 2024/1689
-  framework_requirement_id: Annex-VI.3
   legacy_requirement_id: Annex-VI:VI(3)
   framework_requirement_title: Conformity assessment procedure based on internal control
   framework_mapping_notes: |-
@@ -753,16 +736,13 @@
   framework_requirement_id: Annex-VII.3.1.c
   legacy_requirement_id: Annex-VII:VII(3)
   framework_requirement_title: Conformity based on an assessment of the quality management system and an assessment of the technical documentation
-  framework_mapping_notes: |-
-    the technical documentation for each AI system covered under the same quality management system;
-
-    SAF-K8S generates technical documentation artifacts referenced in Annex IV (architecture records, cybersecurity controls, logging configurations, change tracking). These form a subset of the information package submitted with the application.
+  framework_mapping_notes: A digest-bound component inventory can support that documentation. Verify the actual technical file, assessment and quality-management obligations separately.
   control_id: SAF-K8S-0604-001
   relation_type: partial
   strength_level: moderate
-  applicability: required
-  applicability_condition:
-  strength_reason_code:
+  applicability: conditional
+  applicability_condition: The applicable assessment uses an image-specific approved SBOM as an input to the technical documentation for the covered system.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to EU AI Act 2024/1689
   framework_code: EU-AI-ACT
   framework_name: EU AI Act
@@ -797,23 +777,6 @@
   applicability: conditional
   applicability_condition: Only if this policy artifact and its scoped evidence are included in the technical documentation for the relevant AI system; this control does not supply the full technical-documentation application package.
   strength_reason_code: partial-control-coverage
-- mapping_set_name: SAF-K8S to EU AI Act 2024/1689
-  framework_code: EU-AI-ACT
-  framework_name: EU AI Act
-  framework_version: 2024/1689
-  framework_requirement_id: Annex-VII.3.1.d
-  legacy_requirement_id: Annex-VII:VII(3)
-  framework_requirement_title: Conformity based on an assessment of the quality management system and an assessment of the technical documentation
-  framework_mapping_notes: |-
-    the documentation concerning the quality management system which shall cover all the aspects listed under Article 17;
-
-    SAF-K8S generates technical documentation artifacts referenced in Annex IV (architecture records, cybersecurity controls, logging configurations, change tracking). These form a subset of the information package submitted with the application.
-  control_id: SAF-K8S-0604-001
-  relation_type: partial
-  strength_level: moderate
-  applicability: required
-  applicability_condition:
-  strength_reason_code:
 - mapping_set_name: SAF-K8S to EU AI Act 2024/1689
   framework_code: EU-AI-ACT
   framework_name: EU AI Act
@@ -863,23 +826,6 @@
   applicability: "conditional"
   applicability_condition: "The organization performs the provider function for an identified high-risk AI system whose applicable conformity route invokes Annex VII point 3.2."
   strength_reason_code: "partial-control-coverage"
-- mapping_set_name: SAF-K8S to EU AI Act 2024/1689
-  framework_code: EU-AI-ACT
-  framework_name: EU AI Act
-  framework_version: 2024/1689
-  framework_requirement_id: Annex-VII.4.3
-  legacy_requirement_id: Annex-VII:VII(5)
-  framework_requirement_title: Conformity based on an assessment of the quality management system and an assessment of the technical documentation
-  framework_mapping_notes: |-
-    The technical documentation shall be examined by the notified body. Where relevant, and limited to what is necessary to fulfil its tasks, the notified body shall be granted full access to the training, validation, and testing data sets used, including, where appropriate and subject to security safeguards, through API or other relevant technical means and tools enabling remote access.
-
-    SAF-K8S-generated technical artifacts (system architecture, cybersecurity measures, logging capabilities, change tracking) form part of the Annex IV documentation examined by the notified body.
-  control_id: SAF-K8S-0604-001
-  relation_type: partial
-  strength_level: moderate
-  applicability: required
-  applicability_condition:
-  strength_reason_code:
 - mapping_set_name: SAF-K8S to EU AI Act 2024/1689
   framework_code: EU-AI-ACT
   framework_name: EU AI Act
@@ -1586,16 +1532,13 @@
   framework_requirement_id: Article-11.1
   legacy_requirement_id: Art-11:11(1)
   framework_requirement_title: Technical documentation
-  framework_mapping_notes: |-
-    The technical documentation of a high-risk AI system shall be drawn up before that system is placed on the market or put into service and shall be kept up-to date. The technical documentation shall be drawn up in such a way as to demonstrate that the high-risk AI system complies with the requirements set out in this Section and to provide national competent authorities and notified bodies with the necessary information in a clear and comprehensive form to assess the compliance of the AI system with those requirements. It shall contain, at a minimum, the elements set out in Annex IV. SMEs, including start-ups, may provide the elements of the technical documentation specified in Annex IV in a simplified manner. To that end, the Commission shall establish a simplified technical documentation form targeted at the needs of small and microenterprises. Where an SME, including a start-up, opts to provide the information required in Annex IV in a simplified manner, it shall use the form referred to in this paragraph. Notified bodies shall accept the form for the purposes of the conformity assessment.
-
-    SAF-K8S supports technical documentation through ML-BOM generation (SAF-K8S-0604-002), SBOM generation (SAF-K8S-0604-001), model provenance tracking (D9 KA 9.5), and training data provenance (D9 KA 9.6). The organizational obligation to produce and maintain comprehensive technical documentation is out of scope; SAF-K8S provides the infrastructure artifacts that feed into that documentation.
+  framework_mapping_notes: The SBOM can supply a maintained inventory for one documented release image. Verify completeness and maintenance of the required technical documentation independently.
   control_id: SAF-K8S-0604-001
   relation_type: partial
   strength_level: moderate
-  applicability: required
-  applicability_condition:
-  strength_reason_code:
+  applicability: conditional
+  applicability_condition: A covered AI system includes the traceable image SBOM in the technical documentation and refreshes it after relevant release changes.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to EU AI Act 2024/1689
   framework_code: EU-AI-ACT
   framework_name: EU AI Act
@@ -2277,16 +2220,13 @@
   framework_requirement_id: Article-15.1
   legacy_requirement_id: Art-15:15(1)
   framework_requirement_title: Accuracy, robustness and cybersecurity
-  framework_mapping_notes: |-
-    High-risk AI systems shall be designed and developed in such a way that they achieve an appropriate level of accuracy, robustness, and cybersecurity, and that they perform consistently in those respects throughout their lifecycle.
-
-    SAF-K8S directly supports robustness and cybersecurity through workload isolation, runtime security, supply chain integrity, and continuous monitoring. However, accuracy is fundamentally an application-layer and model concern -- SAF-K8S has no controls that directly govern model accuracy levels.
+  framework_mapping_notes: Component visibility and approved coverage checks can support supply-chain cybersecurity. Assess required cybersecurity, accuracy and robustness outcomes independently.
   control_id: SAF-K8S-0604-001
-  relation_type: partial
+  relation_type: supports
   strength_level: moderate
-  applicability: required
-  applicability_condition:
-  strength_reason_code:
+  applicability: conditional
+  applicability_condition: The adopted inventory and release checks form one component of applicable cybersecurity measures for the covered high-risk AI system.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to EU AI Act 2024/1689
   framework_code: EU-AI-ACT
   framework_name: EU AI Act
@@ -2866,16 +2806,13 @@
   framework_requirement_id: Article-55.1.d
   legacy_requirement_id: Annex-XI:XI(5)
   framework_requirement_title: Obligations of providers of general-purpose AI models with systemic risk
-  framework_mapping_notes: |-
-    ensure an adequate level of cybersecurity protection for the general-purpose AI model with systemic risk and the physical infrastructure of the model.
-
-    SAF-K8S comprehensively covers cybersecurity measures across all 10 domains: network security (D5), access control (D4), workload isolation (D3), supply chain integrity (D6), GPU security (D8), and incident response (D10). Security testing infrastructure and evaluation results are managed through SAF-K8S pipelines.
+  framework_mapping_notes: The component record supports bounded software supply-chain visibility. Verify actual model and physical infrastructure cybersecurity separately.
   control_id: SAF-K8S-0604-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition:
-  strength_reason_code:
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The governed image is in the applicable general-purpose AI model with systemic risk scope and the provider uses the exact SBOM in its protection process.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to EU AI Act 2024/1689
   framework_code: EU-AI-ACT
   framework_name: EU AI Act
@@ -4108,13 +4045,13 @@
   framework_version: '1.0'
   framework_requirement_id: GOVERN 6.1
   framework_requirement_title: Policies and procedures are in place that address AI risks associated with third-party entities, including risks of infringement of a third-party's intellectual property or other rights.
-  framework_mapping_notes: SBOM and ML-BOM generation documents third-party dependencies. CNCF lifecycle security and zero-trust CI/CD pipelines enforce supply chain controls. Restricted use policies govern external AI service consumption.
+  framework_mapping_notes: A digest-bound software component list is an input to the third-party risk process. Verify actual policies, procedures and treatment decisions independently.
   control_id: SAF-K8S-0604-001
   relation_type: supports
   strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: framework-language-interpretation
+  applicability: conditional
+  applicability_condition: The adopted third-party AI risk process uses the exact component inventory and follows its documented supplier and intellectual-property procedures.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST AI RMF 1.0
   framework_code: NIST-AI-RMF
   framework_name: NIST AI Risk Management Framework
@@ -4634,13 +4571,13 @@
   framework_version: '1.0'
   framework_requirement_id: MAP 4.1
   framework_requirement_title: Approaches for mapping AI technology and legal risks of its components - including the use of third-party data or software - are in place, followed, and documented, as are risks of infringement of a third-party's intellectual property or other rights.
-  framework_mapping_notes: SBOM and ML-BOM generation documents all software and model dependencies. ML dependency vulnerability management tracks known vulnerabilities in third-party components.
+  framework_mapping_notes: The reference makes software components identifiable for a separate risk analysis. Verify that actual technology and rights risks are reviewed.
   control_id: SAF-K8S-0604-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The adopter uses the exact inventory in its documented mapping of technology and legal risks for governed AI system components.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST AI RMF 1.0
   framework_code: NIST-AI-RMF
   framework_name: NIST AI Risk Management Framework
@@ -5940,22 +5877,6 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-16(5)
-  framework_requirement_title: Attribute Displays on Objects to Be Output
-  framework_mapping_notes: 'Displaying classification on agent outputs
-
-
-    9.5 - Model cards display model attributes (lineage, sensitivity, intended use); 6.4 - SBOM/ML-BOM metadata surfaces security attributes on output artifacts'
-  control_id: SAF-K8S-0604-001
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -8516,22 +8437,6 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-24
-  framework_requirement_title: Access Control Decisions
-  framework_mapping_notes: 'Policy decision points for agent authorization
-
-
-    4.1 - Design and enforce RBAC (access control decisions); 6.4 - Admission control (policy-based access decisions)'
-  control_id: SAF-K8S-0604-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -11304,22 +11209,6 @@
   applicability: conditional
   applicability_condition: The applicable release rules verify the modification needed before transfer of the affected
     data
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-4(24)
-  framework_requirement_title: Internal Normalized Format
-  framework_mapping_notes: 'Normalizing agent data formats to prevent evasion
-
-
-    9.2 - Request format enforcement for inference inputs (normalization); 6.4 - SBOM standardized formats (SPDX, CycloneDX) enforce normalized representation'
-  control_id: SAF-K8S-0604-001
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
   strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
@@ -27405,22 +27294,6 @@
 
 
     10.5 - IR (supply chain incident coordination); 6.4 - Vulnerability intelligence sharing'
-  control_id: SAF-K8S-0604-001
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: IR-6(3)
-  framework_requirement_title: Supply Chain Coordination
-  framework_mapping_notes: 'Reporting agent supply chain incidents to vendors
-
-
-    10.5 - IR (supply chain incident coordination); 6.4 - Vulnerability intelligence sharing'
   control_id: SAF-K8S-0604-002
   relation_type: supports
   strength_level: strong
@@ -29725,22 +29598,6 @@
 
 
     6.1 - Container image vulnerability scanning (CI/CD, registry, runtime); 6.4 - Vulnerability intelligence'
-  control_id: SAF-K8S-0604-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: RA-5
-  framework_requirement_title: Vulnerability Monitoring and Scanning
-  framework_mapping_notes: 'Vulnerability scanning of agentic AI components, dependencies, and models is essential
-
-
-    6.1 - Container image vulnerability scanning (CI/CD, registry, runtime); 6.4 - Vulnerability intelligence'
   control_id: SAF-K8S-0604-002
   relation_type: direct
   strength_level: strong
@@ -29837,22 +29694,6 @@
 
 
     6.4 - VEX (correlating vulnerability scans with exploitability information to reduce false positives)'
-  control_id: SAF-K8S-0604-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: RA-5(10)
-  framework_requirement_title: Correlate Scanning Information
-  framework_mapping_notes: 'Correlating vulnerability scans across agent components reveals systemic weaknesses
-
-
-    6.4 - VEX (correlating vulnerability scans with exploitability information to reduce false positives)'
   control_id: SAF-K8S-0604-002
   relation_type: direct
   strength_level: strong
@@ -29903,22 +29744,6 @@
     6.4 - VEX (correlating vulnerability scans with exploitability information to reduce false positives)'
   control_id: SAF-K8S-0604-008
   relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: RA-5(6)
-  framework_requirement_title: Automated Trend Analyses
-  framework_mapping_notes: 'Automated trend analysis of agent vulnerabilities identifies systemic security issues
-
-
-    6.4 - Vulnerability prioritization (automated trend analysis for AI workload CVEs, GPU driver CVEs)'
-  control_id: SAF-K8S-0604-001
-  relation_type: supports
   strength_level: strong
   applicability: required
   applicability_condition: null
@@ -31481,22 +31306,6 @@
     10.5 - Post-incident lessons-learned; 6.6 - CI/CD continuous improvement of development process'
   control_id: SAF-K8S-0606-009
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SA-15(7)
-  framework_requirement_title: Automated Vulnerability Analysis
-  framework_mapping_notes: 'Automated vulnerability analysis of agent code and dependencies enables rapid detection
-
-
-    6.1 - Automated vulnerability scanning (CI/CD, registry-level, runtime); 6.4 - VEX for automated analysis'
-  control_id: SAF-K8S-0604-001
-  relation_type: direct
   strength_level: strong
   applicability: required
   applicability_condition: null
@@ -46208,22 +46017,6 @@
 
 
     1.4 - CVE response process (flaw remediation); 6.1 - Vulnerability scanning; 6.4 - SBOM vulnerability intelligence'
-  control_id: SAF-K8S-0604-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-2
-  framework_requirement_title: Flaw Remediation
-  framework_mapping_notes: 'Flaw remediation for agent software, models, and dependencies prevents exploitation
-
-
-    1.4 - CVE response process (flaw remediation); 6.1 - Vulnerability scanning; 6.4 - SBOM vulnerability intelligence'
   control_id: SAF-K8S-0604-002
   relation_type: direct
   strength_level: strong
@@ -46273,22 +46066,6 @@
 
     1.4 - CVE response process (flaw remediation); 6.1 - Vulnerability scanning; 6.4 - SBOM vulnerability intelligence'
   control_id: SAF-K8S-0604-010
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-2(2)
-  framework_requirement_title: Automated Flaw Remediation Status
-  framework_mapping_notes: 'Automated tracking of agent vulnerability patch status ensures timely remediation
-
-
-    6.4 - Vulnerability prioritization (automated tracking of flaw remediation status); 10.7 - Security posture management'
-  control_id: SAF-K8S-0604-001
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -48845,22 +48622,6 @@
 
 
     1.4 - CVE response (automated security announcement monitoring); 6.4 - Vulnerability intelligence'
-  control_id: SAF-K8S-0604-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-5(1)
-  framework_requirement_title: Automated Alerts and Advisories
-  framework_mapping_notes: 'Automated security advisory distribution ensures timely awareness of agent vulnerabilities
-
-
-    1.4 - CVE response (automated security announcement monitoring); 6.4 - Vulnerability intelligence'
   control_id: SAF-K8S-0604-002
   relation_type: direct
   strength_level: strong
@@ -51236,22 +50997,6 @@
 
 
     9.5 - ML dependency vulnerability management (diversifying ML framework dependencies); 6.4 - Dependency tracking'
-  control_id: SAF-K8S-0604-001
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SR-3(1)
-  framework_requirement_title: Diverse Supply Base
-  framework_mapping_notes: 'Diverse supply base for AI models and tools prevents single-vendor dependency risk
-
-
-    9.5 - ML dependency vulnerability management (diversifying ML framework dependencies); 6.4 - Dependency tracking'
   control_id: SAF-K8S-0604-002
   relation_type: supports
   strength_level: strong
@@ -51510,22 +51255,6 @@
     6.6 - CI/CD build environment hardening (limiting blast radius); 9.5 - Dev-to-prod environment separation'
   control_id: SAF-K8S-0905-012
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SR-3(3)
-  framework_requirement_title: Sub-tier Flow Down
-  framework_mapping_notes: 'Sub-tier flow-down of security requirements to AI model and tool sub-suppliers
-
-
-    6.4 - SBOM/dependency tracking (sub-tier dependency visibility); 6.6 - Helm chart dependency pinning'
-  control_id: SAF-K8S-0604-001
-  relation_type: direct
   strength_level: strong
   applicability: required
   applicability_condition: null
@@ -52241,22 +51970,6 @@
 
 
     9.5 - ML-BOM (training data lineage, framework versions, training infrastructure identity); 6.4 - ML-BOM generation'
-  control_id: SAF-K8S-0604-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SR-4(4)
-  framework_requirement_title: Supply Chain Integrity -- Pedigree
-  framework_mapping_notes: 'Supply chain pedigree for AI models documents complete chain of custody
-
-
-    9.5 - ML-BOM (training data lineage, framework versions, training infrastructure identity); 6.4 - ML-BOM generation'
   control_id: SAF-K8S-0604-002
   relation_type: direct
   strength_level: strong
@@ -52779,22 +52492,6 @@
 
 
     6.4 - VEX (vendor vulnerability communication); 9.5 - ML dependency vulnerability management (supplier review)'
-  control_id: SAF-K8S-0604-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SR-6
-  framework_requirement_title: Supplier Assessments and Reviews
-  framework_mapping_notes: 'Supplier assessments for AI model providers and tool vendors validate security practices
-
-
-    6.4 - VEX (vendor vulnerability communication); 9.5 - ML dependency vulnerability management (supplier review)'
   control_id: SAF-K8S-0604-002
   relation_type: direct
   strength_level: strong
@@ -53129,22 +52826,6 @@
 
     6.6 - CI/CD build environment hardening (OPSEC for supply chain); 9.5 - Dev-to-prod environment separation'
   control_id: SAF-K8S-0905-012
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SR-8
-  framework_requirement_title: Notification Agreements
-  framework_mapping_notes: 'Notification agreements with AI suppliers ensure timely disclosure of security issues
-
-
-    1.4 - CVE response (monitoring security announcements from vendors); 6.4 - Vulnerability intelligence'
-  control_id: SAF-K8S-0604-001
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -53692,19 +53373,6 @@
   framework_requirement_id: PO.1.3
   framework_requirement_title: Communicate requirements to all third parties who will provide commercial software components to the organization for reuse.
   framework_mapping_notes: SAF-K8S supply chain controls enforce requirements on third-party components (container images, Helm charts, ML models) admitted to the cluster. SAF-K8S-0604-007 requires documented security requirements for third-party components and their communication to vendors. Admission policies, signature verification, and SBOM requirements operationalize these requirements at the infrastructure boundary.
-  control_id: SAF-K8S-0604-001
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SSDF 1.1
-  framework_code: NIST-SSDF
-  framework_name: 'NIST SP 800-218: Secure Software Development Framework (SSDF) Version 1.1'
-  framework_version: '1.1'
-  framework_requirement_id: PO.1.3
-  framework_requirement_title: Communicate requirements to all third parties who will provide commercial software components to the organization for reuse.
-  framework_mapping_notes: SAF-K8S supply chain controls enforce requirements on third-party components (container images, Helm charts, ML models) admitted to the cluster. SAF-K8S-0604-007 requires documented security requirements for third-party components and their communication to vendors. Admission policies, signature verification, and SBOM requirements operationalize these requirements at the infrastructure boundary.
   control_id: SAF-K8S-0604-007
   relation_type: direct
   strength_level: strong
@@ -53773,12 +53441,12 @@
   framework_version: '1.1'
   framework_requirement_id: PO.3.3
   framework_requirement_title: Configure tools to generate artifacts of their support of secure software development practices as defined by the organization.
-  framework_mapping_notes: SAF-K8S requires generation of SBOMs, ML-BOMs, build attestations, and SLSA provenance as evidence artifacts of secure development practices.
+  framework_mapping_notes: This control contributes generation of a machine-readable release SBOM and verifies required component coverage. Assess tool configuration for other security artifacts separately.
   control_id: SAF-K8S-0604-001
   relation_type: direct
   strength_level: strong
-  applicability: required
-  applicability_condition: null
+  applicability: conditional
+  applicability_condition: The applicable development toolchain uses this pinned inventory generator for the required release evidence and validates mandatory component coverage.
   strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SSDF 1.1
   framework_code: NIST-SSDF
@@ -53893,13 +53561,13 @@
   framework_version: '1.1'
   framework_requirement_id: PS.3.2
   framework_requirement_title: Collect, safeguard, maintain, and share provenance data for all components of each software release (e.g., in an SBOM).
-  framework_mapping_notes: SAF-K8S has dedicated controls for SBOM generation, ML-BOM generation, SBOM distribution as OCI artifacts, VEX publication, and SLSA build provenance. These directly implement provenance data collection and sharing for Kubernetes-deployed software.
+  framework_mapping_notes: The reference contributes collection and association of software inventory for the release. Verify actual completeness, custody and distribution independently.
   control_id: SAF-K8S-0604-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: partial
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The adopter safeguards, maintains and shares the exact digest-bound release SBOM through its governed distribution path.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SSDF 1.1
   framework_code: NIST-SSDF
   framework_name: 'NIST SP 800-218: Secure Software Development Framework (SSDF) Version 1.1'

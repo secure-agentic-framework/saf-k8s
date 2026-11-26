@@ -5,7 +5,7 @@
 
 ## Mapping Notes
 
-SBOM and ML-BOM generation documents all software and model dependencies. ML dependency vulnerability management tracks known vulnerabilities in third-party components.
+The reference makes software components identifiable for a separate risk analysis. Verify that actual technology and rights risks are reviewed.
 
 ## SAF-K8S Controls
 
@@ -13,10 +13,10 @@ SBOM and ML-BOM generation documents all software and model dependencies. ML dep
 
 - Domain: D06 - Supply Chain, Images, and Admission Control
 - Knowledge Area: 6.4
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: exact-text-match
+- Relation Type: supports
+- Strength: moderate
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-0604-002 - ML-BOM (ML Bill of Materials) generation](../../controls/SAF-K8S-0604-002.md)
 

@@ -5,9 +5,7 @@
 
 ## Mapping Notes
 
-the methods and steps performed for the development of the AI system, including, where relevant, recourse to pre-trained systems or tools provided by third parties and how those were used, integrated or modified by the provider;
-
-SAF-K8S supply chain controls (D6) track ML-BOMs, model provenance, and container image lineage. Training pipeline orchestration metadata is captured via Kubernetes job records. Full development process documentation is organizational.
+The exact image inventory can support the descriptions of relevant software components and integrations. Record the actual development methods and integrated pretrained systems separately.
 
 ## SAF-K8S Controls
 
@@ -17,8 +15,8 @@ SAF-K8S supply chain controls (D6) track ML-BOMs, model provenance, and containe
 - Knowledge Area: 6.4
 - Relation Type: partial
 - Strength: moderate
-- Applicability: required
-- Strength Reason Code: n/a
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-0604-002 - ML-BOM (ML Bill of Materials) generation](../../controls/SAF-K8S-0604-002.md)
 
