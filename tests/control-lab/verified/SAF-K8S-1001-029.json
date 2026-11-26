@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-1001-029",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "a2a586f631d32f5ebf1eadf4c9a42c7059d22edc",
+  "catalog_sha256": "447cb12ccdce0e5a4bcc9ea89ab82e06538b99fb9190e6fcd45c22d2f8af8701",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "960b9470f9a4418a1bdb6d25e3cb1cfe022155905356284f80e2461ac26f1ae3",
-  "scope": "One ordinary runner-owned kind cluster and namespace; a case-owned Fluent Bit 5.1.2 collector tails two structured ConfigMap-backed fixture files and posts only to a case-owned HTTP evidence sink in that namespace. Synthetic event IDs model Kubernetes audit and AI security telemetry. The case compares source-level expected IDs and counts at the sink across complete, missing-source, partial-source, and recovered runs. It does not test native Kubernetes audit generation, an AI workload, production SIEM alerting, long-term retention, high availability, or sustained/load delivery.",
-  "cluster": "saf-lab-eeb3d63acdb4",
+  "scope": "One ordinary runner-owned kind cluster and namespace; a case-owned Fluent Bit 5.1.2 collector tails two structured ConfigMap-backed fixture files and posts only to a case-owned HTTP evidence sink in that namespace. Synthetic event IDs model Kubernetes audit and AI security telemetry. The case compares source-level expected IDs and counts at the sink across complete, missing-source, partial-source, and recovered runs. The case reports the observed gaps and recovery as separate owned Kubernetes Events. Adopter evidence covers production sources, SIEM delivery and operational response.",
+  "cluster": "saf-lab-d34d1ca77d6b",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -164,6 +164,31 @@
           ],
           "state": "complete"
         }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "An independent API read sees the exact missing, partial, and recovered ingestion notifications",
+      "matched": true,
+      "observed": {
+        "notices": [
+          [
+            "ingestion-healthy-recovery-synthetic-ai-security",
+            "Normal",
+            "IngestionRecovered"
+          ],
+          [
+            "ingestion-missing-ai-source-synthetic-ai-security",
+            "Warning",
+            "IngestionSourceMissing"
+          ],
+          [
+            "ingestion-partial-ai-delivery-synthetic-ai-security",
+            "Warning",
+            "IngestionPartialDelivery"
+          ]
+        ],
+        "all_reference_the_exact_sink": true
       }
     }
   ]

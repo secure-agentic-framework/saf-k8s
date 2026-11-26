@@ -1,4 +1,5 @@
 """Exercise sink-side SIEM-ingestion completeness checks with synthetic file sources."""
+from datetime import datetime, timezone
 import json
 from pathlib import Path
 import time
@@ -12,9 +13,9 @@ SCOPE = (
     "collector tails two structured ConfigMap-backed fixture files and posts only to a "
     "case-owned HTTP evidence sink in that namespace. Synthetic event IDs model Kubernetes "
     "audit and AI security telemetry. The case compares source-level expected IDs and counts "
-    "at the sink across complete, missing-source, partial-source, and recovered runs. It does "
-    "not test native Kubernetes audit generation, an AI workload, production SIEM alerting, "
-    "long-term retention, high availability, or sustained/load delivery."
+    "at the sink across complete, missing-source, partial-source, and recovered runs. The "
+    "case reports the observed gaps and recovery as separate owned Kubernetes Events. "
+    "Adopter evidence covers production sources, SIEM delivery and operational response."
 )
 
 
@@ -229,6 +230,53 @@ def run_phase(lab, run_id, source_events, expected, *, filtered_event=None):
     return source_summary(observed_records)
 
 
+REPORTER = "saf-k8s.example/ingestion-monitor"
+
+
+def notify_coverage(lab, sink, run_id, comparison, *, recovering=False):
+    for source_id, state in comparison.items():
+        disposition = state["state"]
+        if disposition == "complete" and not recovering:
+            continue
+        reason = {
+            "complete": "IngestionRecovered",
+            "missing_source": "IngestionSourceMissing",
+            "partial_delivery": "IngestionPartialDelivery",
+        }[disposition]
+        timestamp = datetime.now(timezone.utc).isoformat(timespec="microseconds").replace("+00:00", "Z")
+        lab.create({
+            "apiVersion": "events.k8s.io/v1",
+            "kind": "Event",
+            "metadata": {"name": f"ingestion-{run_id}-{source_id}", "namespace": NAMESPACE},
+            "regarding": sink,
+            "eventTime": timestamp,
+            "type": "Normal" if disposition == "complete" else "Warning",
+            "reason": reason,
+            "action": "CompareSourceCoverage",
+            "reportingController": REPORTER,
+            "reportingInstance": "owned-ingestion-monitor",
+            "note": f'{source_id}: {state["observed_count"]}/{state["expected_count"]} observations',
+        })
+
+
+def verify_notifications(lab, sink):
+    records = json.loads(lab.kubectl("-n", NAMESPACE, "get", "events.events.k8s.io", "-o", "json").stdout)["items"]
+    notices = sorted(
+        (item["metadata"]["name"], item["type"], item["reason"])
+        for item in records if item.get("reportingController") == REPORTER
+    )
+    exact_sink = all(item["regarding"].get("uid") == sink["uid"]
+                     for item in records if item.get("reportingController") == REPORTER)
+    expected = [
+        ("ingestion-healthy-recovery-synthetic-ai-security", "Normal", "IngestionRecovered"),
+        ("ingestion-missing-ai-source-synthetic-ai-security", "Warning", "IngestionSourceMissing"),
+        ("ingestion-partial-ai-delivery-synthetic-ai-security", "Warning", "IngestionPartialDelivery"),
+    ]
+    lab.check("green", "An independent API read sees the exact missing, partial, and recovered ingestion notifications",
+              notices == expected and exact_sink,
+              {"notices": notices, "all_reference_the_exact_sink": exact_sink})
+
+
 def run(lab):
     fixtures = load_fixtures()
     sources = fixtures["sources"]
@@ -239,6 +287,9 @@ def run(lab):
         lab.block("Fixture source records and expected counts disagree")
 
     bootstrap_sink(lab)
+    sink = json.loads(lab.kubectl("get", "pod/evidence-sink", "-o", "json").stdout)["metadata"]
+    sink_ref = {"apiVersion": "v1", "kind": "Pod", "namespace": NAMESPACE,
+                "name": sink["name"], "uid": sink["uid"]}
     baseline_id = "healthy-baseline"
     baseline_expected = expected_for(sources["k8s_audit"], sources["ai_security"])
     baseline = run_phase(lab, baseline_id, {
@@ -246,6 +297,7 @@ def run(lab):
         "synthetic-ai-security": sources["ai_security"],
     }, baseline_expected)
     baseline_comparison = compare(baseline_expected, baseline)
+    notify_coverage(lab, sink_ref, baseline_id, baseline_comparison)
     baseline_ok = all(item["state"] == "complete" and
                       item["observed_count"] == expected_counts[source]
                       for source, item in baseline_comparison.items())
@@ -260,6 +312,7 @@ def run(lab):
     }, {"synthetic-k8s-audit": missing_expected["synthetic-k8s-audit"]})
     # Include the expected but absent source when classifying sink observations.
     missing_comparison = compare(missing_expected, missing)
+    notify_coverage(lab, sink_ref, missing_id, missing_comparison)
     missing_detected = (
         missing_comparison["synthetic-k8s-audit"]["state"] == "complete"
         and missing_comparison["synthetic-ai-security"]["state"] == "missing_source"
@@ -276,6 +329,7 @@ def run(lab):
     }, {**partial_expected, "synthetic-ai-security": [sources["ai_security"][0]["event_id"]]},
         filtered_event=omitted)
     partial_comparison = compare(partial_expected, partial)
+    notify_coverage(lab, sink_ref, partial_id, partial_comparison)
     partial_detected = (
         partial_comparison["synthetic-k8s-audit"]["state"] == "complete"
         and partial_comparison["synthetic-ai-security"]["state"] == "partial_delivery"
@@ -297,3 +351,9 @@ def run(lab):
                     for source, item in recovery_comparison.items())
     lab.check("green", "Restoring the collector configuration returns both feeds to their exact healthy state",
               recovered, recovery_comparison)
+    recovered_sources = {
+        source_id: observation for source_id, observation in recovery_comparison.items()
+        if partial_comparison[source_id]["state"] != "complete"
+    }
+    notify_coverage(lab, sink_ref, recovery_id, recovered_sources, recovering=True)
+    verify_notifications(lab, sink_ref)
