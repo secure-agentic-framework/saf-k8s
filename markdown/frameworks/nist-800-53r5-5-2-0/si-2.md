@@ -31,7 +31,7 @@ An approved and validated emergency patch supports correction and installation f
 
 - Domain: D06 - Supply Chain, Images, and Admission Control
 - Knowledge Area: 6.4
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
+- Relation Type: supports
+- Strength: moderate
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage

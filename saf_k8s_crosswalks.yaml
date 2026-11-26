@@ -29055,16 +29055,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SI-2
   framework_requirement_title: Flaw Remediation
-  framework_mapping_notes: 'Flaw remediation for agent software, models, and dependencies prevents exploitation
-
-
-    1.4 - CVE response process (flaw remediation); 6.1 - Vulnerability scanning; 6.4 - SBOM vulnerability intelligence'
+  framework_mapping_notes: The gated release verifies candidate update behavior and the approved model artifact before rollout, confirms the runtime identity after rollout, and preserves a known healthy recovery combination. Establish actual flaw identification and reporting, remediation due dates and deployment coverage separately.
   control_id: SAF-K8S-0604-010
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The adopter uses the governed runtime release pipeline as part of applicable flaw remediation and configuration management, with separate evidence for identified flaws and approved remediation timing.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -29081,22 +29078,6 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-2(2)
-  framework_requirement_title: Automated Flaw Remediation Status
-  framework_mapping_notes: 'Automated tracking of agent vulnerability patch status ensures timely remediation
-
-
-    6.4 - Vulnerability prioritization (automated tracking of flaw remediation status); 10.7 - Security posture management'
-  control_id: SAF-K8S-0604-010
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
