@@ -2,6 +2,7 @@
 from collections import Counter
 import json
 from pathlib import Path
+import tempfile
 import time
 
 LOG = "/var/log/kubernetes/saf-receipt-audit.log"
@@ -20,6 +21,53 @@ PROVIDER = "audit-provider-fixture"
 PROVIDER_ID = "provider-fixture:synthetic-provider-cluster"
 PROVIDER_RECORD = "provider-fixture-event-0001"
 PROVISIONER = "rancher.io/local-path"
+SINK_TLS = "audit-sink-tls"
+COLLECTOR_TLS = "audit-collector-tls"
+READER_TLS = "audit-reader-tls"
+UNAPPROVED_TLS = "audit-unapproved-tls"
+CA_CONFIG = "audit-sink-ca"
+COLLECTOR_URI = "spiffe://cluster.local/ns/saf-test/sa/audit-source-collector"
+READER_URI = "spiffe://cluster.local/ns/saf-test/sa/audit-independent-reader"
+UNAPPROVED_URI = "spiffe://cluster.local/ns/saf-test/sa/audit-unapproved"
+
+
+def _issue_leaf(lab, work, name, uri=None, server=False):
+    key, csr, cert = (work / f"{name}.key", work / f"{name}.csr", work / f"{name}.crt")
+    ext = work / f"{name}.ext"
+    rows = ["basicConstraints=critical,CA:FALSE",
+            "subjectKeyIdentifier=hash", "authorityKeyIdentifier=keyid:always",
+            "keyUsage=critical,digitalSignature,keyEncipherment",
+            "extendedKeyUsage=serverAuth" if server else "extendedKeyUsage=clientAuth"]
+    rows.append("subjectAltName=DNS:audit-sink,DNS:audit-sink.saf-test.svc,DNS:audit-sink.saf-test.svc.cluster.local"
+                if server else f"subjectAltName=URI:{uri}")
+    ext.write_text("\n".join(rows) + "\n")
+    lab.command("openssl", "req", "-new", "-newkey", "rsa:2048", "-nodes",
+                "-subj", f"/CN={name}", "-keyout", str(key), "-out", str(csr), timeout=30)
+    lab.command("openssl", "x509", "-req", "-in", str(csr), "-CA", str(work / "ca.crt"),
+                "-CAkey", str(work / "ca.key"), "-CAcreateserial", "-days", "1", "-sha256",
+                "-extfile", str(ext), "-out", str(cert), timeout=30)
+    return cert, key
+
+
+def create_tls_material(lab):
+    # Private keys are created in a temporary directory and never printed or copied to evidence.
+    with tempfile.TemporaryDirectory(prefix="saf-audit-mtls-") as temporary:
+        work = Path(temporary)
+        lab.command("openssl", "req", "-x509", "-newkey", "rsa:2048", "-nodes", "-days", "1",
+                    "-subj", "/CN=saf-audit-fixture-ca",
+                    "-addext", "basicConstraints=critical,CA:TRUE",
+                    "-addext", "keyUsage=critical,keyCertSign,cRLSign",
+                    "-addext", "subjectKeyIdentifier=hash",
+                    "-keyout", str(work / "ca.key"), "-out", str(work / "ca.crt"), timeout=30)
+        server = _issue_leaf(lab, work, "audit-sink", server=True)
+        collector = _issue_leaf(lab, work, "audit-source-collector", uri=COLLECTOR_URI)
+        reader = _issue_leaf(lab, work, "audit-independent-reader", uri=READER_URI)
+        unapproved = _issue_leaf(lab, work, "audit-unapproved", uri=UNAPPROVED_URI)
+        lab.create(resource("v1", "ConfigMap", CA_CONFIG, data={"ca.crt": (work / "ca.crt").read_text()}))
+        lab.kubectl("create", "secret", "tls", SINK_TLS, "--cert", str(server[0]), "--key", str(server[1]))
+        for name, pair in ((COLLECTOR_TLS, collector), (READER_TLS, reader), (UNAPPROVED_TLS, unapproved)):
+            lab.kubectl("create", "secret", "generic", name,
+                        f"--from-file=tls.crt={pair[0]}", f"--from-file=tls.key={pair[1]}")
 
 
 def resource(api, kind, name, **fields):
@@ -76,10 +124,66 @@ def wait_rollout(lab, name):
     lab.kubectl("rollout", "status", f"deployment/{name}", "--timeout=90s", timeout=100)
 
 
-def receiver_records(lab):
-    snippet = "import json,urllib.request; print(urllib.request.urlopen('http://audit-sink:8080/records',timeout=3).read().decode())"
+def receiver_records(lab, *, during_recovery=False):
+    snippet = """
+import ssl
+import urllib.error
+import urllib.request
+
+context = ssl.create_default_context(cafile="/ca/ca.crt")
+context.load_cert_chain("/reader/tls.crt", "/reader/tls.key")
+try:
+    with urllib.request.urlopen("https://audit-sink:8443/records", context=context, timeout=3) as response:
+        print(response.read().decode())
+except urllib.error.URLError as error:
+    if not isinstance(error.reason, ConnectionRefusedError):
+        raise
+    print("null")
+"""
     raw = lab.kubectl("exec", READER, "--", "python", "-c", snippet).stdout
-    return json.loads(raw)
+    records = json.loads(raw)
+    if records is None and not during_recovery:
+        lab.block("The independently authenticated receiver route was unavailable")
+    return records
+
+
+def auth_refusal_observations(lab, record):
+    body = json.dumps([record])
+    # TLS 1.2 reports the server's client-certificate requirement during the handshake.
+    no_cert = """
+import json
+import socket
+import ssl
+
+def connect(with_reader):
+    context = ssl.create_default_context(cafile="/ca/ca.crt")
+    context.maximum_version = ssl.TLSVersion.TLSv1_2
+    if with_reader:
+        context.load_cert_chain("/reader/tls.crt", "/reader/tls.key")
+    with socket.create_connection(("audit-sink", 8443), timeout=3) as stream:
+        with context.wrap_socket(stream, server_hostname="audit-sink"):
+            return True
+
+reader_authenticated = connect(True)
+denied = False
+try:
+    connect(False)
+except ssl.SSLError as error:
+    denied = error.reason in {"SSLV3_ALERT_HANDSHAKE_FAILURE", "TLSV1_ALERT_HANDSHAKE_FAILURE",
+                              "TLSV13_ALERT_CERTIFICATE_REQUIRED"}
+print(json.dumps({"denied": denied and reader_authenticated}))
+"""
+    wrong_identity = (
+        "import json,ssl,urllib.request,urllib.error; c=ssl.create_default_context(cafile='/ca/ca.crt'); "
+        "c.load_cert_chain('/unapproved/tls.crt','/unapproved/tls.key'); "
+        f"r=urllib.request.Request('https://audit-sink:8443/ingest',data={body!r}.encode(),method='POST'); "
+        "status=0; \ntry: urllib.request.urlopen(r,context=c,timeout=3)\n"
+        "except urllib.error.HTTPError as e: status=e.code\n"
+        "print(json.dumps({'status':status}))"
+    )
+    unauth = json.loads(lab.kubectl("exec", READER, "--", "python", "-c", no_cert).stdout)
+    wrong = json.loads(lab.kubectl("exec", READER, "--", "python", "-c", wrong_identity).stdout)
+    return unauth.get("denied") is True, wrong.get("status") == 403
 
 
 def collector_status(lab):
@@ -142,14 +246,18 @@ def start_collector(lab):
     config_mount = {"name": "config", "mountPath": "/config", "readOnly": True}
     provider_mount = {"name": "provider", "mountPath": "/provider", "readOnly": True}
     audit_mount = {"name": "audit", "mountPath": "/audit.jsonl", "readOnly": True}
+    tls_mount = {"name": "tls", "mountPath": "/tls", "readOnly": True}
+    ca_mount = {"name": "ca", "mountPath": "/ca", "readOnly": True}
     obj = deployment(COLLECTOR, [container("collector", ["python", "/app/collector.py"],
-                                            [code_mount, config_mount, provider_mount, audit_mount],
+                                            [code_mount, config_mount, provider_mount, audit_mount, tls_mount, ca_mount],
                                             ports=[{"name": "status", "containerPort": 8081}],
                                             ready_path="/status", root=True)], [
         {"name": "code", "configMap": {"name": CODE}},
         {"name": "config", "configMap": {"name": CONFIG}},
         {"name": "provider", "configMap": {"name": PROVIDER}},
         {"name": "audit", "hostPath": {"path": LOG, "type": "File"}},
+        {"name": "tls", "secret": {"secretName": COLLECTOR_TLS}},
+        {"name": "ca", "configMap": {"name": CA_CONFIG}},
     ], node_name=f"{lab.cluster}-control-plane")
     lab.create(obj)
     wait_rollout(lab, COLLECTOR)
@@ -157,6 +265,7 @@ def start_collector(lab):
 
 def run_supplement(lab, first_event, read_audit):
     scripts = Path(__file__).resolve().parent
+    create_tls_material(lab)
     codemap = {"receiver.py": (scripts / "receiver.py").read_text(),
                "collector.py": (scripts / "collector.py").read_text()}
     configmap(lab, CODE, codemap)
@@ -175,18 +284,28 @@ def run_supplement(lab, first_event, read_audit):
     code_volume = {"name": "code", "configMap": {"name": CODE}}
     code_mount = {"name": "code", "mountPath": "/app", "readOnly": True}
     lab.create(deployment(SINK, [container("receiver", ["python", "/app/receiver.py"], [
-        code_mount, {"name": "data", "mountPath": "/data"}],
-        ports=[{"name": "http", "containerPort": 8080}], ready_path="/healthz")], [
+        code_mount, {"name": "data", "mountPath": "/data"},
+        {"name": "tls", "mountPath": "/tls", "readOnly": True},
+        {"name": "ca", "mountPath": "/ca", "readOnly": True}],
+        ports=[{"name": "https", "containerPort": 8443}])], [
             code_volume, {"name": "data", "persistentVolumeClaim": {"claimName": SINK_PVC}},
+            {"name": "tls", "secret": {"secretName": SINK_TLS}},
+            {"name": "ca", "configMap": {"name": CA_CONFIG}},
         ]))
     lab.create(resource("v1", "Service", SINK_SERVICE, spec={
         "type": "ClusterIP", "selector": {"app": SINK},
-        "ports": [{"name": "http", "port": 8080, "targetPort": 8080}],
+        "ports": [{"name": "https", "port": 8443, "targetPort": 8443}],
     }))
     lab.create({
         "apiVersion": "v1", "kind": "Pod", "metadata": {"name": READER},
         "spec": {"restartPolicy": "Never", "automountServiceAccountToken": False,
-                 "containers": [container("readback", ["python", "-c", "import time; time.sleep(3600)"], [])]},
+                 "containers": [container("readback", ["python", "-c", "import time; time.sleep(3600)"], [
+                     {"name": "reader", "mountPath": "/reader", "readOnly": True},
+                     {"name": "unapproved", "mountPath": "/unapproved", "readOnly": True},
+                     {"name": "ca", "mountPath": "/ca", "readOnly": True}])],
+                 "volumes": [{"name": "reader", "secret": {"secretName": READER_TLS}},
+                             {"name": "unapproved", "secret": {"secretName": UNAPPROVED_TLS}},
+                             {"name": "ca", "configMap": {"name": CA_CONFIG}}]},
     })
     lab.kubectl("wait", "--for=condition=Ready", f"pod/{READER}", "--timeout=90s", timeout=100)
     wait_rollout(lab, SINK)
@@ -196,6 +315,14 @@ def run_supplement(lab, first_event, read_audit):
     provider_only = wait_until(
         lambda: records if (records := receiver_records(lab)) else None,
         lab, "The receiver did not get the enrolled synthetic provider fixture", 30)
+    before_auth_refusal = receiver_records(lab)
+    no_cert_denied, wrong_role_denied = auth_refusal_observations(lab, provider_record)
+    after_auth_refusal = receiver_records(lab)
+    lab.check("red", "Unauthenticated and non-enrolled identities cannot add audit receipts",
+              no_cert_denied and wrong_role_denied and after_auth_refusal == before_auth_refusal,
+              {"no_client_certificate_rejected": no_cert_denied,
+               "wrong_client_identity_rejected": wrong_role_denied,
+               "destination_unchanged": after_auth_refusal == before_auth_refusal})
     provider_exact = provider_only == [provider_record]
     raw_api_visible = any(event.get("auditID") == first_event["auditID"] for event in read_audit(lab))
     lab.check("green", "Only the explicitly enrolled synthetic provider source reaches the independent receiver",
@@ -259,7 +386,7 @@ def run_supplement(lab, first_event, read_audit):
     new_sink_uid = new_sink_pod[0]["metadata"]["uid"]
     expected_ids = {first_event["auditID"], retry_id}
     final_rows = wait_until(
-        lambda: (rows if (rows := receiver_records(lab)) and expected_ids.issubset(
+        lambda: (rows if (rows := receiver_records(lab, during_recovery=True)) and expected_ids.issubset(
                  {r["record_id"] for r in rows}) else None),
         lab, "The independent receiver did not read back both API events after recovery", 45)
     recovered_state = wait_until(

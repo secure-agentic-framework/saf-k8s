@@ -15,12 +15,26 @@ Enrolling the API source delivers its actual audit identity and event
 fields. During a receiver outage the collector keeps a pending record.
 After the receiver is recreated, an independent client reads the old
 records and the retried event exactly once from the PVC-backed receiver.
+The supplemental case also verifies one grouped authenticated-destination
+check: a client without a certificate and a fixture client with a valid but
+unapproved identity cannot add a receipt; an authorized reader confirms the
+stored records are unchanged. The actual source collector then uses its
+case-owned mTLS identity to forward the observed API event, and the distinct
+reader identity retrieves the receipt over verified TLS.
 
 The collector runs as UID 0 to read the one fixture log on its owned
 Kind node, with all capabilities dropped, no service account token, a
 read-only root filesystem, and no privilege escalation. Transport uses
-local HTTP inside the disposable cluster. The provider record is
-synthetic. The fixture covers the one API category and receiver restart.
+case-generated mutual TLS inside the disposable cluster. The receiver
+requires the source collector certificate identity for ingest and a separate
+reader identity for destination readback. A certificate-less request and a
+valid fixture certificate with the wrong identity are refused without changing
+destination records. Private keys are generated in a temporary directory,
+used only in disposable namespace Secrets, omitted from logs/evidence, and
+removed with the fixture. The provider record is synthetic. The fixture covers
+one API category and receiver restart; it does not authenticate a cloud source.
+The eight checks cover the original seven assertions and a grouped comparison
+for certificate and identity refusal.
 
 ## Verify managed Kubernetes and cloud delivery
 
@@ -30,7 +44,7 @@ synthetic. The fixture covers the one API category and receiver restart.
    Compare mandatory coverage against the adopted framework scope.
 2. In the authorized staging path, emit a benign governed action from
    each actual source. Compare source request or event ID, time,
-   category, actor and target with the authenticated collector's
+   category, actor and target with the collector's
    observation and an independent destination query. Establish
    explicit lag, completeness and duplication acceptance criteria.
 3. Verify authorization and authenticated transport at every hop, least

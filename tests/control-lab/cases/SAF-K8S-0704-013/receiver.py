@@ -1,8 +1,9 @@
-"""Case-owned HTTP destination with durable, source-aware receipt deduplication."""
+"""Case-owned mTLS destination with durable, source-aware receipt deduplication."""
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import json
 import os
 from pathlib import Path
+import ssl
 
 STORE = Path("/data/receipts.jsonl")
 SOURCES = {"kubernetes-apiserver", "provider-fixture"}
@@ -17,10 +18,17 @@ def existing():
 
 
 class Handler(BaseHTTPRequestHandler):
+    def peer_uri(self):
+        certificate = self.connection.getpeercert()
+        return next((value for kind, value in certificate.get("subjectAltName", []) if kind == "URI"), None)
+
     def do_GET(self):
         if self.path == "/healthz":
             payload = b"ok\n"
         elif self.path == "/records":
+            if self.peer_uri() != "spiffe://cluster.local/ns/saf-test/sa/audit-independent-reader":
+                self.send_error(403)
+                return
             payload = json.dumps(existing(), sort_keys=True).encode()
         else:
             self.send_error(404)
@@ -34,6 +42,9 @@ class Handler(BaseHTTPRequestHandler):
     def do_POST(self):
         if self.path != "/ingest":
             self.send_error(404)
+            return
+        if self.peer_uri() != "spiffe://cluster.local/ns/saf-test/sa/audit-source-collector":
+            self.send_error(403)
             return
         try:
             length = int(self.headers.get("Content-Length", "0"))
@@ -86,4 +97,15 @@ class Handler(BaseHTTPRequestHandler):
 
 
 if __name__ == "__main__":
-    ThreadingHTTPServer(("0.0.0.0", 8080), Handler).serve_forever()
+    class QuietTLSHTTPServer(ThreadingHTTPServer):
+        def handle_error(self, _request, _client_address):
+            # Expected certificate-less comparison failures carry no request data.
+            return
+
+    server = QuietTLSHTTPServer(("0.0.0.0", 8443), Handler)
+    tls = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+    tls.load_cert_chain("/tls/tls.crt", "/tls/tls.key")
+    tls.load_verify_locations(cafile="/ca/ca.crt")
+    tls.verify_mode = ssl.CERT_REQUIRED
+    server.socket = tls.wrap_socket(server.socket, server_side=True)
+    server.serve_forever()

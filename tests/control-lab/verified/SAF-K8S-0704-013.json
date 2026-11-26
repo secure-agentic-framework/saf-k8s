@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0704-013",
-  "catalog_revision": "302c910b204bc0838d8a8d8c3e0be8604be32411",
-  "catalog_sha256": "f22ac63bf97577c04a89f43196dc2de2eb4f5a9eeaa472fe2152cbf36c1b213b",
+  "catalog_revision": "b90e62e06b9b9dd9148714e037b67eafddc74a92",
+  "catalog_sha256": "1c78a76489ca604a14fdf3824565e4bcb568f55832e793e78fa752772ba60eab",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "52e2d9be157499d22b7a7c7cc3c9eed10c38cbeca9c80f2bd25ecc94c1474999",
-  "scope": "Actual metadata-only Kubernetes API audit producer forwarded by a case-owned in-cluster source reader to an independent local HTTP receiver, plus one clearly synthetic provider fixture record. Managed provider configuration, external delivery security, coverage and retention remain adopter evidence.",
-  "cluster": "saf-lab-2c9b1ba02dc7",
+  "scope": "Actual metadata-only Kubernetes API audit producer forwarded by a case-owned in-cluster source reader over fixture mTLS to an independent local receiver, plus one clearly synthetic provider fixture record. Managed provider configuration, external delivery security, coverage and retention remain adopter evidence.",
+  "cluster": "saf-lab-655f056a5ff4",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -63,6 +63,16 @@
       "observed": {
         "receipts": 2,
         "provider_input_is_synthetic": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Unauthenticated and non-enrolled identities cannot add audit receipts",
+      "matched": true,
+      "observed": {
+        "no_client_certificate_rejected": true,
+        "wrong_client_identity_rejected": true,
+        "destination_unchanged": true
       }
     },
     {

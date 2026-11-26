@@ -1,8 +1,9 @@
 """Small case-owned source reader/forwarder for synthetic onboarding evidence."""
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
-from http.client import HTTPConnection
+from http.client import HTTPSConnection
 import json
 from pathlib import Path
+import ssl
 import threading
 import time
 
@@ -91,7 +92,9 @@ def forward_loop():
             PENDING.add(key)
             try:
                 body = json.dumps([row]).encode()
-                connection = HTTPConnection("audit-sink", 8080, timeout=2)
+                context = ssl.create_default_context(cafile="/ca/ca.crt")
+                context.load_cert_chain("/tls/tls.crt", "/tls/tls.key")
+                connection = HTTPSConnection("audit-sink", 8443, context=context, timeout=2)
                 try:
                     connection.request("POST", "/ingest", body=body,
                                        headers={"Content-Type": "application/json"})
