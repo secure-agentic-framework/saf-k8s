@@ -5,9 +5,7 @@
 
 ## Mapping Notes
 
-Testing agent IR procedures
-
-10.5 - IR exercises (testing incident response plans for K8s AI clusters)
+The reference case checks one synthetic incident workflow and records its fixture results. It does not establish an organization-defined test frequency, exercise the deployed organizational capability or personnel, or document an organizational effectiveness evaluation. Count it only as a contribution when the adopter's approved exercise uses and evaluates this scenario as part of that program.
 
 ## SAF-K8S Controls
 
@@ -16,6 +14,6 @@ Testing agent IR procedures
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.5
 - Relation Type: supports
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
+- Strength: weak
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage

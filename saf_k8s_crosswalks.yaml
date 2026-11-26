@@ -15013,22 +15013,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: AU-10(3)
-  framework_requirement_title: Chain of Custody
-  framework_mapping_notes: 'Chain of custody for agent-processed data
-
-
-    10.5 - Forensic evidence collection (chain-of-custody procedures); 9.5 - Model provenance chain-of-custody'
-  control_id: SAF-K8S-1005-001
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: AU-10(4)
   framework_requirement_title: Validate Binding of Information Reviewer Identity
   framework_mapping_notes: 'Verifying who/what reviewed agent outputs
@@ -22032,32 +22016,13 @@
   framework_version: 5.2.0
   framework_requirement_id: CP-10(4)
   framework_requirement_title: Restore Within Time Period
-  framework_mapping_notes: 'RTO for agent system restoration
-
-
-    10.5 - Recovery (restore within time period for critical inference services)'
+  framework_mapping_notes: The synthetic case restores one digest-pinned mock Deployment after an approval gate and checks its recovered state. It does not define or measure an organization-approved restoration period or restore system components from configuration-controlled, integrity-protected recovery information. Treat this as a partial contribution only when adopter evidence identifies the approved time objective, records start and completion observations, identifies the protected recovery source and integrity check, and verifies the restored operational state.
   control_id: SAF-K8S-1005-001
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: CP-10(6)
-  framework_requirement_title: Component Protection
-  framework_mapping_notes: 'Protecting agent components during recovery
-
-
-    10.5 - Component protection during recovery operations (preventing reinfection, integrity verification before restoration)'
-  control_id: SAF-K8S-1005-001
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  strength_level: weak
+  applicability: conditional
+  applicability_condition: Only when the deployed incident recovery process defines an organization-approved restoration period for the mapped workload and verifies recovery from configuration-controlled, integrity-protected information to a known operational state within that period.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -23467,22 +23432,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: CP-6(2)
-  framework_requirement_title: Recovery Time and Recovery Point Objectives
-  framework_mapping_notes: 'RTO/RPO for agent systems (concept applies logically)
-
-
-    10.5 - Recovery (RTO/RPO for model serving and training state); 9.1 - Checkpoint recovery strategy'
-  control_id: SAF-K8S-1005-001
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: CP-7(3)
   framework_requirement_title: Priority of Service
   framework_mapping_notes: 'Service priority for agent workloads during failover
@@ -23891,22 +23840,6 @@
     1.2 - etcd backup integrity verification; 9.1 - Checkpoint integrity verification and testing'
   control_id: SAF-K8S-0901-007
   relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: CP-9(2)
-  framework_requirement_title: Test Restoration Using Sampling
-  framework_mapping_notes: 'Sampling agent backup restoration
-
-
-    10.5 - Ransomware response (backup verification, etcd restoration testing using sampling)'
-  control_id: SAF-K8S-1005-001
-  relation_type: supports
   strength_level: strong
   applicability: required
   applicability_condition: null
@@ -27547,44 +27480,12 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: IR-1
-  framework_requirement_title: Policy and Procedures
-  framework_mapping_notes: 'IR policy for agent systems
-
-
-    10.5 - Conduct incident response (IR policy and procedures for K8s AI environments)'
-  control_id: SAF-K8S-1005-001
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: IR-2
   framework_requirement_title: Incident Response Training
   framework_mapping_notes: 'Training for agent-specific incidents
 
 
     10.5 - IR preparation (training K8s operations teams on AI-specific incident response)'
-  control_id: SAF-K8S-1005-001
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: IR-2(1)
-  framework_requirement_title: Simulated Events
-  framework_mapping_notes: 'Simulating agent security incidents
-
-
-    10.5 - IR exercises (simulated events for K8s AI infrastructure incidents)'
   control_id: SAF-K8S-1005-001
   relation_type: supports
   strength_level: strong
@@ -27789,16 +27690,13 @@
   framework_version: 5.2.0
   framework_requirement_id: IR-3
   framework_requirement_title: Incident Response Testing
-  framework_mapping_notes: 'Testing agent IR procedures
-
-
-    10.5 - IR exercises (testing incident response plans for K8s AI clusters)'
+  framework_mapping_notes: The reference case checks one synthetic incident workflow and records its fixture results. It does not establish an organization-defined test frequency, exercise the deployed organizational capability or personnel, or document an organizational effectiveness evaluation. Count it only as a contribution when the adopter's approved exercise uses and evaluates this scenario as part of that program.
   control_id: SAF-K8S-1005-001
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  strength_level: weak
+  applicability: conditional
+  applicability_condition: Only when this synthetic scenario is incorporated into an organization-approved incident response test or exercise at the defined frequency, and the organization evaluates the resulting test against its incident response capability.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -27949,16 +27847,13 @@
   framework_version: 5.2.0
   framework_requirement_id: IR-3(3)
   framework_requirement_title: Continuous Improvement
-  framework_mapping_notes: 'Continuously improving agent IR
-
-
-    10.5 - Post-incident activity (lessons-learned registers, continuous improvement of IR processes)'
+  framework_mapping_notes: The synthetic exercise requires an independent review, evidence digest, and an owned due-dated follow-up before closure. It does not measure response effectiveness, provide incident-response metrics, complete the follow-up, or show repeated improvement. It contributes only to workflow tracking when paired with adopter evidence of actual test data analysis, accurate and reproducible measures, and implemented changes.
   control_id: SAF-K8S-1005-001
   relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  strength_level: weak
+  applicability: conditional
+  applicability_condition: Only when actual incident response test data is evaluated with qualitative or quantitative measures and the organization implements resulting process improvements; this fixture's owned follow-up remains a modeled workflow example.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -28025,16 +27920,13 @@
   framework_version: 5.2.0
   framework_requirement_id: IR-4
   framework_requirement_title: Incident Handling
-  framework_mapping_notes: 'Core incident handling for agent security events
-
-
-    10.5 - IR lifecycle (detection, analysis, containment, eradication, recovery for K8s AI environments)'
+  framework_mapping_notes: The reference case orders synthetic signal, triage, containment approval, namespace-scoped mock Deployment containment, approved restoration, and a review follow-up. It does not implement or validate deployed preparation, detection quality, eradication, organizational contingency coordination, or implementation of lessons learned. The mapped contribution is limited to the tested containment and recovery workflow, subject to the explicit condition.
   control_id: SAF-K8S-1005-001
   relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  strength_level: weak
+  applicability: conditional
+  applicability_condition: Only as a contribution to the containment-approval, workload-containment, and gated recovery steps when those exact mechanisms are incorporated into the deployed incident response plan; preparation, detection and analysis, eradication, contingency coordination, and implemented lessons learned require separate evidence.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -28109,22 +28001,6 @@
 
 
     10.5 - IR (supply chain coordination for compromised images/models); 6.6 - CI/CD incident response'
-  control_id: SAF-K8S-1005-001
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: IR-4(11)
-  framework_requirement_title: Integrated Incident Response Team
-  framework_mapping_notes: 'Integrated team for agent-specific incidents
-
-
-    10.5 - IR lifecycle (integrated response team: ML engineers, platform engineers, security for AI incidents)'
   control_id: SAF-K8S-1005-001
   relation_type: supports
   strength_level: strong
@@ -28725,22 +28601,6 @@
   applicability: conditional
   applicability_condition: Only where detected records automatically feed incident tracking, collection, and analysis mechanisms; static rule-fixture decisions alone do not prove those mechanisms.
   strength_reason_code: partial-control-coverage
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: IR-6
-  framework_requirement_title: Incident Reporting
-  framework_mapping_notes: 'Reporting agent security incidents
-
-
-    10.5 - IR lifecycle (incident reporting procedures, escalation paths for K8s AI incidents)'
-  control_id: SAF-K8S-1005-001
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -45298,22 +45158,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: SI-10(2)
-  framework_requirement_title: Review and Resolve Errors
-  framework_mapping_notes: 'Reviewing input validation errors in agent systems identifies attack attempts and tuning needs
-
-
-    9.2 - Input validation (error handling for malformed inference requests); 10.5 - Post-incident activity (error review)'
-  control_id: SAF-K8S-1005-001
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: SI-10(3)
   framework_requirement_title: Predictable Behavior
   framework_mapping_notes: 'Predictable agent behavior on invalid input prevents exploitation of error handling paths
@@ -46534,22 +46378,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: SI-13(1)
-  framework_requirement_title: Transferring Component Responsibilities
-  framework_mapping_notes: 'Automated failover for agent components maintains availability during failures
-
-
-    9.1 - Training fault tolerance (backup and rollback strategies); 10.5 - IR recovery (workload recovery prioritization)'
-  control_id: SAF-K8S-1005-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: SI-13(3)
   framework_requirement_title: Manual Transfer Between Components
   framework_mapping_notes: 'Manual failover capability for agent systems provides backup when automation fails
@@ -46589,22 +46417,6 @@
 
     10.5 - IR containment (manual containment actions -- draining nodes, suspending workloads); 9.3 - Autoscaling manual override'
   control_id: SAF-K8S-0903-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-13(3)
-  framework_requirement_title: Manual Transfer Between Components
-  framework_mapping_notes: 'Manual failover capability for agent systems provides backup when automation fails
-
-
-    10.5 - IR containment (manual containment actions -- draining nodes, suspending workloads); 9.3 - Autoscaling manual override'
-  control_id: SAF-K8S-1005-001
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -46690,22 +46502,6 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-13(4)
-  framework_requirement_title: Standby Component Installation and Notification
-  framework_mapping_notes: 'Standby agent components with automated activation ensure rapid recovery
-
-
-    10.5 - IR recovery (workload recovery prioritization); 7.3 - Pod Disruption Budgets (maintaining availability)'
-  control_id: SAF-K8S-1005-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -48943,22 +48739,6 @@
 
     10.5 - Post-incident activity (root cause analysis and lessons learned); 9.1 - Training fault tolerance (corrupted data root cause)'
   control_id: SAF-K8S-0901-007
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-2(7)
-  framework_requirement_title: Root Cause Analysis
-  framework_mapping_notes: 'Root cause analysis of agent security flaws prevents recurrence of similar vulnerabilities
-
-
-    10.5 - Post-incident activity (root cause analysis and lessons learned); 9.1 - Training fault tolerance (corrupted data root cause)'
-  control_id: SAF-K8S-1005-001
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -52510,22 +52290,6 @@
 
     6.2 - Image signing with Sigstore/cosign (cryptographic integrity); 9.5 - Model signing; 6.3 - Cryptographic agility'
   control_id: SAF-K8S-0905-046
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-7(7)
-  framework_requirement_title: Integration of Detection and Response
-  framework_mapping_notes: 'Integrating integrity detection with response for agents enables automated remediation
-
-
-    2.4 - Runtime threat detection (integrated detection and response); 10.5 - IR lifecycle (detection-to-response integration)'
-  control_id: SAF-K8S-1005-001
   relation_type: direct
   strength_level: strong
   applicability: required

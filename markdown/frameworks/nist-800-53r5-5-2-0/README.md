@@ -2,8 +2,8 @@
 
 - Framework Code: NIST-800-53R5
 - Version: 5.2.0
-- Total Reverse Mappings: 3218
-- Distinct Requirements Mapped: 714
+- Total Reverse Mappings: 3204
+- Distinct Requirements Mapped: 707
 
 ## Requirements
 
@@ -256,7 +256,6 @@
 - [CP-10 - System Recovery and Reconstitution](cp-10.md)
 - [CP-10(2) - Transaction Recovery](cp-10-2.md)
 - [CP-10(4) - Restore Within Time Period](cp-10-4.md)
-- [CP-10(6) - Component Protection](cp-10-6.md)
 - [CP-11 - Alternate Communications Protocols](cp-11.md)
 - [CP-12 - Safe Mode](cp-12.md)
 - [CP-2 - Contingency Plan](cp-2.md)
@@ -282,7 +281,6 @@
 - [CP-8(4) - Provider Contingency Plan](cp-8-4.md)
 - [CP-9 - System Backup](cp-9.md)
 - [CP-9(1) - Testing for Reliability and Integrity](cp-9-1.md)
-- [CP-9(2) - Test Restoration Using Sampling](cp-9-2.md)
 - [CP-9(3) - Separate Storage for Critical Information](cp-9-3.md)
 - [CP-9(6) - Redundant Secondary System](cp-9-6.md)
 - [CP-9(7) - Dual Authorization for Deletion or Destruction](cp-9-7.md)
@@ -323,9 +321,7 @@
 - [IA-8(2) - Acceptance of External Authenticators](ia-8-2.md)
 - [IA-8(4) - Use of Defined Profiles](ia-8-4.md)
 - [IA-9 - Service Identification and Authentication](ia-9.md)
-- [IR-1 - Policy and Procedures](ir-1.md)
 - [IR-2 - Incident Response Training](ir-2.md)
-- [IR-2(1) - Simulated Events](ir-2-1.md)
 - [IR-2(2) - Automated Training Environments](ir-2-2.md)
 - [IR-2(3) - Breach](ir-2-3.md)
 - [IR-3 - Incident Response Testing](ir-3.md)
@@ -335,7 +331,6 @@
 - [IR-4 - Incident Handling](ir-4.md)
 - [IR-4(1) - Automated Incident Handling Processes](ir-4-1.md)
 - [IR-4(10) - Supply Chain Coordination](ir-4-10.md)
-- [IR-4(11) - Integrated Incident Response Team](ir-4-11.md)
 - [IR-4(12) - Malicious Code and Forensic Analysis](ir-4-12.md)
 - [IR-4(13) - Behavior Analysis](ir-4-13.md)
 - [IR-4(14) - Security Operations Center](ir-4-14.md)
@@ -350,7 +345,6 @@
 - [IR-4(9) - Dynamic Response Capability](ir-4-9.md)
 - [IR-5 - Incident Monitoring](ir-5.md)
 - [IR-5(1) - Automated Tracking, Data Collection, and Analysis](ir-5-1.md)
-- [IR-6 - Incident Reporting](ir-6.md)
 - [IR-6(1) - Automated Reporting](ir-6-1.md)
 - [IR-6(3) - Supply Chain Coordination](ir-6-3.md)
 - [IR-7 - Incident Response Assistance](ir-7.md)
@@ -691,7 +685,6 @@
 - [SI-7(3) - Centrally Managed Integrity Tools](si-7-3.md)
 - [SI-7(5) - Automated Response to Integrity Violations](si-7-5.md)
 - [SI-7(6) - Cryptographic Protection](si-7-6.md)
-- [SI-7(7) - Integration of Detection and Response](si-7-7.md)
 - [SI-7(8) - Auditing Capability for Significant Events](si-7-8.md)
 - [SI-7(9) - Verify Boot Process](si-7-9.md)
 - [SR-1 - Policy and Procedures](sr-1.md)
