@@ -1425,7 +1425,7 @@
     "SAF-K8S-0601-011": {
       "catalog_status": "draft",
       "domain": "D06",
-      "sha256": "bb8438103be279a672ab461aff4a9f9bbb1362ebe7a27c70004e6a0ba7758cca",
+      "sha256": "afaddaa600ecb10472bad1d942b10acef1ca9de8a3bf987a99d20c13787adf68",
       "title": "Integrity metadata co-retention with software artifacts"
     },
     "SAF-K8S-0601-014": {
@@ -3572,7 +3572,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "ef56fcef01047b3aaebba3ae5a670f37933515a9",
-  "sha256": "e21df5ef6d7be8d3be548d48d3650f2dfc630a3e395f036b3e3eb0533fc68fe4",
+  "revision": "3bbb58cab32c88c8f80211c90152bd3f8421be82",
+  "sha256": "d65a8ba2d999d0a60a83345dbfd6f5235d9cd11cac65fdb011fac1cb9051e634",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
