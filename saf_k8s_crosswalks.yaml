@@ -20174,11 +20174,11 @@
 
     6.6 - CI pipeline security gates (SAST, DAST, SCA -- testing and validation before deployment)'
   control_id: SAF-K8S-0606-023
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: partial
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Only for the IaC change and scanner rule actually executed before promotion; the reference case tests one Checkov rule against two Terraform fixtures and does not cover all change validation or documentation.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -33066,11 +33066,11 @@
 
     6.6 - CI pipeline security gates (developer testing and evaluation: SAST, DAST, SCA)'
   control_id: SAF-K8S-0606-023
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Only as one developer security-testing step for the Terraform/IaC scope scanned; broader SDLC security assessment plans, flaw remediation, and testing depth are not established by this case.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -33419,10 +33419,10 @@
     6.6 - CI pipeline (verifying testing scope covers AI components, models, and infrastructure)'
   control_id: SAF-K8S-0606-023
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  strength_level: weak
+  applicability: conditional
+  applicability_condition: Only where the organization has verified the configured scanner policy/rules cover its required controls at its defined breadth and rigor; one CKV_AWS_20 fixture does not establish complete test-scope coverage.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
