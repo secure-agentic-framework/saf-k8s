@@ -142,6 +142,83 @@ def op(name):
         receipt("/artifact/governed/release-binding.json", binding)
         print(json.dumps({"decision": "released", "checks": checks,
                           "release_binding_created": True, "binding": binding}, sort_keys=True)); return
+    if name == "trace-query":
+        # Query only release bindings stored on the five case-owned PVCs. The
+        # query Job mounts those claims read-only. Validate each stored edge
+        # from its bytes before returning bounded predicates.
+        root = Path("/artifact")
+        records = []
+        for binding_path in sorted(root.glob("*/release-binding.json")):
+            binding = json.loads(binding_path.read_bytes())
+            artifact_path = binding_path.parent / "model.json"
+            training_path = binding_path.parent / "training-receipt.json"
+            model_bytes = artifact_path.read_bytes()
+            training_bytes = training_path.read_bytes()
+            source_receipt_bytes = read("/source-receipt/source.json")
+            transformation_receipt_bytes = read("/transform-receipt/transformation.json")
+            source_bytes = read("/source/ingested.bin")
+            transformed_bytes = read("/transformed/dataset.bin")
+            source_receipt = json.loads(source_receipt_bytes)
+            transformation_receipt = json.loads(transformation_receipt_bytes)
+            training = json.loads(training_bytes)
+            valid = all((
+                digest(model_bytes) == binding.get("artifact_sha256"),
+                digest(training_bytes) == binding.get("training_receipt_sha256"),
+                digest(source_receipt_bytes) == binding.get("source_receipt_sha256"),
+                digest(transformation_receipt_bytes) == binding.get("transformation_receipt_sha256"),
+                digest(source_bytes) == source_receipt.get("source_sha256")
+                    == transformation_receipt.get("source_sha256")
+                    == training.get("source_sha256") == binding.get("source_sha256"),
+                digest(transformed_bytes) == transformation_receipt.get("output_sha256")
+                    == training.get("transformed_sha256")
+                    == binding.get("transformed_sha256"),
+                transformation_receipt.get("transform_id") == TRANSFORM_ID,
+                source_receipt.get("approval_ref") == binding.get("approval_id"),
+                training.get("transformation_receipt_sha256")
+                    == digest(transformation_receipt_bytes),
+                training.get("source_receipt_sha256") == digest(source_receipt_bytes),
+                training.get("artifact_sha256") == digest(model_bytes),
+                training.get("approval_id") == binding.get("approval_id"),
+                binding.get("training_receipt_sha256") == digest(training_bytes),
+            ))
+            records.append({"valid": valid, "artifact_sha256": digest(model_bytes),
+                            "source_sha256": source_receipt.get("source_sha256"),
+                            "transform_id": transformation_receipt.get("transform_id"),
+                            "transformed_sha256": transformation_receipt.get("output_sha256")})
+
+        valid_records = [row for row in records if row["valid"]]
+        artifact_query = os.environ["TRACE_ARTIFACT_SHA256"]
+        source_query = os.environ["TRACE_SOURCE_SHA256"]
+        transform_id_query = os.environ["TRACE_TRANSFORM_ID"]
+        transformed_query = os.environ["TRACE_TRANSFORMED_SHA256"]
+        expected_artifact = os.environ["TRACE_EXPECTED_ARTIFACT_SHA256"]
+        forward = [row for row in valid_records if row["artifact_sha256"] == artifact_query]
+        reverse_source = [row["artifact_sha256"] for row in valid_records
+                          if row["source_sha256"] == source_query]
+        reverse_transform = [row["artifact_sha256"] for row in valid_records
+                             if row["transform_id"] == transform_id_query
+                             and row["transformed_sha256"] == transformed_query]
+        ungoverned = [row for row in valid_records
+                      if row["source_sha256"] == os.environ["TRACE_UNGOVERNED_SOURCE_SHA256"]]
+        unknown = [row for row in valid_records
+                   if row["source_sha256"] == os.environ["TRACE_UNKNOWN_SOURCE_SHA256"]]
+        print(json.dumps({
+            "stored_binding_count": len(records),
+            "all_stored_records_validate": bool(records) and len(valid_records) == len(records),
+            "forward_artifact_resolved": len(forward) == 1,
+            "forward_source_edge_matches": len(forward) == 1
+                and forward[0]["source_sha256"] == source_query,
+            "forward_transform_edge_matches": len(forward) == 1
+                and forward[0]["transform_id"] == transform_id_query
+                and forward[0]["transformed_sha256"] == transformed_query,
+            "reverse_source_match_count": len(reverse_source),
+            "reverse_source_returns_exact_artifact": reverse_source == [expected_artifact],
+            "reverse_transform_match_count": len(reverse_transform),
+            "reverse_transform_returns_exact_artifact": reverse_transform == [expected_artifact],
+            "ungoverned_source_match_count": len(ungoverned),
+            "unknown_source_match_count": len(unknown),
+        }, sort_keys=True))
+        return
     raise SystemExit("unknown fixture operation")
 
 if __name__ == "__main__":

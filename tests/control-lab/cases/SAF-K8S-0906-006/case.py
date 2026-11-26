@@ -5,6 +5,12 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 RUNTIME = HERE.parent / "SAF-K8S-0908-001" / "case.py"
+# Scratch-only fallback lets this candidate resolve the existing helper from
+# the current workspace. When copied into the canonical case directory, the
+# original adjacent path above is used unchanged.
+if not RUNTIME.is_file():
+    RUNTIME = (HERE.parents[1] / "saf-k8s-framework" / "tests" / "control-lab" /
+               "cases" / "SAF-K8S-0908-001" / "case.py")
 NAME = "fixture-training-provenance"
 CODE = NAME + "-code"
 APPROVAL = NAME + "-approval"
@@ -17,6 +23,10 @@ CLAIMS = {
 }
 SOURCE_DIGEST = "d3a5fcb54688a9377553f913caea54717e6a5862c8bc4f5255972571adecba9c"
 TRANSFORMED_DIGEST = "f4888552d6e0bb9225ad22339a949faa3951bd99ff2493f1531bc415f72c994b"
+EXPECTED_ARTIFACT_DIGEST = "e2837c803d89486e982d2cbd64023f657f959529a13faf86556d1b22dcb169dc"
+UNGOVERNED_SOURCE_DIGEST = "c968d3d5d5bab4fb24b9f13c46add56b38974d02edf33b96c7704dc08395a72b"
+UNKNOWN_SOURCE_DIGEST = "2c92c16e5bf40fe9a6b21ee23cc15b7796f8da031fe16f6a6a812e94ec4d999c"
+TRANSFORM_ID = "normalize-token-order-v1"
 SCOPE = (
     "A live, local Kind fixture persists invented source bytes, source receipt, transformed bytes, "
     "transformation receipt, and trained artifact on separate PVCs. It compares a benign ungoverned "
@@ -60,7 +70,7 @@ def _mounts(operation):
             [{"name": key, "mountPath": path, "readOnly": key not in writable} for key, path in paths.items()])
 
 
-def _job(lab, image, name, operation, approval=False):
+def _job(lab, image, name, operation, approval=False, extra_env=None):
     unit = {"name": "fixture", "image": image, "imagePullPolicy": "Never",
             "command": ["python", "/fixture/training_fixture.py", operation],
             "volumeMounts": _mounts(operation),
@@ -71,6 +81,9 @@ def _job(lab, image, name, operation, approval=False):
     if approval:
         unit["env"] = [{"name": "APPROVAL_JSON", "valueFrom": {"configMapKeyRef": {
             "name": APPROVAL, "key": "approval.json", "optional": True}}}]
+    if extra_env:
+        unit.setdefault("env", []).extend(
+            {"name": key, "value": value} for key, value in extra_env.items())
     return create(lab, "Job", name, "batch/v1", spec={
         "backoffLimit": 0, "ttlSecondsAfterFinished": 3600,
         "template": {"metadata": {"labels": {"app": name}}, "spec": {
@@ -202,6 +215,37 @@ def run(lab):
                       "training_receipt_digest", "source_receipt_digest", "transformation_receipt_digest",
                   )), positive)
 
+    # Independent, read-only query of only this case's persisted records.
+    # Inputs are fixed hashes known by the fixture, not values discovered from
+    # the query response.
+    query_name = NAME + "-trace-query"
+    _job(lab, image, query_name, "trace-query", extra_env={
+        "TRACE_ARTIFACT_SHA256": EXPECTED_ARTIFACT_DIGEST,
+        "TRACE_SOURCE_SHA256": SOURCE_DIGEST,
+        "TRACE_TRANSFORM_ID": TRANSFORM_ID,
+        "TRACE_TRANSFORMED_SHA256": TRANSFORMED_DIGEST,
+        "TRACE_UNGOVERNED_SOURCE_SHA256": UNGOVERNED_SOURCE_DIGEST,
+        "TRACE_UNKNOWN_SOURCE_SHA256": UNKNOWN_SOURCE_DIGEST,
+        "TRACE_EXPECTED_ARTIFACT_SHA256": EXPECTED_ARTIFACT_DIGEST,
+    })
+    queried = _result(lab, query_name)
+    query_expected = {
+        "stored_binding_count": 1,
+        "all_stored_records_validate": True,
+        "forward_artifact_resolved": True,
+        "forward_source_edge_matches": True,
+        "forward_transform_edge_matches": True,
+        "reverse_source_match_count": 1,
+        "reverse_source_returns_exact_artifact": True,
+        "reverse_transform_match_count": 1,
+        "reverse_transform_returns_exact_artifact": True,
+        "ungoverned_source_match_count": 0,
+        "unknown_source_match_count": 0,
+    }
+    query_observed = {key: queried.get(key) for key in query_expected}
+    lab.check("positive", "Read-only stored lineage queries resolve approved edges in both directions and exclude ungoverned or unknown inputs",
+              query_observed == query_expected, query_observed)
+
     evidence = {
         "scope": "synthetic-local-kind-training-provenance",
         "red": red,
@@ -210,7 +254,8 @@ def run(lab):
         "observations": {"ungoverned": baseline, "training_without_approval": denial,
                          "release_without_approval": release_denial, "denied_state": denied_state,
                          "ingest": ingested, "transform": transformed,
-                         "training": trained, "release": released, "mismatched_edge": mismatch},
+                         "training": trained, "release": released, "mismatched_edge": mismatch,
+                         "read_only_lineage_query": query_observed},
     }
     (lab.evidence / "training-data-provenance.json").write_text(
         json.dumps(evidence, sort_keys=True, indent=2) + "\n")

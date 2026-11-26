@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0906-006",
-  "catalog_revision": "976021d02e8856b5e4ce8c3afa83676706539f1c",
-  "catalog_sha256": "d43370ab2b4e06678dc9c6ef7bd94b6aaa7b322ba7cd8aedd49c3bdb34781c3a",
+  "catalog_revision": "7fb949b1cbcce8104e21d9e71b5d905740152a6a",
+  "catalog_sha256": "c1a14a1b203bdfe8828a691f5c30058745d96afefca29c70b370256b29cdb06d",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "7f010a0e230ac7767753b81bda449327ad4512b58bd3c219606d38261fb08ed7",
   "scope": "A live, local Kind fixture persists invented source bytes, source receipt, transformed bytes, transformation receipt, and trained artifact on separate PVCs. It compares a benign ungoverned training job with missing provenance, denies training and release binding before approval, then trains and binds an artifact only when approval digests and receipt lineage match exactly.",
-  "cluster": "saf-lab-16f383c11f91",
+  "cluster": "saf-lab-e7c986890c95",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -77,6 +77,24 @@
         "transformation_receipt_digest": "32cd82bb89d4fa2e5e12302a9c1a36587bfd931e0932f035a7690ff0ea8d5fdc",
         "binding_artifact_digest": "e2837c803d89486e982d2cbd64023f657f959529a13faf86556d1b22dcb169dc",
         "approved_release_decision": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Read-only stored lineage queries resolve approved edges in both directions and exclude ungoverned or unknown inputs",
+      "matched": true,
+      "observed": {
+        "stored_binding_count": 1,
+        "all_stored_records_validate": true,
+        "forward_artifact_resolved": true,
+        "forward_source_edge_matches": true,
+        "forward_transform_edge_matches": true,
+        "reverse_source_match_count": 1,
+        "reverse_source_returns_exact_artifact": true,
+        "reverse_transform_match_count": 1,
+        "reverse_transform_returns_exact_artifact": true,
+        "ungoverned_source_match_count": 0,
+        "unknown_source_match_count": 0
       }
     }
   ]
