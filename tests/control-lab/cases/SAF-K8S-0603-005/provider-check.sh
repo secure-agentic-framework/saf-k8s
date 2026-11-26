@@ -40,3 +40,5 @@ if openssl dgst -sha256 -verify approved-public.pem -signature artifact.sig \
 fi
 grep -i 'Verification failure' verify-output.txt
 printf '%s\n' 'OTHER_ARTIFACT_REJECTED'
+
+/opt/saf-openssl/bin/fips-indicator

@@ -6,7 +6,8 @@ HERE = Path(__file__).resolve().parent
 SCOPE = (
     "One fresh Kind cluster runs a locally built OpenSSL FIPS Provider 3.5.9 fixture. "
     "The case compares default and FIPS provider behavior, validates the fixture's module "
-    "configuration, signs and verifies a harmless file using RSA-2048/SHA-256 and rejects "
+    "configuration, signs and verifies a harmless file using RSA-2048/SHA-256, reads the "
+    "operation-level approved indicators, and rejects "
     "an out-of-policy key and different artifact. Production CMVP applicability and the "
     "operational environment require separate evidence."
 )
@@ -51,6 +52,7 @@ def run_checks(lab, tag, image_id):
         "out_of_policy_generation_rejected": "OUT_OF_POLICY_KEY_REJECTED" in output,
         "approved_sign_and_verify": "APPROVED_SIGN_AND_VERIFY" in output,
         "other_artifact_rejected": "OTHER_ARTIFACT_REJECTED" in output,
+        "approved_sign_verify_indicators": "APPROVED_SIGNATURE_AND_VERIFICATION_INDICATORS" in output,
     }
     lab.check("red", "The default provider generates the synthetic smaller key",
               findings["baseline_generated_small_key"], {"baseline_generated_small_key": findings["baseline_generated_small_key"]})
@@ -64,5 +66,8 @@ def run_checks(lab, tag, image_id):
               findings["approved_sign_and_verify"] and findings["other_artifact_rejected"],
               {"approved_sign_and_verify": findings["approved_sign_and_verify"],
                "other_artifact_rejected": findings["other_artifact_rejected"]})
+    lab.check("green", "RSA-2048/SHA-256 signing and verification report the approved FIPS indicator",
+              findings["approved_sign_verify_indicators"],
+              {"sign_and_verify_indicators_approved": findings["approved_sign_verify_indicators"]})
     (lab.evidence / "fips-provider-observations.json").write_text(json.dumps(
         {"fixture_image_id": image_id.read_text().strip(), **findings}, indent=2, sort_keys=True) + "\n")

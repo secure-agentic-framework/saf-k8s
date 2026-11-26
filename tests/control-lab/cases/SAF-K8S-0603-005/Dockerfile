@@ -14,3 +14,8 @@ COPY provider.cnf /opt/saf-openssl/etc/provider.cnf
 RUN OPENSSL_CONF=/dev/null openssl fipsinstall \
     -module /opt/saf-openssl/lib/ossl-modules/fips.so \
     -out /opt/saf-openssl/etc/fipsmodule.cnf -section_name fips_sect
+
+COPY fips-indicator.c /tmp/fips-indicator.c
+RUN gcc -I/opt/saf-openssl/include -L/opt/saf-openssl/lib \
+    -Wl,-rpath,/opt/saf-openssl/lib -o /opt/saf-openssl/bin/fips-indicator \
+    /tmp/fips-indicator.c -lcrypto
