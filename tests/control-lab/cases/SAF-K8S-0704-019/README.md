@@ -16,6 +16,17 @@ fixture ConfigMap. Both intended reads succeed. Wrong audience is refused
 at authentication, and the other valid subject is denied without a data
 read. Evidence includes status and inert marker names.
 
+The added check binds each accepted TokenReview result to the live name and UID
+of its intended Pod. A third inert Pod uses workload A's same ServiceAccount
+and token audience, but its different Pod UID is refused before the marker read.
+Normalized check observations contain fixed booleans; dynamic Pod names and
+UIDs are confined to the bounded raw case evidence (`commands.log` and
+`identity-binding-observations.json`). No bearer token is returned or logged.
+This demonstrates Kubernetes bound-token attribution, not provider identity
+or cloud audit evidence. The same-ServiceAccount Pod is a deliberately
+Pod-specific relying-service policy example; it does not imply that all
+workloads sharing a ServiceAccount should be denied.
+
 ## Verify the deployed provider integration
 
 1. Record the managed service, cluster and workload versions, workload
@@ -42,6 +53,13 @@ read. Evidence includes status and inert marker names.
 The local TLS relying service demonstrates Kubernetes-issued token use.
 Provider exchange, provider authorization, node credential isolation and
 cloud audit correlation require the provider-specific checks above.
+
+This comparison relies on Kubernetes v1.36 bound projected tokens and
+TokenReview behavior. Kubernetes v1.36 documents that TokenReview returns the
+Pod name and UID for a Pod-bound token, and that the API server validates the
+referenced Pod UID against the live Pod. The local Kind case is v1.36.1. See
+[v1.36 Managing Service Accounts](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/service-accounts-admin/)
+and the [v1.36.1 service-account token claims implementation](https://github.com/kubernetes/kubernetes/blob/v1.36.1/pkg/serviceaccount/claims.go).
 
 [Kubernetes ServiceAccounts](https://v1-36.docs.kubernetes.io/docs/concepts/security/service-accounts/)
 and [Kubernetes TokenReview API](https://v1-36.docs.kubernetes.io/docs/reference/kubernetes-api/authentication-resources/token-review-v1/).

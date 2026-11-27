@@ -86,9 +86,26 @@ class Handler(BaseHTTPRequestHandler):
             self.respond(401, {"decision": "unauthenticated", "marker": None})
             return
         username = review.get("user", {}).get("username")
-        if username != self.server.expected_user or request.get("marker") != self.server.marker:
+        subject_valid = username == self.server.expected_user
+        if not subject_valid or request.get("marker") != self.server.marker:
             self.note(self.server.alias, "denied")
             self.respond(403, {"decision": "denied", "marker": None})
+            return
+        extra = review.get("user", {}).get("extra", {})
+        pod_names = extra.get("authentication.kubernetes.io/pod-name", [])
+        pod_uids = extra.get("authentication.kubernetes.io/pod-uid", [])
+        token_pod_name = pod_names[0] if len(pod_names) == 1 else None
+        token_pod_uid = pod_uids[0] if len(pod_uids) == 1 else None
+        pod_binding_matches = (token_pod_name == self.server.expected_pod_name
+                               and token_pod_uid == self.server.expected_pod_uid)
+        if not pod_binding_matches:
+            self.note(self.server.alias, "pod-binding-denied")
+            self.respond(403, {"decision": "denied", "reason": "pod-binding",
+                               "authenticated": True, "audience_valid": True,
+                               "subject_valid": subject_valid,
+                               "pod_binding_matches": False,
+                               "token_pod_name": token_pod_name,
+                               "token_pod_uid": token_pod_uid, "marker": None})
             return
         try:
             stored = api_request(f"/api/v1/namespaces/{NS}/configmaps/{self.server.marker}")
@@ -102,14 +119,19 @@ class Handler(BaseHTTPRequestHandler):
             return
         self.note(self.server.alias, "allowed")
         self.respond(200, {"decision": "allowed", "principal": self.server.alias,
+                           "pod_binding_matches": True,
+                           "token_pod_name": token_pod_name,
+                           "token_pod_uid": token_pod_uid,
                            "marker": stored["data"]["marker"]})
 
 
-def serve(expected_user, marker, alias):
+def serve(expected_user, marker, alias, expected_pod_name, expected_pod_uid):
     server = ThreadingHTTPServer(("0.0.0.0", PORT), Handler)
     server.expected_user = expected_user
     server.marker = marker
     server.alias = alias
+    server.expected_pod_name = expected_pod_name
+    server.expected_pod_uid = expected_pod_uid
     context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
     context.load_cert_chain("/certificate/tls.crt", "/certificate/tls.key")
     server.socket = context.wrap_socket(server.socket, server_side=True)
@@ -118,6 +140,6 @@ def serve(expected_user, marker, alias):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 5 or sys.argv[1] != "serve":
+    if len(sys.argv) != 7 or sys.argv[1] != "serve":
         raise SystemExit("invalid fixture service invocation")
-    serve(sys.argv[2], sys.argv[3], sys.argv[4])
+    serve(sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], sys.argv[6])

@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0704-019",
-  "catalog_revision": "302c910b204bc0838d8a8d8c3e0be8604be32411",
-  "catalog_sha256": "f22ac63bf97577c04a89f43196dc2de2eb4f5a9eeaa472fe2152cbf36c1b213b",
+  "catalog_revision": "5393051c1897ad97880091bb0956be39e8fdd23b",
+  "catalog_sha256": "2a4f9e4bc3c869a7a1bdeff571919ff8fd3cbc0f2b1964ced26040db14837309",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "a8b9f8aa902a7c96eba35333f03b0a306c018619082118663cda2d44175b34c7",
   "scope": "Disposable Kind v1.36.1 admission and verified Pod identity. Two in-cluster TLS services submit TokenReviews for their exact audience and require their exact fixture ServiceAccount subject before a scoped read of one inert ConfigMap. Provider trust, IAM, cloud auditing and node credential isolation are outside this local relying-service fixture.",
-  "cluster": "saf-lab-89cff4b35bc3",
+  "cluster": "saf-lab-9c07c07ca976",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -75,6 +75,17 @@
         "workload_b_exact_subject_allowed": true,
         "wrong_audience_denied": true,
         "cross_subject_denied_without_data": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "TokenReview Pod UID binds the approved caller; same-subject peer is refused",
+      "matched": true,
+      "observed": {
+        "approved_token_origin_matches_live_pods": true,
+        "peer_has_same_service_account_and_audience": true,
+        "peer_tokenreview_matches_its_distinct_live_pod": true,
+        "peer_refused_for_pod_binding_without_data": true
       }
     }
   ]

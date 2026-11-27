@@ -24,5 +24,12 @@ except urllib.error.HTTPError as error:
     except (ValueError, OSError):
         body = {}
 print(json.dumps({"http_status": status, "decision": body.get("decision"),
-                  "principal": body.get("principal"), "marker": body.get("marker")},
+                  "principal": body.get("principal"), "marker": body.get("marker"),
+                  "reason": body.get("reason"),
+                  "authenticated": body.get("authenticated"),
+                  "audience_valid": body.get("audience_valid"),
+                  "subject_valid": body.get("subject_valid"),
+                  "pod_binding_matches": body.get("pod_binding_matches"),
+                  "token_pod_name": body.get("token_pod_name"),
+                  "token_pod_uid": body.get("token_pod_uid")},
                  sort_keys=True), flush=True)
