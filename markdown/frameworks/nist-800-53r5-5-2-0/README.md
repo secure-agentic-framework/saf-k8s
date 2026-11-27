@@ -2,8 +2,8 @@
 
 - Framework Code: NIST-800-53R5
 - Version: 5.2.0
-- Total Reverse Mappings: 1507
-- Distinct Requirements Mapped: 574
+- Total Reverse Mappings: 1488
+- Distinct Requirements Mapped: 567
 
 ## Requirements
 
@@ -74,7 +74,6 @@
 - [AC-4(17) - Domain Authentication](ac-4-17.md)
 - [AC-4(19) - Validation of Metadata](ac-4-19.md)
 - [AC-4(2) - Processing Domains](ac-4-2.md)
-- [AC-4(20) - Approved Solutions](ac-4-20.md)
 - [AC-4(21) - Physical or Logical Separation of Information Flows](ac-4-21.md)
 - [AC-4(22) - Access Only](ac-4-22.md)
 - [AC-4(23) - Modify Non-releasable Information](ac-4-23.md)
@@ -211,7 +210,6 @@
 - [CM-9 - Configuration Management Plan](cm-9.md)
 - [CM-9(1) - Assignment of Responsibility](cm-9-1.md)
 - [CP-10 - System Recovery and Reconstitution](cp-10.md)
-- [CP-10(2) - Transaction Recovery](cp-10-2.md)
 - [CP-10(4) - Restore Within Time Period](cp-10-4.md)
 - [CP-11 - Alternate Communications Protocols](cp-11.md)
 - [CP-12 - Safe Mode](cp-12.md)
@@ -405,7 +403,6 @@
 - [SC-12(2) - Symmetric Keys](sc-12-2.md)
 - [SC-12(3) - Asymmetric Keys](sc-12-3.md)
 - [SC-13 - Cryptographic Protection](sc-13.md)
-- [SC-15(4) - Explicitly Indicate Current Participants](sc-15-4.md)
 - [SC-16(1) - Integrity Verification](sc-16-1.md)
 - [SC-16(2) - Anti-spoofing Mechanisms](sc-16-2.md)
 - [SC-16(3) - Cryptographic Binding](sc-16-3.md)
@@ -438,7 +435,6 @@
 - [SC-34 - Non-modifiable Executable Programs](sc-34.md)
 - [SC-34(1) - No Writable Storage](sc-34-1.md)
 - [SC-36 - Distributed Processing and Storage](sc-36.md)
-- [SC-36(1) - Polling Techniques](sc-36-1.md)
 - [SC-36(2) - Synchronization](sc-36-2.md)
 - [SC-37 - Out-of-band Channels](sc-37.md)
 - [SC-37(1) - Ensure Delivery and Transmission](sc-37-1.md)
@@ -502,7 +498,6 @@
 - [SI-12(2) - Minimize Personally Identifiable Information in Testing, Training, and Research](si-12-2.md)
 - [SI-12(3) - Information Disposal](si-12-3.md)
 - [SI-13 - Predictable Failure Prevention](si-13.md)
-- [SI-13(1) - Transferring Component Responsibilities](si-13-1.md)
 - [SI-13(3) - Manual Transfer Between Components](si-13-3.md)
 - [SI-13(4) - Standby Component Installation and Notification](si-13-4.md)
 - [SI-13(5) - Failover Capability](si-13-5.md)
@@ -524,9 +519,7 @@
 - [SI-2(4) - Automated Patch Management Tools](si-2-4.md)
 - [SI-2(5) - Automatic Software and Firmware Updates](si-2-5.md)
 - [SI-2(6) - Removal of Previous Versions of Software and Firmware](si-2-6.md)
-- [SI-2(7) - Root Cause Analysis](si-2-7.md)
 - [SI-20 - Tainting](si-20.md)
-- [SI-22 - Information Diversity](si-22.md)
 - [SI-23 - Information Fragmentation](si-23.md)
 - [SI-3(10) - Malicious Code Analysis](si-3-10.md)
 - [SI-3(4) - Updates Only by Privileged Users](si-3-4.md)

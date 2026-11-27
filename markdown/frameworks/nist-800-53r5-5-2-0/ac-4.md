@@ -107,3 +107,12 @@ The case verifies selected network communication flows: both listeners are reach
 - Strength: moderate
 - Applicability: conditional
 - Strength Reason Code: partial-control-coverage
+
+### [SAF-K8S-0901-005 - Federated learning security on Kubernetes](../../controls/SAF-K8S-0901-005.md)
+
+- Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
+- Knowledge Area: 9.1
+- Relation Type: supports
+- Strength: moderate
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
