@@ -5,7 +5,7 @@
 
 ## Mapping Notes
 
-The mapping can help identify attack-related scenarios and infrastructure surfaces; it does not establish system-specific harms, intended-use context, or lifecycle impact analysis. NIST AI RMF 1.0 Table 2: https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.100-1.pdf. CTA class names and distinctions require authorized-text verification.
+The mapping can help identify attack-related scenarios and infrastructure surfaces; it does not establish system-specific harms, intended-use context, or lifecycle impact analysis. NIST AI RMF 1.0 Table 2: https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.100-1.pdf. CTA-2114 Section 9 provides non-exhaustive threat examples.
 
 ## SAF-K8S Controls
 

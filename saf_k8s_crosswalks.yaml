@@ -2176,7 +2176,7 @@
   framework_requirement_id: Article-9.2.a
   legacy_requirement_id: Art-9:9(2)(a)
   framework_requirement_title: Risk management system
-  framework_mapping_notes: 'The Kubernetes mapping can contribute cybersecurity threat scenarios. It does not itself identify and analyze the full system''s foreseeable risks or establish Article 9 compliance. CTA-2114 class names and definitions must be checked against an authorized copy before this mapping is treated as CTA-conformant. See Regulation (EU) 2024/1689, Article 9(1)-(3): https://eur-lex.europa.eu/eli/reg/2024/1689/oj/eng.'
+  framework_mapping_notes: "The Kubernetes mapping can contribute cybersecurity threat scenarios. It does not itself identify and analyze the full system's foreseeable risks or establish Article 9 compliance. CTA-2114 Section 9 provides non-exhaustive threat examples. See Regulation (EU) 2024/1689, Article 9(1)-(3): https://eur-lex.europa.eu/eli/reg/2024/1689/oj/eng."
   control_id: SAF-K8S-1004-001
   relation_type: partial
   strength_level: moderate
@@ -2218,7 +2218,7 @@
   framework_requirement_id: Article-9.2.b
   legacy_requirement_id: Art-9:9(2)(b)
   framework_requirement_title: Risk management system
-  framework_mapping_notes: 'The taxonomy-to-Kubernetes map may contribute threat scenarios for the infrastructure portion of risk estimation. It does not itself estimate/evaluate risks for the AI system''s intended purpose and misuse. CTA class membership remains unverified absent authorized normative text. See Regulation (EU) 2024/1689, Article 9: https://eur-lex.europa.eu/eli/reg/2024/1689/oj/eng.'
+  framework_mapping_notes: "The taxonomy-to-Kubernetes map may contribute threat scenarios for the infrastructure portion of risk estimation. It does not itself estimate/evaluate risks for the AI system's intended purpose and misuse. CTA-2114 Section 9 provides non-exhaustive threat examples. See Regulation (EU) 2024/1689, Article 9: https://eur-lex.europa.eu/eli/reg/2024/1689/oj/eng."
   control_id: SAF-K8S-1004-001
   relation_type: partial
   strength_level: moderate
@@ -2603,7 +2603,7 @@
   framework_version: '1.0'
   framework_requirement_id: GOVERN 4.2
   framework_requirement_title: Organizational teams document the risks and potential impacts of the AI technology they design, develop, deploy, or use, and communicate about the impacts more broadly.
-  framework_mapping_notes: 'A documented mapping can contribute AI-specific threat information. The control does not itself establish broader organizational communication or the risks and impacts of a particular AI technology. Check the CTA labels against an authorized copy before attributing them to CTA-2114. NIST AI RMF 1.0 Table 1: https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.100-1.pdf.'
+  framework_mapping_notes: "A documented mapping can contribute AI-specific threat information. The control does not itself establish broader organizational communication or the risks and impacts of a particular AI technology. CTA-2114 Section 9 provides non-exhaustive threat examples. NIST AI RMF 1.0 Table 1: https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.100-1.pdf."
   control_id: SAF-K8S-1004-001
   relation_type: partial
   strength_level: moderate
@@ -2919,7 +2919,7 @@
   framework_version: '1.0'
   framework_requirement_id: MAP 3.2
   framework_requirement_title: Potential harms to people, organizations, and ecosystems arising from the AI system's intended use - and if relevant, across the lifecycle - are understood, characterized, and documented.
-  framework_mapping_notes: 'The mapping can help identify attack-related scenarios and infrastructure surfaces; it does not establish system-specific harms, intended-use context, or lifecycle impact analysis. NIST AI RMF 1.0 Table 2: https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.100-1.pdf. CTA class names and distinctions require authorized-text verification.'
+  framework_mapping_notes: "The mapping can help identify attack-related scenarios and infrastructure surfaces; it does not establish system-specific harms, intended-use context, or lifecycle impact analysis. NIST AI RMF 1.0 Table 2: https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.100-1.pdf. CTA-2114 Section 9 provides non-exhaustive threat examples."
   control_id: SAF-K8S-1004-001
   relation_type: partial
   strength_level: moderate
@@ -3026,7 +3026,7 @@
   framework_version: '1.0'
   framework_requirement_id: MAP 5.1
   framework_requirement_title: Likelihood and magnitude of beneficial and harmful impacts
-  framework_mapping_notes: 'Threat classes may contribute scenarios to an impact assessment, but taxonomy mapping does not assess impact likelihood or magnitude. The current row''s title is not the official MAP 5.1 wording. NIST AI RMF 1.0 Table 2, p. 27: https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.100-1.pdf. CTA taxonomy attribution remains contingent on authorized-text verification.'
+  framework_mapping_notes: "Threat classes may contribute scenarios to an impact assessment, but taxonomy mapping does not assess impact likelihood or magnitude. The current row's title is not the official MAP 5.1 wording. NIST AI RMF 1.0 Table 2, p. 27: https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.100-1.pdf. CTA-2114 Section 9 provides non-exhaustive threat examples."
   control_id: SAF-K8S-1004-001
   relation_type: partial
   strength_level: moderate
@@ -3228,7 +3228,7 @@
   framework_version: '1.0'
   framework_requirement_id: MEASURE 2.7
   framework_requirement_title: AI system security and resilience - as identified in the MAP function - are evaluated and documented.
-  framework_mapping_notes: 'A threat-to-control/detection map can inform evaluation scope, but the control itself does not execute or document security and resilience evaluations. NIST AI RMF 1.0 Table 3: https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.100-1.pdf. CTA class names and distinctions require authorized-text verification.'
+  framework_mapping_notes: "A threat-to-control/detection map can inform evaluation scope, but the control itself does not execute or document security and resilience evaluations. NIST AI RMF 1.0 Table 3: https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.100-1.pdf. CTA-2114 Section 9 provides non-exhaustive threat examples."
   control_id: SAF-K8S-1004-001
   relation_type: partial
   strength_level: moderate
@@ -15251,7 +15251,7 @@
   framework_version: 5.2.0
   framework_requirement_id: SA-3
   framework_requirement_title: System Development Life Cycle
-  framework_mapping_notes: 'Threat-class mapping can inform selected lifecycle security activities, but does not establish a complete secure SDLC or lifecycle roles. CTA taxonomy conformance requires authorized normative text. NIST SP 800-53 Rev. 5 SA-3 source: https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final.'
+  framework_mapping_notes: "Threat-class mapping can inform selected lifecycle security activities, but does not establish a complete secure SDLC or lifecycle roles. CTA-2114 Section 9 provides non-exhaustive threat examples. NIST SP 800-53 Rev. 5 SA-3 source: https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final."
   control_id: SAF-K8S-1004-001
   relation_type: partial
   strength_level: moderate
@@ -23907,7 +23907,7 @@
   framework_version: '1.1'
   framework_requirement_id: PW.1.1
   framework_requirement_title: Use forms of risk modeling -- such as threat modeling, attack modeling, or attack surface mapping -- to help assess the security risk.
-  framework_mapping_notes: 'The control''s threat-modeling scope and attack-surface map can contribute to PW.1.1, but do not establish the producer''s full design risk model. Exact CTA class attribution is unverified until checked against authorized normative text. NIST SP 800-218, PW.1.1: https://csrc.nist.gov/pubs/sp/800/218/final.'
+  framework_mapping_notes: "The control's threat-modeling scope and attack-surface map can contribute to PW.1.1, but do not establish the producer's full design risk model. CTA-2114 Section 9 provides non-exhaustive threat examples. NIST SP 800-218, PW.1.1: https://csrc.nist.gov/pubs/sp/800/218/final."
   control_id: SAF-K8S-1004-001
   relation_type: partial
   strength_level: moderate
