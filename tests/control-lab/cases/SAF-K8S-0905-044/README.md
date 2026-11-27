@@ -28,3 +28,15 @@ policy and authenticated result for the input digest. Verify who can approve
 release, how the scanner result is linked to that approval, and how both are
 retained for review. The HTTP endpoints in the reference case serve fixed
 markers, and the scan decisions are supplied by the fixture.
+
+## Scratch additive: release metadata update guard
+
+The scratch candidate adds one case-owned ServiceAccount and a namespaced Role whose
+`patch` permission is limited by `resourceNames` to the single inert release Pod.
+It first adds an unrelated fixture annotation to that Pod and requires the update to
+succeed. It then attempts to replace the recorded scanned-artifact digest with a fixed
+nonmatching value and requires the existing ValidatingAdmissionPolicy to reject the
+update. An independent API read checks the same Pod UID, original model and artifact
+digests, clean/approved labels, and the accepted metadata annotation. This is an
+admission update-path check only; scanner effectiveness, approval provenance and
+production release workflow remain deployment evidence.

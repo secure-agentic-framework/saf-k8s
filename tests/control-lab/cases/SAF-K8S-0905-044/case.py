@@ -15,6 +15,7 @@ QUARANTINE = "saf-model-quarantine"
 RELEASE = "saf-model-release"
 RELEASE_SA = "model-release-authorizer"
 UNAUTHORIZED_SA = "model-unapproved-caller"
+UPDATE_SA = "model-release-update-reviewer"
 RELEASE_POD = "clean-model-release-witness"
 POLICY = "model-release-requires-clean-scan"
 APPROVED_DIGEST = "saf.example/model-metadata-sha256"
@@ -100,7 +101,8 @@ SCOPE = (
     "fixture policy, Kubernetes admission, API authorization, and exact metadata-digest readback. "
     "It does not demonstrate malware detection or scanner/tool effectiveness, inspect real model content, prove a CNI other than this "
     "pinned bundled kindnet fixture, or prove production scanner coverage, source authenticity, model "
-    "behavioral safety, promotion workflow adoption, or durable audit storage."
+    "behavioral safety, promotion workflow adoption, or durable audit storage. A scoped update identity "
+    "also verifies that native release admission preserves the exact scanned digest after creation."
 )
 
 
@@ -224,6 +226,30 @@ def _api_client(lab, service_account):
                    if item["name"] == context["cluster"])
     ca = base64.b64decode(cluster["certificate-authority-data"])
     return cluster["server"], token, ssl.create_default_context(cadata=ca.decode())
+
+
+def _api_patch_pod(lab, service_account, name, patch):
+    """Send one in-memory merge patch as a case-owned ServiceAccount."""
+    server, token, tls = _api_client(lab, service_account)
+    url = f"{server}/api/v1/namespaces/{RELEASE}/pods/{name}"
+    request = urllib.request.Request(
+        url, data=json.dumps(patch, sort_keys=True).encode(), method="PATCH",
+        headers={"Authorization": "Bearer " + token,
+                 "Content-Type": "application/merge-patch+json"})
+    try:
+        opener = urllib.request.build_opener(urllib.request.ProxyHandler({}),
+                                             urllib.request.HTTPSHandler(context=tls))
+        with opener.open(request, timeout=15) as response:
+            return response.status, json.load(response)
+    except urllib.error.HTTPError as response:
+        status = response.code
+        try:
+            body = json.load(response)
+        except (ValueError, OSError):
+            body = {"reason": "non-json-api-error"}
+    except (OSError, urllib.error.URLError, json.JSONDecodeError):
+        lab.block("Kubernetes API request for the release metadata update failed")
+    return status, body
 
 
 def _api_post_pod(lab, service_account, manifest, *, dry_run=False):
@@ -599,6 +625,8 @@ def run(lab):
     for name in (RELEASE_SA, UNAUTHORIZED_SA):
         create_in(lab, RELEASE, {"apiVersion": "v1", "kind": "ServiceAccount",
                     "metadata": {"name": name, "namespace": RELEASE}})
+    create_in(lab, RELEASE, {"apiVersion": "v1", "kind": "ServiceAccount",
+                "metadata": {"name": UPDATE_SA, "namespace": RELEASE}})
     create_in(lab, RELEASE, {"apiVersion": "rbac.authorization.k8s.io/v1", "kind": "Role",
                 "metadata": {"name": "model-release-pod-creator", "namespace": RELEASE},
                 "rules": [{"apiGroups": [""], "resources": ["pods"], "verbs": ["create"]}]})
@@ -636,6 +664,66 @@ def run(lab):
                     "--timeout=95s", timeout=105)
     clean_readback = json.loads(lab.kubectl("get", "pod", RELEASE_POD, "-n", RELEASE,
                                             "-o", "json").stdout) if clean_status == 201 else {}
+    create_in(lab, RELEASE, {"apiVersion": "rbac.authorization.k8s.io/v1", "kind": "Role",
+                "metadata": {"name": "model-release-named-pod-updater", "namespace": RELEASE},
+                "rules": [{"apiGroups": [""], "resources": ["pods"],
+                           "resourceNames": [RELEASE_POD], "verbs": ["patch"]}]})
+    create_in(lab, RELEASE, {"apiVersion": "rbac.authorization.k8s.io/v1", "kind": "RoleBinding",
+                "metadata": {"name": "model-release-named-pod-updater", "namespace": RELEASE},
+                "roleRef": {"apiGroup": "rbac.authorization.k8s.io", "kind": "Role",
+                            "name": "model-release-named-pod-updater"},
+                "subjects": [{"kind": "ServiceAccount", "name": UPDATE_SA,
+                              "namespace": RELEASE}]})
+    allowed_update_status, allowed_update_body = _api_patch_pod(
+        lab, UPDATE_SA, RELEASE_POD,
+        {"metadata": {"annotations": {"saf.example/metadata-update-witness": "permitted"}}})
+    rejected_update_status, rejected_update_body = _api_patch_pod(
+        lab, UPDATE_SA, RELEASE_POD,
+        {"metadata": {"annotations": {ARTIFACT_DIGEST_ANNOTATION: "0" * 64}}})
+    update_readback = json.loads(lab.kubectl(
+        "get", "pod", RELEASE_POD, "-n", RELEASE, "-o", "json").stdout)
+    update_identity = (update_readback.get("metadata", {}).get("uid")
+                       == clean_readback.get("metadata", {}).get("uid")
+                       and bool(update_readback.get("metadata", {}).get("uid")))
+    allowed_update_preserved = (allowed_update_status == 200
+                                and allowed_update_body.get("metadata", {}).get("uid")
+                                == clean_readback.get("metadata", {}).get("uid")
+                                and allowed_update_body.get("metadata", {}).get("annotations", {}).get(
+                                    "saf.example/metadata-update-witness") == "permitted")
+    rejected_update_policy = (rejected_update_status == 422
+                              and "exact scanned artifact digest" in rejected_update_body.get("message", ""))
+    update_readback_preserved = (update_identity
+                                 and update_readback.get("metadata", {}).get("annotations", {}).get(
+                                     ARTIFACT_DIGEST_ANNOTATION) == scanner_digest
+                                 and update_readback.get("metadata", {}).get("annotations", {}).get(
+                                     APPROVED_DIGEST) == MODEL_METADATA_SHA256
+                                 and update_readback.get("metadata", {}).get("labels", {}).get(
+                                     SCAN_LABEL) == "clean"
+                                 and update_readback.get("metadata", {}).get("labels", {}).get(
+                                     AUTH_LABEL) == "approved"
+                                 and update_readback.get("metadata", {}).get("annotations", {}).get(
+                                     "saf.example/metadata-update-witness") == "permitted")
+    raw["release_update_attempts"] = {
+        "updater_service_account": UPDATE_SA,
+        "role_resource_names": [RELEASE_POD],
+        "allowed_metadata_update": {"status": allowed_update_status,
+                                    "uid": allowed_update_body.get("metadata", {}).get("uid")},
+        "denied_scanned_digest_update": {"status": rejected_update_status,
+                                          "reason": _denial_reason(rejected_update_body),
+                                          "message": rejected_update_body.get("message", "")},
+        "independent_readback": {
+            "uid": update_readback.get("metadata", {}).get("uid"),
+            "scanned_artifact_digest": update_readback.get("metadata", {}).get("annotations", {}).get(
+                ARTIFACT_DIGEST_ANNOTATION),
+            "model_metadata_digest": update_readback.get("metadata", {}).get("annotations", {}).get(
+                APPROVED_DIGEST),
+            "scan_decision": update_readback.get("metadata", {}).get("labels", {}).get(SCAN_LABEL),
+            "release_authorization": update_readback.get("metadata", {}).get("labels", {}).get(AUTH_LABEL),
+            "ordinary_metadata_update": update_readback.get("metadata", {}).get("annotations", {}).get(
+                "saf.example/metadata-update-witness"),
+        },
+    }
+
     raw["release_api_attempts"] = {
         "wrong_digest": {"status": mismatch_status, "body": mismatch_body},
         "wrong_artifact_digest": {"status": wrong_artifact_status, "body": wrong_artifact_body},
@@ -672,6 +760,9 @@ def run(lab):
                 == MODEL_METADATA_SHA256,
             "scanned_artifact_digest": scanner_digest,
             "release_readback_sha256": MODEL_METADATA_SHA256 if clean_readback else None,
+            "allowed_named_pod_metadata_update": allowed_update_preserved,
+            "scanned_digest_update_denied": rejected_update_policy,
+            "same_release_uid_and_digest_after_update_attempts": update_readback_preserved,
         },
     }
 
@@ -756,4 +847,18 @@ def run(lab):
              clean_readback.get("metadata", {}).get("annotations", {}).get(ARTIFACT_DIGEST_ANNOTATION)
              == scanner_digest),
          "scan_scope": "fixed inert JSON format and marker only"},
+    )
+
+    (lab.evidence / "raw-observations.json").write_text(
+        json.dumps(raw, indent=2, sort_keys=True) + "\n")
+    (lab.evidence / "normalized-evidence.json").write_text(
+        json.dumps(normalized, indent=2, sort_keys=True) + "\n")
+    lab.check(
+        "positive",
+        "A named updater may change benign metadata but cannot change the scanned artifact digest",
+        allowed_update_preserved and rejected_update_policy and update_readback_preserved,
+        {"named_patch_role_scoped": True,
+         "ordinary_metadata_patch_allowed": allowed_update_preserved,
+         "scanned_digest_patch_rejected_by_native_admission": rejected_update_policy,
+         "independent_get_preserves_same_pod_uid_and_digest": update_readback_preserved},
     )
