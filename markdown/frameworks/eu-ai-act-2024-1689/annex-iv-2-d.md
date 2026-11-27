@@ -20,16 +20,7 @@ SAF-K8S captures training job configurations, resource allocations, hyperparamet
 - Applicability: required
 - Strength Reason Code: framework-language-interpretation
 
-### [SAF-K8S-0901-003 - Checkpoint security](../../controls/SAF-K8S-0901-003.md)
-
-- Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
-- Knowledge Area: 9.1
-- Relation Type: partial
-- Strength: moderate
-- Applicability: required
-- Strength Reason Code: n/a
-
-### [SAF-K8S-0906-002 - Large-scale data integrity verification](../../controls/SAF-K8S-0906-002.md)
+### [SAF-K8S-0906-002 - Segmented dataset integrity verification](../../controls/SAF-K8S-0906-002.md)
 
 - Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
 - Knowledge Area: 9.6

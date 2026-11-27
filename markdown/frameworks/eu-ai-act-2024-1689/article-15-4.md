@@ -60,10 +60,10 @@ Kubernetes provides infrastructure redundancy through replica sets, multi-zone s
 
 - Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
 - Knowledge Area: 9.1
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
+- Relation Type: partial
+- Strength: moderate
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-0901-004 - Training fault tolerance and security](../../controls/SAF-K8S-0901-004.md)
 
@@ -74,7 +74,7 @@ Kubernetes provides infrastructure redundancy through replica sets, multi-zone s
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAF-K8S-0906-002 - Large-scale data integrity verification](../../controls/SAF-K8S-0906-002.md)
+### [SAF-K8S-0906-002 - Segmented dataset integrity verification](../../controls/SAF-K8S-0906-002.md)
 
 - Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
 - Knowledge Area: 9.6
