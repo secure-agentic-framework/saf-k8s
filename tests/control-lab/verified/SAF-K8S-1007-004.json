@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-1007-004",
-  "catalog_revision": "f99a553f8af8ce495ef34772758cf6320b7827a3",
+  "catalog_revision": "44fb82eb9a2aec194e6fb8a25f05314d771ddbd8",
   "catalog_sha256": "65f757846d484079842769b4cec9180fc3a96ab15a5106c821a08ca7293441b6",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "3851049878e612a02b34e15f8233da5a5349117f1b032d4fbb0615edc9ac2cb9",
-  "scope": "Disposable Kind v1.36.1 cluster. Creates an owned namespace, one digest-pinned synthetic mock workload, a default-deny NetworkPolicy, and a named-object read-only Role. Captures API-visible posture, detects controlled changes to Pod Security Admission labels, NetworkPolicy rules and Role verbs, reapplies the desired manifests, and verifies recovery from live API reads. Joins an offline fictional advisory fixture to a synthetic component observation. Pinned offline OSV-Scanner reads the inert package metadata in a case-built runnable image, and the posture result binds to the exact image observed in Kind. Benchmark coverage, actual advisory feeds, managed and accelerator settings, and deployed monitoring and alerting have separate evidence requirements. A scoped authenticated Role stream compares fixture metadata updates, rule widening and restoration with exact API event revisions.",
-  "cluster": "saf-lab-a65e6ecac4a9",
+  "scope": "Disposable Kind v1.36.1 cluster. Creates an owned namespace, one digest-pinned synthetic mock workload, a default-deny NetworkPolicy, and a named-object read-only Role. Captures API-visible posture, detects controlled changes to Pod Security Admission labels, NetworkPolicy rules and Role verbs, reapplies the desired manifests, and verifies recovery from live API reads. Joins an offline fictional advisory fixture to a synthetic component observation. Pinned offline OSV-Scanner reads the inert package metadata in a case-built runnable image, and the posture result binds to the exact image observed in Kind. Benchmark coverage, actual advisory feeds, managed and accelerator settings, and deployed monitoring and alerting have separate evidence requirements. A scoped authenticated Role stream compares fixture metadata updates, rule widening and restoration with exact API event revisions. A separately authorized NetworkPolicy watcher matches metadata, ingress widening and restoration to the selected object's UID and API resource versions. The NetworkPolicy comparison uses API observations only; CNI enforcement and ongoing monitoring require separate evidence.",
+  "cluster": "saf-lab-0997d367c543",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -142,6 +142,35 @@
       "observed": {
         "ordered_watch_matches_exact_api_revisions": true,
         "excluded_role_event_absent": true,
+        "comparison": [
+          "unchanged",
+          "drift",
+          "recovered"
+        ]
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Named NetworkPolicy list and watch succeed while broader and different-name watches receive 403",
+      "matched": true,
+      "observed": {
+        "scoped_stream_open": true,
+        "unfiltered_watch_403": true,
+        "different_name_watch_403": true,
+        "job_pod_identity_bound": true,
+        "exact_policy_uid_preserved": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "NetworkPolicy watch classifies metadata, ingress widening and restoration against exact writes and event times",
+      "matched": true,
+      "observed": {
+        "ordered_event_trace_matches_api_writes": true,
+        "resource_versions_unique": true,
+        "writes_are_separate_sequential_api_responses": true,
+        "event_receipt_times_bounded_to_independent_writes": true,
+        "event_receipt_times_ordered": true,
         "comparison": [
           "unchanged",
           "drift",

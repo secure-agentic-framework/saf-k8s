@@ -21,7 +21,10 @@ SCOPE = (
     "case-built runnable image, and the posture result binds to the exact image observed in Kind. "
     "Benchmark coverage, actual advisory feeds, managed and accelerator settings, and deployed "
     "monitoring and alerting have separate evidence requirements. A scoped authenticated Role stream "
-    "compares fixture metadata updates, rule widening and restoration with exact API event revisions."
+    "compares fixture metadata updates, rule widening and restoration with exact API event revisions. "
+    "A separately authorized NetworkPolicy watcher matches metadata, ingress widening and restoration "
+    "to the selected object's UID and API resource versions. The NetworkPolicy comparison uses API "
+    "observations only; CNI enforcement and ongoing monitoring require separate evidence."
 )
 
 
@@ -293,3 +296,5 @@ def run(lab):
     runpy.run_path(str(HERE / "scanner_posture_addon.py"))["run"](lab, cases_root)
     runpy.run_path(str(HERE / "role_watch_addon.py"))["run"](
         lab, HERE, OWNED_NAMESPACE, ROLE, resources["role"]["rules"])
+    runpy.run_path(str(HERE / "network_policy_watch_addon.py"))["run"](
+        lab, HERE, OWNED_NAMESPACE, NETWORK_POLICY, resources["networkpolicy"]["spec"])

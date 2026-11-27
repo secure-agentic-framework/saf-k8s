@@ -69,3 +69,16 @@ The test uses one finite stream and a projected ServiceAccount token. The
 receipt preserves resource identities, rule changes and dispositions. Watch
 reconnect, alert delivery, broader enrolled resources and production coverage
 require separate evidence. [Kubernetes API watch](https://v1-36.docs.kubernetes.io/docs/reference/using-api/api-concepts/#efficient-detection-of-changes)
+
+## Native NetworkPolicy posture watch
+
+The additive check opens one authenticated, name-scoped watch for the existing
+case-owned `owned-default-deny` policy. Its observer can list/watch only that
+named NetworkPolicy; unfiltered and different-name watches must receive 403.
+Three independent API writes apply a metadata-only change, a controlled ingress
+widening, and exact spec restoration. The receipt retains each write response,
+UID, resourceVersion, generation, managed-field timestamps where present, and
+watch-event receive timestamps. It compares the ordered events with those exact
+write revisions. The test makes no connectivity probes and establishes no CNI
+packet enforcement, continuous monitoring service, alert delivery, or production
+coverage.
