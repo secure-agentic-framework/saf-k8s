@@ -1,18 +1,19 @@
 # SAF-K8S-0903-004 — LLM context window and token resource controls
 
-This case combines two disposable Kind fixtures.
-
-The original in-process fixture compares an unguarded fake generator with a guarded one. It counts whitespace-separated tokens, applies input and request/session output caps, and uses a logical clock for its synthetic rate check. Session identifiers are fixed fixture strings, not authenticated identities.
-
-A second fixture builds a digest-pinned Python image with upstream tiktoken 0.12.0 and the SHA-pinned cl100k_base vocabulary. A separate client reaches the BPE worker through a Kubernetes Service. The existing five-request guarded HTTP sequence exercises fixed prompt expansion, BPE counts, pre-dispatch input rejection, bounded streams of synthetic token IDs, and backend counters. An additive bounded comparison sends the same fixed oversized prompt to a second instance of the same worker with only the input guard disabled.
+The portable case combines synthetic token-budget checks, a pinned BPE HTTP
+service, and native CPU inference in disposable Kind. The synthetic comparison
+covers input and output caps, fixture-session accounting and a logical-clock
+rate check. The pinned tiktoken service observes expanded-prompt BPE counts,
+pre-dispatch refusal and bounded streaming. The pinned llama.cpp server checks
+native tokenization, output and the configured output guard.
 
 ## Evidence boundary
 
-Both HTTP instances emit finite, fixed token IDs and do not call a language model or an actual inference serving framework. The guard comparison changes only the fixture input-limit Boolean; it does not validate another serving control. The tests do not authenticate caller or session identity, exercise concurrent generation, verify every production route or replica, or configure and measure a real KV cache or GPU memory budget.
-
-The Pod manifests declare CPU and memory requests and limits. The earlier receipt predates the additive observation below and did not inspect effective cgroup bounds. Those declarations and the new container-bound observation are not proof of model memory safety or production capacity.
-
-The existing 16 behavioral checks show behavior of these bounded fixtures. Adopters still need evidence from their deployed serving framework, complete tokenizer/template and routes; authenticated identity and session lifecycle; concurrent streaming/cancellation and effective budgets; actual cache and device allocations; and operational resource monitoring.
+Twenty assertions cover the fixed fixture inputs, routes, sessions and named
+resources. The cgroup observation verifies the running container's CPU and
+host-memory bounds. Adopters verify authenticated identities and sessions, all
+serving routes and templates, concurrency and cancellation, resource fairness,
+actual cache and device limits, and operating metrics.
 
 The [FlashAttention paper](https://arxiv.org/abs/2205.14135) explains exact tiled attention and reduced GPU-memory traffic. The [PagedAttention paper](https://arxiv.org/abs/2309.06180) discusses serving-side KV-cache blocks, sharing, and allocation.
 
@@ -31,7 +32,7 @@ exchanges with fixed inputs. Separate backend counters confirm the difference.
 
 ## Additive serving-container cgroup observation
 
-A read-only probe runs inside the guarded serving Pod and reads the serving process's own cgroup membership and CPU/memory limit files. It reports the tightest finite CPU quota and memory ceiling visible through the cgroup hierarchy, then compares them with the guarded container's declared limits from the Pod specification. A missing bound, probe failure, or mismatch fails a green safeguard check; it does not change the existing 16 checks. The evidence is limited to observed container CPU and memory bounds. It does not measure CPU behavior under load, memory pressure or actual model allocation, GPU limits, or KV/cache limits.
+A read-only probe runs inside the guarded serving Pod and reads the serving process's own cgroup membership and CPU/memory limit files. It reports the tightest finite CPU quota and memory ceiling visible through the cgroup hierarchy, then compares them with the guarded container's declared limits from the Pod specification. A missing bound, probe failure, or mismatch fails a green safeguard check; The cgroup check is included in the paired 20-check receipt. The evidence is limited to observed container CPU and memory bounds. It does not measure CPU behavior under load, memory pressure or actual model allocation, GPU limits, or KV/cache limits.
 
 The CPU serving check adds the official llama.cpp b9519 server and a 73.5 MB
 upstream Stories test model. The runner selects the reviewed ARM64 or AMD64
