@@ -24,5 +24,23 @@ This demonstrates the small API-stored fixture. Actual training checkpoints,
 filesystem or object-store encryption, production identities, KMS and key
 custody, and distributed state recovery require separate evidence.
 
+## Verify the adopted checkpoint backend
+
+1. Trace the checkpoint and optimizer artifacts from the training writer to the
+   mounted volume, filesystem, or object store. Record the actual provisioner
+   or backend, encryption mode and key reference, and effective settings on
+   the specific volume, share, or object.
+2. Verify which training jobs and personnel can read and write the selected
+   paths or object prefixes. Check workload identity, backend policy, mount
+   restrictions, and effective filesystem permissions where applicable.
+   PV access modes describe binding and mount constraints. Kubernetes RBAC
+   governs requests to the Kubernetes API.
+3. Exercise a permitted restore and an integrity mismatch in a disposable
+   representative environment. Bind the independently approved integrity
+   manifest to the exact checkpoint and optimizer contents, and retain the
+   verified decision before the workflow loads the artifacts.
+
 - [Kubernetes v1.36 encryption at rest](https://v1-36.docs.kubernetes.io/docs/tasks/administer-cluster/encrypt-data/)
 - [Kubernetes v1.36 RBAC](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/rbac/)
+- [Kubernetes v1.36 StorageClass parameters](https://v1-36.docs.kubernetes.io/docs/concepts/storage/storage-classes/#parameters)
+- [Kubernetes v1.36 Persistent Volume access modes](https://v1-36.docs.kubernetes.io/docs/concepts/storage/persistent-volumes/#access-modes)

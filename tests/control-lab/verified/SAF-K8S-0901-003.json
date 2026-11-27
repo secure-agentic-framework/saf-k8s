@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0901-003",
-  "catalog_revision": "87ac0c92152c37c3433d3bc2d34b5ab29b96b92f",
-  "catalog_sha256": "fcd14a9a5a363c08dececf5478017b63713b748167151c9833c283fd0de8c62c",
+  "catalog_revision": "bc3c4406cd4afcd8c937b62f2c81010250948a7a",
+  "catalog_sha256": "9135dfb3330418c29d3d8f94dc01192bb9eb05ee4c1e9aaf1a876493ca084535",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "e6b3a8574b6f684eb897dd28253ff710f9671a03723f2eb90c4fb3b27cb8cd90",
+  "control_sha256": "07923dd2958dd69d6a40bc49f7f5b4c1e0764326f044a2910bbcb27624bc6e00",
   "scope": "One disposable Kind Kubernetes v1.36.1 cluster with an ephemeral Secretbox EncryptionConfiguration for core Secret API objects, one small synthetic checkpoint, synthetic optimizer metadata, and one unencrypted ConfigMap comparator. Exact etcd records are checked inside the case cluster. Namespaced Roles grant named GET/UPDATE only for the mock trainer's restore Secret, and named GET for checkpoint inputs and the digest manifest; a separate observer can GET only the restore Secret. An ordinary mock Pod demonstrates denied Secret GET/PATCH. A second untrusted request attempts a metadata-only patch to the exact checkpoint input Secret; an independent API readback checks its UID, resourceVersion, and data hashes remain unchanged. This does not test filesystem/PV or cloud object-store encryption, KMS/key custody or rotation, production identities, human authorization, distributed storage, or actual ML training.",
-  "cluster": "saf-lab-04e6e4a3e724",
+  "cluster": "saf-lab-b69c1178222a",
   "kubernetes": {
     "clientVersion": {
       "major": "1",

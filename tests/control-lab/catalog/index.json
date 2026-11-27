@@ -2379,7 +2379,7 @@
     "SAF-K8S-0901-003": {
       "catalog_status": "draft",
       "domain": "D09",
-      "sha256": "e6b3a8574b6f684eb897dd28253ff710f9671a03723f2eb90c4fb3b27cb8cd90",
+      "sha256": "07923dd2958dd69d6a40bc49f7f5b4c1e0764326f044a2910bbcb27624bc6e00",
       "title": "Checkpoint security"
     },
     "SAF-K8S-0901-004": {
@@ -3572,7 +3572,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "c0beee7e93261d0b9f06b91e4944b38f8b01f1ca",
-  "sha256": "fcd14a9a5a363c08dececf5478017b63713b748167151c9833c283fd0de8c62c",
+  "revision": "7696c36c9099d03b0b3fe9b080c5240bd49d3665",
+  "sha256": "9135dfb3330418c29d3d8f94dc01192bb9eb05ee4c1e9aaf1a876493ca084535",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
