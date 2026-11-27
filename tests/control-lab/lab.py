@@ -257,6 +257,9 @@ def run(control_id, control_case, index, docker_context, *, approval_file=None, 
                                                   temporary / control_id, report, reviewed_kind_config)
                 report["scope"] = control_case.SCOPE
             control_case.run(lab)
+            if any(not isinstance(check, dict) or check.get("matched") is not True
+                   for check in lab.checks):
+                raise CheckFailed("The case returned with an unmatched or invalid check")
             phases = {check["phase"] for check in lab.checks}
             if not {"red", "green", "positive"}.issubset(phases):
                 raise InfrastructureError("A passing case must record red, green and positive observations")
@@ -279,6 +282,9 @@ def run(control_id, control_case, index, docker_context, *, approval_file=None, 
                     report["cleanup"] = "deleted"
                 except InfrastructureError as error:
                     report.update(cleanup="failed", cleanup_error=str(error))
+                    if report.get("status") == "passed":
+                        report.update(status="blocked",
+                                      error="Cluster cleanup failed after case checks passed")
             report["checks"] = lab.checks
             (evidence / "result.json").write_text(json.dumps(report, indent=2) + "\n")
     print(f"{report['status'].upper()}  {control_id}")
