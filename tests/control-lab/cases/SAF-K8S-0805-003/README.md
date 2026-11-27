@@ -1,7 +1,27 @@
-# SAF-K8S-0805-003 synthetic accelerator incident review
+# SAF-K8S-0805-003 accelerator incident review
 
-The original three checks remain unchanged. They verify native RBAC and admission over inert incident decision records: high-only escalation is initially accepted before the review policy is installed; missing attribution, an approved-workload escalation, and an unauthorized reviewer are rejected; an observer hold and authorized corroborated escalation are retained.
+Run from the framework checkout.
 
-An additive response fixture reads the exact retained immutable escalation record and uses a native ValidatingAdmissionPolicy with that ConfigMap as its parameter. Two harmless, case-owned Deployments run only a bounded sleep process. The VAP allows only the named reviewer to scale the designated target to zero when the update references the retained decision and matches its synthetic workload class and evidence fields. It denies the observer, a wrong decision reference, and the distinct comparator. Separate API reads verify the target's UID is unchanged and replicas reach zero while the comparator remains available.
+```sh
+python3 tests/control-lab/lab.py test SAF-K8S-0805-003 --docker-context desktop-linux
+```
 
-This demonstrates a local Kubernetes software authorization and response path over synthetic records and inert workloads. It does not test GPU telemetry, attack detection, actual workload attribution, device/node action, production response routing, evidence retention, or threat causation. Device and operational evidence remains an adopter requirement.
+The case tests Kubernetes RBAC and admission with synthetic incident
+records. It rejects escalation with inadequate evidence or an unauthorized
+reviewer. An approved decision allows only the named reviewer to scale an
+inert fixture Deployment. The comparator remains available.
+
+The historical check uses the two T4 framebuffer captures from
+`SAF-K8S-1002-003`. Each run recorded 0 MiB idle and 232 MiB after a
+deliberate allocation in the known-good fixture. The case checks the
+source summary and receipt digests and preserves each pseudonymous workload
+reference and capture interval in an immutable hold record.
+
+Admission denies a dry-run escalation for either recorded allocation,
+even when the named reviewer submits it. Both records describe approved
+fixture workloads with missing independent corroboration. The test also
+checks that the comparator retains its UID and readiness. Live freshness,
+incident attribution, and production response require further evidence.
+
+The runner records five checks. The historical triage artifact is
+`historical-t4-triage-hold.raw.json`. [T4 reference summary](https://github.com/secure-agentic-framework/saf-k8s/blob/23a8b7a4be1fec186b4138fc30e12ab0964e33b9/tests/control-lab/cases/SAF-K8S-1002-003/t4-reference/reference-result.json)

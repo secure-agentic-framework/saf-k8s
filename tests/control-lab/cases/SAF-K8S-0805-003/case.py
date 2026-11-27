@@ -3,7 +3,10 @@
 import json
 import time
 
-SCOPE = "Real Kubernetes RBAC and admission over synthetic decisions plus one inert fixture-only scale-to-zero response; no accelerator action."
+SCOPE = ("Four checks exercise native authorization and an inert response over synthetic records. An additive fifth "
+         "check binds two retained historical T4 framebuffer observations to an immutable hold and confirms the "
+         "case reviewer cannot escalate an approved known-good workload without corroboration. No GPU, node, "
+         "or production workload action is performed; historical freshness and incident attribution are not claimed.")
 API = "admissionregistration.k8s.io/v1"
 RBAC = "rbac.authorization.k8s.io"
 NAME = "fixture-incident-review"
@@ -102,3 +105,9 @@ def run(lab):
     _response_action = _importlib_util.module_from_spec(_response_spec)
     _response_spec.loader.exec_module(_response_action)
     _response_action.run(lab)
+
+    _history_spec = _importlib_util.spec_from_file_location(
+        "historical_hold", _Path(__file__).with_name("historical_hold.py"))
+    _historical_hold = _importlib_util.module_from_spec(_history_spec)
+    _history_spec.loader.exec_module(_historical_hold)
+    _historical_hold.run(lab)
