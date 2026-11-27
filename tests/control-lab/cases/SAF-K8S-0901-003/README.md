@@ -24,6 +24,38 @@ This demonstrates the small API-stored fixture. Actual training checkpoints,
 filesystem or object-store encryption, production identities, KMS and key
 custody, and distributed state recovery require separate evidence.
 
+## Case-owned PVC AEAD supplement
+
+After the seven API-storage and authorization checks, the case builds and loads
+a small local runtime image from the same digest-pinned Python base and public
+ARM64 or AMD64 wheels whose SHA-256 values are pinned in
+`requirements-aead.txt`. The host fetch is hash-checked from PyPI; the Docker
+package-install layer runs with networking disabled. The build context and
+wheels live in a temporary directory outside this case tree. Each supplemental
+Job uses the derived local image with `imagePullPolicy: Never`.
+
+A short nonroot writer reads only the already protected synthetic checkpoint
+and optimizer Secret, encrypts both in memory with AES-256-GCM and artifact
+bound associated data, then writes versioned ciphertext envelopes to one
+case-owned bound PVC. A separate keyless Pod mounts that claim read-only and
+compares the stored objects with the fixed fixture inputs. The authorized
+restore Pod reads the ciphertext and temporary case-only key, authenticates
+both objects, checks both trusted fixture digests, and writes only to a
+memory-backed `emptyDir`. A final controlled copy changes one byte in the
+checkpoint ciphertext; the rejection Job must observe an authentication-tag
+failure before creating any plaintext output. The original envelope remains
+untouched.
+
+The supplement keeps key material, nonces and checkpoint bytes out of retained
+logs and normalized observations. Raw evidence records only object hashes and
+sizes, exact Pod/PVC/PV identities, image references and scoped pass facts. It
+demonstrates authenticated application-layer encryption before writing these
+synthetic artifacts to the observed PVC and integrity rejection before this
+mock restore. It does not demonstrate encryption of the underlying volume,
+storage media or provider; production key custody or rotation; external object
+storage; independent backup failure domains; personnel authorization; an ML
+framework, training operator or real model; or production recovery behavior.
+
 ## Verify the adopted checkpoint backend
 
 1. Trace the checkpoint and optimizer artifacts from the training writer to the

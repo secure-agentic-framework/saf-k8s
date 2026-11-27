@@ -1,6 +1,7 @@
 """Exercise encrypted API storage, scoped workload access, and exact restore."""
 import base64
 import hashlib
+import importlib.util
 import json
 import os
 from pathlib import Path
@@ -377,3 +378,12 @@ def run(lab):
         "role_rules": role.get("rules"), "binding_subjects": binding["subjects"],
         "kept_key_and_backend_payload_private": True,
     }, indent=2, sort_keys=True) + "\n")
+
+    # Additive case-owned PVC data-plane proof. It is deliberately isolated in a
+    # helper so the seven published assertions above retain their exact source.
+    spec = importlib.util.spec_from_file_location("saf_0901_003_pvc_aead", HERE / "pvc_aead.py")
+    if spec is None or spec.loader is None:
+        lab.block("PVC AEAD supplement module could not be loaded")
+    pvc_aead = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(pvc_aead)
+    pvc_aead.run(lab)

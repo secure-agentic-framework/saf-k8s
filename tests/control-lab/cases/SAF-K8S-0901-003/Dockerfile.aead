@@ -1,0 +1,11 @@
+FROM docker.io/library/python:3.13-slim@sha256:e48f59cdba69a3cbd9ed2cf0f348d90d45a8d350d98134cf1070bc106ee9ed90
+COPY wheelhouse/ /opt/aead-wheelhouse/
+COPY requirements-aead.txt /opt/requirements-aead.txt
+RUN python -m pip --isolated --disable-pip-version-check install \
+      --no-index --find-links=/opt/aead-wheelhouse --only-binary=:all: \
+      --require-hashes --no-compile --no-cache-dir \
+      --target /opt/aead-python -r /opt/requirements-aead.txt \
+    && rm -rf /root/.cache /opt/aead-wheelhouse /opt/requirements-aead.txt
+ENV PYTHONPATH=/opt/aead-python PYTHONDONTWRITEBYTECODE=1
+USER 65534:65534
+ENTRYPOINT ["python", "-B"]
