@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-1006-005",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "480335ba0a96d5de7f4045f6141741d3191db90d",
+  "catalog_sha256": "65f757846d484079842769b4cec9180fc3a96ab15a5106c821a08ca7293441b6",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "08f7b8fab16c73ec21b343a9efa6550c984ec776c09de1a08548a7cd48c1f0ce",
-  "scope": "One disposable Kind cluster with a fixture-owned OCI registry, Kyverno ImageValidatingPolicy, and a native Kubernetes ValidatingAdmissionPolicy bound to one test namespace. Server-side dry-runs cover a fixture signer, attestation, named GPU quantity cap, security context, and classified inert Pods. GPU scheduling and production policy coverage require separate evidence.",
-  "cluster": "saf-lab-285505de426e",
+  "scope": "One disposable Kind cluster with a fixture-owned OCI registry, Kyverno ImageValidatingPolicy, and a native Kubernetes ValidatingAdmissionPolicy bound to one test namespace. Server-side dry-runs cover a fixture signer, attestation, named GPU quantity cap, security context, and classified inert Pods. One persisted marker-only Pod with image pulls disabled exercises an approved benign UPDATE and a denied untrusted-image UPDATE. GPU scheduling and production policy coverage require separate evidence.",
+  "cluster": "saf-lab-2d9f17dd9f66",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -140,6 +140,36 @@
       "observed": {
         "admitted_outside_scope": true,
         "server_side_dry_run": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "A persisted compliant inert Pod accepts a benign UPDATE and rejects a noncompliant image UPDATE without mutation",
+      "matched": true,
+      "observed": {
+        "persisted_pod_uid_present": true,
+        "benign_update_admitted": true,
+        "uid_preserved": true,
+        "resource_version_advanced": true,
+        "second_approved_image_accepted": true,
+        "noncompliant_update_denied": true,
+        "exact_fixture_policy_reason": true,
+        "post_denial_uid_unchanged": true,
+        "post_denial_spec_unchanged": true,
+        "post_denial_image_unchanged": true,
+        "post_denial_generation_unchanged": true,
+        "post_denial_benign_annotation_present": true,
+        "image_pull_policy": "Never",
+        "running_or_ready_claimed": false
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The case-owned persisted update witness is retired",
+      "matched": true,
+      "observed": {
+        "cleanup": "complete",
+        "uid_bound_cleanup": true
       }
     },
     {

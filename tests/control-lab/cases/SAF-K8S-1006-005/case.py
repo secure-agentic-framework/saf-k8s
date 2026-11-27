@@ -9,8 +9,9 @@ SCOPE = (
     "One disposable Kind cluster with a fixture-owned OCI registry, Kyverno ImageValidatingPolicy, "
     "and a native Kubernetes ValidatingAdmissionPolicy bound to one test namespace. "
     "Server-side dry-runs cover a fixture signer, attestation, named GPU quantity cap, "
-    "security context, and classified inert Pods. GPU scheduling and production policy coverage "
-    "require separate evidence."
+    "security context, and classified inert Pods. One persisted marker-only Pod with image pulls "
+    "disabled exercises an approved benign UPDATE and a denied untrusted-image UPDATE. "
+    "GPU scheduling and production policy coverage require separate evidence."
 )
 CHART_VERSION = "3.10.0"
 CHART_SHA256 = "55961392dc0821eb367323f0e9585c061dd4407ef7ada921bd56ea1642c2a301"
@@ -105,9 +106,139 @@ def _enroll_namespace(lab):
 
 def _install_policies(lab, image, operator_key, registry):
     image_policy = image._policy(operator_key, registry.registry)
+    # The copy of this case deliberately opts its local image policy into
+    # UPDATE so the lifecycle witness below covers the API's image mutability.
+    if image_policy.count("operations: [CREATE]") != 1:
+        lab.block("Copied image policy template did not have its exact CREATE rule")
+    image_policy = image_policy.replace("operations: [CREATE]", "operations: [CREATE, UPDATE]")
     registry.kube("apply", "-f", "-", input_text=image_policy.replace(image.POLICY, POLICY))
     image.POLICY = POLICY
     registry.kube("apply", "-f", "-", input_text=(HERE / "combined-validating-policy.yaml").read_text())
+
+
+def _persisted_update_witness(lab, registry, image, images):
+    name = "admission-update-1006-005"
+    approved = images["approved"]
+    approved_update = images["approved-update"]
+    candidate = images["unrelated-signer"]
+    pod = _pod(approved, gpu=False)
+    pod["metadata"]["name"] = name
+    pod["spec"]["containers"][0]["imagePullPolicy"] = "Never"
+    pod["spec"]["schedulingGates"] = [{"name": "saf-k8s.example/admission-update-witness"}]
+    created = None
+    cleanup_ok = False
+    allowed_ok = denial_ok = unchanged = False
+    check_observed = {}
+    raw = {"image_policy_operations": ["CREATE", "UPDATE"],
+           "image_pull_policy": "Never", "running_or_ready_claimed": False}
+    try:
+        result = registry.kube("-n", NS, "create", "-f", "-", "-o", "json",
+                               input_text=json.dumps(pod), timeout=35, allow_failure=True)
+        if result.returncode:
+            lab.block("Compliant inert Pod was not persistently admitted")
+        created = json.loads(result.stdout)
+        uid = created.get("metadata", {}).get("uid")
+        if not uid:
+            lab.block("Persisted inert Pod response omitted its UID")
+
+        # A same-policy strategic image UPDATE is accepted for a second
+        # independently signed repository; the benign annotation adds context.
+        allowed = registry.kube(
+            "-n", NS, "patch", "pod", name, "--type=strategic", "-o", "json",
+            "-p", json.dumps({"metadata": {"annotations": {
+                "saf-k8s.example/update-witness": "benign"}},
+                "spec": {"containers": [{"name": "inert", "image": approved_update}]}}),
+            timeout=35, allow_failure=True,
+        )
+        if allowed.returncode:
+            lab.block("The compliant inert Pod did not accept the benign UPDATE")
+        after_allowed = json.loads(allowed.stdout)
+        allowed_uid = after_allowed.get("metadata", {}).get("uid")
+        allowed_rv = after_allowed.get("metadata", {}).get("resourceVersion")
+        created_rv = created.get("metadata", {}).get("resourceVersion")
+        allowed_image = after_allowed.get("spec", {}).get("containers", [{}])[0].get("image")
+        allowed_spec = after_allowed.get("spec", {})
+        allowed_generation = after_allowed.get("metadata", {}).get("generation")
+        allowed_ok = (allowed_uid == uid and allowed_rv and allowed_rv != created_rv
+                      and allowed_image == approved_update
+                      and after_allowed.get("metadata", {}).get("annotations", {}).get(
+                          "saf-k8s.example/update-witness") == "benign")
+
+        # This is a fixed, noncompliant fixture reference. Its UPDATE must be
+        # denied and leave the already admitted object unchanged.
+        denied = registry.kube(
+            "-n", NS, "patch", "pod", name, "--type=strategic", "-o", "json",
+            "-p", json.dumps({"spec": {"containers": [{"name": "inert", "image": candidate}]}}),
+            timeout=35, allow_failure=True,
+        )
+        webhook = f'admission webhook "ivpol.validate.kyverno.svc-fail-finegrained-{POLICY}" denied'
+        reason = image.DENIALS["unrelated-signer"]
+        denial_ok = (denied.returncode != 0 and webhook in denied.stderr
+                     and reason in denied.stderr and candidate in denied.stderr)
+        current_result = registry.kube("-n", NS, "get", "pod", name, "-o", "json",
+                                       timeout=20)
+        current = json.loads(current_result.stdout)
+        current_meta = current.get("metadata", {})
+        current_image = current.get("spec", {}).get("containers", [{}])[0].get("image")
+        unchanged = (current_meta.get("uid") == uid
+                     and current.get("spec") == allowed_spec
+                     and current_image == approved_update
+                     and current_meta.get("generation") == allowed_generation
+                     and current.get("metadata", {}).get("annotations", {}).get(
+                         "saf-k8s.example/update-witness") == "benign")
+        raw.update({"created_pod": created, "after_benign_update": after_allowed,
+                    "approved_update_image": approved_update,
+                    "denied_update_candidate_image": candidate,
+                    "denied_update_returncode": denied.returncode,
+                    "denied_update_stderr": denied.stderr,
+                    "after_denied_update": current,
+                    "assertions": {"benign_update_admitted": allowed_ok,
+                                   "exact_noncompliant_update_denied": denial_ok,
+                                   "post_denial_object_unchanged": unchanged}})
+        check_observed = {
+            "persisted_pod_uid_present": bool(uid), "benign_update_admitted": allowed_ok,
+            "uid_preserved": allowed_uid == uid, "resource_version_advanced": allowed_rv != created_rv,
+            "second_approved_image_accepted": allowed_image == approved_update,
+            "noncompliant_update_denied": denial_ok, "exact_fixture_policy_reason": reason in denied.stderr,
+            "post_denial_uid_unchanged": current_meta.get("uid") == uid,
+            "post_denial_spec_unchanged": current.get("spec") == allowed_spec,
+            "post_denial_image_unchanged": current_image == approved_update,
+            "post_denial_generation_unchanged": current_meta.get("generation") == allowed_generation,
+            "post_denial_benign_annotation_present": current_meta.get("annotations", {}).get(
+                "saf-k8s.example/update-witness") == "benign",
+            "image_pull_policy": "Never", "running_or_ready_claimed": False}
+    finally:
+        if created is not None:
+            uid = created.get("metadata", {}).get("uid")
+            if uid:
+                options = {"apiVersion": "v1", "kind": "DeleteOptions",
+                           "gracePeriodSeconds": 0, "preconditions": {"uid": uid}}
+                uri = f"/api/v1/namespaces/{NS}/pods/{name}"
+                deleted = registry.kube("delete", "--raw", uri, "-f", "-",
+                                        input_text=json.dumps(options), timeout=20,
+                                        allow_failure=True)
+                deadline = time.monotonic() + 15
+                while time.monotonic() < deadline:
+                    gone = registry.kube("-n", NS, "get", "pod", name,
+                                         "--ignore-not-found", "-o", "json",
+                                         timeout=10, allow_failure=True)
+                    if deleted.returncode == 0 and gone.returncode == 0 and not gone.stdout.strip():
+                        cleanup_ok = True
+                        break
+                    time.sleep(0.25)
+    if created is not None:
+        raw["cleanup"] = {"deleted_and_absent": cleanup_ok,
+                          "observed_uid": created.get("metadata", {}).get("uid")}
+        (lab.evidence / "admission-update-raw.json").write_text(
+            json.dumps(raw, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        lab.check(
+            "positive",
+            "A persisted compliant inert Pod accepts a benign UPDATE and rejects a noncompliant image UPDATE without mutation",
+            allowed_ok and denial_ok and unchanged,
+            check_observed)
+        lab.check("positive", "The case-owned persisted update witness is retired",
+                  cleanup_ok, {"cleanup": "complete" if cleanup_ok else "not-confirmed",
+                               "uid_bound_cleanup": bool(created.get("metadata", {}).get("uid"))})
 
 
 def _validating_binding_ready(lab, registry, approved_image):
@@ -125,6 +256,10 @@ def run(lab):
     spec = importlib.util.spec_from_file_location("saf_1006_image_admission", fixture)
     image = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(image)
+    # Add one controlled second approved repository only to this module instance;
+    # the shared 0605-002 helper and its published fixture remain unchanged.
+    image.REPOSITORIES = {**image.REPOSITORIES,
+                          "approved-update": "fixture/inert-approved-update"}
     with image.registry(lab) as (registry, host_port, chart_values):
         _install_kyverno(lab, chart_values)
         images = image._build_and_push(registry, host_port)
@@ -187,3 +322,4 @@ def run(lab):
                   outside.returncode == 0,
                   {"admitted_outside_scope": outside.returncode == 0,
                    "server_side_dry_run": True})
+        _persisted_update_witness(lab, registry, image, images)
