@@ -27,7 +27,9 @@ SCOPE = (
     "places the record in a system-role message. Governed middleware validates exact schema, "
     "approved source/version, metadata, and digest, keeps the record in a typed data field, and "
     "uses application-owned message roles. A separate local consumer observes roles and exact "
-    "records and returns a deterministic approved answer. No model or tools are involved."
+    "records and returns a deterministic approved answer. A separate native authorization check "
+    "uses two owned workload identities and two fixed ConfigMaps to demonstrate the bounded "
+    "downstream action. The fixture has no live model or external service."
 )
 
 
@@ -157,3 +159,12 @@ def run(lab):
     }
     (lab.evidence / "rag-context-boundary.json").write_text(
         json.dumps(receipt, sort_keys=True, indent=2) + "\n", encoding="utf-8")
+
+
+    path = HERE / "downstream_auth.py"
+    spec = importlib.util.spec_from_file_location("saf_0909_005_downstream_auth", path)
+    if spec is None or spec.loader is None:
+        lab.block("Could not import the downstream authorization fixture")
+    action = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(action)
+    action.run(lab, image)
