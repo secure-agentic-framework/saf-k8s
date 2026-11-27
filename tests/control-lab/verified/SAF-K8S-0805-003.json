@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0805-003",
-  "catalog_revision": "3975c8c6aa670d40b72d4323d02336d7dd19fe26",
-  "catalog_sha256": "72868019de0bb6ca7bef976c0b7187d6362f8a32b662880261487944a493c7ba",
+  "catalog_revision": "cd6f6d6d5a5066b658147171209b0e44ff35355c",
+  "catalog_sha256": "1da56289e4f344f65fa946b0099b200d7a52a7c4bea62ee17a32261bedc18861",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "d0d9d217733713c850abb096d70282959a995fb33dcd3d7ebcfae1c42871c158",
-  "scope": "Real Kubernetes RBAC and admission over inert incident decision records; the test performs no response action.",
-  "cluster": "saf-lab-2f23c52cf4fb",
+  "scope": "Real Kubernetes RBAC and admission over synthetic decisions plus one inert fixture-only scale-to-zero response; no accelerator action.",
+  "cluster": "saf-lab-6fa534684c16",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -63,6 +63,24 @@
       "observed": {
         "fixture-decision-observe": "hold",
         "fixture-decision-corroborated": "escalate"
+      }
+    },
+    {
+      "phase": "response",
+      "claim": "Only the accountable reviewer can apply the narrowly scoped action authorized by the retained corroborated decision",
+      "matched": true,
+      "observed": {
+        "exact_retained_decision_bound": true,
+        "observer_policy_denied": true,
+        "observer_denial_cause": "Fixture response requires the accountable reviewer identity",
+        "wrong_decision_reference_policy_denied": true,
+        "wrong_decision_denial_cause": "Fixture response must reference the exact retained decision",
+        "comparator_policy_denied": true,
+        "comparator_denial_cause": "Fixture response is limited to the designated target",
+        "unrelated_spec_change_policy_denied": true,
+        "approved_target_action_admitted": true,
+        "target_same_uid_scaled_to_zero": true,
+        "distinct_comparator_unchanged": true
       }
     }
   ]

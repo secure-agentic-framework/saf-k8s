@@ -3,7 +3,7 @@
 import json
 import time
 
-SCOPE = "Real Kubernetes RBAC and admission over inert incident decision records; the test performs no response action."
+SCOPE = "Real Kubernetes RBAC and admission over synthetic decisions plus one inert fixture-only scale-to-zero response; no accelerator action."
 API = "admissionregistration.k8s.io/v1"
 RBAC = "rbac.authorization.k8s.io"
 NAME = "fixture-incident-review"
@@ -93,3 +93,12 @@ def run(lab):
     (lab.evidence / "accelerator-triage-observations.json").write_text(json.dumps({
         "decisions": stored, "hardware_or_attack_tested": False, "disruptive_action_performed": False,
     }, indent=2) + "\n")
+
+    # Add one inert native response-action check after the original three checks.
+    import importlib.util as _importlib_util
+    from pathlib import Path as _Path
+    _response_spec = _importlib_util.spec_from_file_location(
+        "response_action", _Path(__file__).with_name("response_action.py"))
+    _response_action = _importlib_util.module_from_spec(_response_spec)
+    _response_spec.loader.exec_module(_response_action)
+    _response_action.run(lab)

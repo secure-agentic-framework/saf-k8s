@@ -1,3 +1,7 @@
-# SAF-K8S-0805-003 Accelerator incident review
+# SAF-K8S-0805-003 synthetic accelerator incident review
 
-Kubernetes admission evaluates synthetic incident decision ConfigMaps. An observer can record a hold. Corroboration, a workload authorization signal and the approved reviewer identity are necessary for the fixture to record an escalation. The test retains actual Kubernetes decisions and uses only public marker data. Deployed source attribution, incident detection and response execution require separate evidence.
+The original three checks remain unchanged. They verify native RBAC and admission over inert incident decision records: high-only escalation is initially accepted before the review policy is installed; missing attribution, an approved-workload escalation, and an unauthorized reviewer are rejected; an observer hold and authorized corroborated escalation are retained.
+
+An additive response fixture reads the exact retained immutable escalation record and uses a native ValidatingAdmissionPolicy with that ConfigMap as its parameter. Two harmless, case-owned Deployments run only a bounded sleep process. The VAP allows only the named reviewer to scale the designated target to zero when the update references the retained decision and matches its synthetic workload class and evidence fields. It denies the observer, a wrong decision reference, and the distinct comparator. Separate API reads verify the target's UID is unchanged and replicas reach zero while the comparator remains available.
+
+This demonstrates a local Kubernetes software authorization and response path over synthetic records and inert workloads. It does not test GPU telemetry, attack detection, actual workload attribution, device/node action, production response routing, evidence retention, or threat causation. Device and operational evidence remains an adopter requirement.
