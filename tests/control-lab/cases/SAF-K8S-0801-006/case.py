@@ -169,3 +169,45 @@ def run(lab):
               "approved_workload_ran": running,
               "mismatched_request_denied": mismatch, "later_request_denied": future_denied}
     (lab.evidence / EVIDENCE).write_text(json.dumps(result, indent=2) + "\n")
+
+
+_run_admission_lifecycle = run
+
+
+def run(lab):
+    _run_admission_lifecycle(lab)
+    manifest = pod(WORKLOAD, APPROVED_FIELDS)
+    replace_record(lab, APPROVED_RECORD)
+    observe(lab, manifest, reject=False)
+    mismatches = {}
+    for field in ("allocation", "target-trust"):
+        altered = dict(APPROVED_FIELDS, **{field: "unapproved-fixture"})
+        result = submit(lab, pod(WORKLOAD, altered))
+        mismatches[field] = denied(result)
+
+    old = json.loads(lab.kubectl("get", "configmap", PARAMETER, "-o", "json").stdout)
+    lab.kubectl("delete", "configmap", PARAMETER, "--wait=true")
+    deadline = time.monotonic() + 25
+    missing_evidence_denied = False
+    while time.monotonic() < deadline:
+        result = submit(lab, manifest)
+        if (result.returncode != 0 and POLICY in result.stderr
+                and "no params found for policy binding" in result.stderr):
+            missing_evidence_denied = True
+            break
+        time.sleep(0.4)
+
+    new = lab.create({"apiVersion": "v1", "kind": "ConfigMap",
+                      "metadata": {"name": PARAMETER}, "data": APPROVED_RECORD})
+    recovered = observe(lab, manifest, reject=False)
+    different_parameter_uid = bool(old["metadata"]["uid"] and new["metadata"]["uid"]
+                                   and old["metadata"]["uid"] != new["metadata"]["uid"])
+    observed = {"allocation_mismatch_denied": mismatches["allocation"],
+                "target_trust_mismatch_denied": mismatches["target-trust"],
+                "missing_parameter_denied_by_policy": missing_evidence_denied,
+                "approved_parameter_recreated_with_distinct_uid": different_parameter_uid,
+                "approved_request_admitted_after_recovery": recovered}
+    (lab.evidence / "sanitization-release-binding-observations.json").write_text(
+        json.dumps(observed, indent=2, sort_keys=True) + "\n")
+    lab.check("green", "Cross-trust release requires the exact allocation and target trust, and fails closed while the approval record is missing",
+              all(observed.values()), observed)
