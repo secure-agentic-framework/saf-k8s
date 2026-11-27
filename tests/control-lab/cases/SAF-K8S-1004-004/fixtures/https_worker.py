@@ -7,7 +7,7 @@ import ssl
 import time
 from pathlib import Path
 
-from worker import evaluate
+from worker import evaluate, evaluate_source_response
 
 
 ROOT = Path("/case")
@@ -37,6 +37,22 @@ def get(path, cafile):
             connection.close()
 
 
+def request_status(path, cafile, token=None):
+    """Return only bounded response metadata and bytes for an expected status path."""
+    context = ssl.create_default_context(cafile=cafile)
+    connection = HTTPSConnection(HOST, context=context, timeout=6)
+    try:
+        headers = {"Authorization": "Bearer " + token} if token is not None else {}
+        connection.request("GET", "/" + path, headers=headers)
+        response = connection.getresponse()
+        body = response.read(16385)
+        if len(body) > 16384:
+            raise ValueError("case feed response exceeds bound")
+        return response.status, body, response.getheader("Retry-After")
+    finally:
+        connection.close()
+
+
 def main():
     ca = (ROOT / "tls-ca.crt").read_bytes()
     ca_digest = hashlib.sha256(ca).hexdigest()
@@ -49,6 +65,15 @@ def main():
     accepted = evaluate(approved, EXPECTED_BUNDLE_SHA256, "2026-11-21T12:00:00Z", observations)
     changed = evaluate(modified, EXPECTED_BUNDLE_SHA256, "2026-11-21T12:00:00Z", observations)
     expired = evaluate(approved, EXPECTED_BUNDLE_SHA256, "2026-11-23T00:00:00Z", observations)
+    token = Path("/auth/token").read_text().strip()
+    unauth_status, unauth_body, _ = request_status("unavailable", ROOT / "tls-ca.crt")
+    ready_status, ready_body, _ = request_status("ready", ROOT / "tls-ca.crt", token=token)
+    ready_eval = evaluate_source_response(
+        ready_status, ready_body, EXPECTED_BUNDLE_SHA256, "2026-11-21T12:00:00Z", observations)
+    outage_status, outage_body, retry_after = request_status(
+        "unavailable", ROOT / "tls-ca.crt", token=token)
+    outage_eval = evaluate_source_response(
+        outage_status, outage_body, EXPECTED_BUNDLE_SHA256, "2026-11-21T12:00:00Z", observations)
     wrong_ca_rejected = False
     try:
         get("approved", ROOT / "wrong-ca.crt")
@@ -70,6 +95,21 @@ def main():
         "expired_evaluator": {"accepted": expired["accepted"],
                               "reason": expired["quarantine_reason"]},
         "wrong_ca_certificate_rejected": wrong_ca_rejected,
+        "unavailable_source": {
+            "unauthenticated_status": unauth_status,
+            "unauthenticated_body_bytes": len(unauth_body),
+            "authenticated_ready_status": ready_status,
+            "authenticated_ready_sha256": hashlib.sha256(ready_body).hexdigest(),
+            "authenticated_ready_evaluator": {"accepted": ready_eval["accepted"],
+                                               "reason": ready_eval["quarantine_reason"],
+                                               "enrichment_count": len(ready_eval["enrichments"])},
+            "authenticated_status": outage_status,
+            "authenticated_body_bytes": len(outage_body),
+            "retry_after_seconds": retry_after,
+            "evaluator": {"accepted": outage_eval["accepted"],
+                           "reason": outage_eval["quarantine_reason"],
+                           "enrichment_count": len(outage_eval["enrichments"])},
+        },
     }
     print(json.dumps(result, sort_keys=True, separators=(",", ":")))
 

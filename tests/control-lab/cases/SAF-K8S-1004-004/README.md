@@ -37,3 +37,23 @@ Verify the deployed source inventory, subscription cadence, delivery and
 analyst workflow using evidence from the adopter’s environment.
 
 [Official Kubernetes CVE feed](https://kubernetes.io/docs/reference/issues-security/official-cve-feed/)
+
+## Synthetic source availability counterfactual
+
+This scratch-only additive case keeps the published fixtures and checks, then uses a
+case-generated bearer credential against two additional local HTTPS routes. The
+authenticated `/ready` route returns the same approved synthetic bundle, while the
+authenticated `/unavailable` route returns an empty 503 with `Retry-After: 30`; an
+unauthenticated request receives an empty 401. Both authenticated responses go through
+the same response evaluator: the healthy route must produce the existing single exact
+synthetic enrichment, while the 503 must produce none. The credential is generated per run, mounted from a
+temporary Secret, and excluded from command logs and worker output. The worker records
+only statuses, empty-body lengths, retry metadata and a bounded evaluator disposition.
+It must report `source_unavailable` with no enrichment. The original seven checks are
+unchanged.
+
+This does not infer staleness from the publication date of any real CVE. Retrieval
+availability and the age of the latest advisory are separate properties; any maximum
+source age, polling cadence, alternate-source policy and operational notification need
+adopter-defined values and deployment evidence. No production subscriber behavior is
+claimed.

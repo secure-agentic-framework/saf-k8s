@@ -2,6 +2,7 @@
 import hashlib
 import json
 from pathlib import Path
+import secrets
 import subprocess
 from tempfile import TemporaryDirectory
 
@@ -131,6 +132,13 @@ def verify_official_feed(lab):
 def run(lab):
     trusted_ca, unrelated_ca = establish_transport_fixture(lab)
     ca_sha256 = hashlib.sha256(trusted_ca.encode()).hexdigest()
+    token = secrets.token_urlsafe(32)
+    with TemporaryDirectory(prefix="saf-feed-auth-", dir=lab.kubeconfig.parent) as workdir:
+        token_file = Path(workdir) / "token"
+        token_file.write_text(token)
+        token_file.chmod(0o600)
+        lab.kubectl("create", "secret", "generic", "saf-1004-004-feed-auth",
+                    "--from-file=token=" + str(token_file), "-o", "name")
     lab.create({
         "apiVersion": "v1", "kind": "ConfigMap",
         "metadata": {"name": CONFIG_NAME, "namespace": NAMESPACE,
@@ -167,6 +175,7 @@ def run(lab):
                 "volumeMounts": [
                     {"name": "fixture", "mountPath": "/case", "readOnly": True},
                     {"name": "tls", "mountPath": "/tls", "readOnly": True},
+                    {"name": "auth", "mountPath": "/auth", "readOnly": True},
                 ],
                 "resources": {"requests": {"cpu": "10m", "memory": "16Mi"},
                               "limits": {"cpu": "100m", "memory": "48Mi"}},
@@ -174,6 +183,7 @@ def run(lab):
             "volumes": [
                 {"name": "fixture", "configMap": {"name": CONFIG_NAME, "defaultMode": 292}},
                 {"name": "tls", "secret": {"secretName": "saf-1004-004-feed-tls", "defaultMode": 288}},
+                {"name": "auth", "secret": {"secretName": "saf-1004-004-feed-auth", "defaultMode": 288}},
             ],
         },
     })
@@ -232,7 +242,7 @@ def run(lab):
                 "spec": {
                     "restartPolicy": "Never",
                     "automountServiceAccountToken": False,
-                    "securityContext": {"runAsNonRoot": True, "runAsUser": 65532,
+                    "securityContext": {"runAsNonRoot": True, "runAsUser": 65532, "fsGroup": 65532,
                                         "seccompProfile": {"type": "RuntimeDefault"}},
                     "containers": [{
                         "name": "https-intake", "image": WORKER_IMAGE,
@@ -243,12 +253,15 @@ def run(lab):
                         "securityContext": {"allowPrivilegeEscalation": False,
                                              "readOnlyRootFilesystem": True,
                                              "capabilities": {"drop": ["ALL"]}},
-                        "volumeMounts": [{"name": "fixture", "mountPath": "/case", "readOnly": True}],
+                        "volumeMounts": [{"name": "fixture", "mountPath": "/case", "readOnly": True},
+                                         {"name": "auth", "mountPath": "/auth", "readOnly": True}],
                         "resources": {"requests": {"cpu": "10m", "memory": "16Mi"},
                                       "limits": {"cpu": "100m", "memory": "48Mi"}},
                     }],
                     "volumes": [{"name": "fixture", "configMap": {"name": CONFIG_NAME,
-                                                                          "defaultMode": 292}}],
+                                                                          "defaultMode": 292}},
+                                {"name": "auth", "secret": {"secretName": "saf-1004-004-feed-auth",
+                                                                "defaultMode": 288}}],
                 },
             },
         },
@@ -280,6 +293,23 @@ def run(lab):
          "approved_fetch": approved_http, "approved_evaluator": approved_eval,
          "modified_evaluator": modified_eval, "expired_evaluator": expired_eval,
          "wrong_ca_certificate_rejected": intake["wrong_ca_certificate_rejected"]},
+    )
+    unavailable = intake["unavailable_source"]
+    lab.check(
+        "red",
+        "An authenticated synthetic source outage returns bounded 503 metadata and suppresses enrichment",
+        unavailable["unauthenticated_status"] == 401
+        and unavailable["unauthenticated_body_bytes"] == 0
+        and unavailable["authenticated_ready_status"] == 200
+        and unavailable["authenticated_ready_sha256"] == BUNDLE_SHA256
+        and unavailable["authenticated_ready_evaluator"] == {
+            "accepted": True, "reason": None, "enrichment_count": 1}
+        and unavailable["authenticated_status"] == 503
+        and unavailable["authenticated_body_bytes"] == 0
+        and unavailable["retry_after_seconds"] == "30"
+        and unavailable["evaluator"] == {"accepted": False, "reason": "source_unavailable",
+                                          "enrichment_count": 0},
+        unavailable,
     )
     lab.kubectl("wait", f"job/{JOB_NAME}", "--for=condition=complete", "--timeout=120s", timeout=130)
     raw = lab.kubectl("logs", f"job/{JOB_NAME}").stdout.strip()

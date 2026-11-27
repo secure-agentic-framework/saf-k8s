@@ -55,6 +55,14 @@ def evaluate(raw_bundle, pin, as_of, observations):
             "enrichments": enrichments, "quiet_observation_ids": quiet}
 
 
+def evaluate_source_response(status, raw_bundle, pin, as_of, observations):
+    """A transport failure cannot be treated as an empty or newly accepted feed."""
+    if status != 200:
+        return {"accepted": False, "quarantine_reason": "source_unavailable",
+                "enrichments": [], "quiet_observation_ids": []}
+    return evaluate(raw_bundle, pin, as_of, observations)
+
+
 def main():
     approved = (ROOT / "approved-bundle.json").read_bytes()
     damaged = (ROOT / "damaged-bundle.json").read_bytes()

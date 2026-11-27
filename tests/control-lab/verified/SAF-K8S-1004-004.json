@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-1004-004",
-  "catalog_revision": "d1b8447a22de8db36ec31676b53c34496d4d3f59",
-  "catalog_sha256": "63ca25b48ffb8f35202c5c4db9c599eb98e12d31aa18f4d0d69d91a9e3ec5423",
+  "catalog_revision": "87ac0c92152c37c3433d3bc2d34b5ab29b96b92f",
+  "catalog_sha256": "fcd14a9a5a363c08dececf5478017b63713b748167151c9833c283fd0de8c62c",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "d0e46e023c64d95531509ff58f3604bd478b08d6166fd2b923b5c0b400d7dfd8",
   "scope": "Offline, synthetic threat-intelligence fixture processing in a disposable Kubernetes v1.36.1 Kind cluster. Verifies SHA-256 pin quarantine, expiry quarantine, exact advisory enrichment for one approved mock observation, quiet package-version/image-digest near misses, and one case-owned HTTPS source with pinned local trust and fixed public synthetic bytes. A separate tokenless Job reads the official Kubernetes JSON feed with standard certificate and hostname validation. It verifies and records source and publication metadata. Deployed ingestion freshness, coverage, threat-sharing and SIEM/SOAR decisions require adopter evidence.",
-  "cluster": "saf-lab-f1035151f53b",
+  "cluster": "saf-lab-6b36af80a11d",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -68,6 +68,30 @@
           "reason": "expired"
         },
         "wrong_ca_certificate_rejected": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "An authenticated synthetic source outage returns bounded 503 metadata and suppresses enrichment",
+      "matched": true,
+      "observed": {
+        "authenticated_body_bytes": 0,
+        "authenticated_ready_evaluator": {
+          "accepted": true,
+          "enrichment_count": 1,
+          "reason": null
+        },
+        "authenticated_ready_sha256": "99b0a2d0515a4551e9038413265e1c0b972ccf20f294e6ed38c03327cc29917b",
+        "authenticated_ready_status": 200,
+        "authenticated_status": 503,
+        "evaluator": {
+          "accepted": false,
+          "enrichment_count": 0,
+          "reason": "source_unavailable"
+        },
+        "retry_after_seconds": "30",
+        "unauthenticated_body_bytes": 0,
+        "unauthenticated_status": 401
       }
     },
     {
