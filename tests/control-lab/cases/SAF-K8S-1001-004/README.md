@@ -101,3 +101,22 @@ one exact synthetic ConfigMap event for 200 ms, records arrival/response time,
 and the case checks source `requestReceivedTimestamp` to successful acknowledgement,
 the same Audit-ID through the retry, and exactly-once storage. Verify receiver
 saturation, backend capacity and delay against the actual deployment targets.
+
+
+## Bounded audit-file rotation witness
+
+The additive fourth Kind fixture uses the file backend in blocking mode with
+`--audit-log-maxsize=1`, `--audit-log-maxbackup=2`, and the existing seven-day age
+setting. It creates exactly two case-owned ConfigMaps with 400 KiB ASCII values under
+a policy that records only ConfigMap creates in the fixture namespace at
+RequestResponse. Each event is required to remain below 1 MiB, while the pair exceeds
+the threshold. The case checks that kube-apiserver produced an active and a rotated
+JSONL file and that both distinct Audit-IDs and complete request/response fixture byte
+counts occur exactly once across them. Evidence retains file sizes and SHA-256 values,
+filenames, Audit-IDs and event identity only; it does not retain the large fixture values
+or complete event lines. The generated manifest files are temporary and deleted with
+the isolated run directory.
+
+This bounded witness demonstrates native file rotation and marker retention for two
+synthetic writes. It is not a throughput, disk-capacity, retention-duration, I/O pressure,
+production storage, or sustained AI workload test.

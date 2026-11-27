@@ -288,10 +288,16 @@ def wait_snapshot(lab, expected_ids, timeout=45):
         last = snapshot(lab)
         ids = {event.get("auditID") for event in last["events"]}
         attempts = last["attempts"]
-        has_failure_and_recovery = (
-            any(attempt.get("status") == 503 for attempt in attempts)
-            and any(attempt.get("status") == 200 for attempt in attempts)
-        )
+        rejected = {
+            tuple(attempt["audit_ids"]) for attempt in attempts
+            if attempt.get("status") == 503 and len(attempt.get("audit_ids", [])) == 1
+            and attempt["audit_ids"][0] in expected_ids
+        }
+        accepted = {
+            tuple(attempt["audit_ids"]) for attempt in attempts
+            if attempt.get("status") == 200 and len(attempt.get("audit_ids", [])) == 1
+        }
+        has_failure_and_recovery = bool(rejected & accepted)
         if expected_ids.issubset(ids) and has_failure_and_recovery:
             return last
         time.sleep(0.5)

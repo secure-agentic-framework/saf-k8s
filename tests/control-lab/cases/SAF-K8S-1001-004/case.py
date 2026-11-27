@@ -45,13 +45,14 @@ for name in sys.argv[1:]:
             time.sleep(0.5)
 """
 SCOPE = (
-    "Two fresh, single-control-plane Kind Kubernetes v1.36.1 clusters. Both receive the same "
-    "seven measured API operations: five small ConfigMap LIST polls, one synthetic RoleBinding "
-    "create, and one denied synthetic ConfigMap create. Red uses RequestResponse for both fixture resource types. "
-    "Green omits RequestReceived, records ConfigMap LIST polls at Metadata, and retains both "
-    "security-relevant writes at RequestResponse. Matching raw lines and file byte counts are "
-    "saved. This finite fixture does not model sustained workload, production capacity, drops, "
-    "backpressure, real AI traffic, or cluster-wide coverage."
+    "Two fresh, single-control-plane Kind Kubernetes v1.36.1 clusters compare the same seven "
+    "measured API operations under broad and selective audit policies. The policy comparison "
+    "checks finite event selection, retained write detail, and a reduction in sampled poll bytes. "
+    "A third isolated cluster checks five TLS webhook event deliveries, one transient 503 retry, "
+    "and native audit counters. A fourth isolated cluster makes two 400-KiB synthetic ConfigMap "
+    "writes to observe the 1-MiB file-rotation threshold and exact-once retention in active and "
+    "rotated files. These finite fixtures do not model sustained traffic, production capacity, "
+    "retention adequacy, alert delivery, I/O pressure, real AI traffic, or cluster-wide coverage."
 )
 
 
@@ -420,5 +421,21 @@ def run(lab):
         lab.check("positive", "The independent webhook fixture cluster is deleted",
                   additional.cluster not in remaining, {"additional_fixture_cluster_deleted": additional.cluster not in remaining})
 
-
-SCOPE += " A separate Kind v1.36.1 cluster verifies TLS webhook delivery, one transient retry and native audit counters."
+    rotation_runtime = runpy.run_path(str(Path(__file__).with_name("audit_rotation.py")))
+    with TemporaryDirectory(prefix="audit-rotation-", dir=root) as scratch:
+        temporary = Path(scratch)
+        additional = type(lab)(lab.evidence, lab.context, temporary / "kubeconfig")
+        config = rotation_runtime["prepare_kind"](additional, temporary)
+        try:
+            additional.command("kind", "create", "cluster", "--name", additional.cluster,
+                               "--image", NODE_IMAGE, "--kubeconfig", str(additional.kubeconfig),
+                               "--wait", "90s", "--config", str(config), timeout=480)
+            rotation_result = rotation_runtime["run"](additional, temporary)
+        finally:
+            additional.command("kind", "delete", "cluster", "--name", additional.cluster,
+                               "--kubeconfig", str(additional.kubeconfig), timeout=90)
+        remaining = lab.command("kind", "get", "clusters").stdout.splitlines()
+        cluster_deleted = additional.cluster not in remaining
+        lab.check("positive", "Two bounded full-fidelity audit events trigger rotation and remain in active or rotated logs",
+                  all(rotation_result.values()) and cluster_deleted,
+                  {**rotation_result, "rotation_cluster_deleted": cluster_deleted})

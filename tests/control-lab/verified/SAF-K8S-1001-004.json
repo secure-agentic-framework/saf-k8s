@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-1001-004",
-  "catalog_revision": "be51e36d445e3477ca7c4fbb30df96c0ea5716e9",
-  "catalog_sha256": "ab598c8d529e8c408b30d9da739ef2238baa30596e3a773e3ee16b614b6995c0",
+  "catalog_revision": "7c01031f0d3e76ec4d5c2c707b0541099a924881",
+  "catalog_sha256": "65f757846d484079842769b4cec9180fc3a96ab15a5106c821a08ca7293441b6",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "ef6cb448b5bb3ceffff834f639b4dcc3732ef62a0d45c7659957482629f5bdc9",
-  "scope": "Two fresh, single-control-plane Kind Kubernetes v1.36.1 clusters. Both receive the same seven measured API operations: five small ConfigMap LIST polls, one synthetic RoleBinding create, and one denied synthetic ConfigMap create. Red uses RequestResponse for both fixture resource types. Green omits RequestReceived, records ConfigMap LIST polls at Metadata, and retains both security-relevant writes at RequestResponse. Matching raw lines and file byte counts are saved. This finite fixture does not model sustained workload, production capacity, drops, backpressure, real AI traffic, or cluster-wide coverage. A separate Kind v1.36.1 cluster verifies TLS webhook delivery, one transient retry and native audit counters.",
-  "cluster": "saf-lab-185e088280a2",
+  "scope": "Two fresh, single-control-plane Kind Kubernetes v1.36.1 clusters compare the same seven measured API operations under broad and selective audit policies. The policy comparison checks finite event selection, retained write detail, and a reduction in sampled poll bytes. A third isolated cluster checks five TLS webhook event deliveries, one transient 503 retry, and native audit counters. A fourth isolated cluster makes two 400-KiB synthetic ConfigMap writes to observe the 1-MiB file-rotation threshold and exact-once retention in active and rotated files. These finite fixtures do not model sustained traffic, production capacity, retention adequacy, alert delivery, I/O pressure, real AI traffic, or cluster-wide coverage.",
+  "cluster": "saf-lab-5c4b04a082f3",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -233,6 +233,21 @@
       "matched": true,
       "observed": {
         "additional_fixture_cluster_deleted": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Two bounded full-fidelity audit events trigger rotation and remain in active or rotated logs",
+      "matched": true,
+      "observed": {
+        "rotation_observed": true,
+        "native_file_names_match": true,
+        "first_marker_rotated_second_active": true,
+        "two_distinct_events_retained_once": true,
+        "request_response_fidelity_preserved": true,
+        "two_subthreshold_records_cross_limit": true,
+        "output_bounded": true,
+        "rotation_cluster_deleted": true
       }
     }
   ]
