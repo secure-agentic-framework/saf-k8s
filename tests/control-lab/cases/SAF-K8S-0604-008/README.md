@@ -1,26 +1,41 @@
-# SAF-K8S-0604-008 runtime image component inventory
+# SAF-K8S-0604-008 — AI workload vulnerability exposure classification
 
-Run `python3 lab.py test SAF-K8S-0604-008` from the control-lab directory. One of the five checks reads the runtime component version and compares it with the bounded advisory fixture.
+Run the published six-check case from the framework checkout:
 
-The added check executes the existing approved BusyBox fixture binary in the already-owned live inference Pod, reads only its self-reported version, and binds that observation to the Pod's already-observed runtime `imageID` and the exact pinned `BUSYBOX_IMAGE` reference. It compares against a reviewed, hash-pinned minimal extract of OSV's CVE-2023-42365 record, which lists BusyBox 1.36.1 as an exact affected version. The test image is BusyBox 1.37.0; no vulnerable package or vulnerability behavior is installed or exercised. The only positive affected-range comparator uses the inert version string `1.36.1` in memory.
+    python3 tests/control-lab/lab.py test SAF-K8S-0604-008 --docker-context desktop-linux
 
-The added result must establish:
+## What the paired fixture establishes
 
-- actual runtime version `1.37.0` is read from the exact inference Pod;
-- the exact pinned image reference and observed image digest are present;
-- the checked advisory fixture has the expected source ID/URL and the embedded SHA-256;
-- the installed version is not listed in the advisory's exact affected-version set;
-- a missing version or mismatched image identity classifies as `unknown`; and
-- the inert exact `1.36.1` comparator is recognized as the listed affected version.
+The current case has five base checks and one purpose-record check:
 
-The comparison deliberately does not claim general semantic-version evaluation or that 1.37.0 is proven secure. It shows only that the reported version does not appear in this specific OSV record's exact-version extraction. The version is an observed image component, not a complete OS package database or software bill of materials. It does not inventory host driver files or libraries injected at runtime, prove advisory-feed freshness or scanner completeness, or establish public exposure. Those remain distinct adopter checks. Existing four assertions are unchanged; expected total is 5.
+1. A finding without component or workload context is classified unknown.
+2. Live Job/Deployment ownership, Pod identity, labels and observed image IDs distinguish the synthetic training and inference fixtures; missing purpose hints stay unknown.
+3. Fictional node and container component records classify only when bound to exact observed node/image identities; absent records stay unknown and disagreements or misbindings become conflicts.
+4. A harmless in-cluster request reaches the exact inference Pod through its private ClusterIP Service and ready EndpointSlice. Public reachability remains unknown.
+5. The running inference container's BusyBox version is read from the existing fixture Pod and bound to its pinned image reference/runtime imageID. It is compared only to the reviewed OSV CVE-2023-42365 exact CPE-version extract: 1.37.0 is not listed, and the inert 1.36.1 comparator is listed. This is not general version-range evaluation or proof that 1.37.0 is secure.
+6. An immutable case-owned ConfigMap stores a synthetic purpose record with fixed source URI/revision and review window. Exact workload, Pod, image, and owner identities bind the positive training/inference classifications. Missing, expired, unknown-revision, or tampered records classify unknown; misbound and duplicate entries classify conflict.
 
-The advisory extract and its SHA-256 are stored in `busybox-advisory.json` and pinned in `case.py`. Primary source: [OSV CVE-2023-42365](https://osv.dev/vulnerability/CVE-2023-42365). The source record reports the CVE's CPE-extracted exact version 1.36.1; this candidate does not interpret a wider version range.
+The test does not install or exercise vulnerable software, generate exploit payloads, or test vulnerability behavior. It demonstrates bounded context-joining and uncertainty behavior using inert fixtures.
 
-## Scratch purpose provenance supplement
+## Paired evidence
 
-The scratch `case.py` invokes the copied published `base_case.py` unchanged except for clarifying the existing fifth check's exact-version comparator label. It preserves the original five checks and adds one sixth check. The supplement creates an immutable, named ConfigMap with a fixed synthetic source URI/revision and bounded reviewed/valid timestamps. Its entries bind each case-owned Job or Deployment to the exact workload UID, Pod UID, image reference, observed runtime image ID, and controller-owner UID chain. It reads the ConfigMap back and checks the exact serialized bytes and SHA-256.
+The current published receipt has six matched checks on each independent v1.36.1 Kind run; both clusters were deleted:
 
-The sixth check exercises this fixed decision matrix: exact training and inference bindings classify to their fixture purposes; absent, expired, unknown-revision, or byte-tampered records are `unknown`; mismatched image, owner, exact image pin, or duplicate subject entries are `conflict`. Normalized output contains only these stable classifications/booleans; dynamic Kubernetes UIDs, resource version, record digest and full fixture record belong only in `purpose-provenance.raw.json`.
+- Lab: 20261127T035545Z-70b8950a
+- Framework: 20261127T035731Z-60cc8269
 
-This is a synthetic comparator, not an independently authenticated release or organizational purpose approval. It creates the record from the already-running fixture identities, so it does not prove pre-deployment authorization or production classification. The five existing assertions still establish only their existing bounded case claims: fictional inventory correlation, private in-cluster reachability, and comparison against an exact-version OSV fixture. It does not perform scanning, test vulnerable behavior, validate a general version range, prove GPU/driver/library inventory, or establish public exposure. Organization-owned purpose sources, lifecycle/review authority, actual workload inventory, advisory freshness, and real exposure assessment remain adopter evidence.
+Each run retains exposure-context.json, package-advisory-observations.json, and purpose-provenance.raw.json. Dynamic identities and full fixture records remain in raw evidence. The normalized receipt reports only stable classifications and booleans.
+
+## Adopter evidence remains separate
+
+The fixtures use fictional component records and a synthetic purpose ledger. They do not establish organization-approved purpose or release provenance, full image/SBOM coverage, actual host GPU/device-plugin/injected-runtime inventory, advisory-feed freshness or scanner completeness, deployed ingress/gateway/public reachability, data sensitivity, or organizational risk prioritization.
+
+For a governed deployment, bind findings to authorized workload-purpose and release records; inventory exact image, host, driver, device-plugin, and injected components with their source and version; compare each component to applicable current advisories; measure the actual private and external service paths; retain missing/conflicting coverage; and separately document impact/likelihood, risk tolerance, resource decisions, and treatment.
+
+## NIST AI RMF 1.0 MANAGE 1.2 mapping
+
+The single related mapping is a weak, conditional supports contribution. NIST AI RMF 1.0 Table 4 states MANAGE 1.2 as: “Treatment of documented AI risks is prioritized based on impact, likelihood, and available resources or methods.” This fixture provides some technical context that a separate risk-treatment process may consume. It does not determine impact or likelihood, set tolerance, allocate resources, or select treatment.
+
+Primary title source: NIST AI RMF 1.0, Table 4, MANAGE 1.2:
+https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.100-1.pdf?download=true
+The AIRC Playbook is supplementary guidance; its current page words the resources/methods phrase with “or,” while the mapping title follows the AI RMF 1.0 core text.

@@ -104,8 +104,9 @@ def classify(workload, finding, records):
 
 
 def private_request(lab):
-    script = (f"i=0; while [ $i -lt 12 ]; do "
-              f"wget -qO- -T 2 http://{SERVE}.{CASE_NS}.svc.cluster.local:8080/health && exit 0; "
+    script = ("i=0; while [ $i -lt 12 ]; do "
+              f"if body=$(wget -qO- -T 2 http://{SERVE}.{CASE_NS}.svc.cluster.local:8080/health 2>/dev/null); "
+              "then printf '%s\\n' \"$body\"; exit 0; fi; "
               "i=$((i+1)); sleep 1; done; exit 1")
     lab.create({"apiVersion": "v1", "kind": "Pod", "metadata": metadata("saf-private-client"),
                 "spec": {"restartPolicy": "Never", "automountServiceAccountToken": False,

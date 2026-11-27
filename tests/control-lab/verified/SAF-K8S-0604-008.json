@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0604-008",
-  "catalog_revision": "f3f9f4cd817e3fb9ca9344268d8a2804cc6eacb8",
-  "catalog_sha256": "96ad50c08e7c7fcb717b830fb2376a887ae787e5a40dc3e0d17ed414187197a4",
+  "catalog_revision": "f50ccca2f13d3d7fd5cf0386f302207eb7e9550f",
+  "catalog_sha256": "2dabf76722865b208eecf265e7d68e567a33dc885db36f29a53fd002044e2a61",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "f3e8340df07ef7f266fa1058320eb5d37e50a46d970b1b93436cfa9e87639e97",
   "scope": "A live Job, Deployment, Pods, Node and EndpointSlice are correlated with a reviewed fixture purpose record and fictional node and container inventories. A private in-cluster request reaches the actual inference fixture. GPU/driver presence and public reachability require separate evidence. A scoped immutable synthetic purpose record binds exact workload, Pod, image and owner identities. Missing, expired and mismatched records receive unknown or conflict outcomes. Live organizational authorization and real inventory are separate assessment responsibilities.",
-  "cluster": "saf-lab-7ebbd0ec666a",
+  "cluster": "saf-lab-10668b43cdbd",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
