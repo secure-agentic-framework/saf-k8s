@@ -22028,15 +22028,12 @@
   framework_version: 5.2.0
   framework_requirement_id: SI-4(12)
   framework_requirement_title: Automated Organization-generated Alerts
-  framework_mapping_notes: 'Automated alert generation for agent security events reduces detection latency
-
-
-    10.1 - SIEM integration (automated alert generation); 10.2 - Alert design for AI failure modes'
+  framework_mapping_notes: The fixture delivers one synthetic request-rate alert to an authenticated local receiver and confirms receipt independently. Verify the deployed rule, automated destination, assigned response role, and representative alert delivery to establish the applicable contribution.
   control_id: SAF-K8S-1001-012
   relation_type: supports
   strength_level: moderate
   applicability: conditional
-  applicability_condition: Only where the deployed rule engine generates organization alerts and delivery is verified; this control and its reference fixture do not establish alert delivery or reporting.
+  applicability_condition: Only where the deployed monitoring workflow sends automated alerts to the organization's designated people or roles and delivery is verified.
   strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
@@ -22106,12 +22103,12 @@
   framework_version: 5.2.0
   framework_requirement_id: SI-4(16)
   framework_requirement_title: Correlate Monitoring Information
-  framework_mapping_notes: Conditional support for organization-defined correlation of AI workload monitoring information from distinct tools or mechanisms. The reference validates deterministic synthetic predicates and one case-local Kubernetes Pod/Event UID join, but the two records are from the Kubernetes API and no SIEM or independent monitoring source is connected. It does not demonstrate the full SI-4(16) system-wide correlation capability.
+  framework_mapping_notes: The fixture correlates case-owned Kubernetes Pods and Events by UID and exercises synthetic detection rules. Its local alert delivery is a distinct witness. Verify the adopted SIEM inputs, cross-tool joins, time and identity provenance, and applicable monitoring coverage.
   control_id: SAF-K8S-1001-012
   relation_type: supports
   strength_level: moderate
   applicability: conditional
-  applicability_condition: Only where the deployed SIEM or other monitoring system correlates information from distinct monitoring tools or mechanisms across the system. The retained fixture validates six static synthetic detection predicates and one local Kubernetes Pod/Event UID join; it does not establish cross-tool correlation, SIEM operation, or alert delivery.
+  applicability_condition: Only where the deployed monitoring system correlates information from distinct monitoring tools or mechanisms used across the system.
   strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
