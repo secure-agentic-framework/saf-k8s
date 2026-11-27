@@ -308,3 +308,4 @@ def run(lab):
         json.dumps(raw_evidence, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     # Synthetic crosswalk import/report oracle only; it asserts no real framework coverage.
     runpy.run_path(str(HERE / "crosswalk_oracle.py"))["run"](lab)
+    runpy.run_path(str(HERE / "crosswalk_oracle.py"))["run_canonical"](lab)

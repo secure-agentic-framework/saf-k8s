@@ -1,0 +1,372 @@
+{
+  "fixture_only": true,
+  "reverse_links": [
+    {
+      "framework_code": "EU-AI-ACT",
+      "framework_version": "2024/1689",
+      "requirement_id": "Annex-VII.3.2",
+      "reverse_page": "markdown/frameworks/eu-ai-act-2024-1689/annex-vii-3-2.md",
+      "reverse_page_sha256": "62b3bdbe539f6dc5cdb20a1eaa73de7ca0fdd5673ac6ca3a838289c4e2d1f5ac"
+    },
+    {
+      "framework_code": "EU-AI-ACT",
+      "framework_version": "2024/1689",
+      "requirement_id": "Annex-VII.5.3",
+      "reverse_page": "markdown/frameworks/eu-ai-act-2024-1689/annex-vii-5-3.md",
+      "reverse_page_sha256": "58a0f49e8cfbbcf46a4024354ff8597670c363974c2d8a28df49dd72ad95ecb7"
+    },
+    {
+      "framework_code": "NIST-AI-RMF",
+      "framework_version": "1.0",
+      "requirement_id": "GOVERN 1.4",
+      "reverse_page": "markdown/frameworks/nist-ai-rmf-1-0/govern-1-4.md",
+      "reverse_page_sha256": "6371668a2a117631887420cd9d77d3d5f2268c6e3179f15088a8d53f48faf116"
+    },
+    {
+      "framework_code": "NIST-AI-RMF",
+      "framework_version": "1.0",
+      "requirement_id": "GOVERN 1.5",
+      "reverse_page": "markdown/frameworks/nist-ai-rmf-1-0/govern-1-5.md",
+      "reverse_page_sha256": "0affd6e7814bc2fa86bbe3e7474800522504cb74dc0c398c902a31f667641774"
+    },
+    {
+      "framework_code": "NIST-AI-RMF",
+      "framework_version": "1.0",
+      "requirement_id": "MAP 4.2",
+      "reverse_page": "markdown/frameworks/nist-ai-rmf-1-0/map-4-2.md",
+      "reverse_page_sha256": "2ab79c37957d7af24a3f660f3260ab80f0b4dd51aaa83b1d19b0cdaa14fc22f9"
+    },
+    {
+      "framework_code": "NIST-800-53R5",
+      "framework_version": "5.2.0",
+      "requirement_id": "AU-11",
+      "reverse_page": "markdown/frameworks/nist-800-53r5-5-2-0/au-11.md",
+      "reverse_page_sha256": "2a70cca63e64e92ae39776663424fba0a09fcc09fbe3db5c7f54fb84be5750b6"
+    },
+    {
+      "framework_code": "NIST-800-53R5",
+      "framework_version": "5.2.0",
+      "requirement_id": "CA-2",
+      "reverse_page": "markdown/frameworks/nist-800-53r5-5-2-0/ca-2.md",
+      "reverse_page_sha256": "a1b9204c864ed5993316a10905a9af2013bca78d4257b27c1d38f54453fe40de"
+    },
+    {
+      "framework_code": "NIST-800-53R5",
+      "framework_version": "5.2.0",
+      "requirement_id": "CA-5",
+      "reverse_page": "markdown/frameworks/nist-800-53r5-5-2-0/ca-5.md",
+      "reverse_page_sha256": "651f879c28947cf62984390085ec894881ef8c3b26acbd07405024ec95328225"
+    },
+    {
+      "framework_code": "NIST-800-53R5",
+      "framework_version": "5.2.0",
+      "requirement_id": "CA-5(1)",
+      "reverse_page": "markdown/frameworks/nist-800-53r5-5-2-0/ca-5-1.md",
+      "reverse_page_sha256": "f80a560c49088da31491d2c702fa01bc3499522b9aac5a4ce1d779797ad0324f"
+    },
+    {
+      "framework_code": "NIST-800-53R5",
+      "framework_version": "5.2.0",
+      "requirement_id": "CA-7",
+      "reverse_page": "markdown/frameworks/nist-800-53r5-5-2-0/ca-7.md",
+      "reverse_page_sha256": "3565b6a1a7bd2fa293446b4f1b81dede8efe3ae31522c8feb09dd4158ef41f34"
+    },
+    {
+      "framework_code": "NIST-800-53R5",
+      "framework_version": "5.2.0",
+      "requirement_id": "CA-7(6)",
+      "reverse_page": "markdown/frameworks/nist-800-53r5-5-2-0/ca-7-6.md",
+      "reverse_page_sha256": "ac04450ab8bf40db15c6e1b893abaacaaa2caea5adbaefaf5a1ef65f58fdcf2e"
+    },
+    {
+      "framework_code": "NIST-800-53R5",
+      "framework_version": "5.2.0",
+      "requirement_id": "CM-4(2)",
+      "reverse_page": "markdown/frameworks/nist-800-53r5-5-2-0/cm-4-2.md",
+      "reverse_page_sha256": "7b5bfa4784a37cd1f9791270fb1b9936f7d35c535c07d4b1b9988c11eff2935f"
+    },
+    {
+      "framework_code": "NIST-800-53R5",
+      "framework_version": "5.2.0",
+      "requirement_id": "PL-2",
+      "reverse_page": "markdown/frameworks/nist-800-53r5-5-2-0/pl-2.md",
+      "reverse_page_sha256": "298c8783dfdec67b51ca93e5be8a30ac47aee23b2df4fc5f8ad0481e6a27f66e"
+    },
+    {
+      "framework_code": "NIST-800-53R5",
+      "framework_version": "5.2.0",
+      "requirement_id": "PM-14",
+      "reverse_page": "markdown/frameworks/nist-800-53r5-5-2-0/pm-14.md",
+      "reverse_page_sha256": "5234ce0de4b4bdbca53980051f2e7cb98b6accfd7f0ce730c40577c73a852bbf"
+    },
+    {
+      "framework_code": "NIST-800-53R5",
+      "framework_version": "5.2.0",
+      "requirement_id": "SA-8(32)",
+      "reverse_page": "markdown/frameworks/nist-800-53r5-5-2-0/sa-8-32.md",
+      "reverse_page_sha256": "27a789f6ad18d17b71139f8c93fae5ecdecc2258d7966fa269fb7e01f5cf140a"
+    },
+    {
+      "framework_code": "NIST-800-53R5",
+      "framework_version": "5.2.0",
+      "requirement_id": "SI-6(3)",
+      "reverse_page": "markdown/frameworks/nist-800-53r5-5-2-0/si-6-3.md",
+      "reverse_page_sha256": "4f018c8c17984f5df1161bdb1ad3b406bc86824c5eb9ab59c3e280f7a0032a11"
+    }
+  ],
+  "rows": [
+    {
+      "applicability": "conditional",
+      "applicability_condition": "The organization performs the provider function for an identified high-risk AI system whose applicable conformity route invokes Annex VII point 3.2.",
+      "control_id": "SAF-K8S-1006-004",
+      "framework_code": "EU-AI-ACT",
+      "framework_mapping_notes": "Scoped Kubernetes artifacts may contribute provider evidence for the quality management assessment. The notified body performs the assessment and issues its decision.",
+      "framework_name": "EU AI Act",
+      "framework_requirement_id": "Annex-VII.3.2",
+      "framework_requirement_title": "Conformity based on an assessment of the quality management system and an assessment of the technical documentation",
+      "framework_version": "2024/1689",
+      "legacy_requirement_id": "Annex-VII:VII(4)(a)",
+      "mapping_set_name": "SAF-K8S to EU AI Act 2024/1689",
+      "relation_type": "supports",
+      "strength_level": "moderate",
+      "strength_reason_code": "partial-control-coverage"
+    },
+    {
+      "applicability": "conditional",
+      "applicability_condition": "The identified high-risk AI system and approved quality management system are subject to applicable Annex VII surveillance and the evidence is available to the notified body.",
+      "control_id": "SAF-K8S-1006-004",
+      "framework_code": "EU-AI-ACT",
+      "framework_mapping_notes": "Retained platform artifacts can support the surveillance audit within the agreed scope. The notified body conducts periodic audits and issues the report.",
+      "framework_name": "EU AI Act",
+      "framework_requirement_id": "Annex-VII.5.3",
+      "framework_requirement_title": "Conformity based on an assessment of the quality management system and an assessment of the technical documentation",
+      "framework_version": "2024/1689",
+      "legacy_requirement_id": "Annex-VII:VII(7)",
+      "mapping_set_name": "SAF-K8S to EU AI Act 2024/1689",
+      "relation_type": "supports",
+      "strength_level": "moderate",
+      "strength_reason_code": "partial-control-coverage"
+    },
+    {
+      "applicability": "conditional",
+      "applicability_condition": "The collected records are used by an adopted AI risk management process with documented risk priorities.",
+      "control_id": "SAF-K8S-1006-004",
+      "framework_code": "NIST-AI-RMF",
+      "framework_mapping_notes": "The evidence register can support transparent records of scoped platform controls and observed outcomes. Validate the approved risk process and the connection to its priorities.",
+      "framework_name": "NIST AI Risk Management Framework",
+      "framework_requirement_id": "GOVERN 1.4",
+      "framework_requirement_title": "The risk management process and its outcomes are established through transparent policies, procedures, and other controls based on organizational risk priorities.",
+      "framework_version": "1.0",
+      "mapping_set_name": "SAF-K8S to NIST AI RMF 1.0",
+      "relation_type": "supports",
+      "strength_level": "moderate",
+      "strength_reason_code": "partial-control-coverage"
+    },
+    {
+      "applicability": "conditional",
+      "applicability_condition": "The evidence cadence and ownership are used in the organization\u2019s planned review of AI risk management.",
+      "control_id": "SAF-K8S-1006-004",
+      "framework_code": "NIST-AI-RMF",
+      "framework_mapping_notes": "Recurring checks and freshness tracking can support the planned monitoring and review. Verify accountable roles, review cadence, and recorded decisions.",
+      "framework_name": "NIST AI Risk Management Framework",
+      "framework_requirement_id": "GOVERN 1.5",
+      "framework_requirement_title": "Ongoing monitoring and periodic review of the risk management process and its outcomes are planned, organizational roles and responsibilities are clearly defined, including determining the frequency of periodic review.",
+      "framework_version": "1.0",
+      "mapping_set_name": "SAF-K8S to NIST AI RMF 1.0",
+      "relation_type": "supports",
+      "strength_level": "moderate",
+      "strength_reason_code": "partial-control-coverage"
+    },
+    {
+      "applicability": "conditional",
+      "applicability_condition": "The deployed assessment identifies actual in-scope AI system components including relevant third-party AI technology and ties each relevant component to documented internal risk controls.",
+      "control_id": "SAF-K8S-1006-004",
+      "framework_code": "NIST-AI-RMF",
+      "framework_mapping_notes": "Retained component-linked records can support documentation of identified internal risk controls. Verify the component inventory, the specific controls, and their implementation evidence.",
+      "framework_name": "NIST AI Risk Management Framework",
+      "framework_requirement_id": "MAP 4.2",
+      "framework_requirement_title": "Internal risk controls for components of the AI system, including third-party AI technologies, are identified and documented.",
+      "framework_version": "1.0",
+      "mapping_set_name": "SAF-K8S to NIST AI RMF 1.0",
+      "relation_type": "supports",
+      "strength_level": "moderate",
+      "strength_reason_code": "partial-control-coverage"
+    },
+    {
+      "applicability": "conditional",
+      "applicability_condition": "The repository retains actual in-scope audit records for the defined duration and supports authorized retrieval.",
+      "control_id": "SAF-K8S-1006-004",
+      "framework_code": "NIST-800-53R5",
+      "framework_mapping_notes": "The archive can preserve selected audit records where the retention policy and retrieval are verified against the required period.",
+      "framework_name": "NIST SP 800-53 Revision 5",
+      "framework_requirement_id": "AU-11",
+      "framework_requirement_title": "Audit Record Retention",
+      "framework_version": "5.2.0",
+      "mapping_set_name": "SAF-K8S to NIST SP 800-53r5",
+      "relation_type": "supports",
+      "strength_level": "weak",
+      "strength_reason_code": "partial-control-coverage"
+    },
+    {
+      "applicability": "conditional",
+      "applicability_condition": "An authorized assessment plan selects these controls and uses these provenance-linked records as evidence.",
+      "control_id": "SAF-K8S-1006-004",
+      "framework_code": "NIST-800-53R5",
+      "framework_mapping_notes": "Use timestamped observations as inputs to an assessment. Preserve the assessor\u2019s method, test results, findings, and reviewer decisions.",
+      "framework_name": "NIST SP 800-53 Revision 5",
+      "framework_requirement_id": "CA-2",
+      "framework_requirement_title": "Control Assessments",
+      "framework_version": "5.2.0",
+      "mapping_set_name": "SAF-K8S to NIST SP 800-53r5",
+      "relation_type": "supports",
+      "strength_level": "moderate",
+      "strength_reason_code": "partial-control-coverage"
+    },
+    {
+      "applicability": "conditional",
+      "applicability_condition": "Tracked findings feed an approved system plan of action and milestones with remediation records.",
+      "control_id": "SAF-K8S-1006-004",
+      "framework_code": "NIST-800-53R5",
+      "framework_mapping_notes": "A readiness dashboard can surface gaps to the accountable owner. Verify that assessed findings, planned actions, milestones, and updates appear in the system plan.",
+      "framework_name": "NIST SP 800-53 Revision 5",
+      "framework_requirement_id": "CA-5",
+      "framework_requirement_title": "Plan of Action and Milestones",
+      "framework_version": "5.2.0",
+      "mapping_set_name": "SAF-K8S to NIST SP 800-53r5",
+      "relation_type": "supports",
+      "strength_level": "weak",
+      "strength_reason_code": "partial-control-coverage"
+    },
+    {
+      "applicability": "conditional",
+      "applicability_condition": "An approved integration keeps the actual system plan of action and milestones accurate, current and available.",
+      "control_id": "SAF-K8S-1006-004",
+      "framework_code": "NIST-800-53R5",
+      "framework_mapping_notes": "Verify that the scoped finding and status propagate with correct lineage to the plan and remain available to its authorized consumers.",
+      "framework_name": "NIST SP 800-53 Revision 5",
+      "framework_requirement_id": "CA-5(1)",
+      "framework_requirement_title": "Automation Support for Accuracy and Currency",
+      "framework_version": "5.2.0",
+      "mapping_set_name": "SAF-K8S to NIST SP 800-53r5",
+      "relation_type": "supports",
+      "strength_level": "moderate",
+      "strength_reason_code": "partial-control-coverage"
+    },
+    {
+      "applicability": "conditional",
+      "applicability_condition": "The system monitoring strategy defines the relevant metrics, frequencies, ownership and reporting, and the pipeline operates within that strategy.",
+      "control_id": "SAF-K8S-1006-004",
+      "framework_code": "NIST-800-53R5",
+      "framework_mapping_notes": "Recurring collection and freshness alerts can support system continuous monitoring. Verify scope, cadence, response and reporting against the approved strategy.",
+      "framework_name": "NIST SP 800-53 Revision 5",
+      "framework_requirement_id": "CA-7",
+      "framework_requirement_title": "Continuous Monitoring",
+      "framework_version": "5.2.0",
+      "mapping_set_name": "SAF-K8S to NIST SP 800-53r5",
+      "relation_type": "supports",
+      "strength_level": "moderate",
+      "strength_reason_code": "partial-control-coverage"
+    },
+    {
+      "applicability": "conditional",
+      "applicability_condition": "The implemented automation maintains the accuracy, currency and availability of results for the selected monitoring scope.",
+      "control_id": "SAF-K8S-1006-004",
+      "framework_code": "NIST-800-53R5",
+      "framework_mapping_notes": "Verify that the consumer receives exact current results, detects stale or missing data, and retrieves retained records.",
+      "framework_name": "NIST SP 800-53 Revision 5",
+      "framework_requirement_id": "CA-7(6)",
+      "framework_requirement_title": "Automation Support for Monitoring",
+      "framework_version": "5.2.0",
+      "mapping_set_name": "SAF-K8S to NIST SP 800-53r5",
+      "relation_type": "supports",
+      "strength_level": "moderate",
+      "strength_reason_code": "partial-control-coverage"
+    },
+    {
+      "applicability": "conditional",
+      "applicability_condition": "A governed post-change review uses the evidence to verify operation and outcomes for impacted controls.",
+      "control_id": "SAF-K8S-1006-004",
+      "framework_code": "NIST-800-53R5",
+      "framework_mapping_notes": "Versioned records can support post-change verification. Verify the relevant control behavior and retained decision for the specific change.",
+      "framework_name": "NIST SP 800-53 Revision 5",
+      "framework_requirement_id": "CM-4(2)",
+      "framework_requirement_title": "Verification of Controls",
+      "framework_version": "5.2.0",
+      "mapping_set_name": "SAF-K8S to NIST SP 800-53r5",
+      "relation_type": "supports",
+      "strength_level": "weak",
+      "strength_reason_code": "partial-control-coverage"
+    },
+    {
+      "applicability": "conditional",
+      "applicability_condition": "The scoped component and control records are incorporated into the system security and privacy plans.",
+      "control_id": "SAF-K8S-1006-004",
+      "framework_code": "NIST-800-53R5",
+      "framework_mapping_notes": "Use versioned configuration evidence to support referenced plan content and verify that approved plans cover required components and operating context.",
+      "framework_name": "NIST SP 800-53 Revision 5",
+      "framework_requirement_id": "PL-2",
+      "framework_requirement_title": "System Security and Privacy Plans",
+      "framework_version": "5.2.0",
+      "mapping_set_name": "SAF-K8S to NIST SP 800-53r5",
+      "relation_type": "supports",
+      "strength_level": "weak",
+      "strength_reason_code": "partial-control-coverage"
+    },
+    {
+      "applicability": "conditional",
+      "applicability_condition": "The organization uses dated evidence in its approved testing and monitoring planning process.",
+      "control_id": "SAF-K8S-1006-004",
+      "framework_code": "NIST-800-53R5",
+      "framework_mapping_notes": "Results can support the monitoring portion of the program plan review. Verify the program\u2019s approval, update and execution records.",
+      "framework_name": "NIST SP 800-53 Revision 5",
+      "framework_requirement_id": "PM-14",
+      "framework_requirement_title": "Testing, Training, and Monitoring",
+      "framework_version": "5.2.0",
+      "mapping_set_name": "SAF-K8S to NIST SP 800-53r5",
+      "relation_type": "supports",
+      "strength_level": "weak",
+      "strength_reason_code": "partial-control-coverage"
+    },
+    {
+      "applicability": "conditional",
+      "applicability_condition": "The governed design process incorporates the collected artifacts into sufficient system security documentation.",
+      "control_id": "SAF-K8S-1006-004",
+      "framework_code": "NIST-800-53R5",
+      "framework_mapping_notes": "Use versioned records and provenance to substantiate the selected system documentation. Verify coverage of the design and its review.",
+      "framework_name": "NIST SP 800-53 Revision 5",
+      "framework_requirement_id": "SA-8(32)",
+      "framework_requirement_title": "Sufficient Documentation",
+      "framework_version": "5.2.0",
+      "mapping_set_name": "SAF-K8S to NIST SP 800-53r5",
+      "relation_type": "supports",
+      "strength_level": "weak",
+      "strength_reason_code": "partial-control-coverage"
+    },
+    {
+      "applicability": "conditional",
+      "applicability_condition": "The pipeline delivers actual security or privacy function verification results to the designated recipients.",
+      "control_id": "SAF-K8S-1006-004",
+      "framework_code": "NIST-800-53R5",
+      "framework_mapping_notes": "Distinguish the result of a function check from an inventory observation. Verify the recipients and delivered verification record.",
+      "framework_name": "NIST SP 800-53 Revision 5",
+      "framework_requirement_id": "SI-6(3)",
+      "framework_requirement_title": "Report Verification Results",
+      "framework_version": "5.2.0",
+      "mapping_set_name": "SAF-K8S to NIST SP 800-53r5",
+      "relation_type": "supports",
+      "strength_level": "moderate",
+      "strength_reason_code": "partial-control-coverage"
+    }
+  ],
+  "source": {
+    "catalog_revision": "4e518d3bd0aab7847f62755ce1c7076d7478b3fb",
+    "control_id": "SAF-K8S-1006-004",
+    "control_markdown_sha256": "29d24690010bf23296a72b715da2d7cfb9c3284468e7232979dde467b4642d77",
+    "control_path": "markdown/controls/SAF-K8S-1006-004.md",
+    "control_row_path": "saf_k8s_controls.yaml#SAF-K8S-1006-004",
+    "control_row_sha256": "8877e0aea2bbffdc28a808535c9c9920647990571e0060d3e184ab6fc9fdf3a2",
+    "crosswalk_path": "saf_k8s_crosswalks.yaml",
+    "crosswalk_sha256": "a69e0430703c928fd5179c6c5d1e0be62137d02ee715b742fa70dd76cce51441",
+    "repository_revision": "2673765fb440949d181085671aacec31fb29ca79"
+  }
+}

@@ -50,3 +50,17 @@ evidence for an adopting deployment.
    consumer show the gaps. Record collection time, retention and access scope.
 4. Reconcile the inventory and evidence following catalog, deployment or
    framework revisions. Give each unresolved link an owner and review date.
+
+
+## Canonical crosswalk counterfactual
+
+The additive static fixture freezes the 16 structured `SAF-K8S-1006-004` crosswalk
+rows, repository revision, crosswalk and canonical structured control-row and generated Markdown SHA-256 values, and generated
+reverse-page paths and hashes. Four additional checks cover the exact frozen fixture,
+a removed-row counterfactual, and a stale source-fingerprint counterfactual. All 16
+mappings remain conditional, so the report stays in `attention` with applicability
+unresolved.
+
+This does not establish production retention, evidence scope, authorization, actual
+framework applicability or coverage, dashboard integration, or compliance. The 16
+existing checks and three existing synthetic crosswalk checks are preserved.

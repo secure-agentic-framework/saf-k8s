@@ -18,3 +18,19 @@ dashboards and GRC integration require separate evidence.
 
 - [Kubernetes RBAC](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/rbac/)
 - [Pod Security Admission](https://v1-36.docs.kubernetes.io/docs/concepts/security/pod-security-admission/)
+
+
+## Canonical crosswalk counterfactual
+
+The additive fixture freezes the 16 structured `SAF-K8S-1006-004` rows from
+`saf_k8s_crosswalks.yaml`, the repository revision, source-file and control-page
+SHA-256 values, plus each generated framework reverse-page path and SHA-256. The
+case verifies fixture fingerprints and generated-link relationships, then checks
+that removing one row and changing the crosswalk-source fingerprint produce
+visible attention states. All 16 mappings remain `conditional`; applicability is
+unresolved and the projection must remain `attention`.
+
+This is a bounded static fixture counterfactual. It does not evaluate a real
+organization's applicability, regulatory scope, retention, authorization,
+framework coverage, dashboard integration, or compliance. The original synthetic
+projector checks remain unchanged.

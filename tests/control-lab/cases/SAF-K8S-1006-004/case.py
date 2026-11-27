@@ -23,7 +23,10 @@ SCOPE = (
     "fresh, stale, and recovered states under a fixture timing threshold. The scoped follow-on checks live RoleBindings, NetworkPolicies, Namespace labels, "
     "object provenance, and cross-namespace denial. A separate source-pinned synthetic fixture "
     "checks crosswalk import and readiness-gap projection; it does not assert any actual NIST, EU, "
-    "or other framework coverage. Scope remains capture and freshness for the native inputs."
+    "or other framework coverage. The additive canonical-row counterfactual pins the published "
+    "16 conditional mappings and reverse-page fingerprints but does not decide applicability. "
+    "Production retention, evidence scope, authorization, and framework coverage remain unverified. "
+    "Scope remains capture and freshness for the native inputs."
 )
 
 
