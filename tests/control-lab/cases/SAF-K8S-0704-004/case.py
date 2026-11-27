@@ -3,7 +3,7 @@
 import json
 from pathlib import Path
 
-SCOPE = "Read synthetic inventory records and exercise session-required access to a case-owned public marker."
+SCOPE = "Exercise a case-owned synthetic session-marker service, classify synthetic metadata inventory, and parse an offline static AWS-shaped DescribeInstances fixture; no provider observation or metadata endpoint is used."
 IMAGE = "docker.io/library/python:3.13-slim@sha256:e48f59cdba69a3cbd9ed2cf0f348d90d45a8d350d98134cf1070bc106ee9ed90"
 INVENTORY = {
     "approved-current": {"declared_tokens": "required", "live": {"HttpEndpoint": "enabled", "HttpTokens": "required", "State": "applied"}},
