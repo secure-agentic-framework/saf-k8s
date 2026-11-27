@@ -88,7 +88,7 @@ def run(lab):
     lab.check("green", "The omitted path is denied, and the reachable approved endpoint still requires identity",
               unauthenticated, {"omitted_path_denied": True, "allowed_endpoint_requires_authentication": unauthenticated})
     accepted = fetch(lab, selected, identity=True) == {"code": 200, "marker": "public-identity-marker"}
-    lab.check("positive", "An actual audience-bound workload identity permits the approved request",
+    lab.check("positive", "An audience-bound Kubernetes ServiceAccount token permits the approved fixture request",
               accepted, {"projected_identity_and_marker_verified": accepted})
     (lab.evidence / "metadata-egress-observations.json").write_text(json.dumps({"comparison_pre_policy_reachable": True,
         "comparison_post_policy_denied": True, "approved_rejects_missing_identity": unauthenticated,

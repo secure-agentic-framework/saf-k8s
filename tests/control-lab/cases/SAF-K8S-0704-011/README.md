@@ -11,3 +11,5 @@ metadata.
 
 The endpoints are synthetic. Verify the real provider metadata endpoints,
 node and Pod policy coverage, and provider workload permissions separately.
+
+The approved endpoint observes a Kubernetes ServiceAccount through TokenReview. Verify provider federation and cloud grants on the adopted path.

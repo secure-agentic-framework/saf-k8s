@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0704-011",
-  "catalog_revision": "9f45ee6100863ea8e2bed436be4bb046ea628ff5",
-  "catalog_sha256": "d4cb55b6578f9bfced93f4d9321339637315f1bef65d27ffe88dabc604ed88ec",
+  "catalog_revision": "36422572536970115a393ffab4cde03c4bcba218",
+  "catalog_sha256": "05bad5b212e22ea094491dca60d5d4cc21ff6c4cddb0c432dfc5da909786bc07",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "6cd4d533c23b04bfc2e25a090599adfb864afa0e715ef9daa4783b56508fb9fe",
   "scope": "Local Pod egress and genuine Kubernetes projected identity against owned cluster endpoints.",
-  "cluster": "saf-lab-67c607ca3756",
+  "cluster": "saf-lab-a673b83dbd17",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -57,7 +57,7 @@
     },
     {
       "phase": "positive",
-      "claim": "An actual audience-bound workload identity permits the approved request",
+      "claim": "An audience-bound Kubernetes ServiceAccount token permits the approved fixture request",
       "matched": true,
       "observed": {
         "projected_identity_and_marker_verified": true
