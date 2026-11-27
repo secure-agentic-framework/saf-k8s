@@ -2643,7 +2643,7 @@
     "SAF-K8S-0905-029": {
       "catalog_status": "draft",
       "domain": "D09",
-      "sha256": "fc55461c550647adbc15b0e311dde4b6520092e6bc54ffddc32e70cfd6c5acfe",
+      "sha256": "578655f0ef6a8c9f31a68e0168cbbe85310b0a9c6026da37f592e5420271c602",
       "title": "CUDA and GPU accelerator dependency vulnerability management"
     },
     "SAF-K8S-0905-032": {
@@ -3572,7 +3572,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "94fcf9654b46fa6ac7b3ff9fe915db25538b7fd4",
-  "sha256": "cb0f2271307d0e1791a631bc2767197be15daaeaeb92286b87ec929da7f0ceda",
+  "revision": "d21e2225d979114d6dad079d1ff3a5a2c6fbee22",
+  "sha256": "1da56289e4f344f65fa946b0099b200d7a52a7c4bea62ee17a32261bedc18861",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0905-029",
-  "catalog_revision": "9a088a328f40f18c91fd4b896b8111b76519af68",
-  "catalog_sha256": "c1a14a1b203bdfe8828a691f5c30058745d96afefca29c70b370256b29cdb06d",
+  "catalog_revision": "2cf3fe8e728baac989604dd7bd2e6da7c4cc8abd",
+  "catalog_sha256": "1da56289e4f344f65fa946b0099b200d7a52a7c4bea62ee17a32261bedc18861",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "fc55461c550647adbc15b0e311dde4b6520092e6bc54ffddc32e70cfd6c5acfe",
+  "control_sha256": "578655f0ef6a8c9f31a68e0168cbbe85310b0a9c6026da37f592e5420271c602",
   "scope": "A disposable Kubernetes v1.36.1 Kind cluster runs one restricted, non-GPU Pod in the runner's default saf-test namespace. The case binds synthetic offline software SBOM components (CUDA Toolkit, cuDNN and NCCL) and a separate synthetic native-host report (driver and device-plugin inventory) to the actual Pod UID, service account, node name and imageID read from the Kubernetes API. An immutable fixture triage record retains the correlated findings and rechecks as each inventory is corrected. All component versions and the advisory are synthetic. Actual GPU software, runtime drivers, advisory ingestion and production remediation remain deployment evidence.",
-  "cluster": "saf-lab-f032093f23c6",
+  "cluster": "saf-lab-25d20e23cd49",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
