@@ -242,6 +242,11 @@ def metric_counter(metrics, name, required_label=None):
     return metric_value(metrics["families"][name]["samples"], required_label=required_label)
 
 
+def counter_observed_stable(before, after):
+    """Require numeric observations at both endpoints before claiming no increase."""
+    return before is not None and after is not None and before == after
+
+
 def exec_script(lab, script, *args, timeout=45):
     result = lab.kubectl("exec", f"pod/{POD}", "--", "python", "-c", script,
                          *args, timeout=timeout)
@@ -504,8 +509,23 @@ def run(lab):
         json.dumps(metric_result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     lab.check("positive", "Native event counter delta matches the five delivered events",
               metric_delta_ok, {"fixture_event_counter_delta": metric_result["event_total_delta"]})
-    no_terminal_drop = (error_before == error_after and rejected_before is not None
-                        and rejected_before == rejected_after)
+    counter_logic = {
+        "empty_webhook_sample_maps_to_missing": metric_counter(
+            {"families": {"apiserver_audit_error_total": {"samples": []}}},
+            "apiserver_audit_error_total", 'plugin="webhook"') is None,
+        "missing_before_and_after_pair_is_rejected": not counter_observed_stable(None, None),
+        "present_equal_1_to_1_pair_is_accepted": counter_observed_stable(1.0, 1.0),
+    }
+    no_terminal_drop = (counter_observed_stable(error_before, error_after)
+                        and counter_observed_stable(rejected_before, rejected_after)
+                        and all(counter_logic.values()))
     lab.check("positive", "The recovered attempt records no additional terminal webhook drop or rejected request",
-              no_terminal_drop, {"webhook_drop_counter_unchanged": error_before == error_after,
-                                 "rejected_request_counter_unchanged": rejected_before == rejected_after})
+              no_terminal_drop, {"webhook_error_counter_present_before_and_after":
+                                     error_before is not None and error_after is not None,
+                                 "webhook_drop_counter_unchanged": counter_observed_stable(
+                                     error_before, error_after),
+                                 "rejected_request_counter_present_before_and_after":
+                                     rejected_before is not None and rejected_after is not None,
+                                 "rejected_request_counter_unchanged": counter_observed_stable(
+                                     rejected_before, rejected_after),
+                                 "counter_presence_counterfactual": counter_logic})
