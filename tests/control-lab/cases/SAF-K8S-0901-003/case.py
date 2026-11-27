@@ -38,7 +38,9 @@ SCOPE = (
     "records are checked inside the case cluster. Namespaced Roles grant named GET/UPDATE "
     "only for the mock trainer's restore Secret, and named GET for checkpoint inputs and "
     "the digest manifest; a separate observer can GET only the restore Secret. An ordinary "
-    "mock Pod demonstrates denied Secret GET/PATCH. This does not test filesystem/PV or cloud "
+    "mock Pod demonstrates denied Secret GET/PATCH. A second untrusted request attempts a "
+    "metadata-only patch to the exact checkpoint input Secret; an independent API readback "
+    "checks its UID, resourceVersion, and data hashes remain unchanged. This does not test filesystem/PV or cloud "
     "object-store encryption, KMS/key custody or rotation, production identities, human "
     "authorization, distributed storage, or actual ML training."
 )
@@ -209,6 +211,27 @@ def backend_record(lab, resource, name):
             "checkpoint_marker_present": MARKER in raw}
 
 
+def checkpoint_source_state(lab):
+    raw = quiet_kubectl(lab, "-n", NAMESPACE, "get", f"secret/{NAMES['checkpoint']}", "-o", "json")
+    secret_object = json.loads(raw)
+    try:
+        data = secret_object["data"]
+        checkpoint = base64.b64decode(data["checkpoint"], validate=True)
+        optimizer = base64.b64decode(data["optimizer"], validate=True)
+    except (KeyError, ValueError, TypeError):
+        lab.block("The protected checkpoint source Secret could not be read safely")
+    metadata = secret_object.get("metadata", {})
+    annotations = metadata.get("annotations", {}) or {}
+    return {
+        "uid": metadata.get("uid"),
+        "resource_version": metadata.get("resourceVersion"),
+        "checkpoint_sha256": hashlib.sha256(checkpoint).hexdigest(),
+        "optimizer_sha256": hashlib.sha256(optimizer).hexdigest(),
+        "untrusted_source_write_annotation_present": (
+            "saf-k8s.example/untrusted-source-write" in annotations),
+    }
+
+
 def pod_manifest(name, account, mode):
     return {
         "apiVersion": "v1", "kind": "Pod",
@@ -284,9 +307,38 @@ def run(lab):
     lab.check("green", "An unbound workload identity is denied checkpoint read and restore write",
               denied == {"checkpoint_get_status": 403, "restore_patch_status": 403}, denied)
 
-    observer = run_pod(lab, "saf-0901-003-observer-run", "saf-0901-003-observer", "observer")
+    source_before_untrusted_patch = checkpoint_source_state(lab)
+    source_write = run_pod(lab, "saf-0901-003-untrusted-source-write-run",
+                           "saf-0901-003-untrusted", "unauthorized_checkpoint_write")
+    source_after_untrusted_patch = checkpoint_source_state(lab)
     expected_checkpoint = hashlib.sha256(CHECKPOINT).hexdigest()
     expected_optimizer = hashlib.sha256(OPTIMIZER).hexdigest()
+    source_uid_unchanged = (source_before_untrusted_patch["uid"] is not None
+                            and source_before_untrusted_patch["uid"] == source_after_untrusted_patch["uid"])
+    source_revision_unchanged = (source_before_untrusted_patch["resource_version"] is not None
+                                 and source_before_untrusted_patch["resource_version"]
+                                 == source_after_untrusted_patch["resource_version"])
+    checkpoint_hash_unchanged = (
+        source_before_untrusted_patch["checkpoint_sha256"] == expected_checkpoint
+        and source_after_untrusted_patch["checkpoint_sha256"] == expected_checkpoint)
+    optimizer_hash_unchanged = (
+        source_before_untrusted_patch["optimizer_sha256"] == expected_optimizer
+        and source_after_untrusted_patch["optimizer_sha256"] == expected_optimizer)
+    marker_absent = (not source_before_untrusted_patch["untrusted_source_write_annotation_present"]
+                     and not source_after_untrusted_patch["untrusted_source_write_annotation_present"])
+    source_write_denied = source_write.get("checkpoint_source_patch_status") == 403
+    lab.check("source-write-denied",
+              "An unbound workload cannot patch the named checkpoint input Secret and its identity and contents remain unchanged",
+              source_write_denied and source_uid_unchanged and source_revision_unchanged
+              and checkpoint_hash_unchanged and optimizer_hash_unchanged and marker_absent,
+              {"checkpoint_source_patch_status": source_write.get("checkpoint_source_patch_status"),
+               "source_uid_unchanged": source_uid_unchanged,
+               "source_resource_version_unchanged": source_revision_unchanged,
+               "checkpoint_sha256_unchanged": checkpoint_hash_unchanged,
+               "optimizer_sha256_unchanged": optimizer_hash_unchanged,
+               "untrusted_annotation_absent": marker_absent})
+
+    observer = run_pod(lab, "saf-0901-003-observer-run", "saf-0901-003-observer", "observer")
     exact = (observer.get("get_status") == 200 and observer.get("exact_restore") is True
              and observer.get("checkpoint_sha256") == expected_checkpoint
              and observer.get("optimizer_sha256") == expected_optimizer
@@ -319,6 +371,9 @@ def run(lab):
         "plaintext_backend_comparator": plain,
         "encrypted_backend_record": encrypted,
         "trainer": trainer, "unbound_workload": denied, "independent_observer": observer,
+        "unbound_source_write": source_write,
+        "checkpoint_source_before_untrusted_patch": source_before_untrusted_patch,
+        "checkpoint_source_after_untrusted_patch": source_after_untrusted_patch,
         "role_rules": role.get("rules"), "binding_subjects": binding["subjects"],
         "kept_key_and_backend_payload_private": True,
     }, indent=2, sort_keys=True) + "\n")

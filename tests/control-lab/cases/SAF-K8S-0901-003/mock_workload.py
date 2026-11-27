@@ -111,6 +111,15 @@ def unauthorized():
                       "restore_patch_status": write_status}, sort_keys=True), flush=True)
 
 
+def unauthorized_checkpoint_write():
+    expected = expected_fixture()
+    # Metadata-only patch to the exact protected input Secret; never send fixture bytes.
+    status, _ = request("PATCH", f"/secrets/{expected['checkpoint_name']}",
+                        {"metadata": {"annotations": {
+                            "saf-k8s.example/untrusted-source-write": "synthetic"}}})
+    print(json.dumps({"checkpoint_source_patch_status": status}, sort_keys=True), flush=True)
+
+
 def observer():
     expected = expected_fixture()
     status, secret = request("GET", f"/secrets/{expected['restore_name']}")
@@ -132,4 +141,5 @@ def observer():
 
 
 mode = sys.argv[1]
-{"trainer": trainer, "unauthorized": unauthorized, "observer": observer}[mode]()
+{"trainer": trainer, "unauthorized": unauthorized,
+ "unauthorized_checkpoint_write": unauthorized_checkpoint_write, "observer": observer}[mode]()

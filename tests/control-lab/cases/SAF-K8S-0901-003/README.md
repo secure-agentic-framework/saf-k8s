@@ -13,6 +13,13 @@ changed checkpoint before restore. A separate unbound workload receives HTTP
 restored checkpoint bytes and optimizer metadata. The runtime output retains
 only scoped assertions and fixture hashes in `checkpoint-observations.raw.json`.
 
+The untrusted workload also attempts a metadata-only patch against the exact
+checkpoint input Secret, without submitting checkpoint or optimizer bytes. The
+case requires HTTP 403 and independently reads the Secret before and after to
+compare its UID, resourceVersion, and checkpoint and optimizer digests. This
+tests write denial on the protected source object separately from the existing
+write denial on the restore destination.
+
 This demonstrates the small API-stored fixture. Actual training checkpoints,
 filesystem or object-store encryption, production identities, KMS and key
 custody, and distributed state recovery require separate evidence.
