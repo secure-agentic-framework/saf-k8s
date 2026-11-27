@@ -14,6 +14,23 @@ The current case uses synthetic reviewers and approvals. Production evidence mus
 
 [Kubernetes Jobs](https://v1-36.docs.kubernetes.io/docs/concepts/workloads/controllers/job/) · [Microsoft STRIDE threat categories](https://learn.microsoft.com/en-us/azure/security/develop/threat-modeling-tool-threats)
 
+## Architecture and flow binding
+
+The separate `stride_architecture_gate.py` supplement binds a synthetic reviewed
+STRIDE record to the exact bytes and revision of a case-owned DFD fixture. Each of
+the nine component entries declares a flow and trust-boundary ID; every synthetic
+threat cell must resolve to a flow belonging to that same component and boundary.
+The added Jobs check a positive record, a metadata-only ConfigMap change, a material
+graph revision change (old review rejected, refreshed review accepted), a dangling
+flow reference, and a flow borrowed from another component. The graph, reviewers,
+threats, and mitigations are synthetic fixture data.
+
+Use reviewed architecture inputs and current data-flow diagrams to complete the
+worksheet. Record significant changes, reevaluate affected threats and mitigations,
+and retain the authorized reviewer and approval records. Microsoft describes using
+data flows and trust boundaries to identify threats and determine mitigations.
+[Threat Modeling for Drivers](https://learn.microsoft.com/en-us/windows-hardware/drivers/driversecurity/threat-modeling-for-drivers).
+
 ## Crosswalk evidence
 
 The scoped source retains 16 conditional relationships. An adopted STRIDE

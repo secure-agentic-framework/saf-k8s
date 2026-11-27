@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-1003-001",
-  "catalog_revision": "5ad71419248b43e1ad9add65a792e202c7556748",
-  "catalog_sha256": "ee384744c842f8d644f583a5aaca5eaaa6b5317fc5eec912d037736ad0661d10",
+  "catalog_revision": "f99a553f8af8ce495ef34772758cf6320b7827a3",
+  "catalog_sha256": "65f757846d484079842769b4cec9180fc3a96ab15a5106c821a08ca7293441b6",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "2d22371fd4cc55731ebef0947da3557e14034a5dc789b150b80c22380fe9342b",
   "scope": "Kubernetes v1.36.1 Kind executes independent architecture-review Jobs against synthetic records. An unenforced path accepts an incomplete record. The enabled gate rejects incomplete and stale records and accepts an internally consistent record covering nine component classes. Independent case-owned approval labels and evidence links model the review workflow. Actual threat judgment, reviewer authority and deployment coverage need separate evidence.",
-  "cluster": "saf-lab-86ae1f4cb3eb",
+  "cluster": "saf-lab-0850f7212503",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -74,6 +74,65 @@
         "components": 9,
         "mapped_threats": 54,
         "named_approval_roles": 2
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Reviewed synthetic STRIDE threats resolve to exact component, data flow and trust boundary",
+      "matched": true,
+      "observed": {
+        "components": 9,
+        "threats": 54,
+        "flow_links_resolved": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Metadata-only ConfigMap update keeps the reviewed graph binding valid",
+      "matched": true,
+      "observed": {
+        "resource_version_advanced": true,
+        "graph_digest_unchanged": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Significant DFD revision invalidates the prior STRIDE review",
+      "matched": true,
+      "observed": {
+        "revision_changed": true,
+        "errors": [
+          "architecture-review-stale"
+        ]
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Refreshed STRIDE review binds to the changed graph revision and digest",
+      "matched": true,
+      "observed": {
+        "status": "pass",
+        "review_bound_to_current_graph": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Threat record with a dangling flow reference is rejected",
+      "matched": true,
+      "observed": {
+        "errors": [
+          "threat-flow-reference-invalid:api-server:spoofing"
+        ]
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Threat cannot cite another component's flow and boundary as its own",
+      "matched": true,
+      "observed": {
+        "errors": [
+          "threat-flow-reference-invalid:api-server:spoofing"
+        ]
       }
     }
   ]
