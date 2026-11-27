@@ -4130,12 +4130,12 @@
   knowledge_area: '5.2'
   control_seq: '007'
   control_title: Kubernetes pod IP anti-spoofing enforcement and validation
-  control_statement: IP spoofing protection must be enabled and validated so pods cannot forge source IP addresses to bypass network policies or impersonate other workloads.
-  objective: Prevent network-layer identity spoofing that could circumvent policy enforcement or allow a compromised pod to impersonate another workload.
-  rationale: IP spoofing allows a malicious pod to impersonate another workload's IP address, bypassing NetworkPolicy rules and undermining trust in network-layer identity. Separating anti-spoofing enforcement from IPAM capacity governance makes it possible to audit datapath enforcement and spoofing test validation directly.
-  scope: Applies to all Kubernetes clusters. Covers anti-spoofing enforcement for all CNI configurations and validation on managed and self-managed clusters that forged source IP packets are dropped.
-  primary_enforcement_point: CNI anti-spoofing enforcement at the pod virtual network interface or datapath.
-  implementation_surface: CNI anti-spoofing enforcement at the veth pair or eBPF datapath, managed or self-managed CNI configuration, and spoofing test validation confirming forged source IP packets are dropped.
+  control_statement: "Identify all applicable Pod network paths and the effective source-address validation supported by the adopted CNI or provider. Enable and verify supported enforcement for managed Pod interfaces. Restrict documented exceptions to workloads with an authorized need for alternate source addresses. Record the approved treatment and residual risk for unsupported or unverified paths."
+  objective: "Reduce source-address spoofing risk on covered Pod network paths and make topology limits and authorized exceptions explicit."
+  rationale: "Source-address validation is enforced by the selected CNI or provider datapath. Coverage depends on implementation, version, address family, interface, chaining, and provider integration. Configuration and opt-out inventory establish the selected settings. Evaluate enforcement with approved evidence for each declared path. Some network functions require alternate addresses and need documented approval."
+  scope: "Applies to governed Kubernetes Pod networking on managed and self-managed clusters. Identify managed endpoints, supported address families, chained and additional interfaces, host-network and unmanaged paths, provider constraints and approved exceptions. Record covered, unsupported and unverified paths and their approved treatment."
+  primary_enforcement_point: "The selected CNI or provider datapath's source-address validation for managed Pod interfaces, with separate controls governing exceptions and network-policy access."
+  implementation_surface: "Record the applicable CNI or provider, version, IPAM and chaining mode, address families and supported datapath boundary. Verify effective enabled settings, managed endpoint coverage, and active exception settings. Assess host-network and additional interfaces, unmanaged and pre-existing Pods, and provider-specific paths. Retain approved evidence of enforcement for each declared path. Keep configuration, ordinary connectivity and enforcement evidence distinct. Record exception owners, compensating controls, residual gaps and drift review."
   owner_primary: Network Engineering
   owner_supporting: Platform Engineering; Security Operations
   baseline_or_ai_specific: baseline
