@@ -1249,7 +1249,7 @@ This knowledge area focuses on: AI system lifecycle classification, Automated mo
 | [SAF-K8S-0905-039](markdown/controls/SAF-K8S-0905-039.md) | Model registry access review and stale-permission remediation | Practitioner | ai-specific |
 | [SAF-K8S-0905-040](markdown/controls/SAF-K8S-0905-040.md) | Model registry audit event generation and centralized forwarding | Practitioner | ai-specific |
 | [SAF-K8S-0905-041](markdown/controls/SAF-K8S-0905-041.md) | Model registry sensitive-operation alerting and anomalous activity review | Practitioner | ai-specific |
-| [SAF-K8S-0905-042](markdown/controls/SAF-K8S-0905-042.md) | CTA-2114 ML-BOM generation and lineage metadata capture | Advanced | ai-specific |
+| [SAF-K8S-0905-042](markdown/controls/SAF-K8S-0905-042.md) | ML-BOM generation and training lineage metadata | Advanced | ai-specific |
 | [SAF-K8S-0905-043](markdown/controls/SAF-K8S-0905-043.md) | Durable ML-BOM attachment to model artifacts and versions | Advanced | ai-specific |
 | [SAF-K8S-0905-044](markdown/controls/SAF-K8S-0905-044.md) | Public model quarantine isolation and malicious artifact scanning | Advanced | ai-specific |
 | [SAF-K8S-0905-045](markdown/controls/SAF-K8S-0905-045.md) | Sandboxed external model behavioral vetting and disposition review | Advanced | ai-specific |

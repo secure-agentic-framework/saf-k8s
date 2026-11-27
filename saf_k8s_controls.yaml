@@ -9045,13 +9045,13 @@
   domain_name: 'AI Workload Security: Training, Serving, and Pipelines'
   knowledge_area: '9.5'
   control_seq: '042'
-  control_title: CTA-2114 ML-BOM generation and lineage metadata capture
+  control_title: "ML-BOM generation and training lineage metadata"
   control_statement: Organizations must generate ML Bills of Materials for production-bound models that capture model provenance metadata including training data lineage, hyperparameters, framework versions, and training infrastructure identity.
   objective: Maintain auditable model lineage transparency by ensuring production-bound models have structured ML-BOM records with the metadata needed to trace their origin and training conditions.
   rationale: Without ML-BOM generation and metadata capture, organizations cannot reliably trace which datasets, framework versions, and training conditions produced a model. That weakens impact analysis for vulnerability disclosures, provenance investigations, and data correction or deletion events.
-  scope: Applies to production-bound model artifacts generated or promoted through Kubernetes-connected AI delivery workflows. Covers CTA-2114-aligned ML-BOM generation and capture of model lineage metadata. Excludes durable attachment and storage mechanics for those records.
+  scope: "Applies to production-bound model artifacts generated or promoted through Kubernetes-connected AI delivery workflows. SAF requires ML-BOM generation and capture of model identity, training-data lineage, hyperparameters, framework versions, and training-infrastructure metadata. Assess alignment with CTA-2114 against an authorized copy before claiming clause-level conformance. Excludes durable attachment and storage mechanics for those records."
   primary_enforcement_point: ML-BOM generation tooling integrated into training and registration workflows.
-  implementation_surface: CTA-2114-aligned ML-BOM tooling, capture of model identity, training data lineage, hyperparameters, framework versions, and training infrastructure metadata.
+  implementation_surface: "Integrate ML-BOM tooling into training and registration workflows. Capture model identity, training-data lineage, hyperparameters, framework versions and training-infrastructure metadata. Track CTA-2114 alignment pending review of the applicable clauses from an authorized copy."
   owner_primary: Security Engineering
   owner_supporting: ML Platform Engineering; DevOps Engineering
   baseline_or_ai_specific: ai-specific

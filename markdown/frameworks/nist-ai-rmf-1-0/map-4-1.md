@@ -27,7 +27,7 @@ The reference makes software components identifiable for a separate risk analysi
 - Applicability: required
 - Strength Reason Code: exact-text-match
 
-### [SAF-K8S-0905-042 - CTA-2114 ML-BOM generation and lineage metadata capture](../../controls/SAF-K8S-0905-042.md)
+### [SAF-K8S-0905-042 - ML-BOM generation and training lineage metadata](../../controls/SAF-K8S-0905-042.md)
 
 - Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
 - Knowledge Area: 9.5
