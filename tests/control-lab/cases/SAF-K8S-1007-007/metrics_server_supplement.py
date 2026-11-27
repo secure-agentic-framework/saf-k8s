@@ -19,16 +19,17 @@ def _write(path, content):
     path.chmod(0o600)
 
 
-def create_fixture_tls(lab, directory, service):
+def create_fixture_tls(lab, directory, service, *, extra_dns=()):
     """Create a short-lived case CA/leaf with SAN and TLS usage constraints."""
     directory.mkdir(mode=0o700, parents=True, exist_ok=True)
     root_key, root_crt = directory / "ca.key", directory / "ca.crt"
     leaf_key, leaf_crt = directory / "tls.key", directory / "tls.crt"
     request, config = directory / "leaf.csr", directory / "openssl.conf"
+    san_names = ",".join(f"DNS:{name}" for name in (service, *extra_dns))
     _write(config, "[req]\ndistinguished_name=dn\n[dn]\n"
                    "[ca]\nbasicConstraints=critical,CA:TRUE\nkeyUsage=critical,keyCertSign,cRLSign\n"
                    "[leaf]\nbasicConstraints=critical,CA:FALSE\nkeyUsage=critical,digitalSignature,keyEncipherment\n"
-                   f"extendedKeyUsage=serverAuth\nsubjectAltName=DNS:{service}\n")
+                   f"extendedKeyUsage=serverAuth\nsubjectAltName={san_names}\n")
     lab.command("openssl", "req", "-x509", "-newkey", "rsa:2048", "-nodes", "-days", "2",
                 "-sha256", "-config", str(config), "-extensions", "ca",
                 "-subj", f"/CN=SAF fixture CA for {service}", "-keyout", str(root_key),
@@ -49,20 +50,25 @@ def create_fixture_tls(lab, directory, service):
 def configure_metrics_server_kind(lab, temporary, config):
     """Add the pinned kubelet TLS files to the existing custom audit Kind profile."""
     kubelet_tls = temporary / "kubelet"
-    create_fixture_tls(lab, kubelet_tls, f"{lab.cluster}-control-plane")
+    create_fixture_tls(lab, kubelet_tls, f"{lab.cluster}-control-plane",
+                       extra_dns=(f"{lab.cluster}-worker",))
     text = config.read_text()
-    mount_anchor = "  kubeadmConfigPatches:\n"
+    mount_anchor = "  extraMounts:\n  kubeadmConfigPatches:\n"
     if text.count(mount_anchor) != 1:
         lab.block("Metrics Server supplement could not locate the Kind mount section")
     mount = (f"  - hostPath: {json.dumps(str(kubelet_tls))}\n"
              f"    containerPath: {KUBELET_CERT_DIR}\n    readOnly: true\n")
-    text = text.replace(mount_anchor, mount + mount_anchor)
-    text += ("  - |\n"
+    text = text.replace(mount_anchor, "  extraMounts:\n" + mount + "  kubeadmConfigPatches:\n", 1)
+    anchor = "  kubeadmConfigPatches:\n- role: worker"
+    patch = ("  - |\n"
              "    apiVersion: kubelet.config.k8s.io/v1beta1\n"
              "    kind: KubeletConfiguration\n"
              "    serverTLSBootstrap: false\n"
              f"    tlsCertFile: {KUBELET_CERT_DIR}/tls.crt\n"
              f"    tlsPrivateKeyFile: {KUBELET_CERT_DIR}/tls.key\n")
+    if text.count(anchor) != 1:
+        lab.block("Metrics Server supplement could not place the control-plane Kubelet patch")
+    text = text.replace(anchor, "  kubeadmConfigPatches:\n" + patch + "- role: worker", 1)
     config.write_text(text)
     return config
 
@@ -78,10 +84,13 @@ def _install_metrics_server(lab, temporary):
     if digest != METRICS_SHA256 or text.count(METRICS_OLD_IMAGE) != 1:
         lab.block("Metrics Server installer differs from the reviewed v0.8.1 release")
     path.write_text(text.replace(METRICS_OLD_IMAGE, METRICS_IMAGE))
-    node = f"{lab.cluster}-control-plane"
-    node_obj = json.loads(lab.kubectl("get", "node", node, "-o", "json").stdout)
-    ipv4 = next(address["address"] for address in node_obj["status"]["addresses"]
-                if address["type"] == "InternalIP" and ":" not in address["address"])
+    node_names = (f"{lab.cluster}-control-plane", f"{lab.cluster}-worker")
+    host_aliases = []
+    for node in node_names:
+        node_obj = json.loads(lab.kubectl("get", "node", node, "-o", "json").stdout)
+        ipv4 = next(address["address"] for address in node_obj["status"]["addresses"]
+                    if address["type"] == "InternalIP" and ":" not in address["address"])
+        host_aliases.append({"ip": ipv4, "hostnames": [node]})
 
     kubelet_ca = temporary / "kubelet" / "ca.crt"
     metrics_tls = temporary / "metrics-api"
@@ -101,7 +110,10 @@ def _install_metrics_server(lab, temporary):
                  "--tls-cert-file=/saf-metrics-api/tls.crt",
                  "--tls-private-key-file=/saf-metrics-api/tls.key"))
     patch = {"spec": {"template": {"spec": {
-        "hostAliases": [{"ip": ipv4, "hostnames": [node]}],
+        "hostAliases": host_aliases,
+        "nodeSelector": {"node-role.kubernetes.io/control-plane": ""},
+        "tolerations": [{"key": "node-role.kubernetes.io/control-plane", "operator": "Exists",
+                         "effect": "NoSchedule"}],
         "volumes": [{"name": "saf-kubelet-ca", "configMap": {"name": "saf-metrics-kubelet-ca"}},
                     {"name": "saf-metrics-api", "secret": {"secretName": "saf-metrics-api-tls"}}],
         "containers": [{"name": "metrics-server", "args": args, "volumeMounts": [

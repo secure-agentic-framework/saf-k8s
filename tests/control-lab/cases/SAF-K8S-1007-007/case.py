@@ -34,8 +34,10 @@ SCOPE = (
     "provides fresh native PodMetrics samples around those probes, and read-only container logs are "
     "checked for additional fixed health requests. A further 5m CPU / 8Mi memory Pod shares the namespace "
     "within quota, serves through an independent case Service, and has fresh observed PodMetrics during coexistence. "
-    "This does not create pressure or simulate training. It does not demonstrate actual "
-    "scheduler ordering under contention, protection of built-in control-plane components, "
+    "This does not create CPU load or simulate training. An additive scheduler fixture uses one "
+    "case-owned worker with a verified 1-CPU allocatable profile and idle bounded Pods to compare "
+    "non-preempting queue behavior with a separate higher-priority preemption phase. It does not demonstrate "
+    "protection of built-in control-plane components, "
         "CoreDNS resolution latency, production metrics or log pipelines, log forwarding lag, node/network "
     "capacity, or production service availability."
 )
@@ -44,19 +46,60 @@ _METRICS_PATH = HERE / "metrics_server_supplement.py"
 _METRICS_SPEC = importlib.util.spec_from_file_location("saf_1007_007_metrics", _METRICS_PATH)
 _METRICS = importlib.util.module_from_spec(_METRICS_SPEC)
 _METRICS_SPEC.loader.exec_module(_METRICS)
+_SCHEDULER_PATH = HERE / "scheduler_contention.py"
+_SCHEDULER_SPEC = importlib.util.spec_from_file_location("saf_1007_007_scheduler", _SCHEDULER_PATH)
+_SCHEDULER = importlib.util.module_from_spec(_SCHEDULER_SPEC)
+_SCHEDULER_SPEC.loader.exec_module(_SCHEDULER)
 
 
 def prepare_kind(lab, temporary):
-    """Generate the one-node profile needed for verified Metrics Server kubelet TLS."""
+    """Generate a control-plane plus bounded-resource worker profile."""
     config = temporary / "kind.yaml"
+    cpu_count = lab.command("docker", "info", "--format", "{{.NCPU}}", timeout=20).stdout.strip()
+    if not cpu_count.isdigit() or int(cpu_count) < 2:
+        lab.block("The disposable Kind host must expose at least two CPUs for the bounded worker profile")
+    reserve_milli = int(cpu_count) * 1000 - 1000
+    worker_config = temporary / "worker-kubelet"
+    worker_config.mkdir()
+    (worker_config / "10-saf-reserved.conf").write_text(
+        "apiVersion: kubelet.config.k8s.io/v1beta1\n"
+        "kind: KubeletConfiguration\n"
+        f"systemReserved:\n  cpu: {reserve_milli}m\n"
+    )
     config.write_text(f"""kind: Cluster
 apiVersion: kind.x-k8s.io/v1alpha4
 nodes:
 - role: control-plane
   extraMounts:
   kubeadmConfigPatches:
+- role: worker
+  kubeadmConfigPatches:
+  - |
+    apiVersion: kubeadm.k8s.io/v1beta4
+    kind: JoinConfiguration
+    nodeRegistration:
+      kubeletExtraArgs:
+        - name: node-labels
+          value: saf-lab.example/scheduler-target=owned
+        - name: config-dir
+          value: /etc/saf-kubelet-config
+      taints:
+        - key: saf-lab.example/scheduler-reserved
+          value: "true"
+          effect: NoSchedule
 """)
-    return _METRICS.configure_metrics_server_kind(lab, temporary, config)
+    _METRICS.configure_metrics_server_kind(lab, temporary, config)
+    text = config.read_text()
+    mount = (f"  extraMounts:\n"
+             f"  - hostPath: {json.dumps(str(temporary / 'kubelet'))}\n"
+             f"    containerPath: {_METRICS.KUBELET_CERT_DIR}\n"
+             "    readOnly: true\n"
+             f"  - hostPath: {json.dumps(str(worker_config))}\n"
+             "    containerPath: /etc/saf-kubelet-config\n"
+             "    readOnly: true\n")
+    text = text.replace("- role: worker\n", "- role: worker\n" + mount, 1)
+    config.write_text(text)
+    return config
 
 
 def _metrics_snapshot(lab, pod_name=HEALTH_POD, expected_uid=None, *, retain_usage=False):
@@ -175,6 +218,10 @@ def _pod(name, cpu, memory, priority_class):
             "priorityClassName": priority_class,
             "restartPolicy": "Never",
             "automountServiceAccountToken": False,
+            "tolerations": [{"key": "node-role.kubernetes.io/control-plane", "operator": "Exists",
+                             "effect": "NoSchedule"},
+                            {"key": "node-role.kubernetes.io/master", "operator": "Exists",
+                             "effect": "NoSchedule"}],
             "securityContext": {
                 "runAsNonRoot": True,
                 "runAsUser": 65534,
@@ -444,6 +491,7 @@ def run(lab):
     }, indent=2, sort_keys=True) + "\n")
 
     _observe_bounded_coexistence(lab)
+    _SCHEDULER.run(lab)
 
 
 COEXIST_POD = "saf-1007-007-bounded-coexistence"
@@ -517,7 +565,7 @@ def _observe_bounded_coexistence(lab):
                                    companion_uid, retain_usage=True)
     health_during_metrics = json.loads(lab.kubectl("get", "pod", HEALTH_POD, "-o", "json").stdout)
     before_sample_time = datetime.fromisoformat(coexist_before["timestamp"].replace("Z", "+00:00"))
-    coexist_after = _wait_metrics(lab, "bounded coexistence Pod after service probes", COEXIST_POD,
+    coexist_after = _wait_metrics(lab, "bounded coexistence Pod second sample", COEXIST_POD,
                                   companion_uid, retain_usage=True, newer_than=before_sample_time)
     health_after_metrics = json.loads(lab.kubectl("get", "pod", HEALTH_POD, "-o", "json").stdout)
     original_service = _pod_service_probe(lab, HEALTH_POD, HEALTH_SERVICE, "SYNTH-1007-007-HEALTH-OK\n")
@@ -564,8 +612,8 @@ def _observe_bounded_coexistence(lab):
         "scope": "one case-owned 5m CPU / 8Mi memory HTTP Pod alongside the original case-owned service Pod; no stress load",
         "pods": {"original_uid": original_uid,
                  "coexistence_uid": companion_uid},
-        "metrics": {"coexistence_sample_before_service_probes": coexist_before,
-                    "coexistence_sample_after_service_probes": coexist_after},
+        "metrics": {"first_coexistence_sample": coexist_before,
+                    "second_coexistence_sample": coexist_after},
         "services": {"original": original_service, "companion": companion_service},
         "quota": {"coexistence_requests": {"cpu": "10m", "memory": "16Mi"},
                   "returned_to_original": quota_returned},

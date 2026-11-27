@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-1007-007",
-  "catalog_revision": "8ca957210cb5ed5a74374a1779f0c03a4a7f65c8",
-  "catalog_sha256": "ee384744c842f8d644f583a5aaca5eaaa6b5317fc5eec912d037736ad0661d10",
+  "catalog_revision": "53d500e17fb8c54ca4f0be31234fc1e21acd4fdc",
+  "catalog_sha256": "65f757846d484079842769b4cec9180fc3a96ab15a5106c821a08ca7293441b6",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "4cd30960a684800bed363d14247e132b2adb54a88f1aca2e3bd035568aaa23c4",
-  "scope": "One disposable Kind v1.36.1 cluster. A small server-side dry-run Pod request is compared before and after a namespace CPU/memory ResourceQuota; a second request at the remaining declared budget is admitted. Two case-owned PriorityClasses are read back and resolved onto dry-run Pods, with preemption disabled. One tokenless, low-resource HTTP fixture Pod is observed Ready and read through the Kubernetes API Service proxy before and after quota checks, and looks up the exact in-cluster Kubernetes Service via CoreDNS. A pinned Metrics Server provides fresh native PodMetrics samples around those probes, and read-only container logs are checked for additional fixed health requests. A further 5m CPU / 8Mi memory Pod shares the namespace within quota, serves through an independent case Service, and has fresh observed PodMetrics during coexistence. This does not create pressure or simulate training. It does not demonstrate actual scheduler ordering under contention, protection of built-in control-plane components, CoreDNS resolution latency, production metrics or log pipelines, log forwarding lag, node/network capacity, or production service availability.",
-  "cluster": "saf-lab-1f7080d6d5e0",
+  "scope": "One disposable Kind v1.36.1 cluster. A small server-side dry-run Pod request is compared before and after a namespace CPU/memory ResourceQuota; a second request at the remaining declared budget is admitted. Two case-owned PriorityClasses are read back and resolved onto dry-run Pods, with preemption disabled. One tokenless, low-resource HTTP fixture Pod is observed Ready and read through the Kubernetes API Service proxy before and after quota checks, and looks up the exact in-cluster Kubernetes Service via CoreDNS. A pinned Metrics Server provides fresh native PodMetrics samples around those probes, and read-only container logs are checked for additional fixed health requests. A further 5m CPU / 8Mi memory Pod shares the namespace within quota, serves through an independent case Service, and has fresh observed PodMetrics during coexistence. This does not create CPU load or simulate training. An additive scheduler fixture uses one case-owned worker with a verified 1-CPU allocatable profile and idle bounded Pods to compare non-preempting queue behavior with a separate higher-priority preemption phase. It does not demonstrate protection of built-in control-plane components, CoreDNS resolution latency, production metrics or log pipelines, log forwarding lag, node/network capacity, or production service availability.",
+  "cluster": "saf-lab-234c591e23fe",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -216,6 +216,76 @@
         },
         "new_companion_metrics_sample_observed": true,
         "both_original_and_companion_pods_remained_ready": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The case-owned worker reports the exact bounded CPU allocatable profile",
+      "matched": true,
+      "observed": {
+        "worker_ready": true,
+        "target_label_matches": true,
+        "one_cpu_allocatable": true,
+        "bounded_baseline_requests": true,
+        "nonfixture_workers_protected": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The case-owned namespace quota and priority policies match the bounded comparison",
+      "matched": true,
+      "observed": {
+        "three_scoped_priority_policies_match": true,
+        "fixture_quota_matches": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The low-priority idle holder occupies only the measured target worker budget",
+      "matched": true,
+      "observed": {
+        "holder_ready_on_target_worker": true,
+        "fixed_low_priority_resolved": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The higher-priority Never Pod remains pending for Insufficient cpu without evicting its holder",
+      "matched": true,
+      "observed": {
+        "scheduler_reports_insufficient_cpu": true,
+        "same_holder_remains_ready": true,
+        "nonpreempting_service_is_pending": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The same non-preempting service schedules on the target after exact holder removal",
+      "matched": true,
+      "observed": {
+        "same_service_ready_on_target_worker": true,
+        "nonpreempting_priority_resolved": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The scheduler attributes preemption to the exact high-priority Pod and retires only its victim",
+      "matched": true,
+      "observed": {
+        "scheduler_preemption_event_exact": true,
+        "victim_uid_retired": true,
+        "preemptor_ready_on_target_worker": true,
+        "no_other_initial_worker_pod_retired": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The bounded namespace and PriorityClasses are removed after the scoped comparison",
+      "matched": true,
+      "observed": {
+        "initial_unrelated_worker_pods_preserved": true,
+        "owned_namespace_deleted": true,
+        "owned_classes_deleted": true
       }
     }
   ]

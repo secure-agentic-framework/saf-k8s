@@ -52,3 +52,50 @@ This demonstrates a fresh resource-metrics read and native container-log read fo
 - Existing lab runner's normal `run` path and local Kind v1.36.1 node image.
 - OpenSSL, curl, kubectl, and access to the pinned official Metrics Server v0.8.1 release manifest and digest-pinned image, as in SAF-K8S-1002-005.
 - No new Python package or real credential is introduced.
+
+## Additive scheduler contention comparison
+
+The published 15 checks remain in place. The additive fixture creates a case-owned
+Kind worker labelled `saf-lab.example/scheduler-target=owned`. The disposable
+worker is tainted against unrelated workload placement. Its worker-only kubelet
+configuration drop-in derives `systemReserved.cpu` from Docker host CPU count
+to target 1000m allocatable. The case checks the observed Node allocatable value
+before creating workloads and stops as setup failure if the target differs. The
+pinned Metrics Server kubelet certificate covers both node names so existing
+PodMetrics checks retain TLS verification. The fixture Metrics Server tolerates
+the control-plane taint and is placed on that node. The control-plane and worker
+kubelets use only short-lived fixture certificates from the runner's temporary
+directory.
+
+The original health/companion fixtures tolerate the ordinary control-plane taint
+and remain on the control-plane node. The scheduler fixture samples existing
+worker Pod CPU requests, confirms existing worker Pods are not eligible victims,
+then chooses a bounded idle holder request that leaves a fixed margin and adds a 250m service request
+that cannot fit alongside the holder. It uses a separate case-owned namespace
+with a 1500m/128Mi/4-Pod ResourceQuota. Each container only sleeps; CPU and
+memory requests exercise scheduler accounting, not actual load or cgroup
+isolation.
+
+The two policy phases are sequential on the same worker and use the same
+requests. First, a high-priority `preemptionPolicy: Never` Pod must remain
+Pending with the scheduler's `Insufficient cpu` condition while the exact
+low-priority holder UID remains Ready. After the holder is explicitly deleted
+with a UID precondition, that same non-preempting Pod must become Ready. The
+fixture then retires it by UID, recreates the holder, and submits a higher
+priority Pod with `PreemptLowerPriority`. It requires a `Preempted` event from
+the default scheduler on the exact victim UID naming the exact preemptor, the
+victim's disappearance, the preemptor's Ready state, and no other initial worker
+Pod UID retirement. The event, full API objects, worker inventory and dynamic
+UIDs are retained only in `scheduler-contention-raw.json`; check observations
+are normalized booleans. The final check verifies namespace and PriorityClass
+cleanup. Expected total: 22 checks.
+
+This demonstrates bounded scheduler request accounting, non-preemption, and one
+same-node victim/preemptor transition in a disposable Kind cluster. The tested
+preemption victim is a standalone Ready Pod without volumes or a custom Permit
+plugin; this does not cover the v1.36 preemption behavior for Pods still in
+PreBind. It does not
+measure CPU saturation, large-scale training behavior, built-in critical
+component protection, production capacity, service latency, logging pipelines,
+or production availability. Actual deployed cluster sizing and service health
+remain adopter evidence.
