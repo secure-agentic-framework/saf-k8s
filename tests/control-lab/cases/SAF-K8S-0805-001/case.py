@@ -5,7 +5,11 @@ from pathlib import Path
 import time
 from urllib.parse import urlencode
 
-SCOPE = "Actual in-cluster Prometheus scrape and evaluation of deliberately synthetic telemetry from owned Pods."
+SCOPE = ("Three checks evaluate synthetic in-cluster telemetry. Additive checks exercise a case-owned "
+         "Prometheus/Alertmanager route, then replay two hash-pinned historical Tesla T4 framebuffer "
+         "observations as explicitly historical fixture series. The replay proves rule and delivery "
+         "behavior for those retained values; it does not establish live GPU collection, freshness, "
+         "coverage, misuse, or production incident detection.")
 PYTHON = "docker.io/library/python:3.13-slim@sha256:e48f59cdba69a3cbd9ed2cf0f348d90d45a8d350d98134cf1070bc106ee9ed90"
 PROM = "docker.io/prom/prometheus:v3.5.0@sha256:63805ebb8d2b3920190daf1cb14a60871b16fd38bed42b857a3182bc621f4996"
 EXPORTER = "fixture-accelerator-exporter"
@@ -140,3 +144,4 @@ def run(lab):
     module = module_from_spec(spec)
     spec.loader.exec_module(module)
     module.run(lab)
+    module.run_t4_historical(lab)

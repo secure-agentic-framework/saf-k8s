@@ -1,0 +1,176 @@
+{
+  "cloud_cleanup": {
+    "boot_disk": "deleted",
+    "firewall_rule": "deleted",
+    "subnet": "deleted",
+    "verified_utc": "2026-11-27T22:41:36Z",
+    "vm": "deleted",
+    "vm_runtime_seconds_upper_bound": 1794,
+    "vpc": "deleted"
+  },
+  "control": "SAF-K8S-1002-003",
+  "exporter_version_provenance": {
+    "image_digest": "sha256:804c17f67ab63e8a4dd5301546beefaa104129f833dae4a68f5ff7c4819f471b",
+    "observed_oci_config_labels": {
+      "com.nvidia.dcgm.version": "4.6.1",
+      "org.opencontainers.image.version": "4.8.4"
+    },
+    "observed_runtime_version": "DCGM Exporter version 4.8.4"
+  },
+  "hardware": "NVIDIA Tesla T4",
+  "runs": [
+    {
+      "case_checks": {
+        "framebuffer_allocated_and_released_bytes": 134217728,
+        "pre_workload_exporter_up": true,
+        "pre_workload_series_absent": true,
+        "vector_add_passed": true
+      },
+      "exporter_uid_sha256": "92c92bbe5bd385f50baccdca1ffd3d679cfe481194368160af0f3bddaa25502c",
+      "node_uid_sha256": "9053cadd1543fcaa43412b405387470dcfbe214acf409e4689804bd1b42a48d6",
+      "observation": {
+        "allocated": {
+          "interval": {
+            "end_utc": "2026-11-27T22:32:09.813Z",
+            "start_utc": "2026-11-27T22:31:58.557Z"
+          },
+          "manifest_sha256": "be9750600c13649c45ae3ade99238a52369ac92d22eacf1f240d91720a9069a7",
+          "receipt_sha256": "5add18a7db9124948b71a51d4dc7e9a051e11e487371ae42edf9c5c66c6ddbdd",
+          "samples": [
+            {
+              "absolute_delta": 0.0,
+              "direct_value": 0.0,
+              "metric": "DCGM_FI_DEV_GPU_UTIL",
+              "prometheus_value": 0.0,
+              "sample_skew_seconds": 1.5439999103546143,
+              "uid_binding": "direct_pod_uid_label",
+              "unit": "percent"
+            },
+            {
+              "absolute_delta": 0.0,
+              "direct_value": 232.0,
+              "metric": "DCGM_FI_DEV_FB_USED",
+              "prometheus_value": 232.0,
+              "sample_skew_seconds": 1.5439999103546143,
+              "uid_binding": "direct_pod_uid_label",
+              "unit": "MiB"
+            }
+          ]
+        },
+        "idle": {
+          "interval": {
+            "end_utc": "2026-11-27T22:31:21.908Z",
+            "start_utc": "2026-11-27T22:31:10.586Z"
+          },
+          "manifest_sha256": "44507116b16aa524f03e8f60e5994079489c15774782feac9381d6f75d20975b",
+          "receipt_sha256": "2e739e08bcedea3e99d1af2d84b4cd6902f2dee1210d57de0c8e461735e37217",
+          "samples": [
+            {
+              "absolute_delta": 0.0,
+              "direct_value": 0.0,
+              "metric": "DCGM_FI_DEV_GPU_UTIL",
+              "prometheus_value": 0.0,
+              "sample_skew_seconds": 3.6389999389648438,
+              "uid_binding": "direct_pod_uid_label",
+              "unit": "percent"
+            },
+            {
+              "absolute_delta": 0.0,
+              "direct_value": 0.0,
+              "metric": "DCGM_FI_DEV_FB_USED",
+              "prometheus_value": 0.0,
+              "sample_skew_seconds": 3.6389999389648438,
+              "uid_binding": "direct_pod_uid_label",
+              "unit": "MiB"
+            }
+          ]
+        }
+      },
+      "run": "run-1",
+      "workload_uid_sha256": "0ad7cd731f7749625ce11e9ed180861f119804d469692e19978eacca9ecf144e"
+    },
+    {
+      "case_checks": {
+        "framebuffer_allocated_and_released_bytes": 134217728,
+        "pre_workload_exporter_up": true,
+        "pre_workload_series_absent": true,
+        "vector_add_passed": true
+      },
+      "exporter_uid_sha256": "a9dd7eb794f4f89d0b9f5de7bd559a2e1e2e16edf7fe0cb5f52baf634cf1254c",
+      "node_uid_sha256": "40062f72325656c3884e68001cf7d2241f78e85bcf374c04ab5af726e5546905",
+      "observation": {
+        "allocated": {
+          "interval": {
+            "end_utc": "2026-11-27T22:37:43.407Z",
+            "start_utc": "2026-11-27T22:37:32.141Z"
+          },
+          "manifest_sha256": "12118e0c22b1098a7a8b7a90697669cbbb8218ff3326892666a60ffaeb433ef6",
+          "receipt_sha256": "b14b2f972e4bba8c37c1d05c0ff4ee48dd3b5ba12ebe4bc84ee584a4cd98b628",
+          "samples": [
+            {
+              "absolute_delta": 0.0,
+              "direct_value": 0.0,
+              "metric": "DCGM_FI_DEV_GPU_UTIL",
+              "prometheus_value": 0.0,
+              "sample_skew_seconds": 0.33300018310546875,
+              "uid_binding": "direct_pod_uid_label",
+              "unit": "percent"
+            },
+            {
+              "absolute_delta": 0.0,
+              "direct_value": 232.0,
+              "metric": "DCGM_FI_DEV_FB_USED",
+              "prometheus_value": 232.0,
+              "sample_skew_seconds": 0.33300018310546875,
+              "uid_binding": "direct_pod_uid_label",
+              "unit": "MiB"
+            }
+          ]
+        },
+        "idle": {
+          "interval": {
+            "end_utc": "2026-11-27T22:36:55.488Z",
+            "start_utc": "2026-11-27T22:36:44.211Z"
+          },
+          "manifest_sha256": "7a7656b5847a8147bc619d40f967255e5b11042b084c409c32dec92b8d9e289c",
+          "receipt_sha256": "ff84433f9a6497f43d75a136885f0c440e5cc209bd57658b097becc8259ce3d3",
+          "samples": [
+            {
+              "absolute_delta": 0.0,
+              "direct_value": 0.0,
+              "metric": "DCGM_FI_DEV_GPU_UTIL",
+              "prometheus_value": 0.0,
+              "sample_skew_seconds": 2.4140000343322754,
+              "uid_binding": "direct_pod_uid_label",
+              "unit": "percent"
+            },
+            {
+              "absolute_delta": 0.0,
+              "direct_value": 0.0,
+              "metric": "DCGM_FI_DEV_FB_USED",
+              "prometheus_value": 0.0,
+              "sample_skew_seconds": 2.4140000343322754,
+              "uid_binding": "direct_pod_uid_label",
+              "unit": "MiB"
+            }
+          ]
+        }
+      },
+      "run": "run-2",
+      "workload_uid_sha256": "9e6cfe945fc6105e4532352a7f1fc130a1e115cedd2c4f320c73cdbd58d54903"
+    }
+  ],
+  "schema": "saf-k8s-dcgm-t4-reference-v1",
+  "scope": "Two freshly provisioned K3s clusters on one whole passthrough T4 VM",
+  "status": "passed",
+  "versions": {
+    "container_runtime": "containerd://2.3.7-k3s1.36",
+    "dcgm": "4.6.1",
+    "device_plugin": "v0.20.2",
+    "driver": "580.178.04",
+    "exporter_image_digest": "sha256:804c17f67ab63e8a4dd5301546beefaa104129f833dae4a68f5ff7c4819f471b",
+    "exporter_version": "4.8.4",
+    "kubelet": "v1.36.6+k3s1",
+    "kubernetes": "v1.36.6+k3s1"
+  }
+}

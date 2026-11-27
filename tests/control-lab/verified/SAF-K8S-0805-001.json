@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0805-001",
-  "catalog_revision": "9e9199d23432e6f5bd7effa8f9165b548fd3557d",
-  "catalog_sha256": "1da56289e4f344f65fa946b0099b200d7a52a7c4bea62ee17a32261bedc18861",
+  "catalog_revision": "bd8f108ab01aed3dc7ff82df285de5d6355ae830",
+  "catalog_sha256": "b2fb73602bb10c41e8c4e0650d71e296b3b60b644d16ce55ac63c343f30b05bc",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "d9fe935772818b512ae5513582dab136d11750e8acf73053abd6a8ce135e0c97",
-  "scope": "Actual in-cluster Prometheus scrape and evaluation of deliberately synthetic telemetry from owned Pods.",
-  "cluster": "saf-lab-d2f28b85aebb",
+  "scope": "Three checks evaluate synthetic in-cluster telemetry. Additive checks exercise a case-owned Prometheus/Alertmanager route, then replay two hash-pinned historical Tesla T4 framebuffer observations as explicitly historical fixture series. The replay proves rule and delivery behavior for those retained values; it does not establish live GPU collection, freshness, coverage, misuse, or production incident detection.",
+  "cluster": "saf-lab-257d0567bc73",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -72,13 +72,13 @@
       "matched": true,
       "observed": {
         "up": {
+          "high": 1.0,
           "normal": 1.0,
-          "missing": 1.0,
-          "high": 1.0
+          "missing": 1.0
         },
         "utilization": {
-          "normal": 0.2,
-          "high": 0.95
+          "high": 0.95,
+          "normal": 0.2
         },
         "normal_target_quiet": true
       }
@@ -95,6 +95,22 @@
         "no_unexpected_alert_identity": true,
         "exactly_once_claimed": false,
         "raw_evidence": "alert-route-delivery.raw.json"
+      }
+    },
+    {
+      "phase": "historical",
+      "claim": "The historical T4 allocation values alert and route with pseudonymous provenance while idle stays below threshold",
+      "matched": true,
+      "observed": {
+        "pinned_historical_source_used": true,
+        "four_attributed_capture_values_observed": true,
+        "idle_samples_remain_quiet": true,
+        "only_allocated_samples_fire": true,
+        "only_expected_allocated_alerts_delivered": true,
+        "freshness_evaluated": false,
+        "misuse_or_incident_claimed": false,
+        "exactly_once_claimed": false,
+        "raw_evidence": "t4-historical-alert-route.raw.json"
       }
     }
   ]

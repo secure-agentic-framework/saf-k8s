@@ -53,7 +53,9 @@ class Handler(BaseHTTPRequestHandler):
                     self.send_error(400)
                     return
                 labels = {key: alert.get("labels", {}).get(key) for key in
-                          ("alertname", "job", "fixture_target", "severity", "instance")}
+                          ("alertname", "job", "fixture_target", "severity", "instance",
+                           "capture_ref", "capture_phase", "capture_age", "evidence_source",
+                           "workload_ref")}
                 alert_status = alert.get("status")
                 if any(value is not None and (not isinstance(value, str) or len(value) > 160)
                        for value in (alert_status, *labels.values())):
