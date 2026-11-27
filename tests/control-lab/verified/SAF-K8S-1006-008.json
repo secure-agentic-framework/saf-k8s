@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-1006-008",
-  "catalog_revision": "97cadc9d464ee73777692e5d9eb6e162fdc116b1",
-  "catalog_sha256": "65f757846d484079842769b4cec9180fc3a96ab15a5106c821a08ca7293441b6",
+  "catalog_revision": "8648106bf5cb7c0a3b102a268538199bdad892ef",
+  "catalog_sha256": "fcd14a9a5a363c08dececf5478017b63713b748167151c9833c283fd0de8c62c",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "d8e451d9bf3aa2a686de57db111666c7e775a51b7974d0d4dc0b50cf825ad574",
+  "control_sha256": "92e7f71ed052a937dc36e9d133c69024a6948c17ac579b759e53da843cf88227",
   "scope": "One disposable Kubernetes v1.36.1 Kind cluster runs three native, short-lived Jobs using a digest-pinned Python image. Each Job reads only checked-in synthetic metadata: an inert dataset string, a training-run record marked not performed, and a metadata-only model artifact placeholder. The Jobs check schema/task identifiers, fixture digests, scope labels, and release-to-run artifact references. Separate Job status and logs expose a consistent development fixture, a deliberate release provenance mismatch, and an out-of-profile operation record whose governance and actual operation remain unknown. This does not train or load a model, establish organizational compliance, evaluate real data or weights, prove production provenance, or assess deployment/operation controls. Separate local Jobs gate a synthetic feature on the exact manifest and partition bytes, and a read-only Job checks the expected output or its absence. Two case-owned namespaces compare bounded Kubernetes API authorization with short-lived projected ServiceAccount identities. A temporary cross-namespace binding establishes successful GET and LIST; its removal denies those requests for the developer while own reads and approved protected reads remain allowed. The readbacks follow the same immutable objects and the exact Job-owned Pods. Adopter evidence covers the broader PO.5.1 practice.",
-  "cluster": "saf-lab-a35096a80148",
+  "cluster": "saf-lab-a416faee78d4",
   "kubernetes": {
     "clientVersion": {
       "major": "1",

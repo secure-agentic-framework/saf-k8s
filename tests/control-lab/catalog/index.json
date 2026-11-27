@@ -3477,7 +3477,7 @@
     "SAF-K8S-1006-008": {
       "catalog_status": "draft",
       "domain": "D10",
-      "sha256": "d8e451d9bf3aa2a686de57db111666c7e775a51b7974d0d4dc0b50cf825ad574",
+      "sha256": "92e7f71ed052a937dc36e9d133c69024a6948c17ac579b759e53da843cf88227",
       "title": "NIST SP 800-218A AI/ML profile alignment for Kubernetes AI development"
     },
     "SAF-K8S-1006-009": {
@@ -3572,7 +3572,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "480335ba0a96d5de7f4045f6141741d3191db90d",
-  "sha256": "65f757846d484079842769b4cec9180fc3a96ab15a5106c821a08ca7293441b6",
+  "revision": "bb12f1a978b9a347909545e04d3282bd86a1477a",
+  "sha256": "fcd14a9a5a363c08dececf5478017b63713b748167151c9833c283fd0de8c62c",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

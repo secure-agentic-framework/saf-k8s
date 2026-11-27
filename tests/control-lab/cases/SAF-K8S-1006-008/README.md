@@ -16,14 +16,14 @@ Each Job has its own status and pod log. The case retains the raw Job object, Po
 
 ## NIST scope and source review
 
-The corrected control distinguishes model development and integration from deployment and operations. The final July 2024 publication is an SSDF Community Profile for **generative AI and dual-use foundation model development**. Its scope includes data sourcing, design, training, fine-tuning, evaluation, and integration of AI models into other software. It explicitly puts AI system deployment and operation, and the rest of the data governance/management lifecycle, outside its scope. NIST says the Profile supplements and is to be used with SP 800-218; it does not replace the SSDF baseline. See [NIST SP 800-218A, §§1.1–1.2](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-218A.pdf#page=10) and [NIST SP 800-218](https://csrc.nist.gov/pubs/sp/800/218/final).
+The July 2024 SSDF Community Profile covers **generative AI and dual-use foundation model development**, including data sourcing, design, training, fine-tuning, evaluation, and integration of these models into other software. AI system deployment and operation and data governance outside model development fall outside its scope. NIST directs organizations to apply the Profile alongside SSDF v1.1 and select tasks based on their role, risks, and applicability. [NIST SP 800-218A, §§1.1–1.2](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-218A.pdf#page=10) [NIST SP 800-218A, §2](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-218A.pdf#page=12)
 
 The case uses these exact task identifiers from the final Profile's Table 1:
 
 | Task | NIST task (short description) | Case coverage |
 | --- | --- | --- |
 | PO.3.3 | Configure tools to generate artifacts of support for secure development practices. | Schema and fixture evidence links are checked. NIST's note gives dataset integrity/provenance attestations as an AI example. No organizational toolchain is assessed. |
-| PO.5.1 | Separate and protect each development environment. | A versioned environment record is linked to the run. Isolation and protection are explicitly metadata-only and not assessed. |
+| PO.5.1 | Separate and protect each development environment. | A versioned environment record is linked to the run. The separate native authorization case tests namespace API isolation and least privilege for named objects. |
 | PS.2.1 | Make software release integrity verification information available to acquirers. | A fixture hash and release reference are checked; signatures, acquirer access, and production release integrity are not tested. |
 | PS.3.1 | Securely archive release files and supporting data. | The synthetic record contains versions and process metadata. No archive, retention system, or actual training process is exercised. |
 | PS.3.2 | Collect, safeguard, maintain, and share provenance data for release components. | The fixture links one dataset, one run, one artifact, and one release; a mismatched release link is rejected. There is no trusted attestation, identity, registry, or production consumer. |
@@ -35,8 +35,7 @@ The task names and AI-specific additions are in the [official NIST SP 800-218A P
 
 - “Training runs as builds” is a useful local analogy for recording training-process provenance. The Profile discusses documenting the training process and tracking model/component/pipeline provenance, but does not define training runs as software builds. Treat the analogy as a proposed local mapping, not a NIST statement.
 - “Model weight integrity as software integrity” also needs a bounded mapping. The Profile has AI-specific additions concerning model weights and configuration parameters, including PS.1.1 and PS.1.3, and release integrity at PS.2.1. This case contains no model weights and does not validate those protections.
-- The control calls for mapping these practices to SAF-K8S controls, while its Related Crosswalks section says there are no rows. No SAF-K8S control IDs or validated crosswalk are asserted here; that mapping remains unresolved.
-- The pinned original mentions teams that deploy AI workloads. The corrected wording follows the model-development scope. Deployment/operation governance is intentionally unknown in this case.
+- For the team's governed model-development processes, record the Profile edition, task ID, applicability and rationale, SAF-K8S control IDs, workflow owner, observed evidence, and approved disposition. Include tasks where the team has evidence of partial coverage and record unresolved gaps with owners and review dates. The case's fixed task list describes the fixture; each adopter selects and approves its applicable tasks.
 - The PW.3.1 supplement rejects changed or missing synthetic partitions before feature publication and verifies the expected output from the approved partition. Data-poisoning and bias analysis, signed releases, model weight protection, and operation of adopted pipelines need their own evidence.
 
 The Jobs use only synthetic fixture metadata.
