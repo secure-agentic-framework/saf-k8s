@@ -6,6 +6,11 @@ import sys
 import time
 from pathlib import Path
 
+NODE_IMAGE = (
+    "kindest/node:v1.36.1@sha256:"
+    "3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5"
+)
+
 NS = "saf-test"
 RECORD = "saf-0602-007-review"
 POLICY = "saf-0602-007-record-integrity"
@@ -18,8 +23,10 @@ SCOPE = (
     "One disposable Kind cluster. RBAC and native admission restrict an inert ConfigMap "
     "containing a synthetic review request, exact SHA-256 digest, and fixed approval window. "
     "The example preserves separate actor identities and refuses excess privileges and changes "
-    "to signed-off request fields. The record has no link to image admission or workload execution. "
-    "Production approval, audit delivery, trusted time and lifecycle need separate evidence."
+    "to signed-off request fields. A local Kubernetes audit log is scoped to ConfigMap patch/update "
+    "requests in the sole fixture namespace and correlates the exact approval record, denial, and votes. "
+    "The record has no link to image admission or workload execution. Remote audit delivery/retention, "
+    "human approval, trusted time, and the deployed lifecycle need separate evidence."
 )
 
 
@@ -220,3 +227,27 @@ def run(lab):
     revocation = module_from_spec(revocation_spec)
     revocation_spec.loader.exec_module(revocation)
     revocation.run(lab, Path(__file__).parent)
+
+
+def _audit_correlation_module():
+    from importlib.util import module_from_spec, spec_from_file_location
+
+    path = Path(__file__).with_name("audit_correlation.py")
+    spec = spec_from_file_location("saf_0602_007_audit_correlation", path)
+    if spec is None or spec.loader is None:
+        raise RuntimeError("The bounded approval audit fixture is unavailable")
+    module = module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def prepare_kind(lab, temporary):
+    return _audit_correlation_module().prepare_kind(lab, temporary)
+
+
+_run_with_revocation = run
+
+
+def run(lab):
+    _run_with_revocation(lab)
+    _audit_correlation_module().run(lab)

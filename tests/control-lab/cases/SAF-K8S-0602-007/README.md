@@ -9,13 +9,13 @@ and recorded expiry. The requester can read the approvals and cannot
 approve the request or gain Pod-create permissions.
 
 The fixture exercises custody of a synthetic approval record. The recorded
-deadline is immutable. Trusted-time enforcement, actual expiry, audit
-delivery, revocation, and the deployed emergency process need separate
-evidence. The ConfigMap has no consumer that admits images or launches Pods.
+deadline is immutable. Actual trusted-time enforcement, remote audit delivery
+and retention, and the deployed emergency process need separate evidence. The
+ConfigMap has no consumer that admits images or launches Pods.
 
-## Additive expiry reference
+## Fixed-input expiry reference
 
-The scratch supplement adds one grouped result. It reads back the fixed, inert,
+One grouped result reads back the fixed, inert,
 two-reviewer approval record that the native case persisted, and sends that
 record plus its exact request to a separate local Python consumer process. The
 process receives fixed UTC test instants over stdin: one
@@ -31,16 +31,17 @@ Admission Policy expressions receive the request/object/parameter context, but
 no trusted current-time input; the current native fixture therefore does not
 enforce expiry. The supplemental timestamp is test input, not the host clock or
 a trusted-time source. It does not prove a deployed expiry controller, an
-actual image-signature exception, or audit/revocation integration. Adopters
-must separately show their trusted time source, the enforcement component that
-consumes it, deny behavior at and after expiry, and correlated audit evidence.
+actual image-signature exception, or deployed audit/revocation integration.
+Adopters must separately show their trusted time source, the enforcement
+component that consumes it, deny behavior at and after expiry, and correlated
+audit delivery evidence.
 
 [Kubernetes v1.36 ValidatingAdmissionPolicy](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/validating-admission-policy/)
 
-## Additive monotonic revocation check
+## Monotonic revocation check
 
-The scratch candidate preserves all nine published assertions and adds one
-grouped check using a second case-owned ConfigMap bound to the exact approved
+The case preserves the original eight assertions, adds one grouped fixed-input
+expiry reference check, and adds a second case-owned ConfigMap bound to the exact approved
 request ID, digest, expiry, and approval fingerprint. Reusing the existing
 reviewer ServiceAccounts, RBAC style, native ValidatingAdmissionPolicy, and
 fixed-time consumer, it checks that the designated security reviewer can
@@ -51,11 +52,17 @@ the consumer denies the same request after revocation.
 
 This remains inert metadata and reference consumer behavior. The time instant
 is fixed test input, not a trusted clock. The VAP uses `Deny` only; the case
-does not configure or observe an audit backend, does not link the record to
-image admission, and does not launch Pods or workloads. These deployed
-workflow, trusted-time, audit-delivery, human-approval, and enforcement
-integration claims remain separate.
+does not link the record to image admission, and it does not launch Pods or
+workloads. A final bounded check configures the disposable Kind API server's
+blocking audit log for only ConfigMap patch/update requests in `saf-test`.
+It correlates the exact synthetic cross-vote denial and both separate approved
+votes by audit ID, impersonated ServiceAccount, object name, request fields,
+and response status. The local log is projected to an allowlist of these
+fixture fields; it is not forwarded and proves no remote delivery, retention,
+human approval, or deployed enforcement integration.
 
-Expected receipt count: ten total, with the nine published assertions
-preserved and one additive revocation lifecycle assertion. Raw supplemental
-artifact: `revocation-lifecycle.raw.json`.
+The case has eleven checks total. It uses one Kind control-plane node and adds
+no workload Pods. Raw supplemental artifacts are
+`revocation-lifecycle.raw.json` and `approval-audit-correlation.raw.json`.
+
+[Kubernetes v1.36 Auditing](https://v1-36.docs.kubernetes.io/docs/tasks/debug/debug-cluster/audit/)

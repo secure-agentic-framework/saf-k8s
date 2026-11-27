@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0602-007",
-  "catalog_revision": "9be2534ae12a0dacfe65d1879297a70648c3bc5f",
+  "catalog_revision": "4ce7a0f5fb51703b539bcba8c62d366c0c0719a1",
   "catalog_sha256": "1da56289e4f344f65fa946b0099b200d7a52a7c4bea62ee17a32261bedc18861",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "848a516166b5565b0a7262900f67df8efcfed5658289dde41f4063b3cd861bba",
-  "scope": "One disposable Kind cluster. RBAC and native admission restrict an inert ConfigMap containing a synthetic review request, exact SHA-256 digest, and fixed approval window. The example preserves separate actor identities and refuses excess privileges and changes to signed-off request fields. The record has no link to image admission or workload execution. Production approval, audit delivery, trusted time and lifecycle need separate evidence.",
-  "cluster": "saf-lab-960dbcd31ed8",
+  "scope": "One disposable Kind cluster. RBAC and native admission restrict an inert ConfigMap containing a synthetic review request, exact SHA-256 digest, and fixed approval window. The example preserves separate actor identities and refuses excess privileges and changes to signed-off request fields. A local Kubernetes audit log is scoped to ConfigMap patch/update requests in the sole fixture namespace and correlates the exact approval record, denial, and votes. The record has no link to image admission or workload execution. Remote audit delivery/retention, human approval, trusted time, and the deployed lifecycle need separate evidence.",
+  "cluster": "saf-lab-0a74a14a3fd7",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -132,6 +132,19 @@
         "approval_record_unchanged": true,
         "trusted_time_or_audit_backend_claimed": false,
         "raw_evidence": "revocation-lifecycle.raw.json"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Local Kubernetes audit events correlate the denied cross-vote and two approved synthetic reviewers to the exact inert request",
+      "matched": true,
+      "observed": {
+        "scoped_policy_and_response_events_present": true,
+        "cross_vote_denial_correlated_by_identity_request_and_policy": true,
+        "requester_write_denial_correlated_by_exact_identity": true,
+        "separate_exact_reviewer_success_events": true,
+        "approved_record_readback_matches_fixed_request": true,
+        "raw_evidence": "approval-audit-correlation.raw.json"
       }
     }
   ]
