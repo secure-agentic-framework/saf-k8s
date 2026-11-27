@@ -251,3 +251,13 @@ _run_with_revocation = run
 def run(lab):
     _run_with_revocation(lab)
     _audit_correlation_module().run(lab)
+
+    from importlib.util import module_from_spec, spec_from_file_location
+
+    path = Path(__file__).with_name("live_expiry.py")
+    spec = spec_from_file_location("saf_0602_007_live_expiry", path)
+    if spec is None or spec.loader is None:
+        raise RuntimeError("The bounded live-expiry fixture is unavailable")
+    module = module_from_spec(spec)
+    spec.loader.exec_module(module)
+    module.run(lab, Path(__file__).parent)

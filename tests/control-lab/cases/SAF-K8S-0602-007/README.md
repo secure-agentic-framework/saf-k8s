@@ -61,8 +61,37 @@ and response status. The local log is projected to an allowlist of these
 fixture fields; it is not forwarded and proves no remote delivery, retention,
 human approval, or deployed enforcement integration.
 
-The case has eleven checks total. It uses one Kind control-plane node and adds
-no workload Pods. Raw supplemental artifacts are
+The published 11-check baseline uses one Kind control-plane node and adds no
+workload Pods. Its raw supplemental artifacts are
 `revocation-lifecycle.raw.json` and `approval-audit-correlation.raw.json`.
+
+## Live local expiry observation
+
+The candidate adds one grouped check and one small Job Pod, for 12 checks total.
+It creates one separate, harmless approval record with a
+45-second future expiry. It first brings up a bounded, non-root Job that waits
+for that exact record. Two existing synthetic reviewer identities approve
+only its two vote fields; a scoped VAP freezes the request ID, digest, and
+expiry. The Job reads only the named record through its narrowly scoped
+ServiceAccount, runs the same `expiry_consumer.decide` logic with its actual
+UTC clock, and observes the same approved request allowed before expiry and
+denied after expiry. A bounded 200 ms sleep is used only to cross the real
+expiry boundary; the Job has a 120-second active deadline and a 45-second
+record window. It never edits the approval record after the two votes.
+
+The harness also brackets record creation and Job completion with its own UTC
+observations and compares the API server's `metadata.creationTimestamp` with
+that interval. Dynamic timestamps and record UIDs stay in
+`live-expiry-observations.raw.json` and bounded command logs; normalized check
+observations are fixed booleans. The original approval record, including its
+expiry and approvals, is read back unchanged.
+
+This exercises a real local UTC expiry decision in one disposable Kind Job.
+The Job, API server, and harness share the local host clock lineage, so these
+observations do not establish trusted time, NTP correctness, drift monitoring,
+or production expiry enforcement. The Job does not connect the inert record
+to image admission, an exception mechanism, or workload execution. Adoption
+still requires evidence for the actual trusted clock chain, deployed consumer,
+human authority, and audit delivery/retention.
 
 [Kubernetes v1.36 Auditing](https://v1-36.docs.kubernetes.io/docs/tasks/debug/debug-cluster/audit/)
