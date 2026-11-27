@@ -150,3 +150,11 @@ backend; PyTorch's [Distributed Data Parallel documentation](https://docs.pytorc
 describes its Gloo process group and all-reduce path. These references support
 the library behavior exercised here, not an adopter's complete training
 configuration.
+
+The revised control distinguishes identity and update decisions at the
+parameter-server interface from collective participation and transport. This
+case preserves the named central fixture decisions, the fixed Gloo sum and
+the selected Cilium WireGuard path. Deployment evidence must establish the
+actual training-peer membership, transport and update controls. Where
+malicious-participant resilience is required, verify its compatible protocol
+and model-quality outcomes separately.

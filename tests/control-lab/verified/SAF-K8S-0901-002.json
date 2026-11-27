@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0901-002",
-  "catalog_revision": "cd6f6d6d5a5066b658147171209b0e44ff35355c",
-  "catalog_sha256": "1da56289e4f344f65fa946b0099b200d7a52a7c4bea62ee17a32261bedc18861",
+  "catalog_revision": "1c80f8e9961f6eb6d79bc50a004a100eb33f92ac",
+  "catalog_sha256": "4cf5d2bd04cfd3e9f23be286a716f2a2a0d37af5f969c98a1841a201cf941a05",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "bb16ab04c16e700904d6a6d8fc30cd55202a0b441b55bfb7f7771f84a48596cc",
+  "control_sha256": "426e83047c92042bac5fe931281b3eb814c4464330c754b46da4ec58cc5fd8d2",
   "scope": "One disposable two-node Kind v0.32.0 cluster on Kubernetes v1.36.1 runs the exact published SAF-K8S-0502-002 Cilium 1.20.5 WireGuard profile before this control's workloads are created. Its four profile assertions remain separate from this case's 19 existing application assertions. One added Gloo path assertion requires a total of 24 matched checks. The Gloo workers are pinned to different nodes and an additional passive per-pair WireGuard counter check binds their real fixed collective to the cross-node Cilium tunnel. This demonstrates Cilium-managed cross-node traffic only. It does not demonstrate Gloo-native TLS, Gloo peer authentication, same-node encryption, production route coverage, or production identity governance. The cluster hosts two synthetic worker Pods, one observer Pod, and one case-owned ClusterIP aggregation mock. The mock has an Kubernetes TokenReview verification of audience-scoped Pod identities, an enrollment-to-round table, and accepts only a fixed v1 JSON schema with three finite numeric entries in [-0.05, 0.05] when enforcement is enabled. Red sends only harmless synthetic metadata and small numeric values: one enrolled worker on the wrong assigned round and one short numeric vector. Green repeats those requests after enforcement is enabled, then two assigned workers submit ordinary fixed vectors. An independent observer reads stable counters and the exact mock aggregate. The published HTTP slice uses no real model, external service, real identity, external credential, feed, or target. An additive CPU Gloo slice runs one fixed collective using PyTorch without model training. A separate observer Pod has a projected synthetic identity, reads counters, and is refused contribution as unenrolled. After those 14 checks, a paired fixture compares the same three fixed in-range synthetic values with anomaly screening disabled and enabled while schema and assignment checks stay enabled. After the 15 existing checks, an isolated TLS-only mock endpoint compares one fixed authenticated vector over verified TLS with cleartext refusal and a CA-trusted alternate-name certificate rejection.",
-  "cluster": "saf-lab-11a0ee8e3c4c",
+  "cluster": "saf-lab-b0d4116b8f55",
   "kind_ready_wait": "0s",
   "kubernetes": {
     "clientVersion": {
