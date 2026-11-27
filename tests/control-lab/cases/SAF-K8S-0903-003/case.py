@@ -1,4 +1,5 @@
 """Validate deterministic inference bounds in a disposable single Kind cluster."""
+import importlib.util
 import json
 from pathlib import Path
 import time
@@ -9,16 +10,10 @@ IMAGE = ("docker.io/library/python:3.13-slim@sha256:"
 NAME = "inference-fixture"
 PORT = 8080
 SCOPE = (
-    "One default Kubernetes v1.36.1 Kind cluster runs a digest-pinned Python fixture. "
-    "The fixture executes fixed, small synthetic compute and records deterministic backend "
-    "counters for exact input size, request work/deadline, cumulative session work/deadline, "
-    "batch size/deadline, and a fixture-controlled overload/degradation decision. The clock, "
-    "work units, occupancy, and releases are synthetic; this is application-policy evidence, "
-    "not wall-clock latency, accelerator behavior, a deployed inference server, or a production "
-    "circuit breaker. Kubernetes CPU/memory container limits are inspected separately from "
-    "extended-resource quantity. Real GPU memory ceilings, device-plugin/MIG behavior, cloud "
-    "quotas/costs, ingress/service-mesh configuration, and production policy require separate "
-    "evidence."
+    "One default Kubernetes v1.36.1 Kind cluster runs a digest-pinned Python fixture for the original synthetic input, work, virtual-deadline and degradation checks. "
+    "An additive owned local HTTP worker performs bounded tiny work units and measures monotonic request, cumulative-session and batch deadlines during processing; counters show completed work stops at each elapsed boundary and within-budget comparators complete. "
+    "The original policy clock and overload signal remain synthetic, and the new worker is not an inference engine or production circuit breaker. "
+    "Kubernetes CPU/memory container limits are inspected separately from extended-resource quantity. Real GPU memory ceilings, device-plugin/MIG behavior, model-serving deadline enforcement, cloud quotas/costs, service-mesh configuration, and production policy require separate evidence."
 )
 
 
@@ -182,3 +177,10 @@ def run(lab):
                             "extended_gpu_resource_requested": "nvidia.com/gpu" in resource.get("limits", {}),
                             "digest_pinned_fixture_image": running_image,
                             "pod_running_and_ready": ready_pod})
+
+    supplement_path = HERE / "deadline_supplement.py"
+    supplement_spec = importlib.util.spec_from_file_location(
+        "saf_k8s_0903_003_real_deadlines", supplement_path)
+    supplement = importlib.util.module_from_spec(supplement_spec)
+    supplement_spec.loader.exec_module(supplement)
+    supplement.run(lab)
