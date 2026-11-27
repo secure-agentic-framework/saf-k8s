@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0805-001",
-  "catalog_revision": "df95d5021d5822c42dcfbba337ae1dec0c1ba22d",
-  "catalog_sha256": "72868019de0bb6ca7bef976c0b7187d6362f8a32b662880261487944a493c7ba",
+  "catalog_revision": "9e9199d23432e6f5bd7effa8f9165b548fd3557d",
+  "catalog_sha256": "1da56289e4f344f65fa946b0099b200d7a52a7c4bea62ee17a32261bedc18861",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "d9fe935772818b512ae5513582dab136d11750e8acf73053abd6a8ce135e0c97",
   "scope": "Actual in-cluster Prometheus scrape and evaluation of deliberately synthetic telemetry from owned Pods.",
-  "cluster": "saf-lab-0608838bced9",
+  "cluster": "saf-lab-d2f28b85aebb",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -72,15 +72,29 @@
       "matched": true,
       "observed": {
         "up": {
+          "normal": 1.0,
           "missing": 1.0,
-          "high": 1.0,
-          "normal": 1.0
+          "high": 1.0
         },
         "utilization": {
-          "high": 0.95,
-          "normal": 0.2
+          "normal": 0.2,
+          "high": 0.95
         },
         "normal_target_quiet": true
+      }
+    },
+    {
+      "phase": "delivery",
+      "claim": "Alertmanager delivers the fixed high and missing fixture alerts only to the owned receiver",
+      "matched": true,
+      "observed": {
+        "expected_firing_alerts_observed": true,
+        "high_and_missing_fixture_alerts_delivered": true,
+        "receiver_read_sequence_complete": true,
+        "no_normal_target_notification": true,
+        "no_unexpected_alert_identity": true,
+        "exactly_once_claimed": false,
+        "raw_evidence": "alert-route-delivery.raw.json"
       }
     }
   ]

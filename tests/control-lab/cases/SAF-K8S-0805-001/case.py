@@ -127,3 +127,16 @@ def run(lab):
         "scrape_up": observed_samples[0], "synthetic_utilization": observed_samples[1],
         "alerts": sorted(observed), "hardware_telemetry_tested": False, "notification_delivery_tested": False,
     }, indent=2) + "\n")
+
+
+_published_run = run
+
+
+def run(lab):
+    _published_run(lab)
+    from importlib.util import module_from_spec, spec_from_file_location
+
+    spec = spec_from_file_location("saf_0805_001_alert_route", Path(__file__).with_name("route_delivery.py"))
+    module = module_from_spec(spec)
+    spec.loader.exec_module(module)
+    module.run(lab)
