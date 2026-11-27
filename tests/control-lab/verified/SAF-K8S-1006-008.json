@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-1006-008",
-  "catalog_revision": "a26772759f485e54664f960fc991b93220875838",
-  "catalog_sha256": "a1fc79e8e7d9d10890d573dceb8e1e73ce63a7fb4bb447c914e8d12686939216",
+  "catalog_revision": "97cadc9d464ee73777692e5d9eb6e162fdc116b1",
+  "catalog_sha256": "65f757846d484079842769b4cec9180fc3a96ab15a5106c821a08ca7293441b6",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "d8e451d9bf3aa2a686de57db111666c7e775a51b7974d0d4dc0b50cf825ad574",
-  "scope": "One disposable Kubernetes v1.36.1 Kind cluster runs three native, short-lived Jobs using a digest-pinned Python image. Each Job reads only checked-in synthetic metadata: an inert dataset string, a training-run record marked not performed, and a metadata-only model artifact placeholder. The Jobs check schema/task identifiers, fixture digests, scope labels, and release-to-run artifact references. Separate Job status and logs expose a consistent development fixture, a deliberate release provenance mismatch, and an out-of-profile operation record whose governance and actual operation remain unknown. This does not train or load a model, establish organizational compliance, evaluate real data or weights, prove production provenance, or assess deployment/operation controls. Separate local Jobs gate a synthetic feature on the exact manifest and partition bytes, and a read-only Job checks the expected output or its absence.",
-  "cluster": "saf-lab-75e779b8ce96",
+  "scope": "One disposable Kubernetes v1.36.1 Kind cluster runs three native, short-lived Jobs using a digest-pinned Python image. Each Job reads only checked-in synthetic metadata: an inert dataset string, a training-run record marked not performed, and a metadata-only model artifact placeholder. The Jobs check schema/task identifiers, fixture digests, scope labels, and release-to-run artifact references. Separate Job status and logs expose a consistent development fixture, a deliberate release provenance mismatch, and an out-of-profile operation record whose governance and actual operation remain unknown. This does not train or load a model, establish organizational compliance, evaluate real data or weights, prove production provenance, or assess deployment/operation controls. Separate local Jobs gate a synthetic feature on the exact manifest and partition bytes, and a read-only Job checks the expected output or its absence. Two case-owned namespaces compare bounded Kubernetes API authorization with short-lived projected ServiceAccount identities. A temporary cross-namespace binding establishes successful GET and LIST; its removal denies those requests for the developer while own reads and approved protected reads remain allowed. The readbacks follow the same immutable objects and the exact Job-owned Pods. Adopter evidence covers the broader PO.5.1 practice.",
+  "cluster": "saf-lab-a35096a80148",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -100,6 +100,77 @@
       "matched": true,
       "observed": {
         "approved_partition_and_manifest_bound_to_exact_readback": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Temporary broad grant establishes the exact positive API baseline",
+      "matched": true,
+      "observed": {
+        "actor": "developer",
+        "identity": {
+          "service_account": "fixture-developer",
+          "automount_service_account_token": false,
+          "projected_token_expiration_seconds": [
+            600
+          ]
+        },
+        "own_get_list": true,
+        "protected_get_list": true,
+        "same_resource_uid_pair": true,
+        "selected_pod_owned_by_exact_job": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "After removing only the broad binding, developer gets 403 for protected GET and LIST but retains own read",
+      "matched": true,
+      "observed": {
+        "developer_protected_get_403": true,
+        "developer_protected_list_403": true,
+        "developer_own_get_list": true,
+        "identity": {
+          "service_account": "fixture-developer",
+          "automount_service_account_token": false,
+          "projected_token_expiration_seconds": [
+            600
+          ]
+        },
+        "same_resource_uid_pair": true,
+        "selected_pod_owned_by_exact_job": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Separate approved protected reader retains exact protected GET and LIST",
+      "matched": true,
+      "observed": {
+        "approved_reader_get_list": true,
+        "identity": {
+          "service_account": "fixture-protected-reader",
+          "automount_service_account_token": false,
+          "projected_token_expiration_seconds": [
+            600
+          ]
+        },
+        "same_resource_uid_pair": true,
+        "selected_pod_owned_by_exact_job": true,
+        "governance_and_organization_wide_protection": "unknown"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Both case-owned namespaces and fixture resources are removed",
+      "matched": true,
+      "observed": {
+        "clusterrolebinding_saf1006-po51-temporary-broad-read-binding_deleted": true,
+        "clusterrole_saf1006-po51-temporary-broad-read_deleted": true,
+        "saf1006-po51-protected": true,
+        "saf1006-po51-dev": true,
+        "saf1006-po51-dev_absent": true,
+        "saf1006-po51-protected_absent": true,
+        "clusterrolebinding_saf1006-po51-temporary-broad-read-binding_absent": true,
+        "clusterrole_saf1006-po51-temporary-broad-read_absent": true
       }
     }
   ]

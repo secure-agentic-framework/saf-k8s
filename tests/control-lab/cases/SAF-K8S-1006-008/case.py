@@ -26,6 +26,10 @@ SCOPE = (
     "production provenance, or assess deployment/operation controls. Separate local Jobs "
     "gate a synthetic feature on the exact manifest and partition bytes, and a read-only "
     "Job checks the expected output or its absence."
+    " Two case-owned namespaces compare bounded Kubernetes API authorization with short-lived projected "
+    "ServiceAccount identities. A temporary cross-namespace binding establishes successful GET and LIST; "
+    "its removal denies those requests for the developer while own reads and approved protected reads remain allowed. "
+    "The readbacks follow the same immutable objects and the exact Job-owned Pods. Adopter evidence covers the broader PO.5.1 practice."
 )
 
 
@@ -195,3 +199,8 @@ def run(lab):
     integrated = module_from_spec(spec)
     spec.loader.exec_module(integrated)
     integrated.run_integrated(lab, PYTHON_IMAGE)
+
+    spec = spec_from_file_location("saf_1006_008_po51", HERE / "po51_isolation.py")
+    isolation = module_from_spec(spec)
+    spec.loader.exec_module(isolation)
+    isolation.run(lab)

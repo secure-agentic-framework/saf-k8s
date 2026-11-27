@@ -16,7 +16,7 @@ Each Job has its own status and pod log. The case retains the raw Job object, Po
 
 ## NIST scope and source review
 
-The corrected control distinguishes model development and integration from deployment and operations. The final July 2024 publication is an SSDF Community Profile for **generative AI and dual-use foundation model development**. Its scope includes data sourcing, design, training, fine-tuning, evaluation, and integration of AI models into other software. It explicitly puts AI system deployment and operation, and the rest of the data governance/management lifecycle, outside its scope. NIST says the Profile supplements and is to be used with SP 800-218; it does not replace the SSDF baseline. See [NIST SP 800-218A, §§1.1–1.2](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-218A.pdf#page=7) and [NIST SP 800-218](https://csrc.nist.gov/pubs/sp/800/218/final).
+The corrected control distinguishes model development and integration from deployment and operations. The final July 2024 publication is an SSDF Community Profile for **generative AI and dual-use foundation model development**. Its scope includes data sourcing, design, training, fine-tuning, evaluation, and integration of AI models into other software. It explicitly puts AI system deployment and operation, and the rest of the data governance/management lifecycle, outside its scope. NIST says the Profile supplements and is to be used with SP 800-218; it does not replace the SSDF baseline. See [NIST SP 800-218A, §§1.1–1.2](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-218A.pdf#page=10) and [NIST SP 800-218](https://csrc.nist.gov/pubs/sp/800/218/final).
 
 The case uses these exact task identifiers from the final Profile's Table 1:
 
@@ -29,7 +29,7 @@ The case uses these exact task identifiers from the final Profile's Table 1:
 | PS.3.2 | Collect, safeguard, maintain, and share provenance data for release components. | The fixture links one dataset, one run, one artifact, and one release; a mismatched release link is rejected. There is no trusted attestation, identity, registry, or production consumer. |
 | PW.3.2 | Track known training-data provenance and document data whose provenance is unknown. | The known-source fixture branch and its version/digest linkage are checked. A missing source stays documented and blocks fixture validation. |
 
-The task names and AI-specific additions are in the [official NIST SP 800-218A PDF, Table 1](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-218A.pdf#page=10) (PO.3.3 and PO.5.1), [page 12](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-218A.pdf#page=12) (PS.2.1–PS.3.2), and [pages 14–15](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-218A.pdf#page=14) (PW.3.1–PW.3.3). The checker validates fixture references and hashes only. It does not establish that any Profile task is implemented or that an organization conforms.
+The task names and AI-specific additions are in the [official NIST SP 800-218A PDF, Table 1](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-218A.pdf#page=18) (PO.3.3 and PO.5.1), [page 12](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-218A.pdf#page=20) (PS.2.1–PS.3.2), and [pages 14–15](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-218A.pdf#page=22) (PW.3.1–PW.3.3). The fixture covers bounded reference validation, integrity-before-use, and namespace API authorization. Organizational conformance calls for evidence across applicable activities.
 
 ## Control claims still requiring review
 
@@ -37,6 +37,29 @@ The task names and AI-specific additions are in the [official NIST SP 800-218A P
 - “Model weight integrity as software integrity” also needs a bounded mapping. The Profile has AI-specific additions concerning model weights and configuration parameters, including PS.1.1 and PS.1.3, and release integrity at PS.2.1. This case contains no model weights and does not validate those protections.
 - The control calls for mapping these practices to SAF-K8S controls, while its Related Crosswalks section says there are no rows. No SAF-K8S control IDs or validated crosswalk are asserted here; that mapping remains unresolved.
 - The pinned original mentions teams that deploy AI workloads. The corrected wording follows the model-development scope. Deployment/operation governance is intentionally unknown in this case.
-- The fixture only proves deterministic local consistency and rejection of a wrong release reference. It does not evaluate training-data poisoning, bias, homogeneity, or tampering under PW.3.1; verify signatures; inspect model weights; test an actual pipeline; or establish governance, authorization, production operation, or Kubernetes-wide coverage.
+- The PW.3.1 supplement rejects changed or missing synthetic partitions before feature publication and verifies the expected output from the approved partition. Data-poisoning and bias analysis, signed releases, model weight protection, and operation of adopted pipelines need their own evidence.
 
 The Jobs use only synthetic fixture metadata.
+
+## PO.5.1 development-environment API authorization
+
+The [NIST SP 800-218A table](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-218A.pdf#page=18)
+covers development-environment separation and least privilege. This case exercises
+one Kubernetes API authorization boundary using two fixture namespaces and two
+ServiceAccounts. The temporary ClusterRole is limited to GET and LIST on two
+named, immutable marker ConfigMaps. The developer first reads both under a
+cross-namespace binding. Removing that binding causes the developer to receive
+403 on protected GET and LIST while own reads continue to work. An approved
+reader still retrieves and lists the same protected object.
+
+The three Jobs project 600-second ServiceAccount tokens and keep credentials
+out of the evidence. Their results match the exact Job-owned Pods and immutable
+object UIDs. The developer's mounted expectations supply only the protected
+object's identity, and the harness verifies its inert marker when access succeeds.
+Follow-up adoption evidence covers the actual environment inventory, other
+protection boundaries, policy ownership, and applicable operating practices.
+
+From the framework checkout use `python3 tests/control-lab/lab.py test SAF-K8S-1006-008 --docker-context desktop-linux`.
+Include the adjacent SAF-K8S-0906-002 and SAF-K8S-0907-005 cases for the existing
+integrity checks. Kubernetes requires the exact `metadata.name` selector for
+resource-name-scoped list requests. [Kubernetes RBAC](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/rbac/#referring-to-resources)
