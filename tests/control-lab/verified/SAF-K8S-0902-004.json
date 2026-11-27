@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0902-004",
-  "catalog_revision": "6bb50643940a247acedfa1788ab28d59f5f4dc53",
-  "catalog_sha256": "7d6937a06790309ec74e86d3906c8513fc47187daddcb0c143094e42f6369a7b",
+  "catalog_revision": "e36407042cfd3bc4969961e9136bfe8a1923b4e9",
+  "catalog_sha256": "ed6243c33229f6466971a9ce3d0c83508509eff6f38c522843b0dd12fb917717",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "290b6a48c765fee9a1339008a81dfa370bbea2782179f2068107cf03883436cf",
-  "scope": "GPU-free disposable Kind fixture with two independent mock Pods: two per-Pod own-cgroup memory checks, distinct bounded tmpfs markers, bounded writer-versus-peer memory charge, synthetic missing-client-cert rejection, and one authenticated server/client TLS health request. It demonstrates Pod-scoped tmpfs and CPU/memory cgroup behavior plus one TLS path; it does not run ModelMesh, Triton, KServe, a model, GPU, MIG/vGPU, shared-process tenancy, or deployed service mesh. Actual runtime, accelerator-isolation, resource-attribution, and all-path mTLS claims require adopter verification on supported versions.",
-  "cluster": "saf-lab-41a5d137c5f5",
+  "scope": "GPU-free disposable Kind fixture with two independent mock Pods: two per-Pod own-cgroup memory checks, distinct bounded tmpfs markers, bounded writer-versus-peer memory charge, synthetic missing-client-cert and unapproved-peer-identity rejection, and one authenticated server/client TLS health request. It demonstrates Pod-scoped tmpfs and CPU/memory cgroup behavior plus one TLS path; it does not run ModelMesh, Triton, KServe, a model, GPU, MIG/vGPU, shared-process tenancy, or deployed service mesh. Actual runtime, accelerator-isolation, resource-attribution, and all-path mTLS claims require adopter verification on supported versions.",
+  "cluster": "saf-lab-1031cb892390",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -90,12 +90,22 @@
       }
     },
     {
+      "phase": "green",
+      "claim": "The endpoint rejects a trusted but unapproved synthetic peer identity",
+      "matched": true,
+      "observed": {
+        "trusted_certificate_reached_identity_policy": true,
+        "unapproved_identity_denied": true,
+        "unapproved_peer_not_authenticated": true
+      }
+    },
+    {
       "phase": "positive",
       "claim": "Model A completes a routine /healthz request to Model B with server and client certificate verification",
       "matched": true,
       "observed": {
         "matched_mutual_tls": true,
-        "peer_common_name": "model-a",
+        "peer_identity": "urn:saf:model-peer:model-a",
         "tls_version": "TLSv1.3",
         "fixed_health_response": "SYNTH-SAF-0902-004-HEALTH-OK"
       }

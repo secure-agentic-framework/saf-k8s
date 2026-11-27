@@ -30,7 +30,7 @@ WORKLOAD = FIXTURES / "workload.py"
 SCOPE = (
     "GPU-free disposable Kind fixture with two independent mock Pods: two per-Pod own-cgroup memory checks, "
     "distinct bounded tmpfs markers, bounded writer-versus-peer memory charge, synthetic missing-client-cert "
-    "rejection, and one authenticated server/client TLS health request. It demonstrates Pod-scoped tmpfs and "
+    "and unapproved-peer-identity rejection, and one authenticated server/client TLS health request. It demonstrates Pod-scoped tmpfs and "
     "CPU/memory cgroup behavior plus one TLS path; it does not run ModelMesh, Triton, KServe, a model, GPU, "
     "MIG/vGPU, shared-process tenancy, or deployed service mesh. Actual runtime, accelerator-isolation, "
     "resource-attribution, and all-path mTLS claims require adopter verification on supported versions."
@@ -52,12 +52,19 @@ def certs(lab, root):
     ca_key, ca_cert = root / "ca.key", root / "ca.crt"
     server_key, server_csr, server_cert = root / "server.key", root / "server.csr", root / "server.crt"
     client_key, client_csr, client_cert = root / "client.key", root / "client.csr", root / "client.crt"
+    unapproved_key = root / "unapproved.key"
+    unapproved_csr = root / "unapproved.csr"
+    unapproved_cert = root / "unapproved.crt"
     server_ext = root / "server.ext"
     client_ext = root / "client.ext"
+    unapproved_ext = root / "unapproved.ext"
     leaf = ("basicConstraints=critical,CA:FALSE\nkeyUsage=critical,digitalSignature,keyEncipherment\n"
             "subjectKeyIdentifier=hash\nauthorityKeyIdentifier=keyid:always\n")
     server_ext.write_text(leaf + f"subjectAltName=DNS:{SERVICE_DNS}\nextendedKeyUsage=serverAuth\n")
-    client_ext.write_text(leaf + "extendedKeyUsage=clientAuth\n")
+    client_ext.write_text(leaf + "extendedKeyUsage=clientAuth\n"
+                          "subjectAltName=URI:urn:saf:model-peer:model-a\n")
+    unapproved_ext.write_text(leaf + "extendedKeyUsage=clientAuth\n"
+                              "subjectAltName=URI:urn:saf:model-peer:unapproved\n")
     lab.command("openssl", "req", "-x509", "-newkey", "rsa:2048", "-nodes", "-days", "1",
                 "-subj", "/CN=SAF-K8S-0902-004-synthetic-CA", "-sha256",
                 "-addext", "basicConstraints=critical,CA:TRUE",
@@ -66,6 +73,7 @@ def certs(lab, root):
     for name, key, csr, certificate, extension in (
         ("model-b", server_key, server_csr, server_cert, server_ext),
         ("model-a", client_key, client_csr, client_cert, client_ext),
+        ("unapproved-model", unapproved_key, unapproved_csr, unapproved_cert, unapproved_ext),
     ):
         lab.command("openssl", "req", "-new", "-newkey", "rsa:2048", "-nodes",
                     "-subj", f"/CN={name}", "-keyout", str(key), "-out", str(csr), timeout=20)
@@ -80,6 +88,9 @@ def certs(lab, root):
     kubectl(lab, "create", "secret", "generic", "tls-client",
             f"--from-file=ca.crt={ca_cert}", f"--from-file=tls.crt={client_cert}",
             f"--from-file=tls.key={client_key}")
+    kubectl(lab, "create", "secret", "generic", "tls-client-unapproved",
+            f"--from-file=ca.crt={ca_cert}", f"--from-file=tls.crt={unapproved_cert}",
+            f"--from-file=tls.key={unapproved_key}")
 
 
 def pod_spec(role):
@@ -100,6 +111,10 @@ def pod_spec(role):
         mounts.append({"name": "client-identity", "mountPath": "/tls", "readOnly": True})
         volumes.append({"name": "client-identity", "secret": {"secretName": "tls-client",
                                                                     "defaultMode": 288}})
+        mounts.append({"name": "unapproved-client-identity", "mountPath": "/tls-unapproved",
+                       "readOnly": True})
+        volumes.append({"name": "unapproved-client-identity",
+                        "secret": {"secretName": "tls-client-unapproved", "defaultMode": 288}})
     else:
         mounts.append({"name": "server-identity", "mountPath": "/tls", "readOnly": True})
         volumes.append({"name": "server-identity", "secret": {"secretName": "tls-server",
@@ -266,6 +281,29 @@ def run(lab):
                   denied, {"client_connection_rejected": no_identity.get("result") == "tls-rejected",
                            "server_confirmed_no_client_certificate": missing_cert})
 
+        unapproved = exec_json(lab, "model-a", "request",
+                               f"https://{SERVICE_DNS}:{PORT}/healthz", "unapproved-client-cert")
+        unapproved_events = [json.loads(line) for line in kubectl(lab, "logs", "pod/model-b").stdout.splitlines()
+                             if line.startswith("{")]
+        expected_unapproved = {"event": "client-identity-rejected", "path": "/healthz",
+                               "peer_identity": "urn:saf:model-peer:unapproved"}
+        unapproved_denied = (unapproved.get("result") == "response" and unapproved.get("status") == 403
+                             and unapproved.get("body") == "peer-identity-not-authorized"
+                             and expected_unapproved in unapproved_events
+                             and not any(event.get("event") == "authenticated-health"
+                                         and event.get("peer_identity") == "urn:saf:model-peer:unapproved"
+                                         for event in unapproved_events))
+        evidence["tls"]["unapproved_client"] = unapproved
+        evidence["tls"]["unapproved_client_server_events"] = unapproved_events
+        lab.check("green", "The endpoint rejects a trusted but unapproved synthetic peer identity",
+                  unapproved_denied,
+                  {"trusted_certificate_reached_identity_policy": expected_unapproved in unapproved_events,
+                   "unapproved_identity_denied": unapproved.get("status") == 403,
+                   "unapproved_peer_not_authenticated": not any(
+                       event.get("event") == "authenticated-health"
+                       and event.get("peer_identity") == "urn:saf:model-peer:unapproved"
+                       for event in unapproved_events)})
+
         authenticated = exec_json(lab, "model-a", "request",
                                   f"https://{SERVICE_DNS}:{PORT}/healthz", "client-cert")
         server_logs = kubectl(lab, "logs", "pod/model-b", timeout=20).stdout.splitlines()
@@ -275,7 +313,7 @@ def run(lab):
                      and authenticated.get("body") == "SYNTH-SAF-0902-004-HEALTH-OK"
                      and authenticated.get("tls_version", "").startswith("TLSv1.")
                      and any(event.get("path") == "/healthz"
-                             and event.get("peer_cn") == "model-a"
+                             and event.get("peer_identity") == "urn:saf:model-peer:model-a"
                              and event.get("event") == "authenticated-health" for event in server_events))
         evidence["tls"]["authenticated"] = authenticated
         evidence["tls"]["server_events"] = server_events
@@ -283,5 +321,6 @@ def run(lab):
             json.dumps(evidence, indent=2, sort_keys=True) + "\n")
         lab.check("positive", "Model A completes a routine /healthz request to Model B with server and client certificate verification",
                   mutual_ok, {"matched_mutual_tls": mutual_ok,
-                              "peer_common_name": "model-a", "tls_version": authenticated.get("tls_version"),
+                              "peer_identity": "urn:saf:model-peer:model-a",
+                              "tls_version": authenticated.get("tls_version"),
                               "fixed_health_response": authenticated.get("body")})

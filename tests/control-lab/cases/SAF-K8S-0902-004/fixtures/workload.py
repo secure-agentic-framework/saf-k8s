@@ -13,6 +13,7 @@ from urllib.parse import urlsplit
 
 PORT = 8443
 HEALTH_MARKER = "SYNTH-SAF-0902-004-HEALTH-OK"
+ALLOWED_PEER_IDENTITY = "urn:saf:model-peer:model-a"
 
 
 def emit(value):
@@ -71,10 +72,20 @@ class HealthHandler(http.server.BaseHTTPRequestHandler):
             self.send_error(404)
             return
         peer = self.connection.getpeercert()
-        common_names = [value for subject in peer.get("subject", ())
-                        for key, value in subject if key == "commonName"]
+        identities = [value for kind, value in peer.get("subjectAltName", ()) if kind == "URI"]
+        peer_identity = identities[0] if len(identities) == 1 else "missing-or-ambiguous"
+        if peer_identity != ALLOWED_PEER_IDENTITY:
+            emit({"event": "client-identity-rejected", "path": self.path,
+                  "peer_identity": peer_identity})
+            body = b"peer-identity-not-authorized"
+            self.send_response(403)
+            self.send_header("Content-Type", "text/plain")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+            return
         event = {"event": "authenticated-health", "path": self.path,
-                 "peer_cn": common_names[0] if common_names else "missing"}
+                 "peer_identity": peer_identity}
         print(json.dumps(event, sort_keys=True), flush=True)
         body = HEALTH_MARKER.encode("ascii")
         self.send_response(200)
@@ -122,6 +133,8 @@ def request(url, identity):
     context.check_hostname = True
     if identity == "client-cert":
         context.load_cert_chain("/tls/tls.crt", "/tls/tls.key")
+    elif identity == "unapproved-client-cert":
+        context.load_cert_chain("/tls-unapproved/tls.crt", "/tls-unapproved/tls.key")
     target = urlsplit(url)
     if target.hostname != "model-b.saf-0902-004.svc.cluster.local" or target.port != PORT or target.path != "/healthz":
         raise ValueError("Only the owned model Service's fixed health path is supported")

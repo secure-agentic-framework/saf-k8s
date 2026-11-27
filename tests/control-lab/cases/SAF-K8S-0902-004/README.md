@@ -25,9 +25,11 @@ case-owned, cluster-internal `ClusterIP` Service. A one-day synthetic CA and
 server/client certificates are generated in a temporary host directory for
 the run. The endpoint requires a trusted client certificate; the client
 validates the server chain and hostname. One request without a client
-certificate must fail during TLS setup, then the same request with the
-authorized test identity must return a fixed health marker. Server event logs
-record only the fixed path and authenticated client common name; HTTP request
+certificate must fail during TLS setup. A second client certificate is valid
+under the same test CA but has a different URI peer identity; TLS completes,
+and the endpoint must deny it before returning the health marker. The
+authorized test identity must then receive the fixed health marker. Server
+event logs record only the fixed path and the fixed synthetic URI peer identity; HTTP request
 lines, addresses, headers, payloads, and TLS key material are not written to
 case evidence.
 
@@ -40,8 +42,9 @@ runner, then independently repeat it from a fresh cluster:
 python3 lab.py test SAF-K8S-0902-004 --docker-context desktop-linux
 ```
 
-The current public receipt records a passed run with six matched checks. The
-observed check categories are summarized below. The runner requires local
+The current public receipt records a passed run with six matched checks. This
+isolated candidate retains those assertions and adds a peer-identity check,
+for seven expected checks. The observed check categories are summarized below. The runner requires local
 `openssl` to generate the ephemeral synthetic certificate hierarchy. The case
 makes no request outside its cluster; the pinned official workload image must
 be available to the Kind node (a cold image pull may require the supervisor's
@@ -64,7 +67,8 @@ OpenSSL, not file contents.
 | Positive | Each workload reports a nonzero current usage and a finite memory limit from its own cgroup matching its declared container limit. |
 | Green | Both workloads report tmpfs mounted at `/dev/shm`, an 8Mi-or-smaller capacity, the same filename, and their distinct expected marker; their Pod UIDs and Linux mount IDs differ. |
 | Red | The Model B TLS endpoint rejects the Model A request when the client omits its certificate. |
-| Positive | Model A receives the exact synthetic `/healthz` marker over TLS, and Model B records the fixed path with authenticated client CN `model-a`. |
+| Green | A client with a different URI identity but a certificate signed by the same fixture CA reaches the peer identity policy and receives a fixed 403; it produces no authenticated-health event. |
+| Positive | Model A receives the exact synthetic `/healthz` marker over TLS, and Model B records the fixed path with authenticated URI identity `urn:saf:model-peer:model-a`. |
 
 The red check is a negative authentication test against a controlled mock
 endpoint. It does not represent an observed vulnerable deployment. The green
@@ -75,18 +79,19 @@ memory measurement.
 
 ## Scope and adopter verification
 
-This GPU-free fixture provides six checks in a disposable Kind v1.36.1 cluster:
+This GPU-free fixture retains six published checks and adds one peer-identity check, for seven expected assertions in a disposable Kind v1.36.1 cluster:
 
 1. Model A’s declared memory request/limit matches live accounting from A’s own cgroup.
 2. Model B’s declared memory request/limit matches live accounting from B’s own cgroup.
 3. Two distinct Pod mount namespaces expose separate bounded tmpfs mounts at `/dev/shm`; the same benign filename contains each Pod’s distinct fixed marker.
 4. A fixed 1 MiB tmpfs write is charged to the writing Pod’s memory cgroup while the peer’s charge remains stable and its marker remains unchanged.
 5. The mock Model B endpoint rejects the fixed request when Model A supplies no client certificate.
-6. The same fixed `/healthz` request succeeds with server certificate and hostname validation plus client-certificate authentication; Model B records the synthetic client identity.
+6. A second certificate signed by the same synthetic CA completes TLS but has a different URI identity; Model B denies it and emits no authenticated-health event.
+7. The same fixed `/healthz` request succeeds with server certificate and hostname validation plus the exact allowed client identity; Model B records that URI identity.
 
 These are fixture-only observations. The case uses separate mock Pods, a memory-backed `emptyDir`, cgroup counters, one case-owned ClusterIP Service, and temporary synthetic certificates. It does not run ModelMesh Serving, Triton, KServe, an inference server, model artifacts, a GPU, MIG/vGPU, or a production service mesh. The two Pods are not co-located models in a shared serving runtime. The case therefore demonstrates Pod-scoped tmpfs separation and CPU/memory cgroup accounting, not model-level memory isolation, shared-process isolation, GPU memory boundaries, GPU accounting, or model-serving behavior. A GPU scheduler or execution rate limit alone should not be described as per-model GPU-memory isolation.
 
-The mTLS result is limited to one connection over the case-owned Service. It does not establish protection of external ingress, every internal call, service-mesh sidecars, every bypass path, certificate issuance/rotation/revocation, key custody, production identity mapping, or policy coverage. It does not validate traffic outside that one synthetic health request. There is no NetworkPolicy assertion and no attempt to access another Pod’s mount or process memory.
+The mTLS and peer-identity result is limited to one connection over the case-owned Service and one exact synthetic identity allowlist entry. It does not establish protection of external ingress, every internal call, service-mesh sidecars, every bypass path, certificate issuance/rotation/revocation, key custody, production identity mapping, or policy coverage. It does not validate traffic outside that one synthetic health request. There is no NetworkPolicy assertion and no attempt to access another Pod's mount or process memory.
 
 ### Adopter verification for a real serving deployment
 
@@ -96,7 +101,7 @@ Verify the configured boundary with supported observables for that runtime: dete
 
 For transport protection, inventory every inference ingress and service-to-service hop, including sidecar and direct/bypass routes. Verify server identity/hostname validation and peer authentication at each applicable hop using approved synthetic identities and health requests. Confirm that policy actually covers the inventoried paths, and separately verify certificate issuance, rotation, revocation, trust roots, and key custody where those are part of the deployment requirement. A successful request on one path is evidence only for that path.
 
-The control rationale’s shared-memory leakage scenario is not validated by these separate-Pod fixtures. Any broader claim about ModelMesh/Triton behavior, shared-process leakage, resource starvation, GPU memory, or end-to-end TLS requires evidence from the actual supported runtime and deployment configuration.
+The control rationale’s shared-memory leakage scenario is not validated by these separate-Pod fixtures. Any broader claim about ModelMesh/Triton behavior, shared-process leakage, resource starvation, GPU memory, or end-to-end TLS requires evidence from the actual supported runtime and deployment configuration. This case-level identity gate does not replace adopter verification of deployed certificate trust, peer-to-service identity policy, issuance/rotation/revocation, or all-path coverage.
 
 ## Fixtures and image pins
 
