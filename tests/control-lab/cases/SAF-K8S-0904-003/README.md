@@ -35,3 +35,29 @@ harness binds each response to a distinct spawned Pod and compares both
 reciprocal cross-user read decisions. The local authenticator uses one
 temporary shared fixture password. For deployment, verify actual identity
 provider enrollment and credential assurance separately from workspace access.
+
+## Egress on Hub-spawned workspaces
+
+The supplemental check selects the two actual KubeSpawner Pods by their
+`hub.jupyter.org/username` labels and retains each Pod UID before and after
+policy application. It probes the same two case-owned benign endpoint Pods
+from each spawned notebook: both cross-user paths are reachable before the
+supplemental policies, then only each user's own endpoint remains reachable
+after policy convergence. The check also confirms both authenticated
+`/user/<name>/` routes remain ready through the case-owned Hub proxy.
+
+For this pinned chart fixture, the chart's single-user NetworkPolicy is
+enabled with broad private and non-private address allowances disabled. Its
+generated policy retains the chart's Hub/proxy and kube-system DNS paths; two
+additional namespace-local policies allow each synthetic user only to its
+matching fixed dataset endpoint. API readback verifies the actual spawned Pod
+selection and exact policy peers. The observations apply to the tested
+disposable Kind network implementation and these two local endpoints. They do
+not establish production egress destinations, external or metadata-service
+behavior, backend dataset authorization, or enforcement by a different CNI.
+
+
+The before-policy comparison uses a temporary allowance for exactly the two
+case-owned dataset endpoints and the same two spawned notebook Pods. The runner
+removes that allowance before applying and checking the individually scoped
+policies. The chart continues to supply the bounded Hub and DNS paths.

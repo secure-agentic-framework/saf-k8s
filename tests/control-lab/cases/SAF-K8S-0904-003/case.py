@@ -24,8 +24,10 @@ SCOPE = (
     "tokenless service accounts, configured CPU/RAM bounds and restrictive security contexts. "
     "Native NetworkPolicy limits each to its labeled endpoint, and native admission enforces "
     "the approved image reference. Each real Jupyter kernel executes a fixed harmless cell "
-    "after policy is active. Kernel exposure, optional extensions, JupyterHub authentication, "
-    "full provenance and dataset policy, and deployed controls require separate evidence."
+    "after policy is active. The pinned synthetic Hub also authenticates two fixture users, "
+    "spawns their actual KubeSpawner Pods, and applies per-user egress policy to those Pods. "
+    "Production identity/session lifecycle, extension governance, full image provenance, "
+    "durable storage, real dataset authorization/audit, and deployed controls require separate evidence."
 )
 
 ROOT = Path(__file__).resolve().parent
@@ -38,6 +40,7 @@ HUB_USER_SA = "saf-hub-user"
 HUB_SECRET = "saf-hub-password"
 HUB_PROBE_SCRIPT = "hub-auth-probe.py"
 HUB_WORKSPACE_SCRIPT = "hub-workspace-matrix.py"
+HUB_ROUTE_SCRIPT = "hub-route-probe.py"
 CHART = ROOT / "vendor" / "jupyterhub-4.4.5.tgz"
 CHART_SHA256 = "27ad182c708244537f425a7ec3354d1a098776e7acd96b7f0d9a4d38f0cda415"
 HUB_IMAGE = "quay.io/jupyterhub/k8s-hub:4.4.5@sha256:6ce210488f5598e2dd5130d82e84d9f74b72538b66895861240bd84926ec50bd"
@@ -63,7 +66,7 @@ def wait_ready(lab, name, timeout=90):
     lab.block(f"Fixture Pod did not become Ready: {name}")
 
 
-def probe(lab, source, destination):
+def probe(lab, source, destination, *, interpreter="/opt/conda/bin/python"):
     address = pod_json(lab, destination)["status"]["podIP"]
     script = """
 import http.client
@@ -80,7 +83,7 @@ except TimeoutError:
 finally:
     connection.close()
 """
-    result = lab.kubectl("exec", source, "--", "/opt/conda/bin/python", "-B",
+    result = lab.kubectl("exec", source, "--", interpreter, "-B",
                          "-c", script, address, timeout=8)
     value = result.stdout.strip()
     if value != "BLOCKED" and not value.startswith("ALLOW:"):
@@ -339,7 +342,18 @@ def _hub_values():
                       "pullPolicy": "IfNotPresent"},
             "serviceAccountName": HUB_USER_SA,
             "storage": {"type": "none"},
-            "networkPolicy": {"enabled": False},
+            "networkPolicy": {
+                "enabled": True,
+                "egress": [],
+                "egressAllowRules": {
+                    "cloudMetadataServer": False,
+                    "dnsPortsCloudMetadataServer": False,
+                    "dnsPortsKubeSystemNamespace": True,
+                    "dnsPortsPrivateIPs": False,
+                    "nonPrivateIPs": False,
+                    "privateIPs": False,
+                },
+            },
             "cloudMetadata": {"blockWithIptables": False},
             "extraPodConfig": {"automountServiceAccountToken": False},
             "extraLabels": {"saf.example/workspace": "hub-spawned"},
@@ -578,6 +592,89 @@ except Exception as exc:
 '''.replace("http://proxy-public.saf-test.svc.cluster.local", "http://" + HUB_SERVICE)
 
 
+def _hub_route_probe_source():
+    # This post-policy in-cluster client records only route booleans. It never
+    # emits the shared fixture password, cookies, headers, HTML, or response data.
+    return r'''import http.cookiejar, json, os, time, urllib.error, urllib.parse, urllib.request
+
+BASE = "http://proxy-public.saf-test.svc.cluster.local"
+USERS = ("saf-workspace-alice", "saf-workspace-bob")
+PASSWORD = open("/run/saf-auth/password", encoding="utf-8").read().strip()
+
+class Fields(__import__("html.parser", fromlist=["HTMLParser"]).HTMLParser):
+    def __init__(self): super().__init__(); self.values = {}
+    def handle_starttag(self, tag, attrs):
+        fields = dict(attrs)
+        if tag == "input" and fields.get("name") == "_xsrf":
+            self.values["_xsrf"] = fields.get("value", "")
+
+class OwnedRedirect(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        target = urllib.parse.urlparse(urllib.parse.urljoin(req.full_url, newurl))
+        if target.scheme != "http" or target.netloc != urllib.parse.urlparse(BASE).netloc:
+            raise urllib.error.URLError("redirect outside owned Hub service")
+        return super().redirect_request(req, fp, code, msg, headers, newurl)
+
+def request(opener, path, data=None, xsrf=None):
+    headers = {"Content-Type": "application/x-www-form-urlencoded"} if data is not None else {}
+    if xsrf:
+        headers["X-XSRFToken"] = xsrf
+    req = urllib.request.Request(BASE + path, data=data,
+        headers=headers)
+    try:
+        with opener.open(req, timeout=4) as response:
+            body = response.read(262145)
+            if len(body) > 262144:
+                raise ValueError("bounded response exceeded")
+            return response.status, response.geturl(), body
+    except urllib.error.HTTPError as error:
+        body = error.read(262145)
+        if len(body) > 262144:
+            raise ValueError("bounded error response exceeded")
+        return error.code, error.geturl(), body
+
+routes = {}
+for username in USERS:
+    jar = http.cookiejar.CookieJar()
+    opener = urllib.request.build_opener(urllib.request.ProxyHandler({}),
+        urllib.request.HTTPCookieProcessor(jar), OwnedRedirect())
+    status, _, page = request(opener, "/hub/login")
+    if status != 200:
+        routes[username] = False
+        continue
+    parser = Fields(); parser.feed(page.decode("utf-8", "replace"))
+    xsrf = parser.values.get("_xsrf")
+    if not xsrf:
+        routes[username] = False
+        continue
+    form = urllib.parse.urlencode({"_xsrf": xsrf, "username": username,
+                                   "password": PASSWORD, "next": "/hub/"}).encode()
+    request(opener, "/hub/login", form)
+    session = any(cookie.name == "jupyterhub-session-id" for cookie in jar)
+    routes[username] = False
+    if not session:
+        continue
+    xsrf_cookies = [cookie for cookie in jar if cookie.name == "_xsrf"
+                    and "/hub/spawn".startswith(cookie.path)]
+    spawn_xsrf = max(xsrf_cookies, key=lambda cookie: len(cookie.path)).value if xsrf_cookies else None
+    if not spawn_xsrf:
+        continue
+    request(opener, "/hub/spawn")
+    request(opener, "/hub/spawn", urllib.parse.urlencode({"_xsrf": spawn_xsrf}).encode(), spawn_xsrf)
+    deadline = time.monotonic() + 100
+    while time.monotonic() < deadline:
+        try:
+            status, final, _ = request(opener, "/user/" + username + "/")
+            if status == 200 and urllib.parse.urlparse(final).path.startswith("/user/" + username + "/"):
+                routes[username] = True
+                break
+        except (OSError, TimeoutError, urllib.error.URLError):
+            pass
+        time.sleep(1)
+print(json.dumps({"route_ready": routes}, sort_keys=True, separators=(",", ":")))
+'''.replace("http://proxy-public.saf-test.svc.cluster.local", "http://" + HUB_SERVICE)
+
+
 def _exercise_hub_workspace_matrix(lab):
     job_name = "saf-hub-workspace-matrix"
     resource = {
@@ -640,6 +737,232 @@ def _exercise_hub_workspace_matrix(lab):
                "two_user_pods_observed": all(len(rows[user]) == 1 for user in (HUB_ALICE, HUB_BOB)),
                "authorization_path": "JupyterHub 5.5.5 single-user server native access scope"})
     (lab.evidence / "hub-workspace-matrix-summary.json").write_text(json.dumps(lab.checks[-1], indent=2) + "\n")
+    _exercise_hub_spawned_egress(lab)
+
+
+def _pod_ready(pod):
+    return (pod.get("status", {}).get("phase") == "Running"
+            and any(condition.get("type") == "Ready" and condition.get("status") == "True"
+                    for condition in pod.get("status", {}).get("conditions", [])))
+
+
+def _owned_hub_user_pods(lab):
+    result = json.loads(lab.kubectl("get", "pods", "-l",
+        "saf.example/workspace=hub-spawned", "-o", "json").stdout)
+    rows = {}
+    for user in (HUB_ALICE, HUB_BOB):
+        selected = [pod for pod in result.get("items", [])
+                    if pod.get("metadata", {}).get("labels", {}).get("hub.jupyter.org/username") == user]
+        if (len(selected) != 1 or not selected[0].get("metadata", {}).get("uid")
+                or not _pod_ready(selected[0])
+                or selected[0].get("spec", {}).get("serviceAccountName") != HUB_USER_SA
+                or not any(container.get("image") == SINGLEUSER_IMAGE
+                           for container in selected[0].get("spec", {}).get("containers", []))):
+            lab.block("Expected one Ready, identity-bound KubeSpawner Pod for each exact synthetic user")
+        rows[user] = selected[0]
+    if rows[HUB_ALICE]["metadata"]["uid"] == rows[HUB_BOB]["metadata"]["uid"]:
+        lab.block("The two synthetic Hub users did not map to distinct Pod UIDs")
+    return rows
+
+
+def _dataset_identity(lab, name, expected_owner):
+    pod = pod_json(lab, name)
+    labels = pod.get("metadata", {}).get("labels", {})
+    address = pod.get("status", {}).get("podIP")
+    uid = pod.get("metadata", {}).get("uid")
+    if (labels.get("saf.example/dataset-owner") != expected_owner
+            or not uid or not address or not _pod_ready(pod)):
+        lab.block("The case-owned dataset endpoint identity is not Ready and address-bound")
+    return {"pod": name, "uid": uid, "pod_ip": address, "owner": expected_owner}
+
+
+def _policy_exact(lab, policy_name, username, owner):
+    policy = json.loads(lab.kubectl("get", "networkpolicy", policy_name,
+                                    "-o", "json").stdout)
+    spec = policy.get("spec", {})
+    expected_rule = {"to": [{"podSelector": {"matchLabels":
+                    {"saf.example/dataset-owner": owner}}}],
+                     "ports": [{"protocol": "TCP", "port": 8080}]}
+    return (policy.get("metadata", {}).get("namespace") == NAMESPACE
+            and policy.get("metadata", {}).get("labels", {}).get("saf.example/fixture") == "hub-spawn-egress"
+            and spec.get("podSelector") == {"matchLabels": {"hub.jupyter.org/username": username}}
+            and spec.get("policyTypes") == ["Egress"]
+            and spec.get("egress") == [expected_rule])
+
+
+def _run_post_policy_route_probe(lab):
+    name = "saf-hub-egress-route-probe"
+    resource = {
+        "apiVersion": "batch/v1", "kind": "Job",
+        "metadata": {"name": name, "namespace": NAMESPACE,
+                     "labels": {"saf.example/fixture": "hub-spawn-egress"}},
+        "spec": {"backoffLimit": 0, "activeDeadlineSeconds": 150,
+                 "template": {"metadata": {"labels": {"saf.example/fixture": "hub-spawn-egress"}},
+                              "spec": {"restartPolicy": "Never", "automountServiceAccountToken": False,
+                                       "securityContext": {"runAsNonRoot": True, "runAsUser": 1000,
+                                                           "runAsGroup": 100, "fsGroup": 100,
+                                                           "seccompProfile": {"type": "RuntimeDefault"}},
+                                       "containers": [{"name": "probe", "image": SINGLEUSER_IMAGE,
+                                                       "imagePullPolicy": "IfNotPresent",
+                                                       "command": ["python", "-B", "/opt/saf/" + HUB_ROUTE_SCRIPT],
+                                                       "volumeMounts": [
+                                                           {"name": "script", "mountPath": "/opt/saf", "readOnly": True},
+                                                           {"name": "auth", "mountPath": "/run/saf-auth", "readOnly": True}],
+                                                       "resources": {"requests": {"cpu": "25m", "memory": "64Mi"},
+                                                                     "limits": {"cpu": "100m", "memory": "192Mi"}}}],
+                                       "volumes": [{"name": "script", "configMap": {"name": "saf-hub-probe"}},
+                                                   {"name": "auth", "secret": {"secretName": HUB_SECRET,
+                                                                                 "defaultMode": 0o440}}]}}}
+    }
+    lab.create(resource)
+    deadline = time.monotonic() + 165
+    terminal = set()
+    while time.monotonic() < deadline:
+        statuses = lab.kubectl("get", "job", name, "-o",
+            'jsonpath={range .status.conditions[?(@.status=="True")]}{.type}{"\\n"}{end}', timeout=12).stdout
+        terminal = set(statuses.split())
+        if terminal & {"Complete", "Failed"}:
+            break
+        time.sleep(1)
+    if "Complete" not in terminal:
+        lab.block("The bounded post-policy Hub route probe did not complete")
+    output = lab.kubectl("logs", "job/" + name, timeout=15).stdout.strip()
+    try:
+        result = json.loads(output)
+    except json.JSONDecodeError:
+        lab.block("The bounded post-policy route probe did not return stable JSON booleans")
+    return result.get("route_ready") == {HUB_ALICE: True, HUB_BOB: True}
+
+
+def _exercise_hub_spawned_egress(lab):
+    users = {HUB_ALICE: "alice", HUB_BOB: "bob"}
+    pods_before = _owned_hub_user_pods(lab)
+    endpoints_before = {user: _dataset_identity(lab, "dataset-" + owner, owner)
+                        for user, owner in users.items()}
+    control_policy = "saf-hub-egress-both-owned-datasets"
+    lab.create({
+        "apiVersion": "networking.k8s.io/v1", "kind": "NetworkPolicy",
+        "metadata": {"name": control_policy, "namespace": NAMESPACE},
+        "spec": {
+            "podSelector": {
+                "matchLabels": {"saf.example/workspace": "hub-spawned"},
+                "matchExpressions": [{"key": "hub.jupyter.org/username", "operator": "In",
+                                      "values": [HUB_ALICE, HUB_BOB]}],
+            },
+            "policyTypes": ["Egress"],
+            "egress": [{"to": [{"podSelector": {"matchExpressions": [
+                {"key": "saf.example/dataset-owner", "operator": "In", "values": ["alice", "bob"]}
+            ]}}], "ports": [{"protocol": "TCP", "port": 8080}]}],
+        },
+    })
+    expected_baseline = {HUB_ALICE + "_to_own": "ALLOW:benign-dataset-alice",
+                         HUB_BOB + "_to_own": "ALLOW:benign-dataset-bob",
+                         HUB_ALICE + "_to_" + HUB_BOB: "ALLOW:benign-dataset-bob",
+                         HUB_BOB + "_to_" + HUB_ALICE: "ALLOW:benign-dataset-alice"}
+    def observe_paths():
+        return {
+            user + "_to_" + (destination if user != destination else "own"): probe(
+                lab, pods_before[user]["metadata"]["name"], "dataset-" + owner,
+                interpreter="python",
+            )
+            for user in users
+            for destination, owner in users.items()
+        }
+
+    baseline = {}
+    try:
+        deadline = time.monotonic() + 25
+        while time.monotonic() < deadline:
+            baseline = observe_paths()
+            if baseline == expected_baseline:
+                break
+            time.sleep(0.4)
+    finally:
+        lab.kubectl("delete", "networkpolicy", control_policy, "--wait=true", timeout=30)
+    if baseline != expected_baseline:
+        lab.block("The temporary owned-dataset allowance did not establish the exact Hub-spawned endpoint baseline")
+
+    lab.apply(ROOT / "case" / "hub-workspace-egress.yaml")
+    all_policies = json.loads(lab.kubectl("get", "networkpolicies", "-o", "json").stdout).get("items", [])
+    chart_candidates = []
+    for candidate in all_policies:
+        labels = candidate.get("metadata", {}).get("labels", {})
+        selector = candidate.get("spec", {}).get("podSelector", {}).get("matchLabels", {})
+        if (labels.get("app.kubernetes.io/instance") == HUB_RELEASE
+                and selector and all(pod.get("metadata", {}).get("labels", {}).get(key) == value
+                                     for key, value in selector.items()
+                                     for pod in pods_before.values())):
+            chart_candidates.append(candidate)
+    chart_policy = chart_candidates[0] if len(chart_candidates) == 1 else {}
+    chart_spec = chart_policy.get("spec", {})
+    selectors_match = len(chart_candidates) == 1
+    no_chart_ipblocks = not any("ipBlock" in peer
+                                for rule in chart_spec.get("egress", [])
+                                for peer in rule.get("to", []))
+    chart_policy_ok = (len(chart_candidates) == 1
+                       and chart_policy.get("metadata", {}).get("namespace") == NAMESPACE
+                       and "Egress" in chart_spec.get("policyTypes", [])
+                       and selectors_match and no_chart_ipblocks)
+    custom_policy_ok = all(_policy_exact(lab, "saf-hub-egress-" + owner,
+                                         user, owner)
+                           for user, owner in users.items())
+
+    expected = {HUB_ALICE + "_to_own": "ALLOW:benign-dataset-alice",
+                HUB_BOB + "_to_own": "ALLOW:benign-dataset-bob",
+                HUB_ALICE + "_to_" + HUB_BOB: "BLOCKED",
+                HUB_BOB + "_to_" + HUB_ALICE: "BLOCKED"}
+    deadline = time.monotonic() + 35
+    consecutive = 0
+    after = {}
+    while time.monotonic() < deadline:
+        after = observe_paths()
+        consecutive = consecutive + 1 if after == expected else 0
+        if consecutive == 2:
+            break
+    route_ready = _run_post_policy_route_probe(lab)
+    pods_after = _owned_hub_user_pods(lab)
+    stable_pods = all(pods_before[user]["metadata"]["uid"] == pods_after[user]["metadata"]["uid"]
+                      for user in users)
+    endpoints_after = {user: _dataset_identity(lab, "dataset-" + owner, owner)
+                       for user, owner in users.items()}
+    stable_endpoints = all(endpoints_before[user]["uid"] == endpoints_after[user]["uid"]
+                           and endpoints_before[user]["pod_ip"] == endpoints_after[user]["pod_ip"]
+                           for user in users)
+    passed = (chart_policy_ok and custom_policy_ok and consecutive == 2
+              and stable_pods and stable_endpoints and route_ready)
+    (lab.evidence / "hub-spawned-egress.raw.json").write_text(json.dumps({
+        "scope": "case-owned synthetic users, exact KubeSpawner Pod UIDs, and two inert local endpoint Pods",
+        "hub_user_pods_before": {user: {"name": pod["metadata"]["name"],
+                                        "uid": pod["metadata"]["uid"],
+                                        "labels": pod["metadata"].get("labels", {}),
+                                        "ready": _pod_ready(pod)} for user, pod in pods_before.items()},
+        "hub_user_pods_after": {user: {"name": pod["metadata"]["name"],
+                                       "uid": pod["metadata"]["uid"],
+                                       "ready": _pod_ready(pod)} for user, pod in pods_after.items()},
+        "endpoints_before": endpoints_before, "endpoints_after": endpoints_after,
+        "baseline_matrix": baseline, "post_policy_matrix": after,
+        "post_policy_stable_matches": consecutive,
+        "chart_singleuser_policy": {"name": chart_policy.get("metadata", {}).get("name"),
+                                    "pod_selector": chart_spec.get("podSelector"),
+                                    "policy_types": chart_spec.get("policyTypes"),
+                                    "egress_peer_kinds": [list(peer.keys()) for rule in chart_spec.get("egress", [])
+                                                          for peer in rule.get("to", [])],
+                                    "selects_both_user_pods": selectors_match,
+                                    "has_no_ip_block_peers": no_chart_ipblocks},
+        "user_policy_readback": {"alice_exact": _policy_exact(lab, "saf-hub-egress-alice", HUB_ALICE, "alice"),
+                                 "bob_exact": _policy_exact(lab, "saf-hub-egress-bob", HUB_BOB, "bob")},
+        "post_policy_authenticated_hub_routes_ready": route_ready,
+    }, indent=2, sort_keys=True) + "\n")
+    lab.check("green", "Per-user egress policies on the actual Hub-spawned notebook Pods preserve each owned dataset route and block the other user's endpoint",
+              passed,
+              {"case_chart_egress_policy_selects_both_spawned_pods": chart_policy_ok,
+               "alice_egress_policy_exact": _policy_exact(lab, "saf-hub-egress-alice", HUB_ALICE, "alice"),
+               "bob_egress_policy_exact": _policy_exact(lab, "saf-hub-egress-bob", HUB_BOB, "bob"),
+               "baseline_cross_user_paths_reachable": baseline[HUB_ALICE + "_to_" + HUB_BOB].startswith("ALLOW:")
+                   and baseline[HUB_BOB + "_to_" + HUB_ALICE].startswith("ALLOW:"),
+               "own_routes_allowed_cross_routes_blocked_twice": consecutive == 2,
+               "same_user_and_endpoint_uids_observed": stable_pods and stable_endpoints,
+               "authenticated_hub_routes_remain_ready": route_ready})
 
 
 def _hub_user_pods(lab, user=HUB_USER):
@@ -696,7 +1019,8 @@ def _exercise_hub_identity(lab):
                         "metadata": {"name": "saf-hub-probe", "namespace": NAMESPACE,
                                      "labels": {"saf.example/fixture": "hub-auth"}},
                         "data": {HUB_PROBE_SCRIPT: _hub_probe_source(),
-                                 HUB_WORKSPACE_SCRIPT: _hub_workspace_matrix_source()}})
+                                 HUB_WORKSPACE_SCRIPT: _hub_workspace_matrix_source(),
+                                 HUB_ROUTE_SCRIPT: _hub_route_probe_source()}})
             lab.command(*_helm_args(lab), "upgrade", "--install", HUB_RELEASE, str(CHART), "--namespace", NAMESPACE,
                         "--values", str(values_path), "--wait", "--timeout", "240s", timeout=250)
             lab.kubectl("rollout", "status", "deployment/hub", "--timeout=180s", timeout=190)
@@ -753,6 +1077,9 @@ def _exercise_hub_identity(lab):
                         allow_failure=True, timeout=45)
             for kind, name in (("job", "saf-hub-auth-denied"), ("job", "saf-hub-auth-allowed"),
                                ("job", "saf-hub-workspace-matrix"),
+                               ("job", "saf-hub-egress-route-probe"),
+                               ("networkpolicy", "saf-hub-egress-alice"),
+                               ("networkpolicy", "saf-hub-egress-bob"),
                                ("configmap", "saf-hub-probe"), ("serviceaccount", HUB_USER_SA),
                                ("secret", HUB_SECRET)):
                 lab.kubectl("delete", kind, name, "--ignore-not-found=true", allow_failure=True)

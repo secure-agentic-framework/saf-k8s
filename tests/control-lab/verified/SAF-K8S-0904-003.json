@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0904-003",
-  "catalog_revision": "8ca957210cb5ed5a74374a1779f0c03a4a7f65c8",
-  "catalog_sha256": "ee384744c842f8d644f583a5aaca5eaaa6b5317fc5eec912d037736ad0661d10",
+  "catalog_revision": "b65ab0a9ad590135f8ad220e4610431920514959",
+  "catalog_sha256": "f744308abbfe44deef8377df1955d70b543aa25dc3b0adca73d6d9ddf1792f64",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "d0b57a1ca68aec60e4ca9d14eb14c94e299fe8f5eee724abc6465e94f7cbbbdd",
-  "scope": "One fresh Kind v1.36.1 cluster, two pinned upstream Jupyter base-notebook Pods, and two case-owned benign dataset endpoints. The notebook Pods have distinct non-root UIDs and tokenless service accounts, configured CPU/RAM bounds and restrictive security contexts. Native NetworkPolicy limits each to its labeled endpoint, and native admission enforces the approved image reference. Each real Jupyter kernel executes a fixed harmless cell after policy is active. Kernel exposure, optional extensions, JupyterHub authentication, full provenance and dataset policy, and deployed controls require separate evidence.",
-  "cluster": "saf-lab-f0180e4cc81a",
+  "scope": "One fresh Kind v1.36.1 cluster, two pinned upstream Jupyter base-notebook Pods, and two case-owned benign dataset endpoints. The notebook Pods have distinct non-root UIDs and tokenless service accounts, configured CPU/RAM bounds and restrictive security contexts. Native NetworkPolicy limits each to its labeled endpoint, and native admission enforces the approved image reference. Each real Jupyter kernel executes a fixed harmless cell after policy is active. The pinned synthetic Hub also authenticates two fixture users, spawns their actual KubeSpawner Pods, and applies per-user egress policy to those Pods. Production identity/session lifecycle, extension governance, full image provenance, durable storage, real dataset authorization/audit, and deployed controls require separate evidence.",
+  "cluster": "saf-lab-92dfb9dd9c8d",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -142,6 +142,20 @@
         "distinct_ready_user_pods": true,
         "two_user_pods_observed": true,
         "authorization_path": "JupyterHub 5.5.5 single-user server native access scope"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Per-user egress policies on the actual Hub-spawned notebook Pods preserve each owned dataset route and block the other user's endpoint",
+      "matched": true,
+      "observed": {
+        "case_chart_egress_policy_selects_both_spawned_pods": true,
+        "alice_egress_policy_exact": true,
+        "bob_egress_policy_exact": true,
+        "baseline_cross_user_paths_reachable": true,
+        "own_routes_allowed_cross_routes_blocked_twice": true,
+        "same_user_and_endpoint_uids_observed": true,
+        "authenticated_hub_routes_remain_ready": true
       }
     }
   ]

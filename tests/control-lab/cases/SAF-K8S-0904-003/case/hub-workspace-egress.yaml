@@ -1,0 +1,43 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: saf-hub-egress-alice
+  namespace: saf-test
+  labels:
+    saf.example/fixture: hub-spawn-egress
+spec:
+  podSelector:
+    matchLabels:
+      hub.jupyter.org/username: saf-workspace-alice
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              saf.example/dataset-owner: alice
+      ports:
+        - protocol: TCP
+          port: 8080
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: saf-hub-egress-bob
+  namespace: saf-test
+  labels:
+    saf.example/fixture: hub-spawn-egress
+spec:
+  podSelector:
+    matchLabels:
+      hub.jupyter.org/username: saf-workspace-bob
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              saf.example/dataset-owner: bob
+      ports:
+        - protocol: TCP
+          port: 8080
