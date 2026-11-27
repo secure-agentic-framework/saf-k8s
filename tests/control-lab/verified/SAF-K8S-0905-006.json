@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0905-006",
-  "catalog_revision": "8ca957210cb5ed5a74374a1779f0c03a4a7f65c8",
-  "catalog_sha256": "ee384744c842f8d644f583a5aaca5eaaa6b5317fc5eec912d037736ad0661d10",
+  "catalog_revision": "7c01031f0d3e76ec4d5c2c707b0541099a924881",
+  "catalog_sha256": "65f757846d484079842769b4cec9180fc3a96ab15a5106c821a08ca7293441b6",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "d948cc896109c8c3c5bd3ac60f10c048b4609169a396ac16c606d205438c6ae6",
-  "scope": "Kubernetes v1.36.1 in the lab-created Kind cluster and namespace saf-test. A fixed static hostPath PV/PVC and one pinned BusyBox Pod prove that the built-in PVC-protection finalizer keeps a namespaced claim terminating while a nonterminal Pod references it, and that the claim and PV API objects can be removed after the Pod is gone. Separately, case-local fixture logic traverses the embedded fixture-lineage-v1 graph, annotates its source and every direct/transitive dependent ConfigMap, retrieves an inert archived ConfigMap value and compares its SHA-256, and leaves one unrelated control ConfigMap unmarked. An additive reference starts one case-owned internal Zot registry, archives the same inert bytes in a second repository, deletes the source repository manifest, and restores from archive readback by exact digest. Both repositories use the same ephemeral registry backend. This does not prove production archive independence, model registry policy, a production release controller, CycloneDX schema validation, ML-BOM ingestion, a general propagation service, cold or external storage, retention policy, physical or backup erasure, cryptographic erasure, regulatory compliance, or deletion outside these fixture Kubernetes objects.",
-  "cluster": "saf-lab-53342807c32f",
+  "scope": "Kubernetes v1.36.1 in the lab-created Kind cluster and namespace saf-test. A fixed static hostPath PV/PVC and one pinned BusyBox Pod prove that the built-in PVC-protection finalizer keeps a namespaced claim terminating while a nonterminal Pod references it, and that the claim and PV API objects can be removed after the Pod is gone. Separately, case-local fixture logic traverses the embedded fixture-lineage-v1 graph, annotates its source and every direct/transitive dependent ConfigMap, retrieves an inert archived ConfigMap value and compares its SHA-256, and leaves one unrelated control ConfigMap unmarked. An additive reference starts one case-owned internal Zot registry, archives the same inert bytes in a second repository, deletes the source repository manifest, and restores from archive readback by exact digest. Both repositories use the same ephemeral registry backend. This does not prove production archive independence, model registry policy, a production release controller, full CycloneDX schema validation, production ML-BOM reconciliation, a general propagation service, cold or external storage, retention policy, physical or backup erasure, cryptographic erasure, regulatory compliance, or deletion outside these fixture Kubernetes objects.",
+  "cluster": "saf-lab-aa2b072caeb5",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -118,6 +118,41 @@
           "release-active"
         ],
         "unrelated_unmarked": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "CycloneDX 1.6 subset resolves versioned data/model components to exact owned ConfigMap UIDs and reverse lineage",
+      "matched": true,
+      "observed": {
+        "subset_header_and_refs_valid": true,
+        "exact_uid_version_bindings": true,
+        "reverse_lineage_exact": true,
+        "direct_dependencies_match_fixture": true,
+        "all_expected_component_names_present": true,
+        "unrelated_component_excluded": true,
+        "full_schema_validation": false
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Reverse dependsOn traversal delivers notices to exact UID-preconditioned source and transitive dependents only",
+      "matched": true,
+      "observed": {
+        "notice_delivered_to_exact_closure": true,
+        "uid_preconditions_match": true,
+        "unrelated_configmap_unmarked": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Unknown BOM references and stale UID notice patches are rejected without partial mutation",
+      "matched": true,
+      "observed": {
+        "unknown_dependency_rejected": true,
+        "no_partial_notice_change": true,
+        "matching_uid_dry_run_admitted": true,
+        "stale_uid_precondition_rejected": true
       }
     },
     {

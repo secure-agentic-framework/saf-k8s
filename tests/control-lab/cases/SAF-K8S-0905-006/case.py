@@ -2,6 +2,7 @@
 import hashlib
 import json
 from pathlib import Path
+import runpy
 import time
 
 
@@ -66,7 +67,7 @@ SCOPE = (
     "archives the same inert bytes in a second repository, deletes the source repository manifest, "
     "and restores from archive readback by exact digest. Both repositories use the same ephemeral "
     "registry backend. This does not prove production archive independence, model registry policy, "
-    "a production release controller, CycloneDX schema validation, ML-BOM ingestion, a general propagation service, "
+    "a production release controller, full CycloneDX schema validation, production ML-BOM reconciliation, a general propagation service, "
     "cold or external storage, retention policy, physical or backup erasure, cryptographic "
     "erasure, regulatory compliance, or deletion outside these fixture Kubernetes objects."
 )
@@ -118,7 +119,7 @@ def _config_map(name, data, annotations=None):
 
 def _make_lineage_objects(lab):
     initial = {
-        "fixture-dataset": {"kind": "dataset", "lifecycle": "fixture"},
+        "fixture-dataset": {"kind": "dataset", "lifecycle": "fixture", "version": "1.0.0"},
         "model-base": {"kind": "model", "lifecycle": "deprecated", "version": "1.0.0"},
         "model-derived": {"kind": "model", "lifecycle": "active", "version": "2.0.0"},
         "release-active": {"kind": "release", "lifecycle": "active", "version": "2.0.0"},
@@ -477,6 +478,196 @@ def _not_found(lab, resource):
     lab.block(f"Could not confirm absence of fixture object {resource}")
 
 
+
+def _cyclonedx_ml_bom_lineage(lab):
+    import copy
+    parser = runpy.run_path(str(HERE / "cyclonedx_ml_bom.py"))
+    IngestError = parser["IngestError"]
+    ingest = parser["ingest"]
+    reverse_closure = parser["reverse_closure"]
+
+    bom_path = HERE / "fixtures" / "cyclonedx-1.6-mlbom.json"
+    raw = bom_path.read_bytes()
+    bom = json.loads(raw)
+    parsed = ingest(bom)
+    live = {}
+    refs_by_name = {}
+    mapping_errors = []
+    for ref, component in parsed["components"].items():
+        props = component["properties"]
+        namespace = props["saf-k8s.example:configmap-namespace"]
+        name = props["saf-k8s.example:configmap-name"]
+        record_kind = props["saf-k8s.example:record-kind"]
+        obj = _get_json(lab, f"configmap/{name}")
+        metadata = obj.get("metadata", {})
+        data = obj.get("data", {})
+        if (metadata.get("namespace") != namespace or metadata.get("name") != name
+                or not metadata.get("uid") or data.get("version") != component.get("version")
+                or data.get("kind") != record_kind):
+            mapping_errors.append(ref)
+        live[ref] = obj
+        if name in refs_by_name:
+            mapping_errors.append(f"duplicate-configmap:{name}")
+        refs_by_name[name] = ref
+
+    source_ref = parsed["configmap_to_ref"]["fixture-dataset"]
+    impacted_refs = reverse_closure(parsed["reverse_edges"], source_ref) | {source_ref}
+    impacted_names = {parsed["components"][ref]["properties"]["saf-k8s.example:configmap-name"]
+                      for ref in impacted_refs}
+    unrelated_name = "control-unrelated"
+    expected_names = {"fixture-dataset", "model-base", "model-derived", "release-active", "model-archive"}
+    actual_dependencies_by_name = {
+        parsed["components"][ref]["properties"]["saf-k8s.example:configmap-name"]:
+        sorted(parsed["components"][dependency]["properties"]["saf-k8s.example:configmap-name"]
+               for dependency in row["dependsOn"])
+        for ref, row in parsed["dependencies"].items()
+    }
+    expected_dependencies_by_name = {
+        node: sorted(source for source, dependents in LINEAGE["edges"].items() if node in dependents)
+        for node in LINEAGE["nodes"]
+    }
+    all_component_names = {
+        component["properties"]["saf-k8s.example:configmap-name"]
+        for component in parsed["components"].values()
+    }
+    mapping_ok = (not mapping_errors and impacted_names == expected_names
+                  and unrelated_name not in impacted_names and len(parsed["components"]) == 6
+                  and all_component_names == set(LINEAGE["nodes"])
+                  and actual_dependencies_by_name == expected_dependencies_by_name)
+    (lab.evidence / "cyclonedx-mlbom-parsed.raw.json").write_text(json.dumps({
+        "fixture_only": True, "cyclonedx_spec_version": bom["specVersion"],
+        "schema_validation": "selected CycloneDX 1.6 fields and dependency semantics only; full schema not validated",
+        "bom_sha256": hashlib.sha256(raw).hexdigest(),
+        "component_count": len(parsed["components"]), "dependency_count": len(parsed["dependencies"]),
+        "resolved_owned_configmaps": {parsed["components"][ref]["properties"]["saf-k8s.example:configmap-name"]:
+                                       {"bom_ref": ref, "uid": live[ref]["metadata"]["uid"],
+                                        "resource_version": live[ref]["metadata"]["resourceVersion"],
+                                        "version": parsed["components"][ref]["version"]}
+                                       for ref in sorted(parsed["components"])},
+        "reverse_depends_on_names": sorted(impacted_names), "unrelated_excluded": unrelated_name not in impacted_names,
+        "all_expected_component_names_present": all_component_names == set(LINEAGE["nodes"]),
+        "parsed_dependencies_by_name": actual_dependencies_by_name,
+        "expected_dependencies_by_name": expected_dependencies_by_name,
+        "mapping_errors": mapping_errors,
+    }, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    lab.check("positive", "CycloneDX 1.6 subset resolves versioned data/model components to exact owned ConfigMap UIDs and reverse lineage",
+              mapping_ok, {"subset_header_and_refs_valid": True, "exact_uid_version_bindings": not mapping_errors,
+                           "reverse_lineage_exact": impacted_names == expected_names,
+                           "direct_dependencies_match_fixture": actual_dependencies_by_name == expected_dependencies_by_name,
+                           "all_expected_component_names_present": all_component_names == set(LINEAGE["nodes"]),
+                           "unrelated_component_excluded": unrelated_name not in impacted_names,
+                           "full_schema_validation": False})
+    if not mapping_ok:
+        lab.block("CycloneDX subset did not resolve the exact allowlisted fixture graph and live ConfigMaps")
+
+    notice_id = "fixture-cyclonedx-lineage-notice-v1"
+    annotation = "saf-k8s.example/cyclonedx-lineage-notice"
+    patch_results = []
+    for ref in sorted(impacted_refs):
+        obj = live[ref]
+        namespace = obj["metadata"]["namespace"]
+        name = obj["metadata"]["name"]
+        uid = obj["metadata"]["uid"]
+        resource_version = obj["metadata"]["resourceVersion"]
+        pointer = "/metadata/annotations/" + annotation.replace("~", "~0").replace("/", "~1")
+        patch = [
+            {"op": "test", "path": "/metadata/uid", "value": uid},
+            {"op": "test", "path": "/metadata/resourceVersion", "value": resource_version},
+            {"op": "add", "path": pointer, "value": notice_id},
+        ]
+        observed = json.loads(lab.kubectl("-n", namespace, "patch", "configmap", name,
+                                           "--type=json", "-p", json.dumps(patch), "-o", "json").stdout)
+        patch_results.append({"name": name, "uid_precondition": uid,
+                              "resource_version_precondition": resource_version,
+                              "returned_uid": observed["metadata"].get("uid"),
+                              "returned_resource_version": observed["metadata"].get("resourceVersion"),
+                              "notice": observed.get("metadata", {}).get("annotations", {}).get(annotation)})
+    after = {name: _get_json(lab, f"configmap/{name}") for name in parsed["configmap_to_ref"]}
+    notified = {name for name, obj in after.items()
+                if obj.get("metadata", {}).get("annotations", {}).get(annotation) == notice_id}
+    for item in patch_results:
+        readback = after[item["name"]]["metadata"]
+        item["readback_uid"] = readback.get("uid")
+        item["readback_resource_version"] = readback.get("resourceVersion")
+    delivered = (not mapping_errors and notified == expected_names
+                 and all(item["uid_precondition"] == item["returned_uid"] == item["readback_uid"]
+                         and item["notice"] == notice_id
+                         and item["returned_resource_version"] != item["resource_version_precondition"]
+                         and item["returned_resource_version"] == item["readback_resource_version"]
+                         for item in patch_results)
+                 and len({item["returned_resource_version"] for item in patch_results}) == len(patch_results)
+                 and after[unrelated_name]["metadata"].get("annotations", {}).get(annotation) is None)
+    _save(lab, "cyclonedx-mlbom-notice-delivery.raw.json", {
+        "fixture_only": True, "notice_id": notice_id, "annotation": annotation,
+        "expected_names": sorted(expected_names), "observed_names": sorted(notified),
+        "unrelated_uid": after[unrelated_name]["metadata"]["uid"],
+        "unrelated_notice": after[unrelated_name]["metadata"].get("annotations", {}).get(annotation),
+        "uid_and_resource_version_preconditioned_patches": patch_results, "delivered": delivered,
+    })
+    lab.check("green", "Reverse dependsOn traversal delivers notices to exact UID-preconditioned source and transitive dependents only",
+              delivered, {"notice_delivered_to_exact_closure": notified == expected_names,
+                          "uid_preconditions_match": all(item["uid_precondition"] == item["returned_uid"]
+                                                          for item in patch_results),
+                          "unrelated_configmap_unmarked": after[unrelated_name]["metadata"].get("annotations", {}).get(annotation) is None})
+
+    stale_target = after["fixture-dataset"]
+    stale_annotation = "saf-k8s.example/stale-uid-must-not-apply"
+    stale_patch = [
+        {"op": "test", "path": "/metadata/uid", "value": stale_target["metadata"]["uid"] + "-stale"},
+        {"op": "add", "path": "/metadata/annotations/" + stale_annotation.replace("/", "~1"),
+         "value": "must-not-appear"},
+    ]
+    matching_patch = copy.deepcopy(stale_patch)
+    matching_patch[0]["value"] = stale_target["metadata"]["uid"]
+    comparison = lab.kubectl("-n", NAMESPACE, "patch", "configmap", "fixture-dataset",
+                             "--type=json", "-p", json.dumps(matching_patch),
+                             "--dry-run=server", "-o", "json")
+    comparison_object = json.loads(comparison.stdout)
+    matching_uid_dry_run_admitted = (
+        comparison_object["metadata"]["uid"] == stale_target["metadata"]["uid"]
+        and comparison_object["metadata"].get("annotations", {}).get(stale_annotation)
+        == "must-not-appear"
+    )
+    stale_result = lab.kubectl("-n", NAMESPACE, "patch", "configmap", "fixture-dataset",
+                               "--type=json", "-p", json.dumps(stale_patch), allow_failure=True)
+    after_stale_attempt = _get_json(lab, "configmap/fixture-dataset")
+    stale_uid_rejected = (matching_uid_dry_run_admitted and stale_result.returncode != 0
+                          and "the request is invalid" in stale_result.stderr.lower()
+                          and after_stale_attempt["metadata"]["uid"] == stale_target["metadata"]["uid"]
+                          and after_stale_attempt["metadata"]["resourceVersion"] == stale_target["metadata"]["resourceVersion"]
+                          and after_stale_attempt["metadata"].get("annotations", {}).get(stale_annotation) is None)
+
+    invalid = copy.deepcopy(bom)
+    bad_dependency = next(row for row in invalid["dependencies"]
+                          if row["ref"] == parsed["configmap_to_ref"]["model-base"])
+    bad_dependency["dependsOn"] = ["urn:uuid:00000000-0000-4000-8000-000000000099"]
+    rejection = None
+    try:
+        ingest(invalid)
+    except IngestError as error:
+        rejection = str(error)
+    after_invalid = {name: _get_json(lab, f"configmap/{name}") for name in parsed["configmap_to_ref"]}
+    unchanged = all(after_invalid[name].get("metadata", {}).get("uid") == after[name]["metadata"].get("uid")
+                    and after_invalid[name]["metadata"]["resourceVersion"] == after[name]["metadata"]["resourceVersion"]
+                    and after_invalid[name].get("metadata", {}).get("annotations", {}).get(annotation)
+                    == after[name].get("metadata", {}).get("annotations", {}).get(annotation)
+                    for name in after)
+    _save(lab, "cyclonedx-mlbom-unknown-ref.raw.json", {
+        "fixture_only": True, "rejection": rejection, "objects_unchanged": unchanged,
+        "matching_uid_dry_run_admitted": matching_uid_dry_run_admitted,
+        "stale_uid_patch_return_code": stale_result.returncode,
+        "stale_uid_patch_stderr": stale_result.stderr,
+        "stale_uid_rejected_without_change": stale_uid_rejected,
+        "notice_id": notice_id, "invalid_reference": "urn:uuid:00000000-0000-4000-8000-000000000099",
+    })
+    lab.check("red", "Unknown BOM references and stale UID notice patches are rejected without partial mutation",
+              rejection == "unknown dependency reference" and unchanged and stale_uid_rejected,
+              {"unknown_dependency_rejected": rejection == "unknown dependency reference",
+               "no_partial_notice_change": unchanged,
+               "matching_uid_dry_run_admitted": matching_uid_dry_run_admitted,
+               "stale_uid_precondition_rejected": stale_uid_rejected})
+
+
 def run(lab):
     version = json.loads(lab.kubectl("version", "-o", "json").stdout)
     server_version = version.get("serverVersion", {}).get("gitVersion")
@@ -487,6 +678,7 @@ def run(lab):
     # All names and content below are inert fixture strings or API objects.
     _make_lineage_objects(lab)
     _lineage_notice(lab)
+    _cyclonedx_ml_bom_lineage(lab)
     _lifecycle_objects(lab)
 
     # Retirement of synthetic model ConfigMaps is API-object deletion only.

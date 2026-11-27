@@ -1,0 +1,165 @@
+{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.6",
+  "serialNumber": "urn:uuid:4cc6f63e-2ddb-4b88-9bde-0cad23cbf106",
+  "version": 1,
+  "metadata": {
+    "component": {
+      "type": "machine-learning-model",
+      "bom-ref": "urn:uuid:83ca854d-2509-4ae2-9d8a-2e1f58eaf001",
+      "name": "release-active",
+      "version": "2.0.0",
+      "properties": [
+        {
+          "name": "saf-k8s.example:configmap-namespace",
+          "value": "saf-test"
+        },
+        {
+          "name": "saf-k8s.example:configmap-name",
+          "value": "release-active"
+        },
+        {
+          "name": "saf-k8s.example:record-kind",
+          "value": "release"
+        }
+      ]
+    }
+  },
+  "components": [
+    {
+      "type": "data",
+      "bom-ref": "urn:uuid:83ca854d-2509-4ae2-9d8a-2e1f58eaf002",
+      "name": "fixture-dataset",
+      "version": "1.0.0",
+      "properties": [
+        {
+          "name": "saf-k8s.example:configmap-namespace",
+          "value": "saf-test"
+        },
+        {
+          "name": "saf-k8s.example:configmap-name",
+          "value": "fixture-dataset"
+        },
+        {
+          "name": "saf-k8s.example:record-kind",
+          "value": "dataset"
+        }
+      ]
+    },
+    {
+      "type": "machine-learning-model",
+      "bom-ref": "urn:uuid:83ca854d-2509-4ae2-9d8a-2e1f58eaf003",
+      "name": "model-base",
+      "version": "1.0.0",
+      "properties": [
+        {
+          "name": "saf-k8s.example:configmap-namespace",
+          "value": "saf-test"
+        },
+        {
+          "name": "saf-k8s.example:configmap-name",
+          "value": "model-base"
+        },
+        {
+          "name": "saf-k8s.example:record-kind",
+          "value": "model"
+        }
+      ]
+    },
+    {
+      "type": "machine-learning-model",
+      "bom-ref": "urn:uuid:83ca854d-2509-4ae2-9d8a-2e1f58eaf004",
+      "name": "model-derived",
+      "version": "2.0.0",
+      "properties": [
+        {
+          "name": "saf-k8s.example:configmap-namespace",
+          "value": "saf-test"
+        },
+        {
+          "name": "saf-k8s.example:configmap-name",
+          "value": "model-derived"
+        },
+        {
+          "name": "saf-k8s.example:record-kind",
+          "value": "model"
+        }
+      ]
+    },
+    {
+      "type": "machine-learning-model",
+      "bom-ref": "urn:uuid:83ca854d-2509-4ae2-9d8a-2e1f58eaf005",
+      "name": "model-archive",
+      "version": "1.0.0",
+      "properties": [
+        {
+          "name": "saf-k8s.example:configmap-namespace",
+          "value": "saf-test"
+        },
+        {
+          "name": "saf-k8s.example:configmap-name",
+          "value": "model-archive"
+        },
+        {
+          "name": "saf-k8s.example:record-kind",
+          "value": "archive-copy"
+        }
+      ]
+    },
+    {
+      "type": "application",
+      "bom-ref": "urn:uuid:83ca854d-2509-4ae2-9d8a-2e1f58eaf006",
+      "name": "control-unrelated",
+      "version": "9.9.9",
+      "properties": [
+        {
+          "name": "saf-k8s.example:configmap-namespace",
+          "value": "saf-test"
+        },
+        {
+          "name": "saf-k8s.example:configmap-name",
+          "value": "control-unrelated"
+        },
+        {
+          "name": "saf-k8s.example:record-kind",
+          "value": "unrelated-control"
+        }
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "ref": "urn:uuid:83ca854d-2509-4ae2-9d8a-2e1f58eaf002",
+      "dependsOn": []
+    },
+    {
+      "ref": "urn:uuid:83ca854d-2509-4ae2-9d8a-2e1f58eaf003",
+      "dependsOn": [
+        "urn:uuid:83ca854d-2509-4ae2-9d8a-2e1f58eaf002"
+      ]
+    },
+    {
+      "ref": "urn:uuid:83ca854d-2509-4ae2-9d8a-2e1f58eaf004",
+      "dependsOn": [
+        "urn:uuid:83ca854d-2509-4ae2-9d8a-2e1f58eaf003"
+      ]
+    },
+    {
+      "ref": "urn:uuid:83ca854d-2509-4ae2-9d8a-2e1f58eaf001",
+      "dependsOn": [
+        "urn:uuid:83ca854d-2509-4ae2-9d8a-2e1f58eaf004"
+      ]
+    },
+    {
+      "ref": "urn:uuid:83ca854d-2509-4ae2-9d8a-2e1f58eaf005",
+      "dependsOn": [
+        "urn:uuid:83ca854d-2509-4ae2-9d8a-2e1f58eaf003"
+      ]
+    },
+    {
+      "ref": "urn:uuid:83ca854d-2509-4ae2-9d8a-2e1f58eaf006",
+      "dependsOn": []
+    }
+  ],
+  "$schema": "http://cyclonedx.org/schema/bom-1.6.schema.json"
+}
