@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0904-003",
-  "catalog_revision": "b65ab0a9ad590135f8ad220e4610431920514959",
-  "catalog_sha256": "f744308abbfe44deef8377df1955d70b543aa25dc3b0adca73d6d9ddf1792f64",
+  "catalog_revision": "449a50b516dcd3542b9b762af6e42a8120cf2f22",
+  "catalog_sha256": "96ad50c08e7c7fcb717b830fb2376a887ae787e5a40dc3e0d17ed414187197a4",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "d0b57a1ca68aec60e4ca9d14eb14c94e299fe8f5eee724abc6465e94f7cbbbdd",
-  "scope": "One fresh Kind v1.36.1 cluster, two pinned upstream Jupyter base-notebook Pods, and two case-owned benign dataset endpoints. The notebook Pods have distinct non-root UIDs and tokenless service accounts, configured CPU/RAM bounds and restrictive security contexts. Native NetworkPolicy limits each to its labeled endpoint, and native admission enforces the approved image reference. Each real Jupyter kernel executes a fixed harmless cell after policy is active. The pinned synthetic Hub also authenticates two fixture users, spawns their actual KubeSpawner Pods, and applies per-user egress policy to those Pods. Production identity/session lifecycle, extension governance, full image provenance, durable storage, real dataset authorization/audit, and deployed controls require separate evidence.",
-  "cluster": "saf-lab-92dfb9dd9c8d",
+  "scope": "One fresh Kind v1.36.1 cluster, two pinned upstream Jupyter base-notebook Pods, and two case-owned benign dataset endpoints. The notebook Pods have distinct non-root UIDs and tokenless service accounts, configured CPU/RAM bounds and restrictive security contexts. Native NetworkPolicy limits each to its labeled endpoint, and native admission enforces the approved image reference. Each real Jupyter kernel executes a fixed harmless cell after policy is active. The pinned synthetic Hub also authenticates two fixture users, spawns their actual KubeSpawner Pods, and applies per-user egress policy to those Pods. Production identity/session lifecycle, extension governance, full image provenance, durable storage, real dataset authorization/audit, and deployed controls require separate evidence. An additional check reads the mounted terminal-interface setting and exact runtime package version, then compares authenticated status and terminal collection GET responses from both synthetic users.",
+  "cluster": "saf-lab-028f59205eec",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -142,6 +142,26 @@
         "distinct_ready_user_pods": true,
         "two_user_pods_observed": true,
         "authorization_path": "JupyterHub 5.5.5 single-user server native access scope"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Authenticated user servers report status, expose no terminal collection, and carry the exact mounted terminal-disable config",
+      "matched": true,
+      "observed": {
+        "authenticated_status_ok": true,
+        "jupyter_server_versions_observed": {
+          "saf-workspace-alice": "2.21.1",
+          "saf-workspace-bob": "2.21.1"
+        },
+        "same_server_version_for_both_users": true,
+        "terminals_get_not_available": true,
+        "terminal_endpoint_statuses": {
+          "saf-workspace-alice": 404,
+          "saf-workspace-bob": 404
+        },
+        "exact_config_mounted_for_both_users": true,
+        "terminal_create_called": false
       }
     },
     {

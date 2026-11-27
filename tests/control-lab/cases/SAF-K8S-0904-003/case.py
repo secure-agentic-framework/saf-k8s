@@ -28,6 +28,9 @@ SCOPE = (
     "spawns their actual KubeSpawner Pods, and applies per-user egress policy to those Pods. "
     "Production identity/session lifecycle, extension governance, full image provenance, "
     "durable storage, real dataset authorization/audit, and deployed controls require separate evidence."
+    " An additional check reads the mounted terminal-interface setting and exact "
+    "runtime package version, then compares authenticated status and terminal "
+    "collection GET responses from both synthetic users."
 )
 
 ROOT = Path(__file__).resolve().parent
@@ -342,6 +345,12 @@ def _hub_values():
                       "pullPolicy": "IfNotPresent"},
             "serviceAccountName": HUB_USER_SA,
             "storage": {"type": "none"},
+            "extraFiles": {
+                "saf-terminals-disabled.py": {
+                    "mountPath": "/etc/jupyter/jupyter_server_config.py",
+                    "stringData": "c.ServerApp.terminals_enabled = False\n",
+                }
+            },
             "networkPolicy": {
                 "enabled": True,
                 "egress": [],
@@ -574,6 +583,13 @@ def main():
         try: model = json.loads(body)
         except (ValueError, UnicodeDecodeError): model = {}
         own_read[user] = status == 200 and model.get("content") == MARKERS[user]
+        # Read-only endpoints only: never POST /api/terminals or request a shell.
+        status_server, _, _ = request(opener, "/user/" + user + "/api/status")
+        status_terminals, _, _ = request(opener, "/user/" + user + "/api/terminals")
+        progress.setdefault("server_api", {})[user] = {
+            "authenticated_status_ok": status_server == 200,
+            "terminals_endpoint_status": status_terminals,
+        }
     cross_denied = {}
     for reader, owner in ((USERS[0], USERS[1]), (USERS[1], USERS[0])):
         _, opener = sessions[reader]
@@ -581,7 +597,8 @@ def main():
         status, _, _ = request(opener, path, referer=BASE + "/user/" + reader + "/")
         cross_denied[reader + "_to_" + owner] = status == 403
     print(json.dumps({"own_marker_read": own_read, "cross_user_forbidden": cross_denied,
-                      "separate_authenticated_sessions": len(sessions) == 2}))
+                      "separate_authenticated_sessions": len(sessions) == 2,
+                      "server_api": progress.get("server_api", {})}, sort_keys=True))
 
 try:
     main()
@@ -737,6 +754,35 @@ def _exercise_hub_workspace_matrix(lab):
                "two_user_pods_observed": all(len(rows[user]) == 1 for user in (HUB_ALICE, HUB_BOB)),
                "authorization_path": "JupyterHub 5.5.5 single-user server native access scope"})
     (lab.evidence / "hub-workspace-matrix-summary.json").write_text(json.dumps(lab.checks[-1], indent=2) + "\n")
+    server_rows = result.get("server_api", {})
+    config_mounts = {user: _hub_terminal_config_mount(lab, user) for user in (HUB_ALICE, HUB_BOB)}
+    endpoint_statuses = {user: server_rows.get(user, {}).get("terminals_endpoint_status")
+                         for user in (HUB_ALICE, HUB_BOB)}
+    terminal_gate = (
+        all(server_rows.get(user, {}).get("authenticated_status_ok") is True
+            and server_rows.get(user, {}).get("terminals_endpoint_status") == 404
+            for user in (HUB_ALICE, HUB_BOB))
+        and all(isinstance(config_mounts[user], dict) and config_mounts[user].get("mounted_config_ok") is True
+                and bool(config_mounts[user].get("jupyter_server_version")) for user in (HUB_ALICE, HUB_BOB))
+        and isinstance(config_mounts[HUB_ALICE], dict)
+        and config_mounts[HUB_ALICE].get("jupyter_server_version") == config_mounts[HUB_BOB].get("jupyter_server_version")
+    )
+    lab.check("positive", "Authenticated user servers report status, expose no terminal collection, and carry the exact mounted terminal-disable config",
+              terminal_gate,
+              {"authenticated_status_ok": all(server_rows.get(user, {}).get("authenticated_status_ok") is True
+                                                for user in (HUB_ALICE, HUB_BOB)),
+               "jupyter_server_versions_observed": {user: config_mounts[user].get("jupyter_server_version", "")
+                                                     if isinstance(config_mounts[user], dict) else ""
+                                                     for user in (HUB_ALICE, HUB_BOB)},
+               "same_server_version_for_both_users": all(isinstance(config_mounts[user], dict)
+                   for user in (HUB_ALICE, HUB_BOB))
+                   and config_mounts[HUB_ALICE].get("jupyter_server_version") == config_mounts[HUB_BOB].get("jupyter_server_version"),
+               "terminals_get_not_available": all(value == 404 for value in endpoint_statuses.values()),
+               "terminal_endpoint_statuses": endpoint_statuses,
+               "exact_config_mounted_for_both_users": all(isinstance(config_mounts[user], dict)
+                   and config_mounts[user].get("mounted_config_ok") is True for user in (HUB_ALICE, HUB_BOB)),
+               "terminal_create_called": False})
+    (lab.evidence / "hub-terminal-readonly-summary.json").write_text(json.dumps(lab.checks[-1], indent=2) + "\n")
     _exercise_hub_spawned_egress(lab)
 
 
@@ -970,6 +1016,52 @@ def _hub_user_pods(lab, user=HUB_USER):
              "{.spec.containers[0].image}{\"|\"}{.status.phase}{\"\\n\"}{end}")
     result = lab.kubectl("get", "pods", "-l", f"hub.jupyter.org/username={user}", "-o", f"jsonpath={query}")
     return [line.split("|") for line in result.stdout.splitlines() if line]
+
+
+def _hub_terminal_config_mount(lab, user):
+    selected = json.loads(lab.kubectl(
+        "get", "pods", "-l", f"hub.jupyter.org/username={user}", "-o", "json").stdout).get("items", [])
+    if len(selected) != 1 or not _pod_ready(selected[0]):
+        return False
+    pod = selected[0]
+    spec = pod.get("spec", {})
+    if not any(container.get("image") == SINGLEUSER_IMAGE for container in spec.get("containers", [])):
+        return False
+    volumes = spec.get("volumes", [])
+    expected_key = "saf-terminals-disabled.py"
+    matching = [volume for volume in volumes
+                if volume.get("secret", {}).get("secretName") == "singleuser"
+                and any(item.get("key") == expected_key and item.get("path") == expected_key
+                        for item in volume.get("secret", {}).get("items", []))]
+    if len(matching) != 1:
+        return False
+    volume_name = matching[0].get("name")
+    containers = spec.get("containers", [])
+    main = [container for container in containers
+            if any(mount.get("name") == volume_name
+                   and mount.get("mountPath") == "/etc/jupyter/jupyter_server_config.py"
+                   and mount.get("subPath") == expected_key
+                   for mount in container.get("volumeMounts", []))]
+    if len(main) != 1:
+        return False
+    name = pod.get("metadata", {}).get("name")
+    # Fixed read-only inspection of the exact mounted file; output is limited to
+    # existence, a digest, and the one reviewed trait assignment.
+    inspector = ("import hashlib,json,pathlib,jupyter_server; p=pathlib.Path('/etc/jupyter/jupyter_server_config.py'); "
+                 "b=p.read_bytes(); print(json.dumps({'exists':True,'sha256':hashlib.sha256(b).hexdigest(),"
+                 "'disabled_line':b'c.ServerApp.terminals_enabled = False' in b,"
+                 "'jupyter_server_version':jupyter_server.__version__}))")
+    observed = lab.kubectl("exec", name, "-c", main[0]["name"], "--", "python", "-B", "-c", inspector,
+                           timeout=12).stdout.strip()
+    try:
+        result = json.loads(observed)
+    except json.JSONDecodeError:
+        return False
+    expected_hash = hashlib.sha256(b"c.ServerApp.terminals_enabled = False\n").hexdigest()
+    return {"mounted_config_ok": result.get("exists") is True
+            and result.get("sha256") == expected_hash
+            and result.get("disabled_line") is True,
+            "jupyter_server_version": result.get("jupyter_server_version", "")}
 
 
 def _save_failure_diagnostics(lab, password):

@@ -61,3 +61,24 @@ The before-policy comparison uses a temporary allowance for exactly the two
 case-owned dataset endpoints and the same two spawned notebook Pods. The runner
 removes that allowance before applying and checking the individually scoped
 policies. The chart continues to supply the bounded Hub and DNS paths.
+
+## Authenticated terminal-interface configuration
+
+The pinned chart's `singleuser.extraFiles` input mounts one read-only, case-owned
+Jupyter Server config file into each spawned user Pod. The supplemental check
+reads the actual Pod volume/Secret mapping and performs a fixed read-only file
+inspection that emits only a boolean for the expected trait line, the file SHA-256, and
+the installed Jupyter Server package version. Through each user's existing
+authenticated cookie session it sends GET requests to `/api/status` and
+`/api/terminals`, retaining only status codes. The authenticated Contents
+marker read remains part of the original workspace check. It never creates a
+terminal or calls a terminal shell/WebSocket endpoint.
+
+This verifies the fixture's mounted setting and read-only HTTP behavior for the
+pinned singleuser image. It does not claim that hiding a terminal interface
+prevents code execution through notebooks, or establish production extension
+configuration. The case has no on/off runtime comparator: the controlled
+contrast would require a second separately installed Hub release or chart
+upgrade changing only `terminals_enabled`, followed by the same two-user
+authenticated GETs. It is intentionally not added because that would duplicate
+Hub provisioning and disrupt the single pinned egress scenario.
