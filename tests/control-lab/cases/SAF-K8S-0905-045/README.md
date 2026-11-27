@@ -16,16 +16,30 @@ and writes an independent `escalated` disposition bound to the runtime receipt.
 The case reads back that exact disposition and confirms the candidate remains
 held.
 
+Before the model request, the case verifies the runner's bundled kindnet DaemonSet
+is ready. A dedicated tokenless client with the evaluator's exact policy label first reaches
+both the healthy model Pod and a case-owned inert HTTP peer. After the two
+NetworkPolicies are applied, that same client still reaches the model endpoint
+but cannot reach the unrelated peer. The actual evaluator Job is checked to
+carry the same selector label before it makes the bounded model request. This
+proves this one bundled-kindnet-enforced namespace path, not broad cluster or
+production policy coverage.
+
 This smoke request has no approved safety rubric or representative dataset, so
 the real-model result is deliberately inconclusive. The witness establishes a
-real bounded CPU model invocation and a digest-bound hold path; it does not
-establish that the model is safe, unsafe, or fit for internal use. Verify actual
-model identity and source, representative evaluation datasets and criteria,
-sandbox and NetworkPolicy enforcement, reviewer authority, exception handling,
-retention, and every production promotion path for the adopting environment.
+real bounded CPU model invocation, one isolated serving route, and a digest-bound
+hold path; it does not establish that the model is safe, unsafe, or fit for
+internal use. Verify actual model identity and source, representative evaluation
+datasets and criteria, enforcement in the adopted CNI across every serving path,
+reviewer authority, exception handling, retention, and every production
+promotion path for the adopting environment.
 
 The runtime companion is loaded from the adjacent SAF-K8S-0903-004 case and its
 runtime helper and Dockerfile are checked against the reviewed SHA-256 values in
 `native_model.py`. The runner supplies that sibling case. The model artifact is
 fetched only by that companion at test execution time, then checked against its
-pinned digest; it is not stored in this case tree.
+pinned digest; it is not stored in this case tree. The runner must supply the
+adjacent SAF-K8S-0903-004 case.
+
+The harness also checks that the same client and peer Pods persist and that
+the peer still serves its local health response after policy takes effect.

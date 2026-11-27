@@ -49,25 +49,6 @@ def _load_runtime(lab):
     return module
 
 
-def _network_policies(lab):
-    lab.create({
-        "apiVersion": "networking.k8s.io/v1", "kind": "NetworkPolicy",
-        "metadata": {"name": "native-model-server-ingress"},
-        "spec": {"podSelector": {"matchLabels": SERVER_LABEL},
-                 "policyTypes": ["Ingress", "Egress"], "egress": [],
-                 "ingress": [{"from": [{"podSelector": {"matchLabels": EVALUATOR_LABEL}}],
-                              "ports": [{"protocol": "TCP", "port": 8080}]}]},
-    })
-    lab.create({
-        "apiVersion": "networking.k8s.io/v1", "kind": "NetworkPolicy",
-        "metadata": {"name": "native-model-evaluator-egress"},
-        "spec": {"podSelector": {"matchLabels": EVALUATOR_LABEL},
-                 "policyTypes": ["Ingress", "Egress"], "ingress": [],
-                 "egress": [{"to": [{"podSelector": {"matchLabels": SERVER_LABEL}}],
-                             "ports": [{"protocol": "TCP", "port": 8080}]}]},
-    })
-
-
 def _reviewer_rbac(lab):
     lab.create({"apiVersion": "v1", "kind": "ServiceAccount",
                 "metadata": {"name": REVIEWER, "namespace": NAMESPACE}})
@@ -105,7 +86,6 @@ def _evaluate(lab, python_image, make_job, wait_job, pod_security, auth):
                 "metadata": {"name": DISPOSITION},
                 "data": {"decision.json": "{}"}})
     _reviewer_rbac(lab)
-    _network_policies(lab)
     lab.create(server_spec)
     lab.kubectl("wait", "--for=condition=Ready", "pod/" + SERVER,
                 "--timeout=195s", timeout=205)
@@ -148,6 +128,14 @@ def _evaluate(lab, python_image, make_job, wait_job, pod_security, auth):
                        "service_created": False,
                        "service_account_token_mounted": False})
 
+    network_spec = importlib.util.spec_from_file_location(
+        "saf_0905_045_sandbox_network", HERE / "sandbox_network.py")
+    if network_spec is None or network_spec.loader is None:
+        lab.block("Could not load the bounded sandbox network witness")
+    network_module = importlib.util.module_from_spec(network_spec)
+    network_spec.loader.exec_module(network_module)
+    network_observation = network_module.run(lab, python_image, server["status"]["podIP"])
+
     evaluator_job = make_job(EVALUATOR, python_image, "native_model_eval.py",
                              config_map=EVALUATOR_CODE, deadline=90)
     evaluator_container = evaluator_job["spec"]["template"]["spec"]["containers"][0]
@@ -161,6 +149,12 @@ def _evaluate(lab, python_image, make_job, wait_job, pod_security, auth):
     ]
     lab.create(evaluator_job)
     evaluator_job_result, runtime_receipt, evaluator_stdout = wait_job(lab, EVALUATOR)
+    evaluator_pods = json.loads(lab.kubectl("get", "pods", "-l", "job-name=" + EVALUATOR,
+                                             "-o", "json").stdout).get("items", [])
+    evaluator_label_matches = (
+        len(evaluator_pods) == 1
+        and evaluator_pods[0].get("metadata", {}).get("labels", {}).get("app") == EVALUATOR
+    )
     token_digest = runtime_receipt.get("request", {}).get("completion_token_ids_sha256")
     expected_runtime_fields = {
         "candidate_id": "external-stories15m-moe-fixture",
@@ -214,6 +208,9 @@ def _evaluate(lab, python_image, make_job, wait_job, pod_security, auth):
         "fixed_prompt_was_tokenized": runtime_receipt.get("request", {}).get("prompt_token_count") == 4,
         "bounded_completion_observed": runtime_receipt.get("request", {}).get("completion_token_count") == 4
             and runtime_receipt.get("request", {}).get("completion_stop_type") == "limit",
+        "evaluator_job_matches_network_policy_selector": evaluator_label_matches
+            and network_observation.get("selectors_match")
+            and network_observation.get("client_matches_evaluator_selector"),
         "server_pod_hardened": server_security == {
             "service_account_token_disabled": True, "run_as_non_root": True,
             "run_as_user": 65534, "seccomp": "RuntimeDefault",
@@ -272,7 +269,10 @@ def _evaluate(lab, python_image, make_job, wait_job, pod_security, auth):
         "reviewer_cannot_update_evaluation": reviewer_may_not_update_eval,
         "network_policy_specs_created": ["native-model-server-ingress",
                                           "native-model-evaluator-egress"],
-        "network_policy_enforcement_verified": False,
+        "network_policy_enforcement_verified":
+            network_observation.get("post") == {"model": "reachable", "peer": "blocked"},
+        "evaluator_pod_labels": evaluator_pods[0].get("metadata", {}).get("labels", {})
+            if evaluator_pods else {},
     }
     (lab.evidence / "native-model-held.raw.json").write_text(
         json.dumps(raw, indent=2, sort_keys=True) + "\n")
@@ -285,7 +285,9 @@ def _evaluate(lab, python_image, make_job, wait_job, pod_security, auth):
                        == runtime_receipt.get("runtime_receipt_sha256"),
                    "independent_readback_matches": disposition == expected_disposition},
         "limitations": {"actual_model_safety_pass": False,
-                        "network_policy_enforcement_verified": False,
+                        "network_policy_enforcement_verified":
+                            network_observation.get("post") == {
+                                "model": "reachable", "peer": "blocked"},
                         "generated_text_retained": False},
     }, indent=2, sort_keys=True) + "\n")
     lab.check(

@@ -27,8 +27,10 @@ SCOPE = (
     "four-token CPU request to the digest-pinned llama.cpp b9519 Stories test model, "
     "records identifiers, counts and hashes only, and obtains an independent "
     "digest-bound escalated/held review because this smoke request has no approved "
-    "safety rubric or representative dataset. This does not establish model safety "
-    "or network-policy enforcement."
+    "safety rubric or representative dataset. The bounded network comparison uses the "
+    "runner's bundled kindnet and proves one same-namespace evaluator-to-model HTTP route "
+    "while an unrelated inert peer is blocked under the exact selector. This does not "
+    "establish production model safety, cluster-wide network coverage, or promotion."
 )
 
 FIXTURE = {
@@ -175,6 +177,8 @@ def _normalize(raw, event):
 
 
 def run(lab):
+    lab.kubectl("-n", "kube-system", "rollout", "status", "daemonset/kindnet",
+                "--timeout=60s", timeout=70)
     helper = importlib.util.spec_from_file_location("saf_behavior_runtime",
                                                     HERE.parent / "SAF-K8S-0908-001" / "case.py")
     module = importlib.util.module_from_spec(helper)

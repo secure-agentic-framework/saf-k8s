@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0905-045",
-  "catalog_revision": "77591e6db8948d2a092c968b00b632997bf495c5",
+  "catalog_revision": "596bc0d3b5d1da1084da698be61f57a73caa7d0b",
   "catalog_sha256": "1da56289e4f344f65fa946b0099b200d7a52a7c4bea62ee17a32261bedc18861",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "d7744b79a02f9e4eb89a31c789f908c9caf212dbea2c71a91108e6898827e352",
-  "scope": "Runs bounded Jobs in the precreated saf-test namespace on the runner's digest-pinned default Kind cluster. The toy evaluator processes only a mounted, immutable JSON fixture with one allowlisted operation and no model artifact, network client, or Kubernetes credential. A separate reviewer ServiceAccount reads the immutable evaluation, writes exact approved/rejected/escalated dispositions to a precreated ConfigMap, and creates one synthetic Warning Event for the rejected toy record. Assertions cover the ungated unsafe counterfactual, exact rejection and event, exact safe approval, Pod hardening, and RBAC separation. This does not execute or behaviorally vet a real model; validate sandbox escape resistance, network policy enforcement, real model quality, data coverage, human reviewer identity or procedures, signature verification, or production promotion/audit workflows. A further tokenless evaluator Job makes one fixed four-token CPU request to the digest-pinned llama.cpp b9519 Stories test model, records identifiers, counts and hashes only, and obtains an independent digest-bound escalated/held review because this smoke request has no approved safety rubric or representative dataset. This does not establish model safety or network-policy enforcement.",
-  "cluster": "saf-lab-bf2891a2050e",
+  "scope": "Runs bounded Jobs in the precreated saf-test namespace on the runner's digest-pinned default Kind cluster. The toy evaluator processes only a mounted, immutable JSON fixture with one allowlisted operation and no model artifact, network client, or Kubernetes credential. A separate reviewer ServiceAccount reads the immutable evaluation, writes exact approved/rejected/escalated dispositions to a precreated ConfigMap, and creates one synthetic Warning Event for the rejected toy record. Assertions cover the ungated unsafe counterfactual, exact rejection and event, exact safe approval, Pod hardening, and RBAC separation. This does not execute or behaviorally vet a real model; validate sandbox escape resistance, network policy enforcement, real model quality, data coverage, human reviewer identity or procedures, signature verification, or production promotion/audit workflows. A further tokenless evaluator Job makes one fixed four-token CPU request to the digest-pinned llama.cpp b9519 Stories test model, records identifiers, counts and hashes only, and obtains an independent digest-bound escalated/held review because this smoke request has no approved safety rubric or representative dataset. The bounded network comparison uses the runner's bundled kindnet and proves one same-namespace evaluator-to-model HTTP route while an unrelated inert peer is blocked under the exact selector. This does not establish production model safety, cluster-wide network coverage, or promotion.",
+  "cluster": "saf-lab-838e4d25e741",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -159,6 +159,30 @@
       }
     },
     {
+      "phase": "red",
+      "claim": "Before the sandbox policy the fixed client reaches both owned HTTP peers",
+      "matched": true,
+      "observed": {
+        "model": "reachable",
+        "peer": "reachable"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The enforced evaluator selector keeps the model route and blocks the unrelated peer",
+      "matched": true,
+      "observed": {
+        "post_policy": {
+          "model": "reachable",
+          "peer": "blocked"
+        },
+        "policy_specs_match": true,
+        "client_matches_evaluator_selector": true,
+        "same_client_uid": true,
+        "same_peer_still_healthy": true
+      }
+    },
+    {
       "phase": "positive",
       "claim": "Pinned CPU model completes the fixed bounded request in its owned Pod",
       "matched": true,
@@ -167,6 +191,7 @@
         "model_runtime_identity_bound": true,
         "fixed_prompt_was_tokenized": true,
         "bounded_completion_observed": true,
+        "evaluator_job_matches_network_policy_selector": true,
         "server_pod_hardened": true,
         "evaluator_pod_hardened": true,
         "model_alias": "stories15m-moe",
