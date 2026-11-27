@@ -45,6 +45,8 @@ SCOPE = (
     "establish an actual incident, prove deployed controls, or validate a production classification "
     "workflow. A separate native Kubernetes admission and RBAC check binds an inert pending "
     "review to the current case-owned pattern-library revision and the original synthetic observation."
+    " A second case-owned binding checks the synthetic review's detection, control and "
+    "pending risk-review references against an immutable roster for the current revision."
 )
 
 

@@ -7,6 +7,9 @@ NS = "saf-aml-library"
 POLICY = "saf-aml-library-binding"
 LIBRARY = "approved-pattern-library"
 RECORD = "synthetic-review"
+ROUTING_POLICY = "saf-aml-detection-route-binding"
+ROUTING_ROSTER = "approved-synthetic-detection-route"
+ROUTING_MESSAGE = "SAF AML fixture requires the approved detection and triage route"
 CURATOR = "curator"
 OBSERVER = "observer"
 TAXONOMY = "NIST AI 100-2e2025"
@@ -56,18 +59,19 @@ def _wait_for(lab, predicate, error):
     lab.block(error)
 
 
-def _policy(lab):
+def _policy(lab, *, name=POLICY, parameter=LIBRARY, message=POLICY_MESSAGE,
+            fields=("taxonomy", "libraryRevision", "evidenceDigest")):
     api_version = "admissionregistration.k8s.io/v1"
     expression = (
         "params != null && has(params.data) && has(object.data)"
-        " && ['taxonomy', 'libraryRevision', 'evidenceDigest'].all(k,"
+        f" && {json.dumps(fields)}.all(k,"
         " k in object.data && k in params.data && object.data[k] == params.data[k])"
         " && 'reviewState' in object.data && object.data.reviewState == 'pending-human-review'"
         " && 'attackClass' in object.data && object.data.attackClass == 'unassigned'"
         " && 'incidentEstablished' in object.data && object.data.incidentEstablished == 'false'"
     )
     _create(lab, {"apiVersion": api_version, "kind": "ValidatingAdmissionPolicy",
-                "metadata": {"name": POLICY},
+                "metadata": {"name": name},
                 "spec": {"failurePolicy": "Fail", "paramKind": {"apiVersion": "v1", "kind": "ConfigMap"},
                          "matchConstraints": {
                              "namespaceSelector": {"matchLabels": {"saf.example/aml-library": "owned"}},
@@ -75,16 +79,16 @@ def _policy(lab):
                                                 "operations": ["UPDATE"], "resources": ["configmaps"]}]},
                          "matchConditions": [{"name": "owned-review", "expression":
                                               "request.namespace == '" + NS + "' && object.metadata.name == '" + RECORD + "'"}],
-                         "validations": [{"expression": expression, "message": POLICY_MESSAGE}]}})
+                         "validations": [{"expression": expression, "message": message}]}})
     _create(lab, {"apiVersion": api_version, "kind": "ValidatingAdmissionPolicyBinding",
-                "metadata": {"name": POLICY},
-                "spec": {"policyName": POLICY, "validationActions": ["Deny"],
-                         "paramRef": {"name": LIBRARY, "namespace": NS,
+                "metadata": {"name": name},
+                "spec": {"policyName": name, "validationActions": ["Deny"],
+                         "paramRef": {"name": parameter, "namespace": NS,
                                       "parameterNotFoundAction": "Deny"}}})
 
 
-def _policy_denied(response):
-    return response.returncode != 0 and POLICY_MESSAGE in response.stderr
+def _policy_denied(response, message=POLICY_MESSAGE):
+    return response.returncode != 0 and message in response.stderr
 
 
 def _resource_version(row):
@@ -104,8 +108,9 @@ def run(lab, record, verdict):
         _create(lab, {"apiVersion": "v1", "kind": "ConfigMap",
                     "metadata": {"name": name, "namespace": NS}, "data": data})
     exact_names = {"apiGroups": [""], "resources": ["configmaps"], "resourceNames": [LIBRARY, RECORD]}
-    _role(lab, CURATOR, [dict(exact_names, verbs=["get", "patch"])])
-    _role(lab, OBSERVER, [dict(exact_names, verbs=["get"])])
+    roster_read = dict(exact_names, resourceNames=[ROUTING_ROSTER], verbs=["get"])
+    _role(lab, CURATOR, [dict(exact_names, verbs=["get", "patch"]), roster_read])
+    _role(lab, OBSERVER, [dict(exact_names, verbs=["get"]), roster_read])
 
     stale = dict(pending, libraryRevision="obsolete")
     overclaim = dict(pending, attackClass="unsupported-synthetic-class", incidentEstablished="true")
@@ -177,3 +182,60 @@ def run(lab, record, verdict):
                     "observer_write": rbac_denied, "previous_revision": _policy_denied(after_revision),
                     "wrong_evidence_digest": _policy_denied(denied_evidence)},
     }, indent=2, sort_keys=True) + "\n")
+
+
+    _exercise_detection_route(lab, candidate, observed)
+
+
+def _exercise_detection_route(lab, candidate, before):
+    route = {
+        "libraryRevision": candidate["libraryRevision"],
+        "patternKey": "synthetic-pattern-01",
+        "detectorRef": "fixture-detection-0042",
+        "riskQueue": "pending-fixture-risk-review",
+        "controlRef": "SAF-K8S-1001-012",
+    }
+    _create(lab, {"apiVersion": "v1", "kind": "ConfigMap", "immutable": True,
+                 "metadata": {"name": ROUTING_ROSTER, "namespace": NS}, "data": route})
+    wrong = dict(route, detectorRef="unlisted-fixture-detector")
+    spread = _patch(lab, wrong, CURATOR, dry_run=True)
+    lab.check("red", "Before the detection-route binding an unlisted reference reaches dry-run admission",
+              spread.returncode == 0 and json.loads(spread.stdout)["data"]["detectorRef"] == wrong["detectorRef"]
+              and _read(lab, RECORD) == before,
+              {"unlisted_reference_dry_run_admitted": spread.returncode == 0,
+               "original_exact_pending_record_retained": _read(lab, RECORD) == before})
+
+    _policy(lab, name=ROUTING_POLICY, parameter=ROUTING_ROSTER, message=ROUTING_MESSAGE,
+            fields=tuple(route))
+
+    def observe_denial():
+        response = _patch(lab, wrong, CURATOR, dry_run=True)
+        return response if _policy_denied(response, ROUTING_MESSAGE) else None
+
+    wrong_ref = _wait_for(lab, observe_denial, "The detection-route policy did not refuse the unlisted reference")
+    wrong_queue = _patch(lab, dict(route, riskQueue="unlisted-fixture-queue"), CURATOR, dry_run=True)
+    roster_update = lab.kubectl(
+        "-n", NS, _as(CURATOR), "patch", "configmap", ROUTING_ROSTER, "--type=merge",
+        "-p", json.dumps({"data": wrong}), "--dry-run=server", allow_failure=True)
+    previous = _read(lab, RECORD, OBSERVER)
+    accepted = _patch(lab, route, CURATOR)
+    if accepted.returncode:
+        lab.block("The curator could not persist the exact listed synthetic route")
+    accepted_row = json.loads(accepted.stdout)
+    observed = _read(lab, RECORD, OBSERVER)
+    roster = _read(lab, ROUTING_ROSTER, OBSERVER)
+    observations = {
+        "unlisted_detector_denied": _policy_denied(wrong_ref, ROUTING_MESSAGE),
+        "unlisted_risk_queue_denied": _policy_denied(wrong_queue, ROUTING_MESSAGE),
+        "route_roster_immutable_and_exact": roster.get("immutable") is True and roster["data"] == route,
+        "curator_denied_roster_mutation": roster_update.returncode != 0 and "(Forbidden)" in roster_update.stderr,
+        "pending_record_and_original_evidence_bound": observed["data"] == {**candidate, **route},
+        "same_record_uid_before_and_after": observed["metadata"]["uid"] == before["metadata"]["uid"],
+        "only_exact_valid_update_persisted": previous == before and
+            _resource_version(accepted_row) == _resource_version(observed) != _resource_version(before),
+    }
+    (lab.evidence / "taxonomy-detection-route.raw.json").write_text(json.dumps({
+        "roster": roster, "previous_review": previous, "routed_review": observed,
+        "observations": observations}, indent=2, sort_keys=True) + "\n")
+    lab.check("green", "An exact library detection route is persisted while unlisted references are refused",
+              all(observations.values()), observations)

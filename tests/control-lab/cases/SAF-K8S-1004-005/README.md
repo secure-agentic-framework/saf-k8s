@@ -47,3 +47,15 @@ adopter evidence.
 
 - [Kubernetes v1.36 RBAC](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/rbac/)
 - [Kubernetes v1.36 Validating Admission Policy](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/validating-admission-policy/)
+
+
+## Detection and risk-review references
+
+An immutable fixture roster binds a versioned abstract pattern to one listed
+synthetic detector, a control reference, and a pending risk-review queue.
+Before the native routing policy, the curator's unlisted detector reference
+passes server dry-run. With the policy active, the unlisted detector and queue
+are refused. The curator cannot mutate the roster. An independent observer
+reads the exact listed route on the original pending record, bearing the same
+evidence digest. The fixture illustrates the reference boundary. The adopter
+verifies detection behavior, review authority, and case disposition.
