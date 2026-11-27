@@ -1,5 +1,6 @@
 """Exercise a narrow tenant Pod admission boundary for storage workloads."""
 
+import importlib.util
 import json
 from pathlib import Path
 
@@ -8,8 +9,10 @@ from fixtures import BUSYBOX_IMAGE
 SCOPE = (
     "Disposable two-node Kind v1.36.1. Server dry-run compares restrictive Pod Security admission "
     "of exact privilege and hostPath declarations. A nonroot Pod proves real read-only PVC access. "
-    "Two bounded ordinary Pods compare scheduling on the exact owned tainted worker. Applicable "
-    "storage driver host privileges and authorization for scheduling exemptions require separate evidence."
+    "Two bounded ordinary Pods compare scheduling on the exact owned tainted worker. An additive "
+    "case-owned ValidatingAdmissionPolicy compares an approved installer identity with a tenant identity "
+    "that has the same pods/create RBAC grant, using one harmless restricted Pod and server dry-run denial. "
+    "Actual provider privileges, authorization configuration, and supported host controls require separate evidence."
 )
 NODE_IMAGE = "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5"
 
@@ -250,6 +253,13 @@ def run(lab):
             {"node_assigned": bool(scheduled), "reason": reason, "scheduler_reports_untolerated_taint": taint_reason,
              "exact_worker_taint_and_tenant_selector_verified": worker_guard},
         )
+        supplement_path = Path(__file__).with_name("identity_toleration_supplement.py")
+        supplement_spec = importlib.util.spec_from_file_location(
+            "saf_k8s_0701_007_identity_toleration", supplement_path)
+        supplement = importlib.util.module_from_spec(supplement_spec)
+        supplement_spec.loader.exec_module(supplement)
+        supplement.run(lab, busybox_image=BUSYBOX_IMAGE,
+                       node_label=node_label, taint_key=taint_key)
     finally:
         if node_name:
             lab.kubectl("delete", "pod", allowed_name, "-n", driver_namespace,

@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0701-007",
-  "catalog_revision": "bebedc19d5bf3783f09f48d59097f83d2b423a98",
-  "catalog_sha256": "6e7ec0fd6ea4992497c1acc4efb6ebcc9c90161e9770ffde617fd21af136215b",
+  "catalog_revision": "9a4e0da1ba354e33d663b0dfb1b46b31ab0547c7",
+  "catalog_sha256": "493dd2fccb76973d7c8b6f2f7c58473f4200b3a55539861126b63bcab5cbd2f6",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "1ca27566f43bc5b322650341973dc942834b82e13f8a31921f70ffcb8923168a",
-  "scope": "Disposable two-node Kind v1.36.1. Server dry-run compares restrictive Pod Security admission of exact privilege and hostPath declarations. A nonroot Pod proves real read-only PVC access. Two bounded ordinary Pods compare scheduling on the exact owned tainted worker. Applicable storage driver host privileges and authorization for scheduling exemptions require separate evidence.",
-  "cluster": "saf-lab-325a5cd0f3a5",
+  "scope": "Disposable two-node Kind v1.36.1. Server dry-run compares restrictive Pod Security admission of exact privilege and hostPath declarations. A nonroot Pod proves real read-only PVC access. Two bounded ordinary Pods compare scheduling on the exact owned tainted worker. An additive case-owned ValidatingAdmissionPolicy compares an approved installer identity with a tenant identity that has the same pods/create RBAC grant, using one harmless restricted Pod and server dry-run denial. Actual provider privileges, authorization configuration, and supported host controls require separate evidence.",
+  "cluster": "saf-lab-83bb254f8a5b",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -106,6 +106,18 @@
         "reason": "Unschedulable",
         "scheduler_reports_untolerated_taint": true,
         "exact_worker_taint_and_tenant_selector_verified": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Native admission allows the approved identity and denies a tenant with identical pods/create RBAC from self-requesting the reserved storage toleration",
+      "matched": true,
+      "observed": {
+        "policy_typechecked": true,
+        "both_fixture_identities_have_pods_create": true,
+        "approved_identity_created_one_bounded_nonprivileged_pod": true,
+        "tenant_create_was_policy_denied_and_not_persisted": true,
+        "same_reserved_toleration": true
       }
     }
   ]

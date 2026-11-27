@@ -42,3 +42,31 @@ from the scheduler's aggregated reason.
 [Kubernetes Pod Security Standards](https://v1-36.docs.kubernetes.io/docs/concepts/security/pod-security-standards/),
 [Kubernetes volume and CSI guidance](https://v1-36.docs.kubernetes.io/docs/concepts/storage/volumes/),
 and [Kubernetes taints and tolerations](https://v1-36.docs.kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/).
+
+## Identity-based toleration admission supplement
+
+The additive identity_toleration_supplement.py creates a case-owned namespace,
+two ServiceAccounts, and matching namespaced Roles/RoleBindings that grant
+both principals only pods/create. A native Kubernetes ValidatingAdmissionPolicy
+and Binding apply to Pods in that fixture namespace. The policy permits the
+reserved storage toleration only when the API request principal is the exact
+storage-installer ServiceAccount identity.
+
+Using the same harmless, restricted, tokenless Pod shape and same toleration,
+the approved identity creates one bounded Pod that reaches Succeeded on the
+case-owned tainted worker. The tenant identity's otherwise-authorized server
+dry-run is rejected with the policy-specific denial, and the attempted Pod is
+independently confirmed absent. The fixture does not add a privileged Pod,
+hostPath, actual storage driver, or provider exception. It does not prove
+production identity governance, access to modify policy, or the deployed
+provider's host behavior. The policy, binding, namespace, and service accounts
+are deleted during cleanup; the parent case removes the worker taint and label.
+The case now has eight assertions, retaining the original seven.
+
+Kubernetes documents ValidatingAdmissionPolicy as stable since v1.30 and
+requires a matching Binding for a policy to take effect. Its v1.36 taint
+guidance explains that tolerations permit scheduling but do not guarantee
+placement, and identifies admission as the mechanism for restricting which
+users may use dedicated nodes:
+https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/validating-admission-policy/
+https://v1-36.docs.kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/
