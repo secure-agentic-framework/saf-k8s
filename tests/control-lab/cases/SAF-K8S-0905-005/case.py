@@ -470,3 +470,323 @@ def run(lab):
                "reason": rebound_result.get("reason"),
                "evidence_read_back": rebound_result.get("evidence_read_back"),
                "resource_version_unchanged": rebound["resource_version_unchanged"]})
+
+    _run_admission_receiver(lab, positive["evidence"])
+
+
+RECEIVER_NAME = "promotion-admission-receiver"
+RECEIVER_SERVICE = "promotion-admission"
+RECEIVER_WEBHOOK = "promotion-evidence.saf.example"
+RECEIVER_NAMESPACE_LABEL = "saf.example/admission-receiver"
+
+
+def _receiver_deployment():
+    return {"apiVersion": "apps/v1", "kind": "Deployment",
+            "metadata": {"name": RECEIVER_NAME},
+            "spec": {"replicas": 1,
+                     "selector": {"matchLabels": {"app": RECEIVER_NAME}},
+                     "template": {"metadata": {"labels": {"app": RECEIVER_NAME}},
+                                  "spec": {"serviceAccountName": "promotion-admission-reader",
+                                           "containers": [container(
+                                               "receiver", image=IMAGE,
+                                               command=["python", "/fixture/receiver.py"],
+                                               env=[{"name": "ENFORCE_GATES", "value": "true"},
+                                                    {"name": "PROMOTION_AUDIENCE", "value": AUDIENCE},
+                                                    {"name": "REPORTER_USERNAME", "value": REPORTER_USERNAME}],
+                                               ports=[{"name": "https", "containerPort": 8443}],
+                                               readinessProbe={"httpGet": {"scheme": "HTTPS",
+                                                                            "path": "/healthz",
+                                                                            "port": "https"},
+                                                               "periodSeconds": 2,
+                                                               "timeoutSeconds": 1},
+                                               resources={"requests": {"cpu": "25m", "memory": "48Mi"},
+                                                          "limits": {"cpu": "250m", "memory": "128Mi"}},
+                                               volumeMounts=[{"name": "receiver-code",
+                                                              "mountPath": "/fixture",
+                                                              "readOnly": True},
+                                                             {"name": "tls",
+                                                              "mountPath": "/tls",
+                                                              "readOnly": True},
+                                                             {"name": "trust",
+                                                              "mountPath": "/trust",
+                                                              "readOnly": True}])],
+                                           "volumes": [{"name": "receiver-code",
+                                                        "configMap": {"name": "promotion-admission-code"}},
+                                                       {"name": "tls",
+                                                        "secret": {"secretName": "promotion-admission-tls"}},
+                                                       {"name": "trust",
+                                                        "configMap": {"name": TRUST_CONFIG}}]}}}}
+
+
+def _receiver_service():
+    return {"apiVersion": "v1", "kind": "Service",
+            "metadata": {"name": RECEIVER_SERVICE},
+            "spec": {"selector": {"app": RECEIVER_NAME},
+                     "ports": [{"name": "https", "port": 443,
+                                "targetPort": "https"}]}}
+
+
+def _target_deployment(name, digest):
+    labels = {"app": name}
+    return {"apiVersion": "apps/v1", "kind": "Deployment",
+            "metadata": {"name": name, "labels": labels,
+                         "annotations": {"saf.example/model-sha256": digest}},
+            "spec": {"replicas": 1, "selector": {"matchLabels": {"app": name}},
+                     "template": {"metadata": {"labels": {"app": name}},
+                                  "spec": {"automountServiceAccountToken": False,
+                                           "securityContext": {
+                                               "seccompProfile": {"type": "RuntimeDefault"}},
+                                           "containers": [container(
+                                               "inert-ready-sentinel", image=IMAGE,
+                                               command=["python", "-c",
+                                                        "import time; time.sleep(3600)"],
+                                               securityContext={
+                                                   "allowPrivilegeEscalation": False,
+                                                   "capabilities": {"drop": ["ALL"]},
+                                                   "readOnlyRootFilesystem": True,
+                                                   "runAsNonRoot": True,
+                                                   "runAsUser": 65532,
+                                                   "runAsGroup": 65532},
+                                               resources={"requests": {"cpu": "10m",
+                                                                        "memory": "24Mi"},
+                                                          "limits": {"cpu": "100m",
+                                                                     "memory": "64Mi"}})]}}}}
+
+
+def _receiver_webhook(ca_bundle):
+    return {"apiVersion": "admissionregistration.k8s.io/v1",
+            "kind": "ValidatingWebhookConfiguration",
+            "metadata": {"name": "saf-promotion-evidence-receiver"},
+            "webhooks": [{"name": RECEIVER_WEBHOOK,
+                          "admissionReviewVersions": ["v1"],
+                          "sideEffects": "None",
+                          "failurePolicy": "Fail",
+                          "matchPolicy": "Exact",
+                          "timeoutSeconds": 5,
+                          "clientConfig": {"service": {
+                              "name": RECEIVER_SERVICE, "namespace": NAMESPACE,
+                              "path": "/validate", "port": 443},
+                              "caBundle": ca_bundle},
+                          "namespaceSelector": {"matchLabels": {
+                              RECEIVER_NAMESPACE_LABEL: "enabled"}},
+                          "rules": [{"apiGroups": ["apps"], "apiVersions": ["v1"],
+                                     "operations": ["CREATE"],
+                                     "resources": ["deployments"],
+                                     "scope": "Namespaced"}]}]}
+
+
+def _create_target(lab, resource, expected_reason=None):
+    result = lab.kubectl("create", "-f", "-", "-o", "json",
+                         payload=json.dumps(resource, sort_keys=True), allow_failure=True)
+    if expected_reason is None:
+        if result.returncode:
+            lab.block("Admission receiver rejected the exact approved Deployment")
+        return json.loads(result.stdout)
+    expected = f"denied the request: {expected_reason}"
+    if result.returncode == 0 or expected not in result.stderr:
+        lab.block("Admission receiver negative returned an unexpected API decision")
+    absent = lab.kubectl("get", "deployment", resource["metadata"]["name"],
+                         "-o", "name", "--ignore-not-found").stdout.strip() == ""
+    return {"denied": True, "reason": expected_reason, "resource_absent": absent}
+
+
+def _wait_webhook_active(lab, resource):
+    payload = json.dumps(resource, sort_keys=True)
+    deadline = time.monotonic() + 30
+    while time.monotonic() < deadline:
+        result = lab.kubectl("create", "-f", "-", "-o", "name", "--dry-run=server",
+                             payload=payload, allow_failure=True)
+        if result.returncode and "denied the request: evidence-not-approved" in result.stderr:
+            return
+        time.sleep(0.25)
+    lab.block("Admission webhook did not become active for the safe dry-run denial")
+
+
+def _run_admission_receiver(lab, positive_evidence):
+    import base64
+    import tempfile
+
+    with tempfile.TemporaryDirectory(prefix="saf-promotion-admission-tls-") as temporary:
+        work = Path(temporary)
+        ca_key, ca_cert = work / "ca.key", work / "ca.crt"
+        server_key, server_csr = work / "tls.key", work / "tls.csr"
+        server_cert, extension_file = work / "tls.crt", work / "server-ext.cnf"
+        try:
+            subprocess.run(["openssl", "req", "-x509", "-newkey", "rsa:2048",
+                            "-nodes", "-sha256", "-days", "2", "-keyout", str(ca_key),
+                            "-out", str(ca_cert), "-subj", "/CN=SAF disposable admission CA",
+                            "-addext", "basicConstraints=critical,CA:TRUE",
+                            "-addext", "keyUsage=critical,keyCertSign,cRLSign"],
+                           check=True, capture_output=True, timeout=30)
+            subprocess.run(["openssl", "req", "-newkey", "rsa:2048", "-nodes", "-sha256",
+                            "-keyout", str(server_key), "-out", str(server_csr),
+                            "-subj", "/CN=promotion-admission.saf-test.svc"],
+                           check=True, capture_output=True, timeout=30)
+            extension_file.write_text(
+                "[server]\n"
+                "basicConstraints=critical,CA:FALSE\n"
+                "keyUsage=critical,digitalSignature,keyEncipherment\n"
+                "extendedKeyUsage=serverAuth\n"
+                "subjectAltName=DNS:promotion-admission.saf-test.svc\n")
+            subprocess.run(["openssl", "x509", "-req", "-in", str(server_csr),
+                            "-CA", str(ca_cert), "-CAkey", str(ca_key), "-CAcreateserial",
+                            "-out", str(server_cert), "-days", "2", "-sha256",
+                            "-extfile", str(extension_file), "-extensions", "server"],
+                           check=True, capture_output=True, timeout=30)
+        except (OSError, subprocess.SubprocessError):
+            lab.block("Could not create ephemeral fixture TLS material")
+        ca_bundle = base64.b64encode(ca_cert.read_bytes()).decode("ascii")
+        _run_admission_receiver_with_tls(lab, positive_evidence, ca_bundle,
+                                         server_cert, server_key)
+
+
+def _run_admission_receiver_with_tls(lab, positive_evidence, ca_bundle,
+                                     server_cert, server_key):
+    receiver_sa = "promotion-admission-reader"
+    lab.kubectl("label", "namespace", NAMESPACE,
+                f"{RECEIVER_NAMESPACE_LABEL}=enabled", "--overwrite")
+    lab.kubectl("create", "secret", "tls", "promotion-admission-tls",
+                f"--cert={server_cert}", f"--key={server_key}")
+    lab.kubectl("patch", "configmap", EVIDENCE_NAME, "--type=merge", "-p",
+                json.dumps({"data": {"evidence.json": None}}))
+    empty = json.loads(lab.kubectl("get", "configmap", EVIDENCE_NAME,
+                                   "-o", "json").stdout).get("data", {})
+    if "evidence.json" in empty:
+        lab.block("Could not clear the persisted fixture decision for receiver negative")
+
+    lab.create({"apiVersion": "v1", "kind": "ServiceAccount",
+                "metadata": {"name": receiver_sa}})
+    lab.create({"apiVersion": "rbac.authorization.k8s.io/v1", "kind": "Role",
+                "metadata": {"name": "promotion-admission-evidence-read"},
+                "rules": [{"apiGroups": [""], "resources": ["configmaps"],
+                           "resourceNames": [EVIDENCE_NAME], "verbs": ["get"]}]})
+    lab.create({"apiVersion": "rbac.authorization.k8s.io/v1", "kind": "RoleBinding",
+                "metadata": {"name": "promotion-admission-evidence-read"},
+                "roleRef": {"apiGroup": "rbac.authorization.k8s.io", "kind": "Role",
+                            "name": "promotion-admission-evidence-read"},
+                "subjects": [{"kind": "ServiceAccount", "name": receiver_sa,
+                              "namespace": NAMESPACE}]})
+
+    lab.create({"apiVersion": "v1", "kind": "ConfigMap",
+                "metadata": {"name": "promotion-admission-code"},
+                "data": {"receiver.py": (HERE / "receiver.py").read_text(),
+                         "gate.py": (HERE / "gate.py").read_text(),
+                         "signature_format.py": (HERE / "signature_format.py").read_text(),
+                         "report_crypto.py": (HERE / "report_crypto.py").read_text()}})
+    lab.create(_receiver_deployment())
+    lab.create(_receiver_service())
+    lab.kubectl("rollout", "status", f"deployment/{RECEIVER_NAME}",
+                "--timeout=90s", timeout=100)
+    lab.create(_receiver_webhook(ca_bundle))
+
+    records = {}
+    absent_resource = _target_deployment("model-empty-evidence", MODEL_DIGEST)
+    _wait_webhook_active(lab, absent_resource)
+    records["empty_evidence"] = _create_target(
+        lab, absent_resource, expected_reason="evidence-not-approved")
+    if not records["empty_evidence"]["resource_absent"]:
+        lab.block("Empty-evidence Deployment unexpectedly persisted")
+
+    forwards = []
+    try:
+        gate_process, gate_url = _start_forward(lab, "promotion-gate-on")
+        forwards.append(gate_process)
+        reporter_token = _safe_token(lab, REPORTER)
+        status, gate_result = _post(gate_url, reporter_token, EVIDENCE_NAME,
+                                    positive_evidence)
+        if status != 200 or gate_result.get("accepted") is not True:
+            lab.block("Could not persist the exact approved evidence for admission test")
+    finally:
+        for process in forwards:
+            _stop(process)
+
+    exact_resource = _target_deployment("model-approved-exact", MODEL_DIGEST)
+    created = _create_target(lab, exact_resource)
+    deployment_uid = created.get("metadata", {}).get("uid", "")
+    lab.kubectl("rollout", "status", "deployment/model-approved-exact",
+                "--timeout=90s", timeout=100)
+    stored_deployment = json.loads(lab.kubectl(
+        "get", "deployment", "model-approved-exact", "-o", "json").stdout)
+    pods = json.loads(lab.kubectl("get", "pods", "-l", "app=model-approved-exact",
+                                 "-o", "json").stdout).get("items", [])
+    replicasets = json.loads(lab.kubectl(
+        "get", "replicasets", "-l", "app=model-approved-exact", "-o", "json").stdout
+    ).get("items", [])
+    pod_ready = (len(pods) == 1 and any(
+        condition.get("type") == "Ready" and condition.get("status") == "True"
+        for condition in pods[0].get("status", {}).get("conditions", [])))
+    stored_uid = stored_deployment.get("metadata", {}).get("uid", "")
+    replicaset_uid = (replicasets[0].get("metadata", {}).get("uid", "")
+                      if len(replicasets) == 1 else "")
+    replicaset_parent_uid = (next((owner.get("uid", "") for owner in
+                                   replicasets[0].get("metadata", {}).get("ownerReferences", [])
+                                   if owner.get("kind") == "Deployment"), "")
+                             if len(replicasets) == 1 else "")
+    pod_replicaset_uid = (next((owner.get("uid", "") for owner in
+                                pods[0].get("metadata", {}).get("ownerReferences", [])
+                                if owner.get("kind") == "ReplicaSet"), "")
+                          if len(pods) == 1 else "")
+    owner_uid_matches = (bool(replicaset_uid) and replicaset_parent_uid == stored_uid and
+                         pod_replicaset_uid == replicaset_uid)
+    stored_digest = stored_deployment.get("metadata", {}).get("annotations", {}).get(
+        "saf.example/model-sha256")
+    exact_ok = (bool(deployment_uid) and stored_uid == deployment_uid and
+                stored_digest == MODEL_DIGEST and
+                stored_deployment.get("status", {}).get("readyReplicas") == 1 and
+                owner_uid_matches and pod_ready)
+    records["approved_deployment"] = {
+        "create_admitted": True, "deployment_uid": stored_uid,
+        "deployment_uid_bound_to_create_response": stored_uid == deployment_uid,
+        "replicaset_uid": replicaset_uid,
+        "replicaset_parent_deployment_uid": replicaset_parent_uid,
+        "pod_uid": pods[0].get("metadata", {}).get("uid", "") if len(pods) == 1 else "",
+        "pod_owner_replicaset_uid": pod_replicaset_uid,
+        "model_sha256": stored_digest,
+        "owner_chain_bound_to_deployment": owner_uid_matches,
+        "pod_ready": pod_ready,
+        "ready_replicas": stored_deployment.get("status", {}).get("readyReplicas")}
+    lab.check("positive", "Only the exact approved model digest reaches a Ready inert Deployment",
+              exact_ok,
+              {"admission_allowed": True, "digest_matches": stored_digest == MODEL_DIGEST,
+               "deployment_uid_bound": stored_uid == deployment_uid,
+               "ready_replicas": stored_deployment.get("status", {}).get("readyReplicas"),
+               "pod_ready": pod_ready, "pod_owner_bound": owner_uid_matches})
+
+    wrong_resource = _target_deployment("model-approved-wrong-digest", "0" * 64)
+    records["wrong_digest"] = _create_target(
+        lab, wrong_resource, expected_reason="model-digest-mismatch")
+    if not records["wrong_digest"]["resource_absent"]:
+        lab.block("Wrong-digest Deployment unexpectedly persisted")
+    lab.check("green", "The admission receiver refuses a different model digest before Deployment creation",
+              records["wrong_digest"]["denied"] and records["wrong_digest"]["resource_absent"],
+              {"admission_denied": records["wrong_digest"]["denied"],
+               "reason": records["wrong_digest"]["reason"],
+               "resource_absent": records["wrong_digest"]["resource_absent"]})
+    lab.check("green", "The admission receiver refuses when no accepted evidence is persisted",
+              records["empty_evidence"]["denied"] and
+              records["empty_evidence"]["resource_absent"],
+              {"admission_denied": records["empty_evidence"]["denied"],
+               "reason": records["empty_evidence"]["reason"],
+               "resource_absent": records["empty_evidence"]["resource_absent"]})
+    (lab.evidence / "admission-receiver-observations.json").write_text(
+        json.dumps(records, indent=2, sort_keys=True) + "\n")
+
+    lab.kubectl("delete", "deployment", "model-approved-exact", "--ignore-not-found=true",
+                "--wait=true", "--timeout=30s")
+    lab.kubectl("delete", "validatingwebhookconfiguration",
+                "saf-promotion-evidence-receiver", "--ignore-not-found=true")
+    for kind, name in (("deployment", RECEIVER_NAME), ("service", RECEIVER_SERVICE),
+                       ("configmap", "promotion-admission-code"),
+                       ("secret", "promotion-admission-tls"),
+                       ("rolebinding", "promotion-admission-evidence-read"),
+                       ("role", "promotion-admission-evidence-read"),
+                       ("serviceaccount", receiver_sa)):
+        lab.kubectl("delete", kind, name, "--ignore-not-found=true",
+                    "--wait=true", "--timeout=30s")
+    lab.kubectl("label", "namespace", NAMESPACE,
+                f"{RECEIVER_NAMESPACE_LABEL}-")
+
+
+SCOPE += (" The separately scoped fail-closed admission receiver verifies the signed fixture evidence again"
+          " and binds the Deployment annotation to its digest. One inert tokenless sentinel reaches Ready."
+          " Actual artifact execution and production rollout and evaluator coverage require adopter evidence.")

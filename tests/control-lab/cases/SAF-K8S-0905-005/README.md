@@ -46,3 +46,25 @@ production promotion coupling uses the adopted system's evidence.
 
 [Kubernetes TokenReview](https://v1-36.docs.kubernetes.io/docs/reference/kubernetes-api/authentication-resources/token-review-v1/)
 and [EU AI Act](https://eur-lex.europa.eu/eli/reg/2024/1689/oj/eng).
+
+## Kubernetes deployment admission
+
+The webhook reads the exact persisted promotion-evidence ConfigMap with a
+resource-name-scoped role. It executes the existing verifier against the stored
+envelope and requires the Deployment's model digest annotation to match the
+validated subject. The policy applies to every Deployment creation in the
+dedicated fixture namespace.
+
+Empty evidence and a mismatched annotation each cause an API denial with no
+Deployment created. The matching signed fixture permits one tiny, tokenless
+sentinel to become Ready. The test independently joins the Deployment,
+ReplicaSet, and Pod by their UIDs and records the admitted digest. The sentinel
+only sleeps. The model and evaluation records are synthetic.
+
+The fixture TLS CA and serving key are generated for each run and removed from
+the runner's temporary directory. The case retains the verification result and
+resource identifiers in `admission-receiver-observations.json`. The three new
+checks preserve the original 15. Production evaluation, trust, artifact
+measurement, and rollout and exception coverage require adopter evidence.
+
+[Kubernetes v1.36 admission webhooks](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/extensible-admission-controllers/)

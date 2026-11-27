@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0905-005",
-  "catalog_revision": "03197b5f34c07adf30de371cb78cb9f0dfb5587b",
-  "catalog_sha256": "f22ac63bf97577c04a89f43196dc2de2eb4f5a9eeaa472fe2152cbf36c1b213b",
+  "catalog_revision": "7c01031f0d3e76ec4d5c2c707b0541099a924881",
+  "catalog_sha256": "65f757846d484079842769b4cec9180fc3a96ab15a5106c821a08ca7293441b6",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "7465d9fd5d3c507373bbd19f18809a808ff41e72dce6df0e101344a420c64145",
-  "scope": "A disposable Kubernetes v1.36.1 cluster runs two copies of a case-owned HTTP promotion gate against the same inert model identity: one enforcement-disabled baseline and one enforcing gate. The enabled gate authenticates a short-lived reporter ServiceAccount token with authentication.k8s.io/v1 TokenReview, accepts evidence only from that exact principal and audience, persists the submitted fixed evidence in a namespace-scoped ConfigMap, reads it back, and requires pass results for security, bias, performance and robustness plus matching builder/model/predicate digests and a valid Ed25519 signature under a case-pinned ephemeral public key. Wrong-key and signed-then-rebound envelopes are refused before evidence persistence. This proves only the fixture signature-verification decision over fixed synthetic records; it does not prove evaluator efficacy, real model quality, independently administered key custody, report-writer audit attribution, or a production promotion workflow.",
-  "cluster": "saf-lab-c5875f8e9aab",
+  "scope": "A disposable Kubernetes v1.36.1 cluster runs two copies of a case-owned HTTP promotion gate against the same inert model identity: one enforcement-disabled baseline and one enforcing gate. The enabled gate authenticates a short-lived reporter ServiceAccount token with authentication.k8s.io/v1 TokenReview, accepts evidence only from that exact principal and audience, persists the submitted fixed evidence in a namespace-scoped ConfigMap, reads it back, and requires pass results for security, bias, performance and robustness plus matching builder/model/predicate digests and a valid Ed25519 signature under a case-pinned ephemeral public key. Wrong-key and signed-then-rebound envelopes are refused before evidence persistence. This proves only the fixture signature-verification decision over fixed synthetic records; it does not prove evaluator efficacy, real model quality, independently administered key custody, report-writer audit attribution, or a production promotion workflow. The separately scoped fail-closed admission receiver verifies the signed fixture evidence again and binds the Deployment annotation to its digest. One inert tokenless sentinel reaches Ready. Actual artifact execution and production rollout and evaluator coverage require adopter evidence.",
+  "cluster": "saf-lab-7a41c3a7f242",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -221,6 +221,39 @@
         "reason": "invalid-signature",
         "evidence_read_back": false,
         "resource_version_unchanged": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Only the exact approved model digest reaches a Ready inert Deployment",
+      "matched": true,
+      "observed": {
+        "admission_allowed": true,
+        "digest_matches": true,
+        "deployment_uid_bound": true,
+        "ready_replicas": 1,
+        "pod_ready": true,
+        "pod_owner_bound": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The admission receiver refuses a different model digest before Deployment creation",
+      "matched": true,
+      "observed": {
+        "admission_denied": true,
+        "reason": "model-digest-mismatch",
+        "resource_absent": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The admission receiver refuses when no accepted evidence is persisted",
+      "matched": true,
+      "observed": {
+        "admission_denied": true,
+        "reason": "evidence-not-approved",
+        "resource_absent": true
       }
     }
   ]
