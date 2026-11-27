@@ -91,9 +91,9 @@ write revisions. The test makes no connectivity probes and establishes no CNI
 packet enforcement, continuous monitoring service, durable or external alert delivery, or production
 coverage.
 
-## Scratch additive: API-side regression alert sink
+## API-side regression alert events
 
-The scratch copy adds a narrow `events.k8s.io/v1` sink to the existing authenticated
+The case uses a narrow `events.k8s.io/v1` sink to the existing authenticated
 NetworkPolicy watcher. Its namespaced Role retains the selected-policy list/watch
 permission and adds only `create` for Events in the owned fixture namespace. The
 watcher creates one `Warning` Event for each actual `drift` transition, including a
