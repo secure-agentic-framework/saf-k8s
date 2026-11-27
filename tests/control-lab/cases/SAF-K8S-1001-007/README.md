@@ -72,8 +72,8 @@ The native check confirms a successful model-load event, the pinned model bytes 
 
 ## Native inference metadata correlation
 
-After the published 11 checks, this candidate labels only `saf-test` for
-injection before it creates the native test server and client. It pins the
+The case labels only `saf-test` for injection before it creates the native
+test server and client. It pins the
 Istio proxy image on both Pods and creates one case-owned ClusterIP Service
 whose selector matches the native server Pod. An EndpointSlice read must show
 exactly one Ready endpoint with that exact server Pod UID before the request.
@@ -88,11 +88,10 @@ metadata-only record matching `POST /completion`, HTTP 200, positive byte
 counts and the same correlator. The normalized check also binds the record to
 the Ready Service endpoint, pinned proxy images, and the same native server
 Pod UID and image identity whose model digest the preceding check verified.
-Raw evidence is stored in `native-inference-mesh-correlation.json`. This adds
-one check (12 expected total); the published 11 checks remain intact. It is a
-local CPU-only request-path correlation, not proof of deployed mesh policy,
-GPU telemetry, sustained traffic, remote collector forwarding, retention or
-alerting.
+The paired 12-check receipt includes this local CPU-only request-path
+correlation. Raw evidence is stored in `native-inference-mesh-correlation.json`.
+Adopters verify actual mesh policy, GPU telemetry, sustained traffic,
+collector forwarding, retention and alert handling.
 
 - [Istio access logging](https://istio.io/latest/docs/tasks/observability/logs/access-log/)
 - [Envoy v1.32 access log operators](https://www.envoyproxy.io/docs/envoy/v1.32.0/configuration/observability/access_log/usage)
