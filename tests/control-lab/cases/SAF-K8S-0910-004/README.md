@@ -22,8 +22,7 @@ secure aggregation and privacy controls require separate evidence.
 
 ## Supplemental observer authorization witness
 
-This scratch variant retains the original three assertions and adds one bounded check. After the
-round and membership policy is active, it uses the same authenticated observer identity to submit a
+The published case has four assertions. Its observer check uses the same authenticated observer identity to submit a
 well-formed fixed vector `[1, 1, 1]` for the current round. The receiver must return
 `403 participant_identity_refused`; a separate observer-authenticated state read must exactly match
 the pre-request state. This distinguishes an authenticated nonparticipant principal from a valid
@@ -34,3 +33,26 @@ identities are generated for this disposable case; this does not prove deployed 
 cluster-of-origin credential provisioning, or production federation behavior. The original secure
 aggregation, differential privacy, durable state, recovery, monitoring, and fleet-scale limitations
 remain.
+
+## Scratch-only synthetic verified-root policy witness
+
+This candidate preserves the four published assertions and adds one bounded check. A separately
+generated and explicitly named disallowed test CA signs a certificate with the exact approved
+participant-A URI identity. The disposable receiver trusts the fixture CA bundle at TLS, then allows
+contributions only when the URI identity is paired with the exact approved root SHA-256 computed
+from that generated public root certificate's DER encoding. At the receiver, Python 3.13's verified
+TLS chain must include the observed leaf and a terminal root; policy hashes the terminal DER bytes.
+From the owned peer cluster, the disallowed certificate submits the exact current round, protocol
+and `cluster-a` label
+with fixed numeric counts. The receiver must return `403 participant_trust_root_refused` with the
+observed verified terminal-root fingerprint; the authenticated observer independently confirms
+that the parent round state is unchanged. The existing approved A and B clients still submit
+successfully and produce the exact existing aggregate.
+
+This is a synthetic verified-root-and-identity policy comparison. A trusted root fingerprint does
+not attest the physical source cluster, prove SPIFFE/SPIRE issuance or production membership, or
+resist credential copying. It exercises no real model or provider path. Expected total: five checks,
+four published assertions plus one additive check; no extra Kind cluster or PVC. The added peer Pod
+has a 5m CPU/16Mi memory request and 100m CPU/64Mi memory limit. Raw decision details, both fixture
+root fingerprints and the observed rejected-chain root fingerprint are included in
+`federated-round-coordination.json`.

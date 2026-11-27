@@ -1,6 +1,8 @@
 """Synthetic mTLS FL coordinator used only by SAF-K8S-0910-004."""
 import json
+import hashlib
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+import os
 import ssl
 import sys
 import threading
@@ -27,6 +29,34 @@ def identity(cert):
     return values[0] if len(values) == 1 else None
 
 
+def verified_root_sha256(connection):
+    """Return the terminal root digest from a verified DER chain, or fail closed."""
+    getter = getattr(connection, "get_verified_chain", None)
+    if not callable(getter):
+        return None
+    try:
+        chain = getter()
+    except (AttributeError, ssl.SSLError, ValueError):
+        return None
+    if (not isinstance(chain, (list, tuple)) or len(chain) < 2
+            or any(not isinstance(cert, bytes) or not cert for cert in chain)
+            or chain[0] == chain[-1]):
+        return None
+    try:
+        peer_leaf = connection.getpeercert(binary_form=True)
+    except (AttributeError, ssl.SSLError, ValueError):
+        return None
+    if not isinstance(peer_leaf, bytes) or not peer_leaf or chain[0] != peer_leaf:
+        return None
+    return hashlib.sha256(chain[-1]).hexdigest()
+
+
+def trust_root_decision(connection):
+    expected_root = os.environ.get("APPROVED_ROOT_SHA256", "")
+    actual_root = verified_root_sha256(connection)
+    return actual_root, len(expected_root) == 64 and actual_root is not None and actual_root == expected_root
+
+
 def reply(status, decision, **fields):
     return status, {"status": status, "decision": decision, **fields}
 
@@ -38,7 +68,10 @@ class Handler(BaseHTTPRequestHandler):
         return
 
     def do_GET(self):
-        if self.path != "/v1/state" or identity(self.connection.getpeercert()) != OBSERVER:
+        peer_cert = self.connection.getpeercert()
+        _root_sha256, root_approved = trust_root_decision(self.connection)
+        if (self.path != "/v1/state" or not root_approved
+                or identity(peer_cert) != OBSERVER):
             self._send(*reply(403, "observer_read_refused"))
             return
         with LOCK:
@@ -46,7 +79,9 @@ class Handler(BaseHTTPRequestHandler):
         self._send(200, snapshot)
 
     def do_POST(self):
-        caller = identity(self.connection.getpeercert())
+        peer_cert = self.connection.getpeercert()
+        caller = identity(peer_cert)
+        root_sha256, root_approved = trust_root_decision(self.connection)
         length = int(self.headers.get("Content-Length", "0"))
         if length < 1 or length > 2048:
             self._send(*reply(400, "fixture_request_size_refused"))
@@ -58,7 +93,7 @@ class Handler(BaseHTTPRequestHandler):
             return
 
         if self.path == "/v1/admin/enforce":
-            if caller != ADMIN:
+            if caller != ADMIN or not root_approved:
                 self._send(*reply(403, "admin_identity_refused"))
                 return
             if body != {"round": ROUND, "members": sorted(PARTICIPANTS.values()), "protocol": PROTOCOL}:
@@ -69,7 +104,17 @@ class Handler(BaseHTTPRequestHandler):
             self._send(*reply(200, "round_policy_enabled", round=ROUND))
             return
 
-        if self.path != "/v1/contributions" or caller not in PARTICIPANTS:
+        if self.path != "/v1/contributions":
+            self._send(*reply(403, "participant_identity_refused"))
+            return
+        if root_sha256 is None:
+            self._send(*reply(403, "participant_verified_chain_unavailable"))
+            return
+        if not root_approved:
+            self._send(*reply(403, "participant_trust_root_refused",
+                              verified_root_sha256=root_sha256))
+            return
+        if caller not in PARTICIPANTS:
             self._send(*reply(403, "participant_identity_refused"))
             return
         cluster = PARTICIPANTS[caller]
@@ -125,7 +170,7 @@ class Handler(BaseHTTPRequestHandler):
 def serve():
     context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
     context.load_cert_chain("/pki/server.crt", "/pki/server.key")
-    context.load_verify_locations("/pki/ca.crt")
+    context.load_verify_locations("/pki/ca-bundle.crt")
     context.verify_mode = ssl.CERT_REQUIRED
     server = ThreadingHTTPServer(("0.0.0.0", 8443), Handler)
     server.socket = context.wrap_socket(server.socket, server_side=True)

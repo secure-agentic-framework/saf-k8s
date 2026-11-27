@@ -1,9 +1,10 @@
 """Bounded two-cluster federated-round enforcement witness for SAF-K8S-0910-004."""
-import base64
 import importlib.util
+import hashlib
 import json
 from pathlib import Path
 import shutil
+import ssl
 import tempfile
 import time
 
@@ -26,6 +27,10 @@ PARTICIPANT_A_SECRET = "toy-round-participant-a"
 PARTICIPANT_B_SECRET = "toy-round-participant-b"
 ADMIN_SECRET = "toy-round-admin"
 OBSERVER_SECRET = "toy-round-observer"
+DISALLOWED_ORIGIN_SECRET = "toy-round-disallowed-origin"
+DISALLOWED_ORIGIN_POD = "toy-round-disallowed-origin"
+DISALLOWED_CA_CN = "saf-k8s-0910-004-disallowed-origin-ca"
+DISALLOWED_TEST_ROLE = "same-approved-uri-under-disallowed-test-root"
 
 SCOPE = (
     "Two distinct, disposable Kind clusters host one mTLS round receiver and one participant each. "
@@ -34,7 +39,8 @@ SCOPE = (
     "observer reads the receiver's service state, and a valid harmless contribution submitted with "
     "that observer identity is refused without changing state. This covers one toy coordination "
     "path, not production FL, secure aggregation, differential privacy, Byzantine tolerance, or "
-    "cluster-wide audit controls."
+    "cluster-wide audit controls. A synthetic verified-root/identity pair distinguishes the approved "
+    "fixture trust policy from a self-reported cluster label; it does not attest physical origin."
 )
 
 
@@ -56,9 +62,16 @@ def _configmap(kubectl, name, data):
 
 
 def _secret(kubectl, name, values):
-    encoded = {key: base64.b64encode(value).decode("ascii") for key, value in values.items()}
-    _create(kubectl, {"apiVersion": "v1", "kind": "Secret", "metadata": {"name": name},
-                      "type": "Opaque", "data": encoded})
+    # Use kubectl file inputs so the command ledger records paths, never private-key bytes.
+    with tempfile.TemporaryDirectory(prefix="saf-k8s-0910-004-secret-") as directory:
+        root = Path(directory)
+        args = []
+        for key, value in values.items():
+            path = root / key
+            path.write_bytes(value)
+            path.chmod(0o600)
+            args.append(f"--from-file={key}={path}")
+        kubectl("create", "secret", "generic", name, *args, "-o", "name", timeout=30)
 
 
 def _pki(lab, root):
@@ -74,6 +87,13 @@ def _pki(lab, root):
             "keyUsage=critical,digitalSignature,keyCertSign,cRLSign", "-addext", "subjectKeyIdentifier=hash",
             "-keyout", str(ca_key),
             "-out", str(ca_cert))
+
+    disallowed_ca_key, disallowed_ca_cert = root / "disallowed-ca.key", root / "disallowed-ca.crt"
+    openssl("req", "-x509", "-newkey", "rsa:2048", "-nodes", "-days", "1", "-sha256",
+            "-subj", "/CN=" + DISALLOWED_CA_CN,
+            "-addext", "basicConstraints=critical,CA:TRUE", "-addext",
+            "keyUsage=critical,digitalSignature,keyCertSign,cRLSign", "-addext", "subjectKeyIdentifier=hash",
+            "-keyout", str(disallowed_ca_key), "-out", str(disallowed_ca_cert))
 
     identities = {
         "server": ("round-receiver", "DNS:" + SERVER_DNS, "serverAuth"),
@@ -93,15 +113,47 @@ def _pki(lab, root):
                 "/CN=" + common_name, "-keyout", str(key), "-out", str(csr))
         openssl("x509", "-req", "-in", str(csr), "-CA", str(ca_cert), "-CAkey", str(ca_key),
                 "-CAcreateserial", "-days", "1", "-sha256", "-extfile", str(ext), "-out", str(cert))
-    return root
+    disallowed_key, disallowed_csr, disallowed_cert = (
+        root / ("disallowed-origin" + suffix) for suffix in (".key", ".csr", ".crt"))
+    disallowed_ext = root / "disallowed-origin.ext"
+    disallowed_ext.write_text("basicConstraints=critical,CA:FALSE\n"
+                              "keyUsage=critical,digitalSignature,keyEncipherment\n"
+                              "extendedKeyUsage=clientAuth\nsubjectAltName=URI:" + PARTICIPANT_A + "\n"
+                              "subjectKeyIdentifier=hash\nauthorityKeyIdentifier=keyid:always\n")
+    openssl("req", "-new", "-newkey", "rsa:2048", "-nodes", "-sha256",
+            "-subj", "/CN=toy-participant-a-disallowed-origin",
+            "-keyout", str(disallowed_key), "-out", str(disallowed_csr))
+    openssl("x509", "-req", "-in", str(disallowed_csr), "-CA", str(disallowed_ca_cert),
+            "-CAkey", str(disallowed_ca_key), "-CAcreateserial", "-days", "1", "-sha256",
+            "-extfile", str(disallowed_ext), "-out", str(disallowed_cert))
+    (root / "ca-bundle.crt").write_bytes(ca_cert.read_bytes() + disallowed_ca_cert.read_bytes())
+    approved_root_sha256 = hashlib.sha256(ssl.PEM_cert_to_DER_cert(ca_cert.read_text())).hexdigest()
+    disallowed_root_sha256 = hashlib.sha256(ssl.PEM_cert_to_DER_cert(disallowed_ca_cert.read_text())).hexdigest()
+    if (len(approved_root_sha256) != 64 or len(disallowed_root_sha256) != 64
+            or approved_root_sha256 == disallowed_root_sha256):
+        lab.block("The fixture CA roots did not have distinct DER SHA-256 fingerprints")
+    return approved_root_sha256, disallowed_root_sha256
 
 
 def _cert_material(root, label, server=False):
-    names = ("ca.crt", "server.crt", "server.key") if server else (
+    names = ("ca-bundle.crt", "server.crt", "server.key") if server else (
         "ca.crt", label + ".crt", label + ".key")
-    return {("ca.crt" if name == "ca.crt" else ("server.crt" if name == "server.crt" else
-             "server.key" if name == "server.key" else "client.crt" if name.endswith(".crt") else
-             "client.key")): (root / name).read_bytes() for name in names}
+    result = {}
+    for name in names:
+        if name == "ca-bundle.crt":
+            key = "ca-bundle.crt"
+        elif name == "ca.crt":
+            key = "ca.crt"
+        elif server and name == "server.crt":
+            key = "server.crt"
+        elif name.endswith(".crt"):
+            key = "client.crt"
+        elif server and name == "server.key":
+            key = "server.key"
+        else:
+            key = "client.key"
+        result[key] = (root / name).read_bytes()
+    return result
 
 
 def _runtime(lab):
@@ -111,10 +163,12 @@ def _runtime(lab):
     return module.load_runtime(lab)
 
 
-def _client_pod(kubectl, image, name, secret_name):
+def _client_pod(kubectl, image, name, secret_name, *, resources=None):
     unit = container("fixture", image=image, imagePullPolicy="Never", command=["sleep", "3600"],
                      volumeMounts=[{"name": "code", "mountPath": "/fixture", "readOnly": True},
                                    {"name": "pki", "mountPath": "/pki", "readOnly": True}])
+    if resources:
+        unit["resources"] = resources
     _create(kubectl, pod(name, [unit], automountServiceAccountToken=False,
                          securityContext={"fsGroup": 65534}, volumes=[
                              {"name": "code", "configMap": {"name": CODE}},
@@ -158,23 +212,25 @@ def run(lab):
             _configmap(kubectl, CODE, {"round_service.py": (HERE / "round_service.py").read_text()})
         root = Path(tempfile.mkdtemp(prefix="saf-k8s-0910-004-pki-"))
         try:
-            _pki(lab, root)
+            approved_root_sha256, disallowed_root_sha256 = _pki(lab, root)
             _secret(peer, SERVER_SECRET, _cert_material(root, "server", server=True))
             _secret(source, PARTICIPANT_A_SECRET, _cert_material(root, "participant-a"))
             _secret(peer, PARTICIPANT_B_SECRET, _cert_material(root, "participant-b"))
             _secret(source, ADMIN_SECRET, _cert_material(root, "admin"))
             _secret(source, OBSERVER_SECRET, _cert_material(root, "observer"))
+            _secret(peer, DISALLOWED_ORIGIN_SECRET, _cert_material(root, "disallowed-origin"))
         finally:
             shutil.rmtree(root, ignore_errors=True)
 
-        server = pod("toy-round-receiver", [container(
+        server_container = container(
             "fixture", image=image, imagePullPolicy="Never",
             command=["python", "/fixture/round_service.py", "serve"],
             ports=[{"name": "mtls", "containerPort": 8443}],
             readinessProbe={"tcpSocket": {"port": 8443}, "periodSeconds": 1},
             volumeMounts=[{"name": "code", "mountPath": "/fixture", "readOnly": True},
-                          {"name": "pki", "mountPath": "/pki", "readOnly": True}],
-        )], automountServiceAccountToken=False,
+                          {"name": "pki", "mountPath": "/pki", "readOnly": True}])
+        server_container["env"] = [{"name": "APPROVED_ROOT_SHA256", "value": approved_root_sha256}]
+        server = pod("toy-round-receiver", [server_container], automountServiceAccountToken=False,
             securityContext={"fsGroup": 65534}, volumes=[
                 {"name": "code", "configMap": {"name": CODE}},
                 {"name": "pki", "secret": {"secretName": SERVER_SECRET, "defaultMode": 0o440}},
@@ -190,9 +246,12 @@ def run(lab):
         _client_pod(peer, image, "toy-participant-b", PARTICIPANT_B_SECRET)
         _client_pod(source, image, "toy-round-admin", ADMIN_SECRET)
         _client_pod(source, image, "toy-round-observer", OBSERVER_SECRET)
+        _client_pod(peer, image, DISALLOWED_ORIGIN_POD, DISALLOWED_ORIGIN_SECRET,
+                    resources={"requests": {"cpu": "5m", "memory": "16Mi"},
+                               "limits": {"cpu": "100m", "memory": "64Mi"}})
         for kubectl, name in ((peer, "toy-round-receiver"), (source, "toy-participant-a"),
                               (peer, "toy-participant-b"), (source, "toy-round-admin"),
-                              (source, "toy-round-observer")):
+                              (source, "toy-round-observer"), (peer, DISALLOWED_ORIGIN_POD)):
             kubectl("wait", "--for=condition=Ready", f"pod/{name}", "--timeout=95s", timeout=105)
         empty_state = _client(source, "toy-round-observer", peer_address, "GET", "/v1/state", wait=True)
         if empty_state != {"contributions": [], "aggregate": None}:
@@ -216,6 +275,32 @@ def run(lab):
         wrong_admin = _client(source, "toy-participant-a", peer_address, "POST", "/v1/admin/enforce", policy)
         admin_reply = _client(source, "toy-round-admin", peer_address, "POST",
                               "/v1/admin/enforce", policy)
+        before_origin_refusal = _state(source, peer_address)
+        origin_vector = {"round": ROUND, "protocol": PROTOCOL, "cluster": "cluster-a",
+                         "counts": [1, 2, 3]}
+        origin_refusal = _client(peer, DISALLOWED_ORIGIN_POD, peer_address, "POST",
+                                 "/v1/contributions", origin_vector)
+        after_origin_refusal = _state(source, peer_address)
+        origin_policy_ok = (
+            admin_reply == {"status": 200, "decision": "round_policy_enabled", "round": ROUND}
+            and approved_root_sha256 != disallowed_root_sha256
+            and before_origin_refusal == expected_baseline_state
+            and origin_refusal == {"status": 403, "decision": "participant_trust_root_refused",
+                                  "verified_root_sha256": disallowed_root_sha256}
+            and after_origin_refusal == before_origin_refusal
+        )
+        lab.check("green", "A valid member label cannot override the disallowed synthetic trust root",
+                  origin_policy_ok,
+                  {"presented_identity": PARTICIPANT_A,
+                   "test_role": DISALLOWED_TEST_ROLE,
+                   "observed_root_matches_disallowed_fixture":
+                       origin_refusal.get("verified_root_sha256") == disallowed_root_sha256,
+                   "root_fingerprints_distinct": approved_root_sha256 != disallowed_root_sha256,
+                   "identity_source": "TLS-verified leaf URI SAN",
+                   "trust_source": "TLS-verified chain terminal DER certificate SHA-256",
+                   "valid_fixed_vector": origin_vector,
+                   "refusal": {key: origin_refusal.get(key) for key in ("status", "decision")},
+                   "parent_round_state_unchanged": after_origin_refusal == before_origin_refusal})
         before_refusal = _state(source, peer_address)
         stale_after_enforcement = {**stale, "counts": [2, 1, 0]}
         refusal = _client(source, "toy-participant-a", peer_address, "POST",
@@ -311,7 +396,24 @@ def run(lab):
 
         receipt = {
             "case": "SAF-K8S-0910-004",
-            "scope": "two-owned-kind-clusters/toy-vector-round/mTLS",
+            "scope": "two-owned-kind-clusters/toy-vector-round/synthetic-verified-root-identity-policy/mTLS",
+            "synthetic_origin_policy": {
+                "presented_identity": PARTICIPANT_A,
+                "test_role": DISALLOWED_TEST_ROLE,
+                "approved_terminal_root_sha256": approved_root_sha256,
+                "disallowed_terminal_root_sha256": disallowed_root_sha256,
+                "observed_verified_terminal_root_sha256": origin_refusal.get("verified_root_sha256"),
+                "root_fingerprints_distinct": approved_root_sha256 != disallowed_root_sha256,
+                "identity_source": "TLS-verified leaf URI SAN",
+                "trust_source": "TLS-verified chain terminal DER certificate SHA-256",
+                "valid_fixed_vector": origin_vector,
+                "refusal": origin_refusal,
+                "state_before": before_origin_refusal,
+                "state_after": after_origin_refusal,
+                "passed": origin_policy_ok,
+                "physical_origin_attested": False,
+                "production_spiffe_membership_tested": False,
+            },
             "red": {"passed": baseline_ok, "baseline_response": baseline_reply,
                     "baseline_receiver_state": baseline_state},
             "green": {"passed": green_ok, "unapproved_policy_update": wrong_admin,
@@ -332,12 +434,23 @@ def run(lab):
                       "Observer readback is an mTLS service GET using a distinct URI identity.",
                       "The aggregate includes only the exact enforced round; the baseline stale row remains visible but excluded."],
         }
+        normalized = json.loads(json.dumps(receipt))
+        origin = normalized["synthetic_origin_policy"]
+        root_roles = {approved_root_sha256: "approved-fixture-root",
+                      disallowed_root_sha256: "disallowed-fixture-root"}
+        for field in ("approved_terminal_root", "disallowed_terminal_root",
+                      "observed_verified_terminal_root"):
+            origin[field + "_role"] = root_roles[origin.pop(field + "_sha256")]
+        refusal = origin["refusal"]
+        refusal["verified_root_role"] = root_roles[refusal.pop("verified_root_sha256")]
         (lab.evidence / "federated-round-normalized.json").write_text(
-            json.dumps(receipt, sort_keys=True, indent=2) + "\n")
+            json.dumps(normalized, sort_keys=True, indent=2) + "\n")
         receipt["api_uids"] = kube_apis
         receipt["participant_pod_uids"] = [
             kube("get", "pod", name, "-o", "jsonpath={.metadata.uid}").stdout
             for kube, name in ((source, "toy-participant-a"), (peer, "toy-participant-b"))
         ]
+        receipt["disallowed_origin_test_pod_uid"] = peer(
+            "get", "pod", DISALLOWED_ORIGIN_POD, "-o", "jsonpath={.metadata.uid}").stdout
         (lab.evidence / "federated-round-coordination.json").write_text(
             json.dumps(receipt, sort_keys=True, indent=2) + "\n")

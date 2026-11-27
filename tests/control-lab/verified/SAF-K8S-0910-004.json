@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0910-004",
-  "catalog_revision": "2b8602c39ffd1b31cfa18036b4366537ae17538d",
-  "catalog_sha256": "abe40f941f7d427f9b0a6925bad25da44b0fb08979ab503301fb56399c7bf4b0",
+  "catalog_revision": "cd6f6d6d5a5066b658147171209b0e44ff35355c",
+  "catalog_sha256": "1da56289e4f344f65fa946b0099b200d7a52a7c4bea62ee17a32261bedc18861",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "bf7e4c8150a2cb7e28cd74cf0f37ad760dc038b20d2c1e89fa0acf35ccd411ea",
-  "scope": "Two distinct, disposable Kind clusters host one mTLS round receiver and one participant each. A pinned Python fixture accepts a stale synthetic vector in an explicitly unenforced baseline, then enforces exact round, protocol, membership, and duplicate checks. A separately identified observer reads the receiver's service state, and a valid harmless contribution submitted with that observer identity is refused without changing state. This covers one toy coordination path, not production FL, secure aggregation, differential privacy, Byzantine tolerance, or cluster-wide audit controls.",
-  "cluster": "saf-lab-bcebee91fd26",
+  "scope": "Two distinct, disposable Kind clusters host one mTLS round receiver and one participant each. A pinned Python fixture accepts a stale synthetic vector in an explicitly unenforced baseline, then enforces exact round, protocol, membership, and duplicate checks. A separately identified observer reads the receiver's service state, and a valid harmless contribution submitted with that observer identity is refused without changing state. This covers one toy coordination path, not production FL, secure aggregation, differential privacy, Byzantine tolerance, or cluster-wide audit controls. A synthetic verified-root/identity pair distinguishes the approved fixture trust policy from a self-reported cluster label; it does not attest physical origin.",
+  "cluster": "saf-lab-518e0e99bc13",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -64,6 +64,34 @@
             }
           ]
         }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "A valid member label cannot override the disallowed synthetic trust root",
+      "matched": true,
+      "observed": {
+        "presented_identity": "spiffe://saf.test/ns/saf-test/sa/toy-participant-a",
+        "test_role": "same-approved-uri-under-disallowed-test-root",
+        "observed_root_matches_disallowed_fixture": true,
+        "root_fingerprints_distinct": true,
+        "identity_source": "TLS-verified leaf URI SAN",
+        "trust_source": "TLS-verified chain terminal DER certificate SHA-256",
+        "valid_fixed_vector": {
+          "round": "toy-round-2026-11-23-01",
+          "protocol": "toy-vector-counts-v1",
+          "cluster": "cluster-a",
+          "counts": [
+            1,
+            2,
+            3
+          ]
+        },
+        "refusal": {
+          "status": 403,
+          "decision": "participant_trust_root_refused"
+        },
+        "parent_round_state_unchanged": true
       }
     },
     {
