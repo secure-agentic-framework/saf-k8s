@@ -26,8 +26,9 @@ SCOPE = (
     "only harmless synthetic metadata and small numeric values: one enrolled worker on the "
     "wrong assigned round and one short numeric vector. Green repeats those requests after "
     "enforcement is enabled, then two assigned workers submit ordinary fixed vectors. An "
-    "independent observer reads stable counters and the exact mock aggregate. No real model, "
-    "training framework, external service, real identity, external credential, feed, or target is used. "
+    "independent observer reads stable counters and the exact mock aggregate. The published HTTP slice uses no real model, "
+    "external service, real identity, external credential, feed, or target. An additive CPU Gloo slice runs one fixed collective "
+    "using PyTorch without model training. "
     "A separate observer Pod has a projected synthetic identity, reads counters, and is refused contribution as unenrolled. "
     "After those 14 checks, a paired fixture compares the same three fixed in-range synthetic values "
     "with anomaly screening disabled and enabled while schema and assignment checks stay enabled. "
@@ -502,3 +503,9 @@ def run(lab):
     tls_channel = module_from_spec(tls_spec)
     tls_spec.loader.exec_module(tls_channel)
     tls_channel.run_tls_channel(lab, HERE)
+
+    # Run the CPU collective after the existing control checks.
+    gloo_spec = spec_from_file_location("saf_0901_002_gloo_hook", HERE / "gloo_hook.py")
+    gloo_hook = module_from_spec(gloo_spec)
+    gloo_spec.loader.exec_module(gloo_hook)
+    gloo_hook.run(lab, HERE)

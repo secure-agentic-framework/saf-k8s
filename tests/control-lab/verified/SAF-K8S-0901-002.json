@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0901-002",
-  "catalog_revision": "2be725b36f64ceefd918cdf1ba2cee08168b95af",
-  "catalog_sha256": "2dabf76722865b208eecf265e7d68e567a33dc885db36f29a53fd002044e2a61",
+  "catalog_revision": "9be2534ae12a0dacfe65d1879297a70648c3bc5f",
+  "catalog_sha256": "1da56289e4f344f65fa946b0099b200d7a52a7c4bea62ee17a32261bedc18861",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "bb16ab04c16e700904d6a6d8fc30cd55202a0b441b55bfb7f7771f84a48596cc",
-  "scope": "One disposable Kind cluster on Kubernetes v1.36.1 hosts two synthetic worker Pods, one observer Pod, and one case-owned ClusterIP aggregation mock. The mock has an Kubernetes TokenReview verification of audience-scoped Pod identities, an enrollment-to-round table, and accepts only a fixed v1 JSON schema with three finite numeric entries in [-0.05, 0.05] when enforcement is enabled. Red sends only harmless synthetic metadata and small numeric values: one enrolled worker on the wrong assigned round and one short numeric vector. Green repeats those requests after enforcement is enabled, then two assigned workers submit ordinary fixed vectors. An independent observer reads stable counters and the exact mock aggregate. No real model, training framework, external service, real identity, external credential, feed, or target is used. A separate observer Pod has a projected synthetic identity, reads counters, and is refused contribution as unenrolled. After those 14 checks, a paired fixture compares the same three fixed in-range synthetic values with anomaly screening disabled and enabled while schema and assignment checks stay enabled. After the 15 existing checks, an isolated TLS-only mock endpoint compares one fixed authenticated vector over verified TLS with cleartext refusal and a CA-trusted alternate-name certificate rejection.",
-  "cluster": "saf-lab-36f32f6f0bc2",
+  "scope": "One disposable Kind cluster on Kubernetes v1.36.1 hosts two synthetic worker Pods, one observer Pod, and one case-owned ClusterIP aggregation mock. The mock has an Kubernetes TokenReview verification of audience-scoped Pod identities, an enrollment-to-round table, and accepts only a fixed v1 JSON schema with three finite numeric entries in [-0.05, 0.05] when enforcement is enabled. Red sends only harmless synthetic metadata and small numeric values: one enrolled worker on the wrong assigned round and one short numeric vector. Green repeats those requests after enforcement is enabled, then two assigned workers submit ordinary fixed vectors. An independent observer reads stable counters and the exact mock aggregate. The published HTTP slice uses no real model, external service, real identity, external credential, feed, or target. An additive CPU Gloo slice runs one fixed collective using PyTorch without model training. A separate observer Pod has a projected synthetic identity, reads counters, and is refused contribution as unenrolled. After those 14 checks, a paired fixture compares the same three fixed in-range synthetic values with anomaly screening disabled and enabled while schema and assignment checks stay enabled. After the 15 existing checks, an isolated TLS-only mock endpoint compares one fixed authenticated vector over verified TLS with cleartext refusal and a CA-trusted alternate-name certificate rejection.",
+  "cluster": "saf-lab-786167f5c8ba",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -377,6 +377,36 @@
           "tls_protocol": "TLSv1.3",
           "verified_alternate_name": true
         }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Two distinct TokenReview-authenticated enrolled worker Pods receive their fixed ranks and run the pinned CPU Gloo runtime",
+      "matched": true,
+      "observed": {
+        "distinct_enrolled_identities_and_ranks": true,
+        "pinned_runtime_image_on_both_workers": true,
+        "both_owned_rank_pods_completed": true,
+        "raw_evidence": "gloo-two-rank-raw.json"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The two-rank CPU Gloo all-reduce returns the exact fixed-vector sum to both enrolled workers",
+      "matched": true,
+      "observed": {
+        "both_worker_results_equal_expected_sum": true,
+        "backend": "gloo",
+        "device": "cpu",
+        "world_size": 2,
+        "vector_length": 3,
+        "collectives_per_worker": 1,
+        "expected_sum": [
+          0.03,
+          -0.02,
+          0.02
+        ],
+        "raw_evidence": "gloo-two-rank-raw.json"
       }
     }
   ]
