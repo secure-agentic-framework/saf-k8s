@@ -3,10 +3,13 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import json
 import os
 import sys
-from threading import Thread
+from threading import Lock, Thread
 from urllib.request import Request, urlopen
 
 MARKER = "FIXTURE:REJECT-0903"
+CLEAN_MARKER = "FIXTURE:CLEAN-0903"
+EXPLANATION_BUDGET = int(os.environ.get("EXPLANATION_BUDGET", "0"))
+EXPLANATION_LOCK = Lock()
 EXPLANATION = {"fixture_id": "SAF-K8S-0903-001-benign-v1",
                "features": [{"name": "signal_a", "value": 0.25},
                             {"name": "signal_b", "value": 0.75}]}
@@ -44,6 +47,33 @@ class FixtureHandler(BaseHTTPRequestHandler):
         return None
 
 
+def validation_decision(marker):
+    request = Request(os.environ["VALIDATION_URL"] + "/decision",
+                      data=json.dumps({"fixture_marker": marker}).encode(),
+                      headers={"Content-Type": "application/json"})
+    try:
+        with urlopen(request, timeout=1) as response:
+            decision = json.loads(response.read(256))
+    except (OSError, ValueError):
+        return None
+    if (isinstance(decision, dict) and set(decision) == {"allow"}
+            and type(decision["allow"]) is bool):
+        return decision["allow"]
+    return None
+
+
+class ValidationHandler(FixtureHandler):
+    def do_POST(self):
+        if self.path != "/decision":
+            return self.reply(404, {"reason": "not_found"})
+        request = self.read_request()
+        if request is None:
+            return
+        if request not in ({"fixture_marker": MARKER}, {"fixture_marker": CLEAN_MARKER}):
+            return self.reply(400, {"reason": "unknown_fixture_input"})
+        self.reply(200, {"allow": request["fixture_marker"] == CLEAN_MARKER})
+
+
 class InferenceHandler(FixtureHandler):
     def do_POST(self):
         if self.path == "/admin/counters":
@@ -53,7 +83,17 @@ class InferenceHandler(FixtureHandler):
         request = self.read_request()
         if request is None:
             return
-        if os.environ.get("REJECT_MARKER") == "true" and request.get("fixture_marker") == MARKER:
+        marker = request.get("fixture_marker")
+        if os.environ.get("VALIDATION_URL"):
+            if marker not in (MARKER, CLEAN_MARKER):
+                return self.reply(400, {"reason": "unknown_fixture_input"})
+            allow = validation_decision(marker)
+            if allow is None:
+                return self.reply(503, {"reason": "fixture_validation_unavailable"})
+            reject = not allow
+        else:
+            reject = os.environ.get("REJECT_MARKER") == "true" and marker == MARKER
+        if reject:
             COUNTERS["rejections"] += 1
             record = {"rejection_id": "reject-0903-0001", "reason": "fixture_marker_rejected"}
             COUNTERS["rejection_records"] = [record]
@@ -74,7 +114,10 @@ class ExplanationHandler(FixtureHandler):
             return
         if request != {"request_id": "bounded-fixture-v1"}:
             return self.reply(400, {"reason": "bounded_request_required"})
-        COUNTERS["explanation_calls"] += 1
+        with EXPLANATION_LOCK:
+            if EXPLANATION_BUDGET and COUNTERS["explanation_calls"] >= EXPLANATION_BUDGET:
+                return self.reply(429, {"reason": "fixture_disclosure_budget_exhausted"})
+            COUNTERS["explanation_calls"] += 1
         self.reply(200, EXPLANATION)
 
 
@@ -102,6 +145,9 @@ if __name__ == "__main__":
     if sys.argv[1:] == ["backend"]:
         with ThreadingHTTPServer(("0.0.0.0", 8082), ModelHandler) as backend:
             backend.serve_forever()
+    elif sys.argv[1:] == ["validation"]:
+        with ThreadingHTTPServer(("0.0.0.0", 8083), ValidationHandler) as validation:
+            validation.serve_forever()
     else:
         with ThreadingHTTPServer(("0.0.0.0", 8080), InferenceHandler) as inference:
             with ThreadingHTTPServer(("0.0.0.0", 8081), ExplanationHandler) as explanation:

@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0903-001",
-  "catalog_revision": "d7096e4e8469c6ca41786a2932577aa946a35018",
-  "catalog_sha256": "a868b4ea141c0e3de49227b6eeabffa4a2330712afd28048221b89ce9b63aa55",
+  "catalog_revision": "76a54eec09c40e2a0f48228d61b2100818a97678",
+  "catalog_sha256": "aca73c8b9b5a6fa1486fef25fbcc7754b6bf3feba10909dd64da70f91a10504a",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "76f2e18c7c8661276bf9d15ba8367d70b2fb29206011202fce6ba0c9f512b8d3",
-  "scope": "One Kubernetes v1.36.1 Kind cluster with enforcing NetworkPolicy. Two case-owned workloads implement an inert inference stand-in and a fixed synthetic explanation. Compare the same marked benign request before and after deterministic rejection, check the backend counter and content-free rejection record, then compare a named ordinary Pod and a monitoring-labeled Pod accessing the same explanation port. A clean inference request remains functional. Production detector quality, real explanations, identity and label governance, alternate paths, rate limits and audit retention require separate evidence.",
-  "cluster": "saf-lab-384eb1f789af",
+  "control_sha256": "e2c069d8400172b6b8edb3855b91def8366e870dada22b8c4897cd38b78c0da2",
+  "scope": "One Kubernetes v1.36.1 Kind cluster with enforcing NetworkPolicy. Two case-owned workloads implement an inert inference stand-in and a fixed synthetic explanation. Compare the same marked benign request before and after deterministic rejection, check the backend counter and content-free rejection record, then compare a named ordinary Pod and a monitoring-labeled Pod accessing the same explanation port. A clean inference request remains functional. Then verify a fixed explanation disclosure budget and a safe serving response during the loss and return of the owned validation dependency. Model effectiveness, deployed identity and label governance, alternate paths, distributed disclosure limits and audit retention require separate evidence.",
+  "cluster": "saf-lab-9554e8004b54",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -163,6 +163,66 @@
           "rejections": 1,
           "backend_calls": 2
         }
+      }
+    },
+    {
+      "phase": "explanation_disclosure_budget",
+      "claim": "The designated explanation listener limits disclosed fixture responses",
+      "matched": true,
+      "observed": {
+        "responses": [
+          {
+            "body": {
+              "features": [
+                {
+                  "name": "signal_a",
+                  "value": 0.25
+                },
+                {
+                  "name": "signal_b",
+                  "value": 0.75
+                }
+              ],
+              "fixture_id": "SAF-K8S-0903-001-benign-v1"
+            },
+            "status": 200
+          },
+          {
+            "body": {
+              "features": [
+                {
+                  "name": "signal_a",
+                  "value": 0.25
+                },
+                {
+                  "name": "signal_b",
+                  "value": 0.75
+                }
+              ],
+              "fixture_id": "SAF-K8S-0903-001-benign-v1"
+            },
+            "status": 200
+          },
+          {
+            "body": {
+              "reason": "fixture_disclosure_budget_exhausted"
+            },
+            "status": 429
+          }
+        ],
+        "observed_disclosures": 2
+      }
+    },
+    {
+      "phase": "validation_dependency_safe_failure",
+      "claim": "Losing the validation dependency stops forwarding and then recovers",
+      "matched": true,
+      "observed": {
+        "healthy_before": true,
+        "fault_returns_defined_error": true,
+        "no_backend_call_during_fault": true,
+        "permitted_input_restored": true,
+        "fixed_negative_still_rejected_without_backend_call": true
       }
     }
   ]
