@@ -6442,22 +6442,6 @@
 
 
     6.1 - Secure container images (approved base images including CUDA, ML framework images); 9.1 - AI operator security (approved solutions)'
-  control_id: SAF-K8S-0901-002
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-4(20)
-  framework_requirement_title: Approved Solutions
-  framework_mapping_notes: 'Using approved solutions for agent cross-domain flows
-
-
-    6.1 - Secure container images (approved base images including CUDA, ML framework images); 9.1 - AI operator security (approved solutions)'
   control_id: SAF-K8S-0901-005
   relation_type: supports
   strength_level: strong
@@ -9737,22 +9721,6 @@
 
 
     3.1 - Pod Security Standards (preventing privileged installation); 9.1 - AI operator elevated privilege management'
-  control_id: SAF-K8S-0901-002
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: CM-11(2)
-  framework_requirement_title: Software Installation with Privileged Status
-  framework_mapping_notes: 'Privileged agent component installation
-
-
-    3.1 - Pod Security Standards (preventing privileged installation); 9.1 - AI operator elevated privilege management'
   control_id: SAF-K8S-0901-005
   relation_type: supports
   strength_level: strong
@@ -11211,22 +11179,6 @@
 
 
     9.1 - Training fault tolerance (checkpoint recovery, rollback strategies for training state)'
-  control_id: SAF-K8S-0901-002
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: CP-10(2)
-  framework_requirement_title: Transaction Recovery
-  framework_mapping_notes: 'Recovering agent transactions (rollback)
-
-
-    9.1 - Training fault tolerance (checkpoint recovery, rollback strategies for training state)'
   control_id: SAF-K8S-0901-005
   relation_type: supports
   strength_level: strong
@@ -11682,22 +11634,6 @@
   framework_version: 5.2.0
   framework_requirement_id: CP-6(2)
   framework_requirement_title: Recovery Time and Recovery Point Objectives
-  framework_mapping_notes: 'RTO/RPO for agent systems (concept applies logically)
-
-
-    10.5 - Recovery (RTO/RPO for model serving and training state); 9.1 - Checkpoint recovery strategy'
-  control_id: SAF-K8S-0901-002
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: CP-6(2)
-  framework_requirement_title: Recovery Time and Recovery Point Objectives
   framework_mapping_notes: Checkpoint backup and recovery tests can contribute evidence for the alternate site. Verify its independent failure domain, actual configuration and measured recovery time and recovery point objectives.
   control_id: SAF-K8S-0901-004
   relation_type: partial
@@ -11823,22 +11759,6 @@
   framework_version: 5.2.0
   framework_requirement_id: CP-9
   framework_requirement_title: System Backup
-  framework_mapping_notes: 'Backing up agent configs, models, data
-
-
-    1.2 - etcd backup and restore security; 9.1 - Checkpoint security (encrypted storage, integrity verification)'
-  control_id: SAF-K8S-0901-002
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: CP-9
-  framework_requirement_title: System Backup
   framework_mapping_notes: Encrypting the designated checkpoint, restricting access and checking its integrity before recovery contribute to protection of that backup information. Establish backup scope, frequency, availability and verification under the system backup plan.
   control_id: SAF-K8S-0901-003
   relation_type: partial
@@ -11886,22 +11806,6 @@
 
     1.2 - etcd backup integrity verification; 9.1 - Checkpoint integrity verification and testing'
   control_id: SAF-K8S-0102-008
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: CP-9(1)
-  framework_requirement_title: Testing for Reliability and Integrity
-  framework_mapping_notes: 'Testing agent backup integrity
-
-
-    1.2 - etcd backup integrity verification; 9.1 - Checkpoint integrity verification and testing'
-  control_id: SAF-K8S-0901-002
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -12874,16 +12778,13 @@
   framework_version: 5.2.0
   framework_requirement_id: IA-4
   framework_requirement_title: Identifier Management
-  framework_mapping_notes: 'Managing agent identifiers (non-human identity registry)
-
-
-    4.2 - Service accounts (identifier lifecycle for workloads); 9.1 - Identity lifecycle for ephemeral training jobs'
+  framework_mapping_notes: NIST SP 800-53 Rev. 5.2.0 IA-4 manages system identifiers by authorized assignment, selection of an identifying identifier, assignment to the intended principal, and prevention of reuse for an organization-defined period. This SAF control can contribute only for identifiers used to authenticate aggregation workers; it does not itself establish the entire identity lifecycle.
   control_id: SAF-K8S-0901-002
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  strength_level: weak
+  applicability: conditional
+  applicability_condition: Conditional contribution only where the deployed parameter-server or all-reduce path uses governed service or workload identifiers and the implementation demonstrates authorization, intended assignment, uniqueness/non-reuse as applicable, and lifecycle controls for those contributing identities. A request-time TokenReview and static fixture enrollment do not establish the full IA-4 lifecycle.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -15262,22 +15163,6 @@
 
 
     9.1 - AI operator attack surface review; 6.1 - Minimal images (attack surface reduction and review)'
-  control_id: SAF-K8S-0901-002
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SA-11(6)
-  framework_requirement_title: Attack Surface Reviews
-  framework_mapping_notes: 'Attack surface review of agent interfaces, tools, and data flows identifies exposure points
-
-
-    9.1 - AI operator attack surface review; 6.1 - Minimal images (attack surface reduction and review)'
   control_id: SAF-K8S-0901-005
   relation_type: direct
   strength_level: strong
@@ -15489,22 +15374,6 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SA-17(2)
-  framework_requirement_title: Security-relevant Components
-  framework_mapping_notes: 'Identifying security-relevant agent components focuses verification on critical elements
-
-
-    9.1 - AI operator security (identifying security-relevant AI components, CRDs, and their privileges)'
-  control_id: SAF-K8S-0901-002
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -15766,22 +15635,6 @@
 
     8.2 - GPU driver containers (customized for hardware security); 9.1 - Custom AI operator development security'
   control_id: SAF-K8S-0802-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SA-20
-  framework_requirement_title: Customized Development of Critical Components
-  framework_mapping_notes: 'Custom development of critical agent security components ensures control over trust-sensitive code
-
-
-    8.2 - GPU driver containers (customized for hardware security); 9.1 - Custom AI operator development security'
-  control_id: SAF-K8S-0901-002
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -16487,16 +16340,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SA-8(17)
   framework_requirement_title: Secure Distributed Composition
-  framework_mapping_notes: 'Secure composition of distributed multi-agent systems is a core architectural challenge
-
-
-    9.1 - Distributed training security (secure multi-node composition); 5.4 - Service mesh for distributed systems'
+  framework_mapping_notes: NIST SP 800-53 Rev. 5.2.0 SA-8(17) requires implementing secure distributed composition as an organization-defined engineering principle. The scoped contribution is limited to architecture-specific aggregation policy composition when that exact distributed design is documented and assessed; it is not evidence of allreduce correctness or Byzantine resilience.
   control_id: SAF-K8S-0901-002
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: weak
+  applicability: conditional
+  applicability_condition: Conditional contribution only for an organization-defined parameter-server or all-reduce composition whose distributed components are shown to enforce a consistent security policy across the selected interfaces. The authored mock has one central aggregator and does not establish distributed-composition assurance.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -16519,16 +16369,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SA-8(18)
   framework_requirement_title: Trusted Communications Channels
-  framework_mapping_notes: 'Trusted channels between agents and tools prevent tampering and interception
-
-
-    5.4 - mTLS (trusted communication channels); 9.1 - Encrypted gradient communication (NCCL, MPI)'
+  framework_mapping_notes: NIST SP 800-53 Rev. 5.2.0 SA-8(18) applies the trusted-communications-channel design principle. Authentication of a synthetic caller at a mock endpoint is only a limited contribution when the actual worker-to-aggregator channels and endpoint trust are separately evidenced; this row does not imply TLS, channel integrity, or deployed trust.
   control_id: SAF-K8S-0901-002
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: weak
+  applicability: conditional
+  applicability_condition: Conditional contribution only where the deployed aggregation path establishes trusted communications channels between the actual worker and aggregation components, with access restriction and end-to-end protection commensurate with their security dependencies. The current case uses in-cluster HTTP and proves no channel confidentiality or integrity.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -17497,22 +17344,6 @@
 
 
     9.1 - Distributed training (worker identification in multi-node training, participant authentication)'
-  control_id: SAF-K8S-0901-002
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-15(4)
-  framework_requirement_title: Explicitly Indicate Current Participants
-  framework_mapping_notes: 'Indicating active participants in agent sessions provides transparency and accountability
-
-
-    9.1 - Distributed training (worker identification in multi-node training, participant authentication)'
   control_id: SAF-K8S-0901-005
   relation_type: supports
   strength_level: strong
@@ -18254,22 +18085,6 @@
 
 
     1.2 - Encrypted etcd backups (offline storage); 9.1 - Checkpoint offline storage security'
-  control_id: SAF-K8S-0901-002
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-28(2)
-  framework_requirement_title: Offline Storage
-  framework_mapping_notes: 'Offline storage protection for agent backups and archived model data prevents unauthorized access
-
-
-    1.2 - Encrypted etcd backups (offline storage); 9.1 - Checkpoint offline storage security'
   control_id: SAF-K8S-0901-005
   relation_type: direct
   strength_level: strong
@@ -18931,40 +18746,8 @@
 
 
     9.1 - Distributed training (multi-node GPU processing); 7.1 - Distributed persistent volume storage'
-  control_id: SAF-K8S-0901-002
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-36
-  framework_requirement_title: Distributed Processing and Storage
-  framework_mapping_notes: 'Distributed agent processing across locations provides resilience and redundancy
-
-
-    9.1 - Distributed training (multi-node GPU processing); 7.1 - Distributed persistent volume storage'
   control_id: SAF-K8S-0901-005
   relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-36(1)
-  framework_requirement_title: Polling Techniques
-  framework_mapping_notes: 'Polling validates integrity of distributed agent components and detects tampering
-
-
-    9.1 - Distributed training fault tolerance (polling for corrupted data detection and component status verification)'
-  control_id: SAF-K8S-0901-002
-  relation_type: supports
   strength_level: strong
   applicability: required
   applicability_condition: null
@@ -19012,22 +18795,6 @@
 
     9.1 - Distributed training (synchronization of multi-node GPU processing); 8.3 - NVLink/NVSwitch traffic isolation'
   control_id: SAF-K8S-0803-002
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-36(2)
-  framework_requirement_title: Synchronization
-  framework_mapping_notes: 'Synchronization controls ensure distributed agent state consistency and prevent split-brain
-
-
-    9.1 - Distributed training (synchronization of multi-node GPU processing); 8.3 - NVLink/NVSwitch traffic isolation'
-  control_id: SAF-K8S-0901-002
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -21216,16 +20983,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SC-8(2)
   framework_requirement_title: Pre- and Post-transmission Handling
-  framework_mapping_notes: 'Agent data must be protected before and after transmission, not just in transit
-
-
-    9.1 - Checkpoint security (pre/post-transmission integrity); 9.2 - Input/output validation and handling'
+  framework_mapping_notes: NIST SP 800-53 Rev. 5.2.0 SC-8(2) addresses maintaining confidentiality or integrity during information preparation for transmission and reception; its discussion includes aggregation and protocol transformation points. The relation is limited to concrete update-integrity validation at those defined boundaries and requires separate evidence of the selected property.
   control_id: SAF-K8S-0901-002
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  strength_level: weak
+  applicability: conditional
+  applicability_condition: Conditional contribution only for update-handling behavior that maintains the selected confidentiality or integrity property during preparation for transmission and reception, including the aggregation boundary. The present synthetic schema/range gate demonstrates only local input validation and does not establish all pre/post-transmission handling or transport protections.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -21959,39 +21723,7 @@
 
 
     9.1 - Training fault tolerance (corrupted data detection and recovery); 7.3 - Resource exhaustion resilience'
-  control_id: SAF-K8S-0901-002
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-13
-  framework_requirement_title: Predictable Failure Prevention
-  framework_mapping_notes: 'Predictable failure prevention for agent systems ensures graceful degradation under stress
-
-
-    9.1 - Training fault tolerance (corrupted data detection and recovery); 7.3 - Resource exhaustion resilience'
   control_id: SAF-K8S-0901-005
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-13(1)
-  framework_requirement_title: Transferring Component Responsibilities
-  framework_mapping_notes: 'Automated failover for agent components maintains availability during failures
-
-
-    9.1 - Training fault tolerance (backup and rollback strategies); 10.5 - IR recovery (workload recovery prioritization)'
-  control_id: SAF-K8S-0901-002
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -22103,22 +21835,6 @@
 
 
     1.3 - HA configuration for control plane (failover); 9.1 - Training fault tolerance (failover recovery)'
-  control_id: SAF-K8S-0901-002
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-13(5)
-  framework_requirement_title: Failover Capability
-  framework_mapping_notes: 'Failover capability for agent systems ensures continuity during component failures
-
-
-    1.3 - HA configuration for control plane (failover); 9.1 - Training fault tolerance (failover recovery)'
   control_id: SAF-K8S-0901-005
   relation_type: direct
   strength_level: strong
@@ -22205,22 +21921,6 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-14(3)
-  framework_requirement_title: Non-persistent Connectivity
-  framework_mapping_notes: 'Non-persistent agent network connections limit lateral movement opportunities
-
-
-    4.2 - Projected service account tokens (time-bound, non-persistent credentials); 9.1 - Ephemeral training job identities'
-  control_id: SAF-K8S-0901-002
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -22578,22 +22278,6 @@
 
 
     9.8 - Differential privacy and output perturbation controls; 9.1 - Federated learning differential privacy for gradient updates'
-  control_id: SAF-K8S-0901-002
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-19(6)
-  framework_requirement_title: Differential Privacy
-  framework_mapping_notes: 'Differential privacy techniques protect individual data in agent analytics and model training
-
-
-    9.8 - Differential privacy and output perturbation controls; 9.1 - Federated learning differential privacy for gradient updates'
   control_id: SAF-K8S-0901-005
   relation_type: direct
   strength_level: strong
@@ -22838,22 +22522,6 @@
 
 
     10.5 - Post-incident activity (root cause analysis and lessons learned); 9.1 - Training fault tolerance (corrupted data root cause)'
-  control_id: SAF-K8S-0901-002
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-2(7)
-  framework_requirement_title: Root Cause Analysis
-  framework_mapping_notes: 'Root cause analysis of agent security flaws prevents recurrence of similar vulnerabilities
-
-
-    10.5 - Post-incident activity (root cause analysis and lessons learned); 9.1 - Training fault tolerance (corrupted data root cause)'
   control_id: SAF-K8S-0901-005
   relation_type: direct
   strength_level: strong
@@ -22918,22 +22586,6 @@
 
 
     9.6 - Data integrity at scale (diversity in data sources for resilience); 9.1 - Federated learning (diverse participant data)'
-  control_id: SAF-K8S-0901-002
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-22
-  framework_requirement_title: Information Diversity
-  framework_mapping_notes: 'Information diversity in agent inputs enables cross-validation and reduces manipulation risk
-
-
-    9.6 - Data integrity at scale (diversity in data sources for resilience); 9.1 - Federated learning (diverse participant data)'
   control_id: SAF-K8S-0901-005
   relation_type: supports
   strength_level: strong
@@ -22988,22 +22640,6 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-23
-  framework_requirement_title: Information Fragmentation
-  framework_mapping_notes: 'Fragmenting sensitive data across agent systems prevents single-point data compromise
-
-
-    9.1 - Distributed training (fragmenting data across workers); 7.1 - Distributed persistent volume storage'
-  control_id: SAF-K8S-0901-002
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -26882,3 +26518,42 @@
   applicability_condition: The approved serving artifact is identified as protected information and model-routing eligibility depends on verification against trusted integrity evidence.
   strength_reason_code: partial-control-coverage
   framework_mapping_notes: Verify measured serving artifact identity against an independently approved digest before routing. Keep a peer ineligible when its evidence fails and record the adopted response.
+- mapping_set_name: SAF-K8S to NIST SP 800-53r5
+  framework_code: NIST-800-53R5
+  framework_name: NIST SP 800-53 Revision 5
+  framework_version: 5.2.0
+  framework_requirement_id: AC-3
+  framework_requirement_title: Access Enforcement
+  control_id: SAF-K8S-0901-002
+  relation_type: partial
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The assessed aggregation interface enforces the approved worker-to-round permissions on contributed updates.
+  strength_reason_code: partial-control-coverage
+  framework_mapping_notes: This contributes access enforcement for regulated update submissions. Verify actual worker enrollment, channel identity, and all relevant aggregation interfaces.
+- mapping_set_name: SAF-K8S to NIST SP 800-53r5
+  framework_code: NIST-800-53R5
+  framework_name: NIST SP 800-53 Revision 5
+  framework_version: 5.2.0
+  framework_requirement_id: SI-10
+  framework_requirement_title: Information Input Validation
+  control_id: SAF-K8S-0901-002
+  relation_type: partial
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Contributed updates are designated information inputs and assessed validation runs before accepted data can affect the aggregate.
+  strength_reason_code: partial-control-coverage
+  framework_mapping_notes: Schema, magnitude, range, and other selected validity checks contribute input validation for the governed update. Evidence must cover actual model input constraints and effective fail-closed behavior.
+- mapping_set_name: SAF-K8S to NIST SP 800-53r5
+  framework_code: NIST-800-53R5
+  framework_name: NIST SP 800-53 Revision 5
+  framework_version: 5.2.0
+  framework_requirement_id: SI-4
+  framework_requirement_title: System Monitoring
+  control_id: SAF-K8S-0901-002
+  relation_type: supports
+  strength_level: weak
+  applicability: conditional
+  applicability_condition: The adopted system includes approved monitoring objectives for unusual aggregation behavior and observes relevant signals at the actual aggregation boundary.
+  strength_reason_code: partial-control-coverage
+  framework_mapping_notes: Scoped update anomaly decisions and protected events may contribute evidence for the selected monitoring objectives. Validate resolution, interpretation, signal quality and coverage for the actual training workflow.
