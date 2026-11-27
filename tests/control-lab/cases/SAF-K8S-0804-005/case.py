@@ -3,7 +3,7 @@
 import json
 import time
 
-SCOPE = "Actual Kubernetes RBAC release and revocation driven by modeled attestation decisions; no keys or secrets are released."
+SCOPE = "Actual Kubernetes RBAC release and revocation for an inert public marker, plus software-only signed synthetic verifier-result checks and recipient-bound ciphertext release; no TEE, provider KMS, or production key-release claim."
 NS = "saf-test"
 RBAC = "rbac.authorization.k8s.io"
 TARGET = "fixture-release-marker"
@@ -99,3 +99,11 @@ def run(lab):
     _recipient_release = _importlib_util.module_from_spec(_recipient_spec)
     _recipient_spec.loader.exec_module(_recipient_release)
     _recipient_release.run(lab)
+
+    _signed_spec = _importlib_util.spec_from_file_location(
+        "saf_0804_005_signed_release", _Path(__file__).with_name("signed_release.py"))
+    if _signed_spec is None or _signed_spec.loader is None:
+        lab.block("Could not load the bounded signed-result release witness")
+    _signed_release = _importlib_util.module_from_spec(_signed_spec)
+    _signed_spec.loader.exec_module(_signed_release)
+    _signed_release.run(lab)

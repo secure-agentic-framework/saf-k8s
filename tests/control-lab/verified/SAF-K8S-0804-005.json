@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0804-005",
-  "catalog_revision": "cd6f6d6d5a5066b658147171209b0e44ff35355c",
-  "catalog_sha256": "1da56289e4f344f65fa946b0099b200d7a52a7c4bea62ee17a32261bedc18861",
+  "catalog_revision": "36422572536970115a393ffab4cde03c4bcba218",
+  "catalog_sha256": "05bad5b212e22ea094491dca60d5d4cc21ff6c4cddb0c432dfc5da909786bc07",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "dcb8e2dddfa3b419b5f58d19d29e9ad4b1bc1d44a108dfa81b2be365e488c613",
-  "scope": "Actual Kubernetes RBAC release and revocation driven by modeled attestation decisions; no keys or secrets are released.",
-  "cluster": "saf-lab-9cc339b00412",
+  "scope": "Actual Kubernetes RBAC release and revocation for an inert public marker, plus software-only signed synthetic verifier-result checks and recipient-bound ciphertext release; no TEE, provider KMS, or production key-release claim.",
+  "cluster": "saf-lab-2e6e19d36a54",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -77,6 +77,19 @@
         "matching_recipient_recovers_exact_marker": true,
         "second_fixture_key_oaep_rejected": true,
         "wrong_receipt_or_request_recipient_denied_without_record": true
+      }
+    },
+    {
+      "phase": "signed-recipient",
+      "claim": "Only a trusted fresh verifier result bound to the exact request can release recipient-encrypted inert data",
+      "matched": true,
+      "observed": {
+        "trusted_positive_result_released": true,
+        "request_or_challenge_mismatch_denied_without_record": true,
+        "expired_signed_result_denied_without_record": true,
+        "untrusted_signer_denied_without_record": true,
+        "authorized_recipient_recovers_exact_inert_marker": true,
+        "all_claims_and_artifact_digests_match": true
       }
     }
   ]

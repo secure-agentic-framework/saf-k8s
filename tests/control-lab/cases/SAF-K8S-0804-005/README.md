@@ -6,4 +6,26 @@ An additive in-cluster reference release agent validates an immutable synthetic 
 
 This is software relying-party behavior using a test public key. It does not demonstrate TEE measurement, signed attestation authenticity, hardware isolation, cloud KMS policy, provider key custody, production recipient identity, key lifecycle, or external broker behavior. The in-cluster service account can create ConfigMaps in this isolated fixture namespace; the example does not claim an admission-enforced production release policy. Those provider and deployment facts remain adoption evidence.
 
-The agent uses the digest-pinned `docker.io/library/python:3.13-slim` image from the existing fixture conventions. The runner must have that image available to the Kind nodes; this candidate has not been run.
+The published four-check recipient-binding reference has paired successful receipts. This additive signer-result check is a separate scratch candidate and requires its own review and paired replay before publication. It uses the same digest-pinned Python image and synthetic-only assets. The signed result is created with an ephemeral fixture verifier key and checked against a separate immutable public trust-root ConfigMap. No hardware evidence is generated.
+
+
+## Signed verifier-result supplement
+
+The relying-party Job verifies a detached signature over the exact result bytes,
+then checks verifier identity, approval status, subject, request reference, resource,
+recipient and public-key digest, per-case challenge, live validity interval, and
+ciphertext digest before it can create a release record. Validly signed
+wrong-request and wrong-challenge results, an expired signed result, and a result
+signed by a different fixture key must be denied with exact NotFound readback.
+The positive path releases only the existing inert marker encrypted to the
+intended recipient; the host decrypts it and compares exact bytes without
+retaining plaintext or private keys. Challenge matching here is tuple binding,
+not a distributed replay-prevention claim.
+
+This is a synthetic verifier-to-relying-party reference, not a RATS-conformant
+attestation protocol or evidence of hardware appraisal. IETF [RFC 9334](https://www.rfc-editor.org/rfc/rfc9334/)
+distinguishes verifier evidence appraisal from the relying party's evaluation of
+attestation results; this fixture models only a small signed-result trust boundary.
+Verify the provider verifier, supported evidence format, trust anchors, freshness
+policy, recipient identity, KMS/broker authorization, audit, and revocation behavior
+in the adopted platform.
