@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0910-004",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "2b8602c39ffd1b31cfa18036b4366537ae17538d",
+  "catalog_sha256": "abe40f941f7d427f9b0a6925bad25da44b0fb08979ab503301fb56399c7bf4b0",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "bf7e4c8150a2cb7e28cd74cf0f37ad760dc038b20d2c1e89fa0acf35ccd411ea",
-  "scope": "Two distinct, disposable Kind clusters host one mTLS round receiver and one participant each. A pinned Python fixture accepts a stale synthetic vector in an explicitly unenforced baseline, then enforces exact round, protocol, membership, and duplicate checks. A separately identified read-only observer reads the receiver's service state before and after refusal and after the approved round. This covers one toy coordination path, not production FL, secure aggregation, differential privacy, Byzantine tolerance, or cluster-wide audit controls.",
-  "cluster": "saf-lab-86754f1538d7",
+  "scope": "Two distinct, disposable Kind clusters host one mTLS round receiver and one participant each. A pinned Python fixture accepts a stale synthetic vector in an explicitly unenforced baseline, then enforces exact round, protocol, membership, and duplicate checks. A separately identified observer reads the receiver's service state, and a valid harmless contribution submitted with that observer identity is refused without changing state. This covers one toy coordination path, not production FL, secure aggregation, differential privacy, Byzantine tolerance, or cluster-wide audit controls.",
+  "cluster": "saf-lab-bcebee91fd26",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -236,6 +236,122 @@
           "decision": "observer_read_refused",
           "status": 403
         }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Authenticated observer cannot submit a valid contribution and state stays unchanged",
+      "matched": true,
+      "observed": {
+        "before": {
+          "aggregate": {
+            "mean_counts": [
+              3,
+              5,
+              7
+            ],
+            "members": [
+              "cluster-a",
+              "cluster-b"
+            ],
+            "protocol": "toy-vector-counts-v1",
+            "round": "toy-round-2026-11-23-01",
+            "sum_counts": [
+              6,
+              10,
+              14
+            ]
+          },
+          "contributions": [
+            {
+              "cluster": "cluster-a",
+              "counts": [
+                1,
+                0,
+                2
+              ],
+              "protocol": "toy-vector-counts-v0",
+              "round": "toy-round-2026-11-22-01"
+            },
+            {
+              "cluster": "cluster-a",
+              "counts": [
+                2,
+                4,
+                6
+              ],
+              "protocol": "toy-vector-counts-v1",
+              "round": "toy-round-2026-11-23-01"
+            },
+            {
+              "cluster": "cluster-b",
+              "counts": [
+                4,
+                6,
+                8
+              ],
+              "protocol": "toy-vector-counts-v1",
+              "round": "toy-round-2026-11-23-01"
+            }
+          ]
+        },
+        "refusal": {
+          "decision": "participant_identity_refused",
+          "status": 403
+        },
+        "after": {
+          "aggregate": {
+            "mean_counts": [
+              3,
+              5,
+              7
+            ],
+            "members": [
+              "cluster-a",
+              "cluster-b"
+            ],
+            "protocol": "toy-vector-counts-v1",
+            "round": "toy-round-2026-11-23-01",
+            "sum_counts": [
+              6,
+              10,
+              14
+            ]
+          },
+          "contributions": [
+            {
+              "cluster": "cluster-a",
+              "counts": [
+                1,
+                0,
+                2
+              ],
+              "protocol": "toy-vector-counts-v0",
+              "round": "toy-round-2026-11-22-01"
+            },
+            {
+              "cluster": "cluster-a",
+              "counts": [
+                2,
+                4,
+                6
+              ],
+              "protocol": "toy-vector-counts-v1",
+              "round": "toy-round-2026-11-23-01"
+            },
+            {
+              "cluster": "cluster-b",
+              "counts": [
+                4,
+                6,
+                8
+              ],
+              "protocol": "toy-vector-counts-v1",
+              "round": "toy-round-2026-11-23-01"
+            }
+          ]
+        },
+        "state_unchanged": true
       }
     }
   ]

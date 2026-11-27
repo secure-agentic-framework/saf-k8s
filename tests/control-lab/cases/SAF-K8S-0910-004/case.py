@@ -31,9 +31,10 @@ SCOPE = (
     "Two distinct, disposable Kind clusters host one mTLS round receiver and one participant each. "
     "A pinned Python fixture accepts a stale synthetic vector in an explicitly unenforced baseline, "
     "then enforces exact round, protocol, membership, and duplicate checks. A separately identified "
-    "read-only observer reads the receiver's service state before and after refusal and after the "
-    "approved round. This covers one toy coordination path, not production FL, secure aggregation, "
-    "differential privacy, Byzantine tolerance, or cluster-wide audit controls."
+    "observer reads the receiver's service state, and a valid harmless contribution submitted with "
+    "that observer identity is refused without changing state. This covers one toy coordination "
+    "path, not production FL, secure aggregation, differential privacy, Byzantine tolerance, or "
+    "cluster-wide audit controls."
 )
 
 
@@ -287,6 +288,27 @@ def run(lab):
                                 "state_unchanged_after_duplicate": after_duplicate == after_a,
                                 "observer_state": final_state, "participant_read_refused": participant_read})
 
+        # Exercise principal authorization separately from a participant's false cluster claim.
+        # The payload itself is a valid harmless current-round vector; the observer certificate
+        # must be refused before the contribution can affect service state.
+        before_observer_write = _state(source, peer_address)
+        observer_vector = {"round": ROUND, "protocol": PROTOCOL, "cluster": "cluster-a",
+                           "counts": [1, 1, 1]}
+        observer_write_refusal = _client(source, "toy-round-observer", peer_address, "POST",
+                                         "/v1/contributions", observer_vector)
+        after_observer_write = _state(source, peer_address)
+        observer_write_ok = (
+            before_observer_write == final_state
+            and observer_write_refusal == {"status": 403,
+                                           "decision": "participant_identity_refused"}
+            and after_observer_write == before_observer_write
+        )
+        lab.check("green", "Authenticated observer cannot submit a valid contribution and state stays unchanged",
+                  observer_write_ok,
+                  {"before": before_observer_write, "refusal": observer_write_refusal,
+                   "after": after_observer_write,
+                   "state_unchanged": after_observer_write == before_observer_write})
+
         receipt = {
             "case": "SAF-K8S-0910-004",
             "scope": "two-owned-kind-clusters/toy-vector-round/mTLS",
@@ -297,6 +319,11 @@ def run(lab):
                       "protocol_refusal": expected_protocol_refusal,
                       "membership_refusal": expected_member_refusal,
                       "before": before_refusal, "after": after_member_refusal},
+            "observer_write": {"passed": observer_write_ok,
+                               "valid_fixed_vector": observer_vector,
+                               "before": before_observer_write,
+                               "refusal": observer_write_refusal,
+                               "after": after_observer_write},
             "positive": {"passed": positive_ok,
                          "contributions": [accepted_a, accepted_b],
                          "duplicate_refusal": duplicate_a, "receiver_state": final_state,

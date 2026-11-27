@@ -18,3 +18,19 @@ The raw receipt records the two API and participant Pod identities. The
 deterministic receipt preserves the observable decisions and aggregate for
 comparison across runs. Production federation, durable state, recovery,
 secure aggregation and privacy controls require separate evidence.
+
+
+## Supplemental observer authorization witness
+
+This scratch variant retains the original three assertions and adds one bounded check. After the
+round and membership policy is active, it uses the same authenticated observer identity to submit a
+well-formed fixed vector `[1, 1, 1]` for the current round. The receiver must return
+`403 participant_identity_refused`; a separate observer-authenticated state read must exactly match
+the pre-request state. This distinguishes an authenticated nonparticipant principal from a valid
+participant that supplies the wrong cluster label.
+
+The added assertion covers only the fixture receiver's authorization decision. Certificates and URI
+identities are generated for this disposable case; this does not prove deployed SPIFFE/SPIRE issuance,
+cluster-of-origin credential provisioning, or production federation behavior. The original secure
+aggregation, differential privacy, durable state, recovery, monitoring, and fleet-scale limitations
+remain.
