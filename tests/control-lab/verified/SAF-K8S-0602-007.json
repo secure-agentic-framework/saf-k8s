@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0602-007",
-  "catalog_revision": "8ca957210cb5ed5a74374a1779f0c03a4a7f65c8",
-  "catalog_sha256": "ee384744c842f8d644f583a5aaca5eaaa6b5317fc5eec912d037736ad0661d10",
+  "catalog_revision": "9be2534ae12a0dacfe65d1879297a70648c3bc5f",
+  "catalog_sha256": "1da56289e4f344f65fa946b0099b200d7a52a7c4bea62ee17a32261bedc18861",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "848a516166b5565b0a7262900f67df8efcfed5658289dde41f4063b3cd861bba",
   "scope": "One disposable Kind cluster. RBAC and native admission restrict an inert ConfigMap containing a synthetic review request, exact SHA-256 digest, and fixed approval window. The example preserves separate actor identities and refuses excess privileges and changes to signed-off request fields. The record has no link to image admission or workload execution. Production approval, audit delivery, trusted time and lifecycle need separate evidence.",
-  "cluster": "saf-lab-dfe0b3be1d3c",
+  "cluster": "saf-lab-960dbcd31ed8",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -116,6 +116,22 @@
         "different_request_denied": true,
         "time_source": "fixed-fixture-input",
         "enforcement_boundary": "application-reference-only"
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Only the designated reviewer can revoke the exact approved record, the consumer denies it afterward, and revocation cannot be restored",
+      "matched": true,
+      "observed": {
+        "independent_revocation_readback_matches_fixture": true,
+        "current_exact_request_allowed_before_revocation": true,
+        "wrong_reviewer_denied_without_state_change": true,
+        "authorized_revocation_persisted": true,
+        "same_request_denied_after_revocation": true,
+        "revocation_restore_denied": true,
+        "approval_record_unchanged": true,
+        "trusted_time_or_audit_backend_claimed": false,
+        "raw_evidence": "revocation-lifecycle.raw.json"
       }
     }
   ]

@@ -36,3 +36,26 @@ must separately show their trusted time source, the enforcement component that
 consumes it, deny behavior at and after expiry, and correlated audit evidence.
 
 [Kubernetes v1.36 ValidatingAdmissionPolicy](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/validating-admission-policy/)
+
+## Additive monotonic revocation check
+
+The scratch candidate preserves all nine published assertions and adds one
+grouped check using a second case-owned ConfigMap bound to the exact approved
+request ID, digest, expiry, and approval fingerprint. Reusing the existing
+reviewer ServiceAccounts, RBAC style, native ValidatingAdmissionPolicy, and
+fixed-time consumer, it checks that the designated security reviewer can
+transition `active` to `revoked`, the operations reviewer cannot make that
+transition despite scoped patch permission, and the revoked state cannot be
+restored. Independent GETs verify the approval record remains unchanged and
+the consumer denies the same request after revocation.
+
+This remains inert metadata and reference consumer behavior. The time instant
+is fixed test input, not a trusted clock. The VAP uses `Deny` only; the case
+does not configure or observe an audit backend, does not link the record to
+image admission, and does not launch Pods or workloads. These deployed
+workflow, trusted-time, audit-delivery, human-approval, and enforcement
+integration claims remain separate.
+
+Expected receipt count: ten total, with the nine published assertions
+preserved and one additive revocation lifecycle assertion. Raw supplemental
+artifact: `revocation-lifecycle.raw.json`.

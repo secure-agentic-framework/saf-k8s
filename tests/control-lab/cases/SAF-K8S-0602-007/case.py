@@ -205,3 +205,18 @@ _published_run = run
 def run(lab):
     _published_run(lab)
     run_expiry_reference(lab)
+
+
+_expiry_run = run
+
+
+def run(lab):
+    _expiry_run(lab)
+    from importlib.util import module_from_spec, spec_from_file_location
+
+    revocation_spec = spec_from_file_location(
+        "saf_0602_007_revocation_lifecycle",
+        Path(__file__).with_name("revocation_lifecycle.py"))
+    revocation = module_from_spec(revocation_spec)
+    revocation_spec.loader.exec_module(revocation)
+    revocation.run(lab, Path(__file__).parent)
