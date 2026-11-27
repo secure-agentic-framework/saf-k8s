@@ -20,10 +20,11 @@ SCOPE = (
     "One disposable Kind v1.36.1 cluster and namespace saf-test; one tokenless, restricted, "
     "single-completion Python Job trains a deterministic linear model from three fixed local "
     "synthetic records. The case captures dataset/config/model hashes, hyperparameters, "
-    "trainer/runtime versions, and the actual Job/Pod/Node identity and selected Node runtime "
-    "fields, then emits a schema-validated CycloneDX 1.7 ML-BOM. This fixture has no third-party ML framework; "
-    "CTA-2114 clause-level alignment remains pending authorized source review. It does not demonstrate production "
-    "workflow coverage or durable storage/attachment, which the catalog scope excludes."
+    "trainer/runtime versions, and actual Job/Pod/Node identity and selected Node runtime "
+    "fields, then emits a schema-validated CycloneDX 1.7 ML-BOM. CTA-2114 Sections 5 and 8.8 "
+    "inform the lineage records. SAF selects the exact fields, including Kubernetes identifiers. "
+    "The fixture records its own trainer version and Python runtime. Production framework versions, "
+    "data-source and infrastructure approvals, and signed attestations require separate workflow evidence."
 )
 
 TRAINER = r'''import hashlib, json, os, platform
@@ -260,7 +261,7 @@ def run(lab):
     generated = lab.evidence / "generated-mlbom.json"
     generated.write_text(json.dumps(bom, indent=2, sort_keys=True) + "\n")
     validate_bom(lab, generated, "v1_7")
-    evidence = {"control_id": CONTROL_ID, "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+    evidence = {"control_id": CONTROL_ID,
         "scope": SCOPE, "format_markers": {"bomFormat": bom["bomFormat"], "specVersion": bom["specVersion"]},
         "schema_validation_performed": True,
         "metadata_contract_validation": "case-local lineage checks plus official CycloneDX CLI validation",

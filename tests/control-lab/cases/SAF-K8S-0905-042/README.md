@@ -1,6 +1,11 @@
 # SAF-K8S-0905-042 ML-BOM and lineage metadata
 
-The listed lineage fields are SAF requirements. The public CTA-2114 description does not expose clause-level field criteria; treat CTA alignment as pending an authorized full-text comparison. This fixture has no third-party ML framework, so it records the trainer and Python runtime rather than demonstrating a production framework version.
+CTA-2114 (November 2025), Sections 5 and 8.8, recommends BOM records for
+model lineage, dataset provenance, hyperparameters, and training environment
+configuration. The sections also address linked attestations and BOM change
+tracking. SAF requires exact versions and training infrastructure identity.
+This case represents its observations with CycloneDX 1.7, SAF properties, and
+Kubernetes object identifiers.
 
 Run from the framework checkout:
 
@@ -39,11 +44,10 @@ input fails in the actual workflow. Apply the scoped NIST mappings where the
 result is used for documented component tracking, risk mapping or pedigree
 validation.
 
-CTA-2114 alignment requires authorized access to the report, exact clause and
-field evidence, and an observed comparison of the selected schema and tools.
-The official public description identifies the report and offers member login
-or purchase. CycloneDX schema verification alone cannot establish its
-alignment. Follow the open `saf-lab-0905-042.1` Bead for that source gate.
+The lab result covers the synthetic BOM, its observed inputs, and schema
+validation. For production use, verify the actual ML framework versions,
+training-data sources, infrastructure approvals, model and data integrity
+controls, and linked training attestations.
 
 Sources [CTA-2114](https://www.cta.tech/standards/mitigating-cybersecurity-threats-in-ml-based-systems/),
 [NIST AI RMF](https://airc.nist.gov/airmf-resources/airmf/5-sec-core/) and
