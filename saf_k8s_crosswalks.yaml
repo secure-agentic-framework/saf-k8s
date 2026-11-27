@@ -16011,12 +16011,12 @@
   framework_version: 5.2.0
   framework_requirement_id: SA-8(18)
   framework_requirement_title: Trusted Communications Channels
-  framework_mapping_notes: NIST SP 800-53 Rev. 5.2.0 SA-8(18) applies the trusted-communications-channel design principle. Authentication of a synthetic caller at a mock endpoint is only a limited contribution when the actual worker-to-aggregator channels and endpoint trust are separately evidenced; this row does not imply TLS, channel integrity, or deployed trust.
+  framework_mapping_notes: The bounded reference observes one verified worker-to-aggregator TLS connection with authenticated admission and refuses an incorrect Service DNS name. Verify the architecture, credential lifecycle and all required aggregation or all-reduce channels in the adopted environment.
   control_id: SAF-K8S-0901-002
   relation_type: supports
   strength_level: weak
   applicability: conditional
-  applicability_condition: Conditional contribution only where the deployed aggregation path establishes trusted communications channels between the actual worker and aggregation components, with access restriction and end-to-end protection commensurate with their security dependencies. The current case uses in-cluster HTTP and proves no channel confidentiality or integrity.
+  applicability_condition: The deployed parameter-server or collective interfaces use approved channels with verified endpoints, authorized participant identity, and protection commensurate with the design.
   strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
