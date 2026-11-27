@@ -4,7 +4,7 @@ import hashlib
 import json
 import time
 
-SCOPE = "Actual Kubernetes RuntimeClass overhead accounting and fixture completion, with no confidential runtime or GPU."
+SCOPE = "Actual Kubernetes RuntimeClass overhead accounting plus native synthetic qualification deferral and exact-profile admission; no confidential runtime or GPU."
 IMAGE = "docker.io/library/python:3.13-slim@sha256:e48f59cdba69a3cbd9ed2cf0f348d90d45a8d350d98134cf1070bc106ee9ed90"
 RUNTIME = "fixture-reviewed-runtime"
 QUOTA = "fixture-workload-budget"
@@ -79,3 +79,13 @@ def run(lab):
         "observed_runtime_overhead": reviewed_overhead, "matching_results": exact_results,
         "local_submit_to_completion_seconds": {"baseline": base_duration, "modeled_runtime": reviewed_duration},
         "hardware_overhead_measured": False}, indent=2) + "\n")
+
+
+    # Add one native qualification record and deferral-enactment check after the original three.
+    import importlib.util as _importlib_util
+    from pathlib import Path as _Path
+    _qualification_spec = _importlib_util.spec_from_file_location(
+        "qualification_decision", _Path(__file__).with_name("qualification_decision.py"))
+    _qualification = _importlib_util.module_from_spec(_qualification_spec)
+    _qualification_spec.loader.exec_module(_qualification)
+    _qualification.run(lab, workload, base_result, reviewed, IMAGE)

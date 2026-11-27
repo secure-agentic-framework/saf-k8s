@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0804-004",
-  "catalog_revision": "3a67b25ea650343be7d8e847482ecc89ec64ba5e",
-  "catalog_sha256": "72868019de0bb6ca7bef976c0b7187d6362f8a32b662880261487944a493c7ba",
+  "catalog_revision": "4ce7a0f5fb51703b539bcba8c62d366c0c0719a1",
+  "catalog_sha256": "1da56289e4f344f65fa946b0099b200d7a52a7c4bea62ee17a32261bedc18861",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "cf5d4ac4d0f15d7055e2c0468078f52b909c69ab6726ca41b992bc8598ce363c",
-  "scope": "Actual Kubernetes RuntimeClass overhead accounting and fixture completion, with no confidential runtime or GPU.",
-  "cluster": "saf-lab-1ce7cfa61de7",
+  "scope": "Actual Kubernetes RuntimeClass overhead accounting plus native synthetic qualification deferral and exact-profile admission; no confidential runtime or GPU.",
+  "cluster": "saf-lab-c5cd22bda815",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -61,6 +61,18 @@
       "observed": {
         "matching_results": true,
         "runtime_overhead_recorded": true
+      }
+    },
+    {
+      "phase": "qualification",
+      "claim": "An authorized evidence-bound deferral persists its safeguards and blocks only that exact fixture profile",
+      "matched": true,
+      "observed": {
+        "run_and_profile_bound": true,
+        "incomplete_adoption_or_wrong_reviewer_denied": true,
+        "immutable_deferral_record_bound": true,
+        "exact_deferred_profile_denied": true,
+        "baseline_comparator_admitted": true
       }
     }
   ]
