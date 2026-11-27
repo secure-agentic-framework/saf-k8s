@@ -42,13 +42,20 @@ runner, then independently repeat it from a fresh cluster:
 python3 lab.py test SAF-K8S-0902-004 --docker-context desktop-linux
 ```
 
-The current public receipt records a passed run with six matched checks. This
-isolated candidate retains those assertions and adds a peer-identity check,
-for seven expected checks. The observed check categories are summarized below. The runner requires local
-`openssl` to generate the ephemeral synthetic certificate hierarchy. The case
-makes no request outside its cluster; the pinned official workload image must
-be available to the Kind node (a cold image pull may require the supervisor's
-normal image preparation).
+The published control-lab and framework receipts record passed runs with seven
+matched checks on separate disposable Kind clusters at catalog revision
+`e36407042cfd3bc4969961e9136bfe8a1923b4e9`. The checks include a trusted but
+unapproved synthetic peer being denied and one available, explicitly allowed
+Model A-to-Model B `/healthz` route succeeding with server and client
+certificate verification. That positive route is the only inference path in
+this fixture: it is one case-owned internal ClusterIP Service, not evidence of
+external ingress or every internal hop. See the [published verification
+receipt](https://github.com/secure-agentic-framework/saf-k8s/blob/9213cf921cba88b60d3ebf4c50563835fa3e2ef0/tests/control-lab/verified/SAF-K8S-0902-004.json)
+and the pinned [case source](https://github.com/secure-agentic-framework/saf-k8s/tree/9213cf921cba88b60d3ebf4c50563835fa3e2ef0/tests/control-lab/cases/SAF-K8S-0902-004).
+The runner requires local `openssl` to generate the ephemeral synthetic
+certificate hierarchy. The case makes no request outside its cluster; the
+pinned official workload image must be available to the Kind node (a cold
+image pull may require the supervisor's normal image preparation).
 
 The case writes `image-lock.raw.json` and `isolation-accounting.raw.json` in
 the run evidence directory. They contain pinned image references, Kubernetes
@@ -79,7 +86,7 @@ memory measurement.
 
 ## Scope and adopter verification
 
-This GPU-free fixture retains six published checks and adds one peer-identity check, for seven expected assertions in a disposable Kind v1.36.1 cluster:
+This GPU-free fixture contains seven published assertions in each of the paired disposable Kind v1.36.1 runs:
 
 1. Model A’s declared memory request/limit matches live accounting from A’s own cgroup.
 2. Model B’s declared memory request/limit matches live accounting from B’s own cgroup.
@@ -99,7 +106,7 @@ Before making deployment-level claims, identify the exact runtime, version, topo
 
 Verify the configured boundary with supported observables for that runtime: determine whether each protected tenant/model has a separate process, Pod, or hardware-backed accelerator partition; confirm actual mounts and shared-memory ownership; and validate resource limits against live cgroup or vendor-supported accelerator telemetry at the granularity claimed. For accelerator isolation, check hardware, driver, device-plugin/runtime, and partition-mode support for the installed versions. Use MIG only on supported devices/configurations; NVIDIA documents time-slicing as sharing without memory/fault-domain isolation. Do not claim per-model GPU accounting from per-GPU metrics without validated model attribution. Keep verification to benign test workloads, synthetic markers, and documented observability; this case does not require reading a peer’s memory.
 
-For transport protection, inventory every inference ingress and service-to-service hop, including sidecar and direct/bypass routes. Verify server identity/hostname validation and peer authentication at each applicable hop using approved synthetic identities and health requests. Confirm that policy actually covers the inventoried paths, and separately verify certificate issuance, rotation, revocation, trust roots, and key custody where those are part of the deployment requirement. A successful request on one path is evidence only for that path.
+For transport protection, inventory every inference ingress and service-to-service hop, including sidecar and direct/bypass routes. Verify server identity/hostname validation and peer authentication at each applicable hop using approved synthetic identities and health requests. Confirm that policy actually covers the inventoried paths, and separately verify certificate issuance, rotation, revocation, trust roots, and key custody where those are part of the deployment requirement. A successful request on one path is evidence only for that path. The separate [SAF-K8S-0503-007 ingress TLS example](https://github.com/secure-agentic-framework/saf-k8s/blob/93a84a4a9cffd3c2a96f71f9d29196bf5bc1942a/tests/control-lab/verified/SAF-K8S-0503-007.json) demonstrates TLS termination on its own managed Traefik Gateway route; it is not joined to this mock inference route and does not replace this deployed all-hop verification.
 
 The control rationale’s shared-memory leakage scenario is not validated by these separate-Pod fixtures. Any broader claim about ModelMesh/Triton behavior, shared-process leakage, resource starvation, GPU memory, or end-to-end TLS requires evidence from the actual supported runtime and deployment configuration. This case-level identity gate does not replace adopter verification of deployed certificate trust, peer-to-service identity policy, issuance/rotation/revocation, or all-path coverage.
 
