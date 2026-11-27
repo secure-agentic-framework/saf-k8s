@@ -2391,7 +2391,7 @@
     "SAF-K8S-0901-005": {
       "catalog_status": "draft",
       "domain": "D09",
-      "sha256": "d899e712944ba3cc198d1a7e140416ffe34b3a90be72972132cae0641d09d5c5",
+      "sha256": "b1a68267256a684ea1cee8aac60925b124a574626024b9f52b3e63479914d5b9",
       "title": "Federated learning security on Kubernetes"
     },
     "SAF-K8S-0901-006": {
@@ -3572,7 +3572,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "b65ab0a9ad590135f8ad220e4610431920514959",
-  "sha256": "f744308abbfe44deef8377df1955d70b543aa25dc3b0adca73d6d9ddf1792f64",
+  "revision": "ba1bf31e31603cf9f05dfeb11cbb91c2c9fa27b3",
+  "sha256": "96ad50c08e7c7fcb717b830fb2376a887ae787e5a40dc3e0d17ed414187197a4",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

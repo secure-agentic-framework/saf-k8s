@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0901-005",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "bb628cf541d7a7a72e18e64d5f2cd12e7c459bc3",
+  "catalog_sha256": "96ad50c08e7c7fcb717b830fb2376a887ae787e5a40dc3e0d17ed414187197a4",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "d899e712944ba3cc198d1a7e140416ffe34b3a90be72972132cae0641d09d5c5",
-  "scope": "One disposable Kind cluster on Kubernetes v1.36.1 with two synthetic participant namespaces and one case-owned local aggregation namespace. Two participant mock HTTP responders first exchange only fixed /healthz markers before NetworkPolicy, then the same ordinary health path is checked after namespace policies isolate participants and permit the approved aggregation Service. Both participants independently contact the identical aggregation ClusterIP and port. No model, training, gradient, adversarial input, real service, feed, or external target is used.",
-  "cluster": "saf-lab-e88f3c3e0e0f",
+  "control_sha256": "b1a68267256a684ea1cee8aac60925b124a574626024b9f52b3e63479914d5b9",
+  "scope": "One disposable Kind cluster on Kubernetes v1.36.1 with two synthetic participant namespaces and one case-owned local aggregation namespace. Two participant mock HTTP responders first exchange only fixed /healthz markers before NetworkPolicy, then the same ordinary health path is checked after namespace policies isolate participants and permit the approved aggregation Service. Both participants independently contact the identical aggregation ClusterIP and port. No model, training, gradient, adversarial input, real service, feed, or external target is used. The same disposable cluster also runs the pinned Flower SecAgg+ workflow with an exact participant egress allowlist. Two directed owned peer marker routes are checked before and after policy, and the actual authorized Flower round completes. The fixture uses fixed inert vectors. Deployed boundaries, identity, privacy settings and protocol security require separate evidence.",
+  "cluster": "saf-lab-eba948d8a467",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -141,6 +141,34 @@
         "port": 8080,
         "protocol": "TCP",
         "path": "/healthz"
+      }
+    },
+    {
+      "phase": "supplement",
+      "claim": "Flower participant peers are isolated while local listeners remain healthy",
+      "matched": true,
+      "observed": {
+        "policy_spec_exact": true,
+        "exact_flower_pod_inventory": true,
+        "participant_pod_labels_exact": true,
+        "fixed_health_sidecars_ready": true,
+        "both_peer_paths_reachable_before_policy": true,
+        "both_peer_paths_blocked_after_policy": true,
+        "both_local_peer_listeners_remain_healthy": true
+      }
+    },
+    {
+      "phase": "supplement",
+      "claim": "Pinned Flower SecAgg+ completes one fixed-vector round",
+      "matched": true,
+      "observed": {
+        "flower_cli_completed": true,
+        "pinned_flower_and_numpy_available_in_all_subprocess_parents": true,
+        "case_owned_four_pod_topology": true,
+        "protocol": true,
+        "one_round_three_client_results_no_failures": true,
+        "aggregate_matches_fixed_vector_mean": true,
+        "receipt_contains_aggregate_only_schema": true
       }
     }
   ]

@@ -28,3 +28,27 @@ Kubernetes documents NetworkPolicy as L3/L4 pod traffic control and requires a n
 - Kind node: `kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5`, published in the [Kind v0.32.0 release](https://github.com/kubernetes-sigs/kind/releases/tag/v0.32.0).
 - Python fixture: `docker.io/library/python:3.13-slim@sha256:e48f59cdba69a3cbd9ed2cf0f348d90d45a8d350d98134cf1070bc106ee9ed90`, using the [Docker Official Images Python metadata](https://github.com/docker-library/official-images/blob/master/library/python).
 - The mock uses Python's standard-library [`http.server`](https://docs.python.org/3.13/library/http.server.html) and [`urllib.request`](https://docs.python.org/3.13/library/urllib.request.html); neither fixture accesses a network location outside the case-owned cluster.
+
+
+## Flower workflow under NetworkPolicy
+
+This isolated case wrapper first calls the exact published `SAF-K8S-0901-005` implementation and
+retains its eight checks unchanged. It then imports the pinned `SAF-K8S-0908-006` Flower 1.29.0 image
+pinning and workflow runner; it does not reimplement Flower or change its fixed vectors. The runner verifies the companion file hashes from the adjacent SAF-K8S-0908-006 case before loading the workflow.
+
+Before the Flower CLI starts, the wrapper adds a small fixed-marker HTTP sidecar to each of the three
+case-owned SuperNode Pods. The same two participant-to-participant health paths must first return
+the exact expected markers. An exact NetworkPolicy then selects only these SuperNode Pods and
+allows egress to the case-owned SuperLink Fleet Service on TCP 9092 plus CoreDNS on TCP/UDP 53.
+The same two peer paths must time out twice, while each target sidecar remains healthy on localhost.
+Only after that gate passes does the exact Flower companion run one round. Its existing receipt
+assertion must also pass, demonstrating that the pinned workflow uses the allowed SuperLink path
+under the active policy. Case-owned NetworkPolicy and health ConfigMap are deleted in cleanup.
+
+This supplement exercises one in-cluster Flower path and a selected participant egress policy. The
+three synthetic participants and aggregation service share one namespace in the Flower companion;
+the base eight checks separately exercise namespace-level isolation. This is not proof of production
+namespace governance, authenticated enrollment, TLS, cross-cluster transport, differential privacy,
+Byzantine resistance, or the security of Flower SecAgg+. It uses only fixed synthetic vectors and
+fixed health markers, with no actual training data or attack procedures. The two new checks are the
+participant peer-flow gate and the Flower companion's existing actual-workflow check, for ten total.
