@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0504-005",
-  "catalog_revision": "de315ab360803a88dcdf8b5a13564db374d46852",
-  "catalog_sha256": "82c6557406a62d9fef1def778b357ebcefbc15e1d519bc33377c281efa9d0265",
+  "catalog_revision": "e9f57f5dda0f6321a731f330485bda72d9e35e71",
+  "catalog_sha256": "96ad50c08e7c7fcb717b830fb2376a887ae787e5a40dc3e0d17ed414187197a4",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "676f5098fe610b90ce9c7e6a104da348bc3ff2f62f377683ac141189afefcff9",
-  "scope": "One fresh disposable Kind v1.36.1 cluster, the published adjacent case's Istio 1.32.0 sidecar runtime, two case-owned Python fixture Pods, and one additional inert Pod with a per-Pod injection opt-out label in the injection-enabled runner namespace. The opt-out Pod sends no requests. Compares a small finite set of local GETs before and after applying documented Envoy proxy CPU/memory annotations to the backend. Reads the injected istio-proxy request/limit values from the Pod spec and checks bounded authenticated request availability. A server-side dry-run of a candidate whose proxy CPU request exceeds its limit exercises the admission rollback guard without mutating the known-good Pod. Throughput, GPU behavior, mTLS overhead, and production availability remain unverified.",
-  "cluster": "saf-lab-b0748b256b14",
+  "scope": "One fresh disposable Kind v1.36.1 cluster, the published adjacent case's Istio 1.32.0 sidecar runtime, two case-owned Python fixture Pods, and one additional inert Pod with a per-Pod injection opt-out label in the injection-enabled runner namespace. The opt-out Pod sends no requests. Compares a small finite set of local GETs before and after applying documented Envoy proxy CPU/memory annotations to the backend. Reads the injected istio-proxy request/limit values from the Pod spec and checks bounded authenticated request availability. A server-side dry-run of a candidate whose proxy CPU request exceeds its limit exercises the admission rollback guard without mutating the known-good Pod. Throughput, GPU behavior, mTLS overhead, and production availability remain unverified. A case-local native ValidatingAdmissionPolicy also requires a complete synthetic MeshExemption record for this exact inert opt-out Pod; its reviewer and risk-owner values are test metadata, not verified identities. The record's expired state is checked, but wall-clock expiry, approval authority, and effectiveness of production compensating controls are not.",
+  "cluster": "saf-lab-41eceb4b0f03",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -122,7 +122,34 @@
         "meshed_proxy_resources_tuned": true,
         "meshed_authenticated_requests": 3,
         "meshed_requests_exact_200": true,
-        "meshed_peer_logged": true
+        "meshed_peer_logged": true,
+        "exception_admission": {
+          "bare_optout_without_record_denied": true,
+          "expired_state_record_denied": true,
+          "wrong_workload_binding_denied": true,
+          "changed_inert_command_denied": true,
+          "exact_approved_fixture_record_admitted": true,
+          "parameter_missing_action_deny": true,
+          "vap_failure_policy_fail": true
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Native admission requires a complete scoped exception record for only the inert sidecar opt-out Pod",
+      "matched": true,
+      "observed": {
+        "bare_optout_without_record_denied": true,
+        "expired_state_record_denied": true,
+        "wrong_workload_binding_denied": true,
+        "changed_inert_command_denied": true,
+        "exact_approved_fixture_record_admitted": true,
+        "parameter_missing_action_deny": true,
+        "vap_failure_policy_fail": true,
+        "admitted_pod_is_exact_nonnetworked_fixture": true,
+        "admitted_optout_has_no_proxy": true,
+        "separate_meshed_authenticated_route_remains_active": true,
+        "compensation_scope": "inert no-network-path test Pod only; no production transport compensation proved"
       }
     }
   ]

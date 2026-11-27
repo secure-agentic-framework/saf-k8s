@@ -1,6 +1,8 @@
 """Observe Istio's per-Pod sidecar selection with inert case-owned Pods."""
 
+import importlib.util
 import json
+from pathlib import Path
 
 EXCLUDED = "saf-0504-005-selective-optout"
 
@@ -20,6 +22,14 @@ def run(lab, *, pod_factory, resource, wait_ready, snapshot, sidecar_resources,
     excluded = pod_factory(EXCLUDED, client_sleep, annotations=pinned_proxy)
     excluded["metadata"]["labels"]["sidecar.istio.io/inject"] = "false"
     excluded["metadata"]["labels"]["saf-k8s.example/fixture-purpose"] = "non-networked-optout-reference"
+    gate_path = Path(__file__).with_name("mesh_exemption.py")
+    gate_spec = importlib.util.spec_from_file_location("saf_0504_005_mesh_exemption", gate_path)
+    if gate_spec is None or gate_spec.loader is None:
+        lab.block("Could not load the case-local opt-out exception admission gate")
+    gate_module = importlib.util.module_from_spec(gate_spec)
+    gate_spec.loader.exec_module(gate_module)
+    gate = gate_module.prepare(lab, excluded, kubectl=kubectl)
+    excluded = gate["approved_pod"]
     resource(lab, excluded)
     wait_ready(lab, EXCLUDED)
 
@@ -54,4 +64,9 @@ def run(lab, *, pod_factory, resource, wait_ready, snapshot, sidecar_resources,
         and authenticated,
         observed,
     )
+    gate_module.finish(
+        lab, gate, excluded, excluded_pod, meshed_pod, rows,
+        authenticated, assert_check,
+    )
+    observed["exception_admission"] = gate["normalized"]
     return observed

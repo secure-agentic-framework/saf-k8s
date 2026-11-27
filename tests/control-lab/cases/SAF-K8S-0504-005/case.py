@@ -33,7 +33,11 @@ SCOPE = (
     "spec and checks bounded authenticated request availability. A server-side dry-run of a "
     "candidate whose proxy CPU request exceeds its limit exercises the admission "
     "rollback guard without mutating the known-good Pod. Throughput, GPU behavior, "
-    "mTLS overhead, and production availability remain unverified."
+    "mTLS overhead, and production availability remain unverified. A case-local native "
+    "ValidatingAdmissionPolicy also requires a complete synthetic MeshExemption record "
+    "for this exact inert opt-out Pod; its reviewer and risk-owner values are test metadata, "
+    "not verified identities. The record's expired state is checked, but wall-clock expiry, "
+    "approval authority, and effectiveness of production compensating controls are not."
 )
 
 
@@ -149,11 +153,12 @@ def await_route(lab):
 
 def observed_requests(lab, name):
     rows = probe(lab, name)
-    peer = f"SAF-PEER|spiffe://cluster.local/ns/saf-test/sa/default|{name}|{PATH}|200"
+    peer = f"SAF-PEER|spiffe://cluster.local/ns/saf-test/sa/default|{name}|{PATH}|200|"
     deadline = time.monotonic() + 12
     while True:
         logged = kubectl(lab, "logs", BACKEND, "-c", "istio-proxy").stdout.splitlines()
-        if logged.count(peer) >= 3:
+        matches = [row for row in logged if row.startswith(peer) and row[len(peer):].isdigit()]
+        if len(matches) >= 3:
             return rows, True
         if time.monotonic() >= deadline:
             return rows, False
