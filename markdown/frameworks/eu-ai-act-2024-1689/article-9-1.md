@@ -33,5 +33,5 @@ The adopted STRIDE assessment can supply infrastructure cybersecurity evidence f
 - Knowledge Area: 10.6
 - Relation Type: partial
 - Strength: moderate
-- Applicability: required
-- Strength Reason Code: n/a
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage

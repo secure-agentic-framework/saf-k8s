@@ -2,8 +2,8 @@
 
 - Framework Code: NIST-800-53R5
 - Version: 5.2.0
-- Total Reverse Mappings: 1660
-- Distinct Requirements Mapped: 582
+- Total Reverse Mappings: 1609
+- Distinct Requirements Mapped: 574
 
 ## Requirements
 
@@ -111,7 +111,6 @@
 - [AT-2(4) - Suspicious Communications and Anomalous System Behavior](at-2-4.md)
 - [AT-3(3) - Practical Exercises](at-3-3.md)
 - [AT-3(5) - Processing Personally Identifiable Information](at-3-5.md)
-- [AT-4 - Training Records](at-4.md)
 - [AT-6 - Training Feedback](at-6.md)
 - [AU-1 - Policy and Procedures](au-1.md)
 - [AU-10 - Non-repudiation](au-10.md)
@@ -163,16 +162,13 @@
 - [AU-9(6) - Read-only Access](au-9-6.md)
 - [CA-1 - Policy and Procedures](ca-1.md)
 - [CA-2 - Control Assessments](ca-2.md)
-- [CA-2(1) - Independent Assessors](ca-2-1.md)
 - [CA-3 - Information Exchange](ca-3.md)
 - [CA-5 - Plan of Action and Milestones](ca-5.md)
 - [CA-5(1) - Automation Support for Accuracy and Currency](ca-5-1.md)
 - [CA-6 - Authorization](ca-6.md)
 - [CA-7 - Continuous Monitoring](ca-7.md)
-- [CA-7(1) - Independent Assessment](ca-7-1.md)
 - [CA-7(4) - Risk Monitoring](ca-7-4.md)
 - [CA-7(6) - Automation Support for Monitoring](ca-7-6.md)
-- [CA-8(1) - Independent Penetration Testing Agent or Team](ca-8-1.md)
 - [CA-9 - Internal System Connections](ca-9.md)
 - [CA-9(1) - Compliance Checks](ca-9-1.md)
 - [CM-1 - Policy and Procedures](cm-1.md)
@@ -306,7 +302,6 @@
 - [PM-21 - Accounting of Disclosures](pm-21.md)
 - [PM-23 - Data Governance Body](pm-23.md)
 - [PM-25 - Minimization of Personally Identifiable Information Used in Testing, Training, and Research](pm-25.md)
-- [PM-27 - Privacy Reporting](pm-27.md)
 - [PM-28 - Risk Framing](pm-28.md)
 - [PM-3 - Information Security and Privacy Resources](pm-3.md)
 - [PM-30(1) - Suppliers of Critical or Mission-essential Items](pm-30-1.md)
@@ -343,7 +338,6 @@
 - [SA-11 - Developer Testing and Evaluation](sa-11.md)
 - [SA-11(1) - Static Code Analysis](sa-11-1.md)
 - [SA-11(2) - Threat Modeling and Vulnerability Analyses](sa-11-2.md)
-- [SA-11(3) - Independent Verification of Assessment Plans and Evidence](sa-11-3.md)
 - [SA-11(6) - Attack Surface Reviews](sa-11-6.md)
 - [SA-11(7) - Verify Scope of Testing and Evaluation](sa-11-7.md)
 - [SA-11(8) - Dynamic Code Analysis](sa-11-8.md)
@@ -373,9 +367,7 @@
 - [SA-4(1) - Functional Properties of Controls](sa-4-1.md)
 - [SA-4(2) - Design and Implementation Information for Controls](sa-4-2.md)
 - [SA-4(5) - System, Component, and Service Configurations](sa-4-5.md)
-- [SA-4(8) - Continuous Monitoring Plan for Controls](sa-4-8.md)
 - [SA-4(9) - Functions, Ports, Protocols, and Services in Use](sa-4-9.md)
-- [SA-5 - System Documentation](sa-5.md)
 - [SA-8 - Security and Privacy Engineering Principles](sa-8.md)
 - [SA-8(1) - Clear Abstractions](sa-8-1.md)
 - [SA-8(12) - Hierarchical Protection](sa-8-12.md)

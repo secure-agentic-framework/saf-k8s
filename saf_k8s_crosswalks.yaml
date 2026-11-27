@@ -431,13 +431,13 @@
   framework_requirement_id: Annex-IV.5
   legacy_requirement_id: Annex-IV:IV(2)(d)
   framework_requirement_title: Technical documentation referred to in Article 11(1)
-  framework_mapping_notes: "A detailed description of the risk management system in accordance with Article 9;\n\nSAF-K8S supports risk management through threat modeling integration, security control catalogs, and continuous monitoring infrastructure. The formal risk management system documentation is organizational, but SAF-K8S provides technical evidence and control mappings."
+  framework_mapping_notes: The mapping can supply traceable platform requirements, coverage and gap decisions for the technical documentation. Verify the detailed description of the actual risk management system.
   control_id: SAF-K8S-1006-001
   relation_type: partial
-  strength_level: moderate
-  applicability: required
-  applicability_condition:
-  strength_reason_code:
+  strength_level: weak
+  applicability: conditional
+  applicability_condition: The provider incorporates reviewed mapping evidence in its Article 9 risk management description for an applicable high-risk AI system.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to EU AI Act 2024/1689
   framework_code: EU-AI-ACT
   framework_name: EU AI Act
@@ -524,23 +524,6 @@
 
     SAF-K8S controls map to several Chapter III Section 2 requirements (cybersecurity per Article 15, logging per Article 12, risk management infrastructure per Article 9). SAF-K8S provides technical evidence of conformity for platform-layer requirements.
   control_id: SAF-K8S-0401-001
-  relation_type: partial
-  strength_level: moderate
-  applicability: required
-  applicability_condition:
-  strength_reason_code:
-- mapping_set_name: SAF-K8S to EU AI Act 2024/1689
-  framework_code: EU-AI-ACT
-  framework_name: EU AI Act
-  framework_version: 2024/1689
-  framework_requirement_id: Annex-VI.3
-  legacy_requirement_id: Annex-VI:VI(3)
-  framework_requirement_title: Conformity assessment procedure based on internal control
-  framework_mapping_notes: |-
-    The provider examines the information contained in the technical documentation in order to assess the compliance of the AI system with the relevant essential requirements set out in Chapter III, Section 2.
-
-    SAF-K8S controls map to several Chapter III Section 2 requirements (cybersecurity per Article 15, logging per Article 12, risk management infrastructure per Article 9). SAF-K8S provides technical evidence of conformity for platform-layer requirements.
-  control_id: SAF-K8S-1006-001
   relation_type: partial
   strength_level: moderate
   applicability: required
@@ -1867,23 +1850,6 @@
   framework_code: EU-AI-ACT
   framework_name: EU AI Act
   framework_version: 2024/1689
-  framework_requirement_id: Article-55.1.b
-  legacy_requirement_id: Annex-XI:XI(4)(b)
-  framework_requirement_title: Obligations of providers of general-purpose AI models with systemic risk
-  framework_mapping_notes: |-
-    assess and mitigate possible systemic risks at Union level, including their sources, that may stem from the development, the placing on the market, or the use of general-purpose AI models with systemic risk;
-
-    SAF-K8S provides risk management infrastructure through security control catalogs, compliance mappings, and continuous monitoring. The risk management narrative and residual risk documentation are organizational deliverables.
-  control_id: SAF-K8S-1006-001
-  relation_type: partial
-  strength_level: moderate
-  applicability: required
-  applicability_condition:
-  strength_reason_code:
-- mapping_set_name: SAF-K8S to EU AI Act 2024/1689
-  framework_code: EU-AI-ACT
-  framework_name: EU AI Act
-  framework_version: 2024/1689
   framework_requirement_id: Article-55.1.d
   legacy_requirement_id: Annex-XI:XI(5)
   framework_requirement_title: Obligations of providers of general-purpose AI models with systemic risk
@@ -2166,16 +2132,13 @@
   framework_requirement_id: Article-9.1
   legacy_requirement_id: Art-9:9(1)
   framework_requirement_title: Risk management system
-  framework_mapping_notes: |-
-    A risk management system shall be established, implemented, documented and maintained in relation to high-risk AI systems.
-
-    SAF-K8S provides threat modeling controls (D10 KA 10.3, 10.4) and governance controls (D10 KA 10.6) that form the infrastructure component of a risk management system. The organizational risk management framework is out of scope.
+  framework_mapping_notes: Traceable coverage and gap decisions can support documentation of the risk management system. Establish, implement and maintain the system through the applicable lifecycle reviews and risk controls.
   control_id: SAF-K8S-1006-001
   relation_type: partial
   strength_level: moderate
-  applicability: required
-  applicability_condition:
-  strength_reason_code:
+  applicability: conditional
+  applicability_condition: The mapping is part of the provider's risk management system for an applicable high-risk AI system.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to EU AI Act 2024/1689
   framework_code: EU-AI-ACT
   framework_name: EU AI Act
@@ -2468,26 +2431,13 @@
   framework_version: '1.0'
   framework_requirement_id: GOVERN 1.1
   framework_requirement_title: Legal and regulatory requirements involving AI are understood, managed, and documented.
-  framework_mapping_notes: SAF-K8S regulatory compliance mapping (KA 10.6) maintains documented mappings of platform controls to NIST AI RMF, EU AI Act, and SOC 2. OCTAVE risk assessment captures regulatory exposure as part of threat analysis.
+  framework_mapping_notes: Recording authority, applicability, obligations, evidence and unresolved gaps contributes to documenting and managing relevant AI requirements under GOVERN 1.1.
   control_id: SAF-K8S-1006-001
-  relation_type: direct
+  relation_type: partial
   strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: framework-language-interpretation
-- mapping_set_name: SAF-K8S to NIST AI RMF 1.0
-  framework_code: NIST-AI-RMF
-  framework_name: NIST AI Risk Management Framework
-  framework_version: '1.0'
-  framework_requirement_id: GOVERN 1.2
-  framework_requirement_title: The characteristics of trustworthy AI are integrated into organizational policies, processes, procedures, and practices.
-  framework_mapping_notes: Policy-as-code engines enforce trustworthiness requirements (image provenance, resource limits, security contexts) as admission-time policies. Compliance mapping documents link organizational AI policies to infrastructure enforcement points.
-  control_id: SAF-K8S-1006-001
-  relation_type: supports
-  strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: framework-language-interpretation
+  applicability: conditional
+  applicability_condition: The adopter uses AI RMF 1.0 and maintains approved applicable AI legal and regulatory requirements for the identified systems.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST AI RMF 1.0
   framework_code: NIST-AI-RMF
   framework_name: NIST AI Risk Management Framework
@@ -2836,19 +2786,6 @@
   framework_code: NIST-AI-RMF
   framework_name: NIST AI Risk Management Framework
   framework_version: '1.0'
-  framework_requirement_id: MANAGE 1.4
-  framework_requirement_title: Negative residual risks (defined as the sum of all unmitigated risks) to both downstream acquirers of AI systems and end users are documented.
-  framework_mapping_notes: Compliance mapping documents control coverage and identifies gaps. Automated audit readiness dashboards show compliance posture including evidence gaps representing residual risk.
-  control_id: SAF-K8S-1006-001
-  relation_type: supports
-  strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: partial-coverage
-- mapping_set_name: SAF-K8S to NIST AI RMF 1.0
-  framework_code: NIST-AI-RMF
-  framework_name: NIST AI Risk Management Framework
-  framework_version: '1.0'
   framework_requirement_id: MANAGE 2.2
   framework_requirement_title: Mechanisms are in place and applied to sustain the value of deployed AI systems.
   framework_mapping_notes: Upgrade planning maintains AI infrastructure currency. Security posture management detects configuration drift. API deprecation tracking prevents breaking changes.
@@ -3124,19 +3061,6 @@
   applicability: conditional
   applicability_condition: The organization uses the inventory in a documented process for mapping technology and legal risk for model components, third-party data and software, and applicable intellectual property rights.
   strength_reason_code: partial-control-coverage
-- mapping_set_name: SAF-K8S to NIST AI RMF 1.0
-  framework_code: NIST-AI-RMF
-  framework_name: NIST AI Risk Management Framework
-  framework_version: '1.0'
-  framework_requirement_id: MAP 4.2
-  framework_requirement_title: Internal risk controls for components of the AI system, including third-party AI technologies, are identified and documented.
-  framework_mapping_notes: Compliance mapping maintains documented control-to-framework mappings. Automated audit readiness generates continuous compliance evidence showing control coverage.
-  control_id: SAF-K8S-1006-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
 - mapping_set_name: SAF-K8S to NIST AI RMF 1.0
   framework_code: NIST-AI-RMF
   framework_name: NIST AI Risk Management Framework
@@ -6282,22 +6206,6 @@
 
 
     6.5 - Configure admission control (webhook failure policies: Fail vs Ignore, enable/disable controls); 10.6 - Policy-as-code for compliance'
-  control_id: SAF-K8S-1006-001
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-4(10)
-  framework_requirement_title: Enable and Disable Security or Privacy Policy Filters
-  framework_mapping_notes: 'Managing guardrail activation on agent systems
-
-
-    6.5 - Configure admission control (webhook failure policies: Fail vs Ignore, enable/disable controls); 10.6 - Policy-as-code for compliance'
   control_id: SAF-K8S-1006-005
   relation_type: supports
   strength_level: strong
@@ -8193,22 +8101,6 @@
 
 
     9.4 - Notebook and experimentation environment login banners and acceptable use notifications; 10.6 - Compliance governance'
-  control_id: SAF-K8S-1006-001
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AC-8
-  framework_requirement_title: System Use Notification
-  framework_mapping_notes: 'Notification/banners for agent-facing interfaces
-
-
-    9.4 - Notebook and experimentation environment login banners and acceptable use notifications; 10.6 - Compliance governance'
   control_id: SAF-K8S-1006-005
   relation_type: supports
   strength_level: strong
@@ -8241,39 +8133,7 @@
 
 
     10.6 - Enforce compliance and governance (security training policy for K8s AI teams)'
-  control_id: SAF-K8S-1006-001
-  relation_type: supports
-  strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AT-1
-  framework_requirement_title: Policy and Procedures
-  framework_mapping_notes: 'Training policy for agentic AI security practitioners
-
-
-    10.6 - Enforce compliance and governance (security training policy for K8s AI teams)'
   control_id: SAF-K8S-1006-005
-  relation_type: supports
-  strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AT-2
-  framework_requirement_title: Literacy Training and Awareness
-  framework_mapping_notes: 'Security awareness for teams managing agents
-
-
-    10.6 - Enforce compliance and governance (K8s security awareness training for teams operating AI workloads)'
-  control_id: SAF-K8S-1006-001
   relation_type: supports
   strength_level: moderate
   applicability: required
@@ -8400,57 +8260,9 @@
 
 
     9.7 - Protect training data (PII handling during feature engineering); 10.6 - Regulatory compliance (EU AI Act, privacy)'
-  control_id: SAF-K8S-1006-001
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AT-3(5)
-  framework_requirement_title: Processing Personally Identifiable Information
-  framework_mapping_notes: 'PII handling training for agent system operators
-
-
-    9.7 - Protect training data (PII handling during feature engineering); 10.6 - Regulatory compliance (EU AI Act, privacy)'
   control_id: SAF-K8S-1006-005
   relation_type: supports
   strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AT-4
-  framework_requirement_title: Training Records
-  framework_mapping_notes: 'Documenting agentic security training completion
-
-
-    10.6 - Enforce compliance and governance (audit readiness, training compliance evidence collection)'
-  control_id: SAF-K8S-1006-001
-  relation_type: supports
-  strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AT-6
-  framework_requirement_title: Training Feedback
-  framework_mapping_notes: 'Improving agent security training programs
-
-
-    10.6 - Enforce compliance and governance (continuous improvement of security training programs)'
-  control_id: SAF-K8S-1006-001
-  relation_type: supports
-  strength_level: moderate
   applicability: required
   applicability_condition: null
   strength_reason_code: null
@@ -8648,22 +8460,6 @@
 
     10.1 - Log retention policies; 10.6 - Compliance governance (audit record retention requirements)'
   control_id: SAF-K8S-1001-036
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: AU-11
-  framework_requirement_title: Audit Record Retention
-  framework_mapping_notes: 'Agent audit log retention periods
-
-
-    10.1 - Log retention policies; 10.6 - Compliance governance (audit record retention requirements)'
-  control_id: SAF-K8S-1006-001
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -9703,22 +9499,6 @@
 
 
     10.6 - Enforce compliance and governance (assessment and authorization policy framework)'
-  control_id: SAF-K8S-1006-001
-  relation_type: supports
-  strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: CA-1
-  framework_requirement_title: Policy and Procedures
-  framework_mapping_notes: 'Assessment/authorization policy for agent systems
-
-
-    10.6 - Enforce compliance and governance (assessment and authorization policy framework)'
   control_id: SAF-K8S-1006-005
   relation_type: supports
   strength_level: moderate
@@ -9744,16 +9524,13 @@
   framework_version: 5.2.0
   framework_requirement_id: CA-2
   framework_requirement_title: Control Assessments
-  framework_mapping_notes: 'Assessing security controls on agent systems
-
-
-    10.6 - Policy-as-code for compliance (continuous control assessment evidence); 1.4 - CIS benchmark automated assessment'
+  framework_mapping_notes: A reviewed control-to-evidence index can identify relevant assessment scope and artifacts. Use the approved plan, appropriate assessor and actual assessment results to verify control operation.
   control_id: SAF-K8S-1006-001
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: partial
+  strength_level: weak
+  applicability: conditional
+  applicability_condition: An approved system control assessment uses the mapping as an input to its scope and evidence selection.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -9768,22 +9545,6 @@
   applicability: "conditional"
   applicability_condition: "An authorized assessment plan selects these controls and uses these provenance-linked records as evidence."
   strength_reason_code: "partial-control-coverage"
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: CA-2(1)
-  framework_requirement_title: Independent Assessors
-  framework_mapping_notes: 'Independent assessment of agent security
-
-
-    10.6 - Audit readiness (independent security assessments for compliance)'
-  control_id: SAF-K8S-1006-001
-  relation_type: supports
-  strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -9822,16 +9583,13 @@
   framework_version: 5.2.0
   framework_requirement_id: CA-5
   framework_requirement_title: Plan of Action and Milestones
-  framework_mapping_notes: 'POA&M tracking for agent security findings
-
-
-    10.6 - Enforce compliance and governance (plan of action for identified security gaps)'
+  framework_mapping_notes: Mapping evidence gaps to findings can inform the system remediation plan. Review the actual planned actions, milestones, ownership and updates for the assessment findings.
   control_id: SAF-K8S-1006-001
-  relation_type: supports
+  relation_type: partial
   strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  applicability: conditional
+  applicability_condition: Assessment findings in the mapping are carried into the system plan of action and milestones with tracked remediation and updates.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -9868,22 +9626,6 @@
   framework_version: 5.2.0
   framework_requirement_id: CA-5(1)
   framework_requirement_title: Automation Support for Accuracy and Currency
-  framework_mapping_notes: 'Automated POA&M for agent systems
-
-
-    10.6 - Policy-as-code (automated compliance evidence and configuration snapshot generation)'
-  control_id: SAF-K8S-1006-001
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: CA-5(1)
-  framework_requirement_title: Automation Support for Accuracy and Currency
   framework_mapping_notes: >-
     Verify that the scoped finding and status propagate with correct lineage to the plan and remain available to its authorized consumers.
   control_id: SAF-K8S-1006-004
@@ -9892,22 +9634,6 @@
   applicability: "conditional"
   applicability_condition: "An approved integration keeps the actual system plan of action and milestones accurate, current and available."
   strength_reason_code: "partial-control-coverage"
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: CA-6
-  framework_requirement_title: Authorization
-  framework_mapping_notes: 'Authorization to operate agent systems
-
-
-    10.6 - Enforce compliance and governance (system authorization for K8s clusters running AI workloads)'
-  control_id: SAF-K8S-1006-001
-  relation_type: supports
-  strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -9969,22 +9695,6 @@
   framework_version: 5.2.0
   framework_requirement_id: CA-7
   framework_requirement_title: Continuous Monitoring
-  framework_mapping_notes: 'Continuous monitoring of agent security posture
-
-
-    10.6 - Continuous compliance evidence collection; 10.7 - Security posture management (continuous assessment)'
-  control_id: SAF-K8S-1006-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: CA-7
-  framework_requirement_title: Continuous Monitoring
   framework_mapping_notes: >-
     Recurring collection and freshness alerts can support system continuous monitoring. Verify scope, cadence, response and reporting against the approved strategy.
   control_id: SAF-K8S-1006-004
@@ -10022,22 +9732,6 @@
   control_id: SAF-K8S-1007-006
   relation_type: direct
   strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: CA-7(1)
-  framework_requirement_title: Independent Assessment
-  framework_mapping_notes: 'Independent ongoing agent security assessment
-
-
-    10.6 - Audit readiness (independent continuous monitoring assessments)'
-  control_id: SAF-K8S-1006-001
-  relation_type: supports
-  strength_level: moderate
   applicability: required
   applicability_condition: null
   strength_reason_code: null
@@ -10092,22 +9786,6 @@
   framework_version: 5.2.0
   framework_requirement_id: CA-7(6)
   framework_requirement_title: Automation Support for Monitoring
-  framework_mapping_notes: 'Automated agent security monitoring
-
-
-    10.6 - Policy-as-code (automated continuous monitoring with OPA/Gatekeeper/Kyverno)'
-  control_id: SAF-K8S-1006-001
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: CA-7(6)
-  framework_requirement_title: Automation Support for Monitoring
   framework_mapping_notes: >-
     Verify that the consumer receives exact current results, detects stale or missing data, and retrieves retained records.
   control_id: SAF-K8S-1006-004
@@ -10116,22 +9794,6 @@
   applicability: "conditional"
   applicability_condition: "The implemented automation maintains the accuracy, currency and availability of results for the selected monitoring scope."
   strength_reason_code: "partial-control-coverage"
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: CA-8(1)
-  framework_requirement_title: Independent Penetration Testing Agent or Team
-  framework_mapping_notes: 'Independent pen test of agent infrastructure
-
-
-    10.6 - Audit readiness (independent penetration testing for compliance)'
-  control_id: SAF-K8S-1006-001
-  relation_type: supports
-  strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -10229,41 +9891,9 @@
 
 
     6.5 - Configure admission control (compliance checks at deployment time); 10.6 - Policy-as-code compliance'
-  control_id: SAF-K8S-1006-001
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: CA-9(1)
-  framework_requirement_title: Compliance Checks
-  framework_mapping_notes: 'Compliance checks on agent internal connections
-
-
-    6.5 - Configure admission control (compliance checks at deployment time); 10.6 - Policy-as-code compliance'
   control_id: SAF-K8S-1006-005
   relation_type: supports
   strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: CM-1
-  framework_requirement_title: Policy and Procedures
-  framework_mapping_notes: 'Configuration management policy for agent systems
-
-
-    10.6 - Enforce compliance and governance (configuration management policy framework)'
-  control_id: SAF-K8S-1006-001
-  relation_type: supports
-  strength_level: moderate
   applicability: required
   applicability_condition: null
   strength_reason_code: null
@@ -10899,22 +10529,6 @@
 
     10.7 - K8s upgrade planning (impact analysis for version upgrades); 1.4 - Version lifecycle management'
   control_id: SAF-K8S-1007-006
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: CM-4(2)
-  framework_requirement_title: Verification of Controls
-  framework_mapping_notes: 'Verifying controls after agent system changes
-
-
-    10.6 - Policy-as-code (verifying controls remain effective after configuration changes)'
-  control_id: SAF-K8S-1006-001
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -11840,22 +11454,6 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: framework-language-interpretation
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: CM-9
-  framework_requirement_title: Configuration Management Plan
-  framework_mapping_notes: 'CM plan for agent systems
-
-
-    10.6 - Enforce compliance and governance (configuration management planning for K8s AI environments)'
-  control_id: SAF-K8S-1006-001
-  relation_type: supports
-  strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -14951,22 +14549,6 @@
 
 
     10.6 - Enforce compliance and governance (security planning policy framework for K8s AI)'
-  control_id: SAF-K8S-1006-001
-  relation_type: supports
-  strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: PL-1
-  framework_requirement_title: Policy and Procedures
-  framework_mapping_notes: 'Security planning policy is foundational for governing agentic AI system deployments
-
-
-    10.6 - Enforce compliance and governance (security planning policy framework for K8s AI)'
   control_id: SAF-K8S-1006-005
   relation_type: supports
   strength_level: moderate
@@ -15021,16 +14603,13 @@
   framework_version: 5.2.0
   framework_requirement_id: PL-2
   framework_requirement_title: System Security and Privacy Plans
-  framework_mapping_notes: 'Security plans for agentic AI systems must document architecture, trust boundaries, and controls
-
-
-    10.6 - Enforce compliance and governance (system security and privacy plan for K8s AI infrastructure)'
+  framework_mapping_notes: Reviewed control coverage, system scope and evidence references can contribute to the system plan's control descriptions. Verify the plan, approval and maintenance separately.
   control_id: SAF-K8S-1006-001
-  relation_type: supports
-  strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: partial
+  strength_level: weak
+  applicability: conditional
+  applicability_condition: An approved security and privacy plan for the identified system incorporates controlled mapping records.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -15056,22 +14635,6 @@
 
     10.6 - Enforce compliance and governance (system security and privacy plan for K8s AI infrastructure)'
   control_id: SAF-K8S-1006-005
-  relation_type: supports
-  strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: PL-7
-  framework_requirement_title: Concept of Operations
-  framework_mapping_notes: 'Concept of operations documents how agentic AI systems operate within the security architecture
-
-
-    10.6 - Enforce compliance and governance (concept of operations for K8s AI security posture)'
-  control_id: SAF-K8S-1006-001
   relation_type: supports
   strength_level: moderate
   applicability: required
@@ -15176,41 +14739,9 @@
 
 
     6.6 - GitOps (Git as centralized management source of truth); 10.6 - Policy-as-code central management'
-  control_id: SAF-K8S-1006-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: PL-9
-  framework_requirement_title: Central Management
-  framework_mapping_notes: 'Central management of security controls is important for governing distributed agent systems
-
-
-    6.6 - GitOps (Git as centralized management source of truth); 10.6 - Policy-as-code central management'
   control_id: SAF-K8S-1006-005
   relation_type: direct
   strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: PM-1
-  framework_requirement_title: Information Security Program Plan
-  framework_mapping_notes: 'Security program plan provides governance framework for agentic AI security initiatives
-
-
-    10.6 - Enforce compliance and governance (security program plan for K8s AI operations)'
-  control_id: SAF-K8S-1006-001
-  relation_type: supports
-  strength_level: moderate
   applicability: required
   applicability_condition: null
   strength_reason_code: null
@@ -15240,39 +14771,7 @@
 
 
     10.6 - Enforce compliance and governance (authorization process for K8s AI systems)'
-  control_id: SAF-K8S-1006-001
-  relation_type: supports
-  strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: PM-10
-  framework_requirement_title: Authorization Process
-  framework_mapping_notes: 'Authorization to operate process applies to agentic AI system deployments
-
-
-    10.6 - Enforce compliance and governance (authorization process for K8s AI systems)'
   control_id: SAF-K8S-1006-005
-  relation_type: supports
-  strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: PM-11
-  framework_requirement_title: Mission and Business Process Definition
-  framework_mapping_notes: 'Business process definition must account for agentic AI system roles and impacts
-
-
-    10.6 - Enforce compliance and governance (defining security requirements for K8s AI mission processes)'
-  control_id: SAF-K8S-1006-001
   relation_type: supports
   strength_level: moderate
   applicability: required
@@ -15345,22 +14844,6 @@
   framework_version: 5.2.0
   framework_requirement_id: PM-14
   framework_requirement_title: Testing, Training, and Monitoring
-  framework_mapping_notes: 'Testing and monitoring of agentic AI security controls is essential for ongoing assurance
-
-
-    10.5 - IR exercises; 10.2 - Continuous monitoring; 10.6 - Compliance testing and training'
-  control_id: SAF-K8S-1006-001
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: PM-14
-  framework_requirement_title: Testing, Training, and Monitoring
   framework_mapping_notes: >-
     Results can support the monitoring portion of the program plan review. Verify the program’s approval, update and execution records.
   control_id: SAF-K8S-1006-004
@@ -15369,22 +14852,6 @@
   applicability: "conditional"
   applicability_condition: "The organization uses dated evidence in its approved testing and monitoring planning process."
   strength_reason_code: "partial-control-coverage"
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: PM-2
-  framework_requirement_title: Information Security Program Leadership Role
-  framework_mapping_notes: 'Security leadership role is needed to oversee agentic AI security program governance
-
-
-    10.6 - Enforce compliance and governance (security leadership roles and responsibilities)'
-  control_id: SAF-K8S-1006-001
-  relation_type: supports
-  strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -15427,22 +14894,6 @@
 
 
     10.6 - Enforce compliance and governance (data governance body for K8s AI environments)'
-  control_id: SAF-K8S-1006-001
-  relation_type: supports
-  strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: PM-23
-  framework_requirement_title: Data Governance Body
-  framework_mapping_notes: 'Data governance body provides oversight for agentic AI data handling practices
-
-
-    10.6 - Enforce compliance and governance (data governance body for K8s AI environments)'
   control_id: SAF-K8S-1006-005
   relation_type: supports
   strength_level: moderate
@@ -15463,22 +14914,6 @@
   applicability: conditional
   applicability_condition: The organization implements minimization policy, approval and periodic review for personal
     information used to train models
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: PM-27
-  framework_requirement_title: Privacy Reporting
-  framework_mapping_notes: 'Privacy reporting applies to agentic AI systems that process personal data
-
-
-    10.6 - Enforce compliance and governance (privacy compliance reporting for AI workloads)'
-  control_id: SAF-K8S-1006-001
-  relation_type: supports
-  strength_level: moderate
-  applicability: required
-  applicability_condition: null
   strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
@@ -15506,22 +14941,6 @@
   applicability: conditional
   applicability_condition: The organization incorporates the adopted assessment into its documented risk frame.
   strength_reason_code: partial-control-coverage
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: PM-3
-  framework_requirement_title: Information Security and Privacy Resources
-  framework_mapping_notes: 'Resource allocation for agentic AI security program is essential for effective controls
-
-
-    10.6 - Enforce compliance and governance (resource allocation for K8s AI security program)'
-  control_id: SAF-K8S-1006-001
-  relation_type: supports
-  strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -15660,22 +15079,6 @@
 
 
     10.6 - Enforce compliance and governance (POA&M process for identified security gaps)'
-  control_id: SAF-K8S-1006-001
-  relation_type: supports
-  strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: PM-4
-  framework_requirement_title: Plan of Action and Milestones Process
-  framework_mapping_notes: 'POA&M process tracks remediation of agentic AI security weaknesses and findings
-
-
-    10.6 - Enforce compliance and governance (POA&M process for identified security gaps)'
   control_id: SAF-K8S-1006-005
   relation_type: supports
   strength_level: moderate
@@ -15695,22 +15098,6 @@
   control_id: SAF-K8S-1007-006
   relation_type: direct
   strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: PM-7
-  framework_requirement_title: Enterprise Architecture
-  framework_mapping_notes: 'Enterprise architecture must account for agentic AI systems, their integrations, and data flows
-
-
-    10.6 - Enforce compliance and governance (enterprise architecture alignment for K8s AI security)'
-  control_id: SAF-K8S-1006-001
-  relation_type: supports
-  strength_level: moderate
   applicability: required
   applicability_condition: null
   strength_reason_code: null
@@ -15843,22 +15230,6 @@
 
 
     10.6 - Policy-as-code (automated PII processing authorization enforcement)'
-  control_id: SAF-K8S-1006-001
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: PT-2(2)
-  framework_requirement_title: Automation
-  framework_mapping_notes: 'Automated PII processing controls are directly relevant to agentic AI data handling
-
-
-    10.6 - Policy-as-code (automated PII processing authorization enforcement)'
   control_id: SAF-K8S-1006-005
   relation_type: supports
   strength_level: strong
@@ -15892,22 +15263,6 @@
   applicability: conditional
   applicability_condition: The deployed automated workflow tracks documented processing purposes for the covered personal
     information
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: PT-5
-  framework_requirement_title: Privacy Notice
-  framework_mapping_notes: 'Privacy notices must disclose agentic AI data processing activities to users
-
-
-    9.4 - Notebook environment login banners (privacy notices); 10.6 - Regulatory compliance (privacy notice requirements)'
-  control_id: SAF-K8S-1006-001
-  relation_type: supports
-  strength_level: moderate
-  applicability: required
-  applicability_condition: null
   strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
@@ -16464,22 +15819,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: SA-11(3)
-  framework_requirement_title: Independent Verification of Assessment Plans and Evidence
-  framework_mapping_notes: 'Independent verification ensures agentic AI security assessments are thorough and unbiased
-
-
-    10.6 - Audit readiness (independent verification of security assessment plans and evidence)'
-  control_id: SAF-K8S-1006-001
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: SA-11(6)
   framework_requirement_title: Attack Surface Reviews
   framework_mapping_notes: 'Attack surface review of agent interfaces, tools, and data flows identifies exposure points
@@ -16713,22 +16052,6 @@
 
 
     10.6 - Enforce compliance (developer security training for K8s AI platform operations)'
-  control_id: SAF-K8S-1006-001
-  relation_type: supports
-  strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SA-16
-  framework_requirement_title: Developer-provided Training
-  framework_mapping_notes: 'Developer training on agentic AI security ensures teams understand unique threat vectors
-
-
-    10.6 - Enforce compliance (developer security training for K8s AI platform operations)'
   control_id: SAF-K8S-1006-005
   relation_type: supports
   strength_level: moderate
@@ -16864,39 +16187,7 @@
 
 
     10.6 - Enforce compliance (formal correspondence between controls and implementation)'
-  control_id: SAF-K8S-1006-001
-  relation_type: supports
-  strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SA-17(3)
-  framework_requirement_title: Formal Correspondence
-  framework_mapping_notes: 'Formal correspondence between security policy and agent implementation enables verification
-
-
-    10.6 - Enforce compliance (formal correspondence between controls and implementation)'
   control_id: SAF-K8S-1006-005
-  relation_type: supports
-  strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SA-17(4)
-  framework_requirement_title: Informal Correspondence
-  framework_mapping_notes: 'Informal correspondence validates agent design intent matches security requirements
-
-
-    10.6 - Audit readiness (informal documentation of security design correspondence)'
-  control_id: SAF-K8S-1006-001
   relation_type: supports
   strength_level: moderate
   applicability: required
@@ -17518,41 +16809,9 @@
 
 
     10.6 - Enforce compliance (verifying functional properties of security controls in acquisitions)'
-  control_id: SAF-K8S-1006-001
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SA-4(1)
-  framework_requirement_title: Functional Properties of Controls
-  framework_mapping_notes: 'Functional security properties must be specified when acquiring agentic AI components
-
-
-    10.6 - Enforce compliance (verifying functional properties of security controls in acquisitions)'
   control_id: SAF-K8S-1006-005
   relation_type: supports
   strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SA-4(2)
-  framework_requirement_title: Design and Implementation Information for Controls
-  framework_mapping_notes: 'Design documentation for agentic AI security controls enables validation and audit
-
-
-    10.6 - Enforce compliance (design and implementation documentation for K8s AI security controls)'
-  control_id: SAF-K8S-1006-001
-  relation_type: supports
-  strength_level: moderate
   applicability: required
   applicability_condition: null
   strength_reason_code: null
@@ -17640,22 +16899,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: SA-4(8)
-  framework_requirement_title: Continuous Monitoring Plan for Controls
-  framework_mapping_notes: 'Continuous monitoring plans for agentic AI security controls enable ongoing assurance
-
-
-    10.6 - Continuous compliance evidence collection (monitoring plan for security controls of acquired systems)'
-  control_id: SAF-K8S-1006-001
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: SA-4(9)
   framework_requirement_title: Functions, Ports, Protocols, and Services in Use
   framework_mapping_notes: 'Documenting agent system network interfaces and protocols is essential for security
@@ -17664,22 +16907,6 @@
     5.1 - Network policies (documenting functions, ports, protocols in use by AI workloads)'
   control_id: SAF-K8S-0501-002
   relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SA-5
-  framework_requirement_title: System Documentation
-  framework_mapping_notes: 'Documentation of agentic AI system architecture, interfaces, and security functions is essential
-
-
-    10.6 - Audit readiness (system documentation for K8s AI infrastructure and security architecture)'
-  control_id: SAF-K8S-1006-001
-  relation_type: supports
   strength_level: strong
   applicability: required
   applicability_condition: null
@@ -18523,22 +17750,6 @@
 
 
     10.6 - Enforce compliance (defining acceptable security levels for K8s AI workloads)'
-  control_id: SAF-K8S-1006-001
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SA-8(28)
-  framework_requirement_title: Acceptable Security
-  framework_mapping_notes: 'Security controls must balance protection with agent system usability and functionality
-
-
-    10.6 - Enforce compliance (defining acceptable security levels for K8s AI workloads)'
   control_id: SAF-K8S-1006-005
   relation_type: supports
   strength_level: strong
@@ -18561,22 +17772,6 @@
   applicability: conditional
   applicability_condition: Only for secure modification of the selected Kubernetes policy/configuration tree through exact-approved-tree promotion and one scoped admission-policy change. The fixture does not define stakeholder security requirements or risk tolerance, perform or retain a security analysis of the proposed modification, or show that equivalent rigor is applied throughout system development and modification.
   strength_reason_code: partial-control-coverage
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SA-8(32)
-  framework_requirement_title: Sufficient Documentation
-  framework_mapping_notes: 'Sufficient documentation of agent security architecture enables verification and audit
-
-
-    10.6 - Audit readiness (sufficient documentation for compliance evidence and security architecture)'
-  control_id: SAF-K8S-1006-001
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -18904,22 +18099,6 @@
 
     5.1 - Network security policy; 10.6 - Enforce compliance (system and communications protection policy)'
   control_id: SAF-K8S-0501-002
-  relation_type: supports
-  strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-1
-  framework_requirement_title: Policy and Procedures
-  framework_mapping_notes: 'System and communications protection policy governs agent network security and isolation
-
-
-    5.1 - Network security policy; 10.6 - Enforce compliance (system and communications protection policy)'
-  control_id: SAF-K8S-1006-001
   relation_type: supports
   strength_level: moderate
   applicability: required
@@ -20945,22 +20124,6 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-38
-  framework_requirement_title: Operations Security
-  framework_mapping_notes: 'OPSEC for agent systems prevents adversaries from learning about security posture
-
-
-    10.6 - Compliance and governance (operations security posture); 7.3 - GPU cost governance (protecting operational information)'
-  control_id: SAF-K8S-1006-001
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -23279,22 +22442,6 @@
   control_id: SAF-K8S-0502-005
   relation_type: supports
   strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-1
-  framework_requirement_title: Policy and Procedures
-  framework_mapping_notes: 'System integrity policy governs flaw remediation and monitoring for agentic AI systems
-
-
-    10.6 - Compliance and governance (system integrity policy framework); 1.4 - CIS benchmarks (integrity policies)'
-  control_id: SAF-K8S-1006-001
-  relation_type: supports
-  strength_level: moderate
   applicability: required
   applicability_condition: null
   strength_reason_code: null
@@ -26325,22 +25472,6 @@
   framework_version: 5.2.0
   framework_requirement_id: SI-6(3)
   framework_requirement_title: Report Verification Results
-  framework_mapping_notes: 'Reporting security verification results provides evidence of agent control effectiveness
-
-
-    10.6 - Compliance evidence collection (reporting verification results); 10.7 - Security posture management'
-  control_id: SAF-K8S-1006-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-6(3)
-  framework_requirement_title: Report Verification Results
   framework_mapping_notes: >-
     Distinguish the result of a function check from an inventory observation. Verify the recipients and delivered verification record.
   control_id: SAF-K8S-1006-004
@@ -26933,22 +26064,6 @@
 
 
     6.6 - CNCF lifecycle security (supply chain policy framework); 10.6 - Compliance and governance'
-  control_id: SAF-K8S-1006-001
-  relation_type: supports
-  strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SR-1
-  framework_requirement_title: Policy and Procedures
-  framework_mapping_notes: 'Supply chain risk management policy governs AI model, tool, and plugin acquisition
-
-
-    6.6 - CNCF lifecycle security (supply chain policy framework); 10.6 - Compliance and governance'
   control_id: SAF-K8S-1006-005
   relation_type: supports
   strength_level: moderate
@@ -27132,22 +26247,6 @@
   control_id: SAF-K8S-1007-006
   relation_type: direct
   strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SR-2(1)
-  framework_requirement_title: Establish SCRM Team
-  framework_mapping_notes: 'Dedicated SCRM team for agentic AI addresses unique supply chain risks of AI components
-
-
-    10.6 - Compliance and governance (establishing supply chain risk management team); 6.6 - CI/CD pipeline governance'
-  control_id: SAF-K8S-1006-001
-  relation_type: supports
-  strength_level: moderate
   applicability: required
   applicability_condition: null
   strength_reason_code: null
@@ -28106,13 +27205,13 @@
   framework_version: '1.1'
   framework_requirement_id: PO.1.1
   framework_requirement_title: Identify and document all security requirements for the organization's software development infrastructures and processes, and maintain the requirements over time.
-  framework_mapping_notes: SAF-K8S controls define security requirements for the Kubernetes platform infrastructure that hosts AI workloads. The framing document, control skeleton, and compliance crosswalks serve as documented security requirements for the infrastructure layer.
+  framework_mapping_notes: Documented approved requirements for the covered Kubernetes development infrastructure and processes can contribute to maintaining the development security requirements.
   control_id: SAF-K8S-1006-001
-  relation_type: supports
+  relation_type: partial
   strength_level: moderate
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  applicability: conditional
+  applicability_condition: The approved mapping identifies and maintains requirements for the organization's software-development infrastructure and processes.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SSDF 1.1
   framework_code: NIST-SSDF
   framework_name: 'NIST SP 800-218: Secure Software Development Framework (SSDF) Version 1.1'

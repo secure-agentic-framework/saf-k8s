@@ -5,7 +5,7 @@
 
 ## Mapping Notes
 
-SAF-K8S regulatory compliance mapping (KA 10.6) maintains documented mappings of platform controls to NIST AI RMF, EU AI Act, and SOC 2. OCTAVE risk assessment captures regulatory exposure as part of threat analysis.
+Recording authority, applicability, obligations, evidence and unresolved gaps contributes to documenting and managing relevant AI requirements under GOVERN 1.1.
 
 ## SAF-K8S Controls
 
@@ -13,7 +13,7 @@ SAF-K8S regulatory compliance mapping (KA 10.6) maintains documented mappings of
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.6
-- Relation Type: direct
+- Relation Type: partial
 - Strength: moderate
-- Applicability: required
-- Strength Reason Code: framework-language-interpretation
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage

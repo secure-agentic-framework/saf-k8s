@@ -9,7 +9,7 @@ The implemented and verified dataset integrity control is identified in the AI s
 
 ## SAF-K8S Controls
 
-### [SAF-K8S-0906-002 - Large-scale data integrity verification](../../controls/SAF-K8S-0906-002.md)
+### [SAF-K8S-0906-002 - Segmented dataset integrity verification](../../controls/SAF-K8S-0906-002.md)
 
 - Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
 - Knowledge Area: 9.6
@@ -17,15 +17,6 @@ The implemented and verified dataset integrity control is identified in the AI s
 - Strength: moderate
 - Applicability: conditional
 - Strength Reason Code: n/a
-
-### [SAF-K8S-1006-001 - Regulatory compliance mapping for Kubernetes AI platforms](../../controls/SAF-K8S-1006-001.md)
-
-- Domain: D10 - Observability, Incident Response, and Governance
-- Knowledge Area: 10.6
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: exact-text-match
 
 ### [SAF-K8S-1006-004 - Automated audit readiness for Kubernetes AI platforms](../../controls/SAF-K8S-1006-004.md)
 

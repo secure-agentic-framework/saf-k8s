@@ -2,8 +2,8 @@
 
 - Framework Code: NIST-AI-RMF
 - Version: 1.0
-- Total Reverse Mappings: 82
-- Distinct Requirements Mapped: 41
+- Total Reverse Mappings: 79
+- Distinct Requirements Mapped: 40
 
 ## Requirements
 
@@ -23,7 +23,6 @@
 - [MANAGE 1.1 - A determination is made as to whether the AI system achieves its intended purposes and stated objectives and whether its development or deployment should proceed.](manage-1-1.md)
 - [MANAGE 1.2 - Treatment of documented AI risks is prioritized based on impact, likelihood, and available resources or methods.](manage-1-2.md)
 - [MANAGE 1.3 - Responses to the AI risks deemed high priority, as identified by the MAP function, are developed, planned, and documented. Risk response options can include mitigating, transferring, avoiding, or accepting.](manage-1-3.md)
-- [MANAGE 1.4 - Negative residual risks (defined as the sum of all unmitigated risks) to both downstream acquirers of AI systems and end users are documented.](manage-1-4.md)
 - [MANAGE 2.2 - Mechanisms are in place and applied to sustain the value of deployed AI systems.](manage-2-2.md)
 - [MANAGE 2.3 - Procedures are followed to respond to and recover from a previously unknown risk when it is identified.](manage-2-3.md)
 - [MANAGE 3.1 - AI risks and benefits from third-party resources are regularly monitored, and risk controls are applied and documented.](manage-3-1.md)

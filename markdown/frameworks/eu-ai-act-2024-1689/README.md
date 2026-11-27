@@ -2,8 +2,8 @@
 
 - Framework Code: EU-AI-ACT
 - Version: 2024/1689
-- Total Reverse Mappings: 158
-- Distinct Requirements Mapped: 69
+- Total Reverse Mappings: 156
+- Distinct Requirements Mapped: 68
 
 ## Requirements
 
@@ -58,7 +58,6 @@
 - [Article-4a.1.c - Safeguards for special categories of personal data processed for bias detection and correction](article-4a-1-c.md)
 - [Article-4a.1.e - Deletion of special-category personal data](article-4a-1-e.md)
 - [Article-53.1.b.i - Obligations for providers of general-purpose AI models](article-53-1-b-i.md)
-- [Article-55.1.b - Obligations of providers of general-purpose AI models with systemic risk](article-55-1-b.md)
 - [Article-55.1.d - Obligations of providers of general-purpose AI models with systemic risk](article-55-1-d.md)
 - [Article-6.1.a - Classification rules for high-risk AI systems](article-6-1-a.md)
 - [Article-60.1 - Testing of high-risk AI systems in real world conditions outside AI regulatory sandboxes](article-60-1.md)
