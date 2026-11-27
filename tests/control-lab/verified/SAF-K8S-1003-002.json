@@ -1,11 +1,17 @@
 {
   "control_id": "SAF-K8S-1003-002",
-  "catalog_revision": "0b76a2f7f008c5e34fbb96133863b056804c0fc6",
-  "catalog_sha256": "a69ceaa73a25f9d6241252111dbdfd5f31b431579d243c58c7df656c2ac5d450",
+  "catalog_revision": "e9d02cea99ada2d066c99e2875862f45756f45a8",
+  "catalog_sha256": "65f757846d484079842769b4cec9180fc3a96ab15a5106c821a08ca7293441b6",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "d1428699ad58e30a60a8161ec17d64cc03f788c49304c790fc2335423d0353af",
-  "scope": "Kubernetes v1.36.1 Kind runs independent native review Jobs over synthetic OCTAVE worksheets. The gate checks Phase 1 asset/impact/threat profiles, Phase 2 supporting infrastructure and vulnerability evidence, and Phase 3 tolerance-linked treatment and review cadence. It proves record completeness and stable decisions only; organizational risk scoring, stakeholder judgment, evidence truth, implementation, and actual risk reduction require separate evidence.",
-  "cluster": "saf-lab-0f16aa6d225f",
+  "scope": "Kubernetes v1.36.1 Kind runs independent native review Jobs over synthetic OCTAVE worksheets. The gate checks Phase 1 asset/impact/threat profiles, Phase 2 supporting infrastructure and vulnerability evidence, and Phase 3 tolerance-linked treatment and review cadence. It proves record completeness and stable decisions only. The scratch extension also binds a review to a case-owned ConfigMap topology snapshot and tests an annual due-date boundary with a documented Feb-29-to-Feb-28 policy. Organizational risk scoring, stakeholder judgment, evidence truth, implementation, cadence approval, and actual risk reduction require separate evidence.",
+  "review_timing": {
+    "queued_at": "2026-11-27T00:03:49.112278+00:00",
+    "cluster_ready_at": "2026-11-27T00:04:17.883558+00:00",
+    "approval_at": "2026-11-27T00:05:49.696790+00:00",
+    "case_loaded_at": "2026-11-27T00:05:49.722622+00:00"
+  },
+  "cluster": "saf-lab-beb1851599b3",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -35,6 +41,7 @@
       "platform": "linux/arm64"
     }
   },
+  "approved_case_sha256": "e7658b76a740398467bab4e174c388975c6b082f876e342989eccfec9460f7aa",
   "status": "passed",
   "cleanup": "deleted",
   "checks": [
@@ -80,6 +87,71 @@
       "observed": {
         "status": "pass",
         "assets": 4
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Previously reviewed worksheet matches the captured topology before change",
+      "matched": true,
+      "observed": {
+        "status": "pass",
+        "pod_owner_uid_matches_job": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Metadata-only resourceVersion change leaves the governed review valid",
+      "matched": true,
+      "observed": {
+        "resource_version_advanced": true,
+        "metadata_annotation_changed": true,
+        "governed_inputs_equal": true,
+        "status": "pass"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Major topology revision invalidates the prior review binding",
+      "matched": true,
+      "observed": {
+        "governed_inputs_changed": true,
+        "errors": [
+          "major-change-review-stale"
+        ]
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Refreshed review bound to the changed ConfigMap revision passes",
+      "matched": true,
+      "observed": {
+        "status": "pass",
+        "pod_owner_uid_matches_job": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Annual cadence accepts the boundary date and applies Feb 29 to Feb 28",
+      "matched": true,
+      "observed": {
+        "ordinary_due_boundary": "pass",
+        "leap_review_feb28_policy_boundary": "pass"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Annual cadence rejects overdue and beyond-anniversary due dates",
+      "matched": true,
+      "observed": {
+        "ordinary_one_day_overdue": [
+          "review-overdue"
+        ],
+        "ordinary_due_too_distant": [
+          "annual-due-after-anniversary"
+        ],
+        "leap_review_due_too_distant": [
+          "annual-due-after-anniversary"
+        ]
       }
     }
   ]

@@ -23,3 +23,23 @@ approvals and reviewed mitigations or treatments for the applicable obligations.
 [NIST AI RMF](https://airc.nist.gov/airmf-resources/airmf/5-sec-core/) ·
 [NIST SP 800-53](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final) ·
 [NIST SSDF](https://csrc.nist.gov/pubs/sp/800/218/final).
+
+
+## Scratch additive freshness candidate
+
+The candidate retains the three published Jobs and adds one independently observed
+case-owned topology ConfigMap, plus five review Jobs. A prior review is accepted against its captured ConfigMap UID, governed revision
+annotation and content digest. A metadata-only annotation update advances
+resourceVersion but leaves the same review valid. The fixture then changes the same
+ConfigMap's serving/GPU topology and governed revision, expects the old review to
+fail, and accepts a refreshed worksheet bound to the new semantic state. Raw scoped
+ConfigMap data and version metadata are retained so reviewers can recompute the digest.
+Each selected review Pod is verified against its controller Job UID. No live platform, real assets or organizational
+OCTAVE conclusions are represented.
+
+The added date cases use fixed authoritative `last_review` values and a deterministic
+calendar policy: a February 29 review is due February 28 in a non-leap year. They
+check the due date itself, the following overdue day, and rejection of dates later
+than the one-year anniversary. This tests worksheet freshness mechanics only; the
+organization still chooses its approved cadence and must redo its actual assessment
+after major changes. This scratch candidate has not been run in Kind.

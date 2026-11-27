@@ -1,0 +1,7 @@
+[
+  {"name":"ordinary_due_boundary","as_of":"2027-11-22","cadence":{"last_review":"2026-11-22","annual_due":"2027-11-22"}},
+  {"name":"ordinary_one_day_overdue","as_of":"2027-11-23","cadence":{"last_review":"2026-11-22","annual_due":"2027-11-22"}},
+  {"name":"ordinary_due_too_distant","as_of":"2026-11-22","cadence":{"last_review":"2026-11-22","annual_due":"2027-11-23"}},
+  {"name":"leap_review_feb28_policy_boundary","as_of":"2025-02-28","cadence":{"last_review":"2024-02-29","annual_due":"2025-02-28"}},
+  {"name":"leap_review_due_too_distant","as_of":"2025-02-28","cadence":{"last_review":"2024-02-29","annual_due":"2025-03-01"}}
+]
