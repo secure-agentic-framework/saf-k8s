@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0804-002",
-  "catalog_revision": "1e2ef018dd74faa7579db243b9d70e5ccdf6ac2e",
-  "catalog_sha256": "81517b27c716dcd2183c72168f768a6988b410901f2c97235efab4a7d56fc8d0",
+  "catalog_revision": "63535a0e881f115fa7d977ad1ba2566a6643b681",
+  "catalog_sha256": "1da56289e4f344f65fa946b0099b200d7a52a7c4bea62ee17a32261bedc18861",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "af70822e079a17aa12b52bfa153c927ead164076fbe8becfc2edb92f9d89d95f",
   "scope": "Actual OpenSSL signature checking and a Kubernetes Job applying fixture binding, freshness, and reuse rules.",
-  "cluster": "saf-lab-2bfbc3fbfadd",
+  "cluster": "saf-lab-6de8f8c3046a",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -66,6 +66,28 @@
       "observed": {
         "fresh_matching_fixture_eligible": true,
         "repeated_denied": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Two named verifier Jobs independently appraise the same signed fresh fixture and contend on one atomic namespace state object",
+      "matched": true,
+      "observed": {
+        "two_distinct_verifier_service_accounts": true,
+        "same_evidence_digest": true,
+        "one_atomic_consumer": true,
+        "both_independently_read_matching_state": true,
+        "state_immutable_and_digest_bound": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The two named verifier identities can create challenge state in the fixture namespace and read its exact name. General reads and mutations are denied, and the default identity has neither grant",
+      "matched": true,
+      "observed": {
+        "scoped_permissions_match": true,
+        "default_identity_denied": true,
+        "state_creator_matches_winning_owned_job_identity": true
       }
     }
   ]

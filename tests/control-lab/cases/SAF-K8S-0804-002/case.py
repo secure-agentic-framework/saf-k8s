@@ -65,3 +65,9 @@ def run(lab):
     (lab.evidence / "attestation-appraisal-observations.json").write_text(json.dumps({
         "inert_signature_verified": signature_ok, "changed_signature_verified": changed_signature_ok,
         "relying_party_fixture_results": observed, "hardware_attestation_tested": False}, indent=2) + "\n")
+    from importlib.util import module_from_spec, spec_from_file_location
+
+    spec = spec_from_file_location("saf_0804_002_cross_verifier", root / "cross_verifier.py")
+    module = module_from_spec(spec)
+    spec.loader.exec_module(module)
+    module.run(lab, root)
