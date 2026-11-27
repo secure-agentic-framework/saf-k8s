@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-1004-002",
-  "catalog_revision": "af093082b9e6f313f6c01167e697754b9b601a51",
-  "catalog_sha256": "e38420f524fb15e73e8ffca4c9a87efd965bcdc648e8f97243d8c301bc7ed21d",
+  "catalog_revision": "19b29f5b11ddcc10d15a2506bf5e78e005632ec8",
+  "catalog_sha256": "65f757846d484079842769b4cec9180fc3a96ab15a5106c821a08ca7293441b6",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "a7ff99d1f5e647243a7acdcd6183c8507e135ea4600c3d2c7e9e25548c7ea9bc",
-  "scope": "A synthetic promotion gate checks signed builder provenance, source, and the digest of a deterministically generated configuration artifact. The allowed bytes are mounted in a digest-pinned Kubernetes Job and independently read and hashed there. This covers a selected CI/CD provenance control and artifact propagation check. Production trust, image admission, organization-wide threat modeling, AI pipeline coverage and ongoing deployment monitoring need separate evidence.",
-  "cluster": "saf-lab-99132f3a59ae",
+  "scope": "A synthetic promotion gate checks signed builder provenance, source, and the digest of a deterministically generated configuration artifact. The allowed bytes are mounted in a digest-pinned Kubernetes Job and independently read and hashed there. This covers a selected CI/CD provenance control and artifact propagation check. An additive inert-record gate checks three-stage threat-model structure and exact graph review binding, not risk or mitigation adequacy. Production trust, image admission, organization-wide threat modeling, AI pipeline coverage and ongoing deployment monitoring need separate evidence.",
+  "cluster": "saf-lab-c27e9b67045b",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -92,6 +92,47 @@
         "mounted_sha256": "ab0cc3374b875ffc52e82f0a1e7ccfd5429ed286d880f3d5324f31830e2e8b04",
         "job_completed": true,
         "image": "docker.io/library/busybox:1.37.0@sha256:a7dbc319b1438115a207e11930dc4bb3e643dcb3ec0bdd694bb36cd8fad289ec"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "A complete inert SSC model covers all three stages with owned mitigations and evidence",
+      "matched": true,
+      "observed": {
+        "complete_model_passes": true,
+        "all_three_attack_stages_present": true,
+        "defect_and_attack_classifications_distinct": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Incomplete or malformed model structure and aliased evidence identities are rejected",
+      "matched": true,
+      "observed": {
+        "missing_stage_rejected": true,
+        "taxonomy_confusion_rejected": true,
+        "missing_defect_class_rejected": true,
+        "missing_stage_mitigation_rejected": true,
+        "malformed_component_inventory_rejected": true,
+        "duplicate_finding_identity_rejected": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Evidence references remain within their authorized lifecycle-stage fixture path",
+      "matched": true,
+      "observed": {
+        "cross_stage_evidence_rejected": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "A material graph digest change stales the prior review until the model is refreshed",
+      "matched": true,
+      "observed": {
+        "graph_digest_changed": true,
+        "old_review_rejected": true,
+        "refreshed_review_passes": true
       }
     }
   ]

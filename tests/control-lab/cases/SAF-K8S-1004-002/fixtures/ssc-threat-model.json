@@ -1,0 +1,95 @@
+{
+  "components": [
+    "build-runner",
+    "artifact-registry",
+    "k8s-consumer"
+  ],
+  "mitigations": [
+    {
+      "component": "build-runner",
+      "control": "reviewed change and builder identity",
+      "id": "mit-1",
+      "stage": "compromise"
+    },
+    {
+      "component": "artifact-registry",
+      "control": "curated artifact admission",
+      "id": "mit-2",
+      "stage": "propagation"
+    },
+    {
+      "component": "k8s-consumer",
+      "control": "deployment digest verification",
+      "id": "mit-3",
+      "stage": "exploitation"
+    },
+    {
+      "component": "build-runner",
+      "control": "dependency pin review",
+      "id": "mit-4",
+      "stage": "compromise"
+    }
+  ],
+  "model_id": "fixture-ssc-review-r1",
+  "reviewed_graph": {
+    "revision": "ssc-r1",
+    "sha256": "abefae2c35c3eb0dc49ec184d0561bab8b5f71fb390967b3850bef4682be11a5"
+  },
+  "schema": "saf-ssc-threat-model/v1",
+  "threats": [
+    {
+      "classification": "attack",
+      "findings": [
+        {
+          "component": "build-runner",
+          "evidence_ref": "compromise/attack-compromise.json",
+          "flow_ref": "source-to-build",
+          "id": "attack-compromise",
+          "mitigation_ref": "mit-1",
+          "stage": "compromise",
+          "target_asset": "source-code",
+          "vector": "malicious-build-step-change"
+        },
+        {
+          "component": "artifact-registry",
+          "evidence_ref": "propagation/attack-propagation.json",
+          "flow_ref": "build-to-registry",
+          "id": "attack-propagation",
+          "mitigation_ref": "mit-2",
+          "stage": "propagation",
+          "target_asset": "build-artifact",
+          "vector": "unreviewed-dependency-ingest"
+        },
+        {
+          "component": "k8s-consumer",
+          "evidence_ref": "exploitation/attack-exploitation.json",
+          "flow_ref": "registry-to-consumer",
+          "id": "attack-exploitation",
+          "mitigation_ref": "mit-3",
+          "stage": "exploitation",
+          "target_asset": "deployed-workload",
+          "vector": "unverified-artifact-use"
+        }
+      ],
+      "id": "attack-synthetic",
+      "intent": "malicious"
+    },
+    {
+      "classification": "defect",
+      "findings": [
+        {
+          "component": "build-runner",
+          "evidence_ref": "compromise/defect-compromise.json",
+          "flow_ref": "source-to-build",
+          "id": "defect-compromise",
+          "mitigation_ref": "mit-4",
+          "stage": "compromise",
+          "target_asset": "source-code",
+          "vector": "missing-version-pin-through-oversight"
+        }
+      ],
+      "id": "defect-synthetic",
+      "intent": "non-malicious"
+    }
+  ]
+}
