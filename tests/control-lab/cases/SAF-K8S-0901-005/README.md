@@ -33,25 +33,39 @@ Kubernetes documents NetworkPolicy as L3/L4 pod traffic control and requires a n
 ## Flower workflow under NetworkPolicy
 
 This isolated case wrapper first calls the exact published `SAF-K8S-0901-005` implementation and
-retains its eight checks unchanged. It then imports the pinned `SAF-K8S-0908-006` Flower 1.29.0 image
-pinning and workflow runner; it does not reimplement Flower or change its fixed vectors. The runner verifies the companion file hashes from the adjacent SAF-K8S-0908-006 case before loading the workflow.
+retains its eight checks unchanged. It then runs the pinned Flower 1.29.0 image pinning and workflow
+runner from the local `flower/` folder. The weighted supplement changes only fixed per-round sample
+counts, run count and expected aggregate; it preserves the three fixed vectors and verifies local
+companion file hashes before loading the workflow.
 
 Before the Flower CLI starts, the wrapper adds a small fixed-marker HTTP sidecar to each of the three
 case-owned SuperNode Pods. The same two participant-to-participant health paths must first return
 the exact expected markers. An exact NetworkPolicy then selects only these SuperNode Pods and
 allows egress to the case-owned SuperLink Fleet Service on TCP 9092 plus CoreDNS on TCP/UDP 53.
 The same two peer paths must time out twice, while each target sidecar remains healthy on localhost.
-Only after that gate passes does the exact Flower companion run one round. Its existing receipt
-assertion must also pass, demonstrating that the pinned workflow uses the allowed SuperLink path
-under the active policy. Case-owned NetworkPolicy and health ConfigMap are deleted in cleanup.
+Only after that gate passes does the exact Flower companion run one two-round workflow. Its equal
+weight receipt assertion and additive 1-2-3 weighted aggregate assertion must both pass, demonstrating
+that the pinned workflow uses the allowed SuperLink path under the active policy. The four Flower Pods
+are retired before a separate fixed-input release fixture starts. That fixture initializes the
+existing scoped identity/share records without running its four unrelated lifecycle assertions, then
+checks exact digest approvals for both aggregate-only round receipts in one grouped assertion. The
+case-owned NetworkPolicy and health ConfigMap are deleted in cleanup.
+
+The composed runner records 12 checks: eight from the published network case, one peer-flow policy
+gate, two actual Flower round checks, and one grouped release check that retains the six original
+release facts and adds weighted-digest refusal and release facts. The release fixture uses five small
+support Pods only after the four Flower Pods are deleted. It reuses the exact published
+`SAF-K8S-0908-001/case.py` runtime image helper, copied into the candidate and checked against SHA-256
+`262a254a36143a1c5760777a3435555cd5ca53168c68900168aabc8608668257`; it does not run that case's
+unrelated assertions.
 
 This supplement exercises one in-cluster Flower path and a selected participant egress policy. The
 three synthetic participants and aggregation service share one namespace in the Flower companion;
 the base eight checks separately exercise namespace-level isolation. This is not proof of production
 namespace governance, authenticated enrollment, TLS, cross-cluster transport, differential privacy,
 Byzantine resistance, or the security of Flower SecAgg+. It uses only fixed synthetic vectors and
-fixed health markers, with no actual training data or attack procedures. The two new checks are the
-participant peer-flow gate and the Flower companion's existing actual-workflow check, for ten total.
+fixed health markers, with no actual training data or attack procedures. The paired workflow and
+release checks use only fixed synthetic vectors and exact receipt digests.
 
 
 ## Selecting compatible aggregation controls
@@ -62,8 +76,9 @@ boundary. A conventional robust method that scores individual updates
 requires a reviewed composition that preserves update confidentiality and
 Byzantine resilience together. The adopter verifies the selected threat
 model, differential-privacy accounting, robust aggregation, participant
-identity and real transport paths. This case supplies the scoped one-round
-Flower workflow and participant-network observations.
+identity and real transport paths. This case supplies two scoped Flower
+workflow rounds, exact-digest release observations, and participant-network
+observations.
 
 - [Flower secure aggregation workflow API](https://flower.ai/docs/framework/ref-api/flwr.server.workflow.SecAggPlusWorkflow.html)
 - [Original Krum paper](https://proceedings.neurips.cc/paper_files/paper/2017/hash/f4b9ec30ad9f68f89b29639786cb62ef-Abstract.html)

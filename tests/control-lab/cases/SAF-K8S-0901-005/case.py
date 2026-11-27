@@ -7,16 +7,18 @@ import time
 
 from fixtures import container
 
-SCOPE = 'One disposable Kind cluster on Kubernetes v1.36.1 with two synthetic participant namespaces and one case-owned local aggregation namespace. Two participant mock HTTP responders first exchange only fixed /healthz markers before NetworkPolicy, then the same ordinary health path is checked after namespace policies isolate participants and permit the approved aggregation Service. Both participants independently contact the identical aggregation ClusterIP and port. No model, training, gradient, adversarial input, real service, feed, or external target is used. The same disposable cluster also runs the pinned Flower SecAgg+ workflow with an exact participant egress allowlist. Two directed owned peer marker routes are checked before and after policy, and the actual authorized Flower round completes. The fixture uses fixed inert vectors. Deployed boundaries, identity, privacy settings and protocol security require separate evidence.'
+SCOPE = 'One disposable Kind cluster on Kubernetes v1.36.1 with two synthetic participant namespaces and one case-owned local aggregation namespace. Two participant mock HTTP responders first exchange only fixed /healthz markers before NetworkPolicy, then the same ordinary health path is checked after namespace policies isolate participants and permit the approved aggregation Service. Both participants independently contact the identical aggregation ClusterIP and port. No model, training, gradient, adversarial input, real service, feed, or external target is used. The same disposable cluster also runs the pinned Flower SecAgg+ workflow with an exact participant egress allowlist. Two directed owned peer marker routes are checked before and after policy, and the actual authorized Flower workflow completes one equal-weight and one fixed 1-2-3-weight round in the same four Flower Pods. A separately scoped Kubernetes workload checks the exact approved receipt digest for each aggregate. The fixture uses fixed inert vectors. Deployed boundaries, identity, privacy settings and protocol security require separate evidence.'
 HERE = Path(__file__).resolve().parent
 BASE_CASE = HERE / "base_case.py"
-FLOWER_CASE = HERE.parent / "SAF-K8S-0908-006" / "case.py"
+FLOWER_CASE = HERE / "flower" / "case.py"
 FLOWER_SHA256 = {
-    "case.py": "46b1a705859527f45f9ed73425a9180070f460531567feb11823fd88b792c647",
+    "case.py": "5921cd325ca6f1c5fad7200ff47a40b9a0150ae0b2e609a6e0b819996cbe991d",
     "image-pins.json": "fde49a4c12553bea10ab575db996b474641811037acb955135ebc024991fc3d3",
-    "pyproject.toml": "73ef91b1c519fe9b37e62177ab8718c9beac9637c8ca53803f2dcf07d2f0cf57",
-    "client_app.py": "a178c0acd3e39e4a4d2e61a01007c7396daff31faa8f4cc444ad4d08064705b0",
-    "server_app.py": "cd51acf88d1ba223aa8f604e2a465d7828bc7e047e68f0ad9a27e7baf8a16b8d",
+    "pyproject.toml": "e11968913fe24652ac78e5b2e6dcafcba3c1357eef3a853b60387dec443a497a",
+    "client_app.py": "33aa44312d25471d07034a77cfdbe4c25f2aff8d289f95c4c1fa305b4a049a4f",
+    "server_app.py": "a27846b420d8b4a20c5b6545ee6c002df81a955f593896d54a1fcd730c092ad1",
+    "aggregation.py": "91c0b961a19a490451217fa4a2ed4ad7fbac883fb7d5dfaff4865830993656fc",
+    "base_case.py": "c355b4fa2528a95c31932d451edb8f1eedd6e11f6431f05b65b6272bf9fa3f7c",
 }
 HEALTH_SERVER = HERE / "health_server.py"
 HEALTH_PROBE = HERE / "health_probe.py"
@@ -255,7 +257,7 @@ def run(lab):
     lab.create = create_hook
     lab.kubectl = kubectl_hook
     try:
-        flower.start_flower(lab, images)
+        reports = flower.start_flower(lab, images)
     finally:
         lab.create = original_create
         lab.kubectl = original_kubectl
@@ -267,6 +269,9 @@ def run(lab):
     checks = [check for check in lab.checks
               if check.get("claim") == "Pinned Flower SecAgg+ completes one fixed-vector round"]
     flower_round_passed = len(checks) == 1 and checks[0].get("matched") is True
+    weighted_checks = [check for check in lab.checks
+                       if check.get("claim") == "Flower SecAgg+ returns the fixed nonuniform 1-2-3 weighted aggregate"]
+    weighted_round_passed = len(weighted_checks) == 1 and weighted_checks[0].get("matched") is True
     (lab.evidence / "flower-networkpolicy-observations.json").write_text(
         json.dumps({"case": "SAF-K8S-0901-005",
                     "scope": "pinned-flower-1.29/synthetic-peer-health/egress-policy",
@@ -279,5 +284,10 @@ def run(lab):
                     "exact_flower_pod_inventory": state.get("exact_flower_pod_inventory") is True,
                     "participant_pod_labels_exact": state.get("participant_labels_valid") is True,
                     "fixed_health_sidecars_ready": state.get("sidecars_validated") is True,
-                    "flower_round_passed_under_policy": flower_round_passed},
+                    "equal_weight_round_passed_under_policy": flower_round_passed,
+                    "weighted_round_passed_under_policy": weighted_round_passed},
                    sort_keys=True, indent=2) + "\n")
+
+    if reports is None:
+        lab.block("Both Flower aggregate reports are required before release verification")
+    flower.verify_workload_release(lab, reports)
