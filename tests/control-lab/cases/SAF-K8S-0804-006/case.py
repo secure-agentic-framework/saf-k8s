@@ -5,7 +5,8 @@ from pathlib import Path
 import shutil
 
 SCOPE = ("Local AES-GCM round trip through an immutable Kubernetes ConfigMap, using an inert public marker and "
-         "modeled identity and policy. The randomized fixture key and nonce stay inside one local process.")
+         "synthetic policy, measurement, artifact identity/digest, and recipient context. The randomized fixture "
+         "key and nonce stay inside one local process; this does not test platform sealing or real attestation.")
 
 
 def run(lab):
@@ -15,14 +16,37 @@ def run(lab):
     result = lab.command("env", "GO111MODULE=off", "GOTOOLCHAIN=local", "GOPROXY=off", "CGO_ENABLED=0",
                          "go", "run", str(fixture), str(lab.kubeconfig), f"kind-{lab.cluster}", timeout=105)
     observed = json.loads(result.stdout)
+    expected = {
+        "unbound_artifact_opened_without_identity", "bound_artifact_requires_context",
+        "different_measurement_denied", "changed_policy_denied", "tampered_ciphertext_denied",
+        "approved_context_opened", "api_round_trip_retained_immutable_record",
+        "artifact_identity_change_denied", "artifact_digest_change_denied", "recipient_change_denied",
+        "record_identity",
+    }
+    bool_keys = expected - {"record_identity"}
+    record = observed.get("record_identity")
+    expected_record = {
+        "name": "fixture-sealed-artifact", "namespace": "saf-test", "immutable": True,
+        "artifact_id": "fixture-artifact-model-v1",
+        "artifact_sha256": "cb71213bf3252256800c2a348026439736a6ecb45b9a41576679534886d35f91",
+        "recipient": "fixture-recipient-workload-v1",
+        "plaintext_sha256_checked": "cb71213bf3252256800c2a348026439736a6ecb45b9a41576679534886d35f91",
+    }
+    if (set(observed) != expected or any(type(observed[key]) is not bool for key in bool_keys) or
+            type(record) is not dict or record != expected_record):
+        lab.block("The fixture returned malformed or incomplete boolean observations")
     red = {key: observed[key] for key in (
         "unbound_artifact_opened_without_identity", "bound_artifact_requires_context")}
     green = {key: observed[key] for key in (
         "different_measurement_denied", "changed_policy_denied", "tampered_ciphertext_denied")}
     positive = {key: observed[key] for key in (
         "approved_context_opened", "api_round_trip_retained_immutable_record")}
+    binding = {key: observed[key] for key in (
+        "artifact_identity_change_denied", "artifact_digest_change_denied", "recipient_change_denied")}
     lab.check("red", "Authenticating the declared context prevents the unbound baseline behavior", all(red.values()), red)
     lab.check("green", "A changed measurement, policy, or ciphertext causes authentication to fail", all(green.values()), green)
     lab.check("positive", "The intended context opens the artifact retrieved from the Kubernetes API", all(positive.values()), positive)
+    lab.check("artifact_recipient_binding", "The authenticated context binds the fixed artifact identity, digest, and recipient",
+              all(binding.values()), binding)
     (lab.evidence / "sealed-artifact-observations.json").write_text(
         json.dumps({**observed, "hardware_sealing_tested": False}, indent=2) + "\n")
