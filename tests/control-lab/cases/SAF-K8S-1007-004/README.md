@@ -82,8 +82,7 @@ restore the same fixture policy. An independent GET sees the restored policy
 before the observer resumes. The second stream starts from the saved resource
 version and must report both intervening revisions in order, including the
 transient drift the GET cannot show. The case records both streams, the exact
-API writes and the resume-gate timing. This uses retained watch history and
-does not exercise recovery from expired versions or policy packet enforcement.
+API writes and the resume-gate timing. This exercises retained watch history. A separate isolated Kind profile disables only the NetworkPolicy watch cache and uses a bounded compaction interval to produce and observe a real expired-version response, then verifies fresh-list recovery under the same scoped watcher identity. Neither profile exercises policy packet enforcement.
 Three independent API writes apply a metadata-only change, a controlled ingress
 widening, and exact spec restoration. The receipt retains each write response,
 UID, resourceVersion, generation, managed-field timestamps where present, and
@@ -112,3 +111,10 @@ write scope for the observer's Event permission.
 Kubernetes Events have limited retention and are best-effort supplemental data. This
 proves an API-side sink in the fixture only; persistent alert transport, SIEM delivery,
 monitoring cadence, triage, and approved remediation remain adopter evidence.
+
+
+## Expired NetworkPolicy watch recovery
+
+A second, separately owned Kind v1.36.1 profile preserves the original profile's default cache and compaction settings. In the isolated recovery profile, the API server disables only the `networkpolicies.networking.k8s.io` watch cache and uses a bounded 15-second etcd compaction interval. One authenticated observer captures a collection resourceVersion, holds it while the case makes two bounded changes to its exact owned policy, and then sends one watch request from that stale version. The proof requires a real HTTP 410, an exact-name fresh LIST with the same UID and baseline spec, and a resumed watch under the same Pod and ServiceAccount identity. Two subsequent controlled writes must match the resumed event sequence by UID, resourceVersion, generation, and spec. The API-server arguments and raw responses are preserved separately.
+
+This is a finite disposable-cluster client lifecycle proof. The short compaction interval is specific to the isolated profile; it does not establish production retention settings, broad watcher coverage, CNI packet enforcement, continuous monitoring, or downstream alert delivery. See the separate scratch plan for the exact source and execution boundary.

@@ -26,7 +26,9 @@ SCOPE = (
     "to the selected object's UID and API resource versions. The NetworkPolicy comparison uses API "
     "observations only; CNI enforcement and ongoing monitoring require separate evidence. The watcher "
     "also emits fixture-scoped Warning Events for drift transitions, bound to policy revisions and "
-    "observer Pod identity; this does not establish durable or external alert delivery."
+    "observer Pod identity; this does not establish durable or external alert delivery. A separate "
+    "disposable Kind profile tests stale NetworkPolicy resourceVersion recovery with a one-resource "
+    "cache bypass and bounded compaction cadence; the original profile retains its defaults."
 )
 
 
@@ -301,3 +303,4 @@ def run(lab):
     runpy.run_path(str(HERE / "network_policy_watch_addon.py"))["run"](
         lab, HERE, OWNED_NAMESPACE, NETWORK_POLICY, resources["networkpolicy"]["spec"],
         NEIGHBOR_NAMESPACE)
+    runpy.run_path(str(HERE / "expired_watch_profile.py"))["run"](lab, HERE)
