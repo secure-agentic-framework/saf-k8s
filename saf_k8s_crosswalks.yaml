@@ -13967,22 +13967,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: PM-30(1)
-  framework_requirement_title: Suppliers of Critical or Mission-essential Items
-  framework_mapping_notes: 'Critical supplier identification applies to AI model providers and essential tool integrations
-
-
-    8.2 - GPU driver/library supply chain (critical suppliers); 9.5 - ML dependency management'
-  control_id: SAF-K8S-0802-004
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: PM-31
   framework_requirement_title: Continuous Monitoring Strategy
   framework_mapping_notes: 'Continuous monitoring strategy is essential for detecting agentic AI security anomalies
@@ -14621,16 +14605,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SA-10(1)
   framework_requirement_title: Software and Firmware Integrity Verification
-  framework_mapping_notes: 'Integrity verification of agent software components prevents supply chain tampering
-
-
-    6.2 - Image signing (Sigstore integrity verification); 8.2 - GPU firmware integrity monitoring'
+  framework_mapping_notes: An adopted developer-provided verifier can support accelerator firmware integrity checks. Verify which firmware it covers, how its evidence is authenticated and the applicable developer requirement.
   control_id: SAF-K8S-0802-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: weak
+  applicability: conditional
+  applicability_condition: The organization requires the developer of the selected accelerator platform to provide an approved and usable firmware integrity verification mechanism for the defined components.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -15200,22 +15181,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: SA-20
-  framework_requirement_title: Customized Development of Critical Components
-  framework_mapping_notes: 'Custom development of critical agent security components ensures control over trust-sensitive code
-
-
-    8.2 - GPU driver containers (customized for hardware security); 9.1 - Custom AI operator development security'
-  control_id: SAF-K8S-0802-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: SA-22
   framework_requirement_title: Unsupported System Components
   framework_mapping_notes: 'Managing unsupported AI models, libraries, and frameworks prevents unpatched vulnerabilities
@@ -15435,22 +15400,6 @@
 
     8.2 - GPU driver/library security (acquisition controls); 9.4 - ML dependency management and acquisition'
   control_id: SAF-K8S-0802-002
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SA-4
-  framework_requirement_title: Acquisition Process
-  framework_mapping_notes: 'Acquisition of agentic AI components (models, tools, plugins) requires security requirements
-
-
-    8.2 - GPU driver/library security (acquisition controls); 9.4 - ML dependency management and acquisition'
-  control_id: SAF-K8S-0802-004
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -21252,22 +21201,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: SI-2(4)
-  framework_requirement_title: Automated Patch Management Tools
-  framework_mapping_notes: 'Automated patching of agent components reduces window of vulnerability exposure
-
-
-    1.4 - Kubernetes version lifecycle management (automated patching); 8.2 - GPU driver version management'
-  control_id: SAF-K8S-0802-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: SI-2(5)
   framework_requirement_title: Automatic Software and Firmware Updates
   framework_mapping_notes: 'Automatic updates for agent software and dependencies ensure timely security patches
@@ -21291,22 +21224,6 @@
 
     8.2 - GPU driver/firmware management (automatic updates); 1.4 - K8s version lifecycle (automated upgrades)'
   control_id: SAF-K8S-0802-002
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-2(5)
-  framework_requirement_title: Automatic Software and Firmware Updates
-  framework_mapping_notes: 'Automatic updates for agent software and dependencies ensure timely security patches
-
-
-    8.2 - GPU driver/firmware management (automatic updates); 1.4 - K8s version lifecycle (automated upgrades)'
-  control_id: SAF-K8S-0802-004
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -21479,22 +21396,6 @@
 
     8.2 - GPU driver management (privileged update controls); 6.6 - GitOps security (only authorized users can update)'
   control_id: SAF-K8S-0802-002
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-3(4)
-  framework_requirement_title: Updates Only by Privileged Users
-  framework_mapping_notes: 'Restricting agent security tool updates to privileged users prevents unauthorized modifications
-
-
-    8.2 - GPU driver management (privileged update controls); 6.6 - GitOps security (only authorized users can update)'
-  control_id: SAF-K8S-0802-004
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -22416,16 +22317,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SI-7
   framework_requirement_title: Software, Firmware, and Information Integrity
-  framework_mapping_notes: 'Software and information integrity for agent systems prevents unauthorized modifications
-
-
-    6.2 - Image signing and verification (software integrity); 8.2 - GPU firmware integrity; 9.5 - Model signing and provenance; 1.4 - Control plane configuration file integrity verification'
+  framework_mapping_notes: Firmware inventory, trusted observations, baseline and approved-window reconciliation can support detection and response for the selected devices. Distinguish version or health observations from authenticity and integrity evidence.
   control_id: SAF-K8S-0802-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The adopted inventory uses applicable integrity verification to detect unauthorized changes to the defined accelerator firmware, and the organization acts on detected changes under its documented procedures.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -22989,22 +22887,6 @@
 
     8.2 - GPU driver version management (configuration control for driver updates); 10.7 - Change management for model deployments'
   control_id: SAF-K8S-0802-002
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SR-11(2)
-  framework_requirement_title: Configuration Control for Component Service and Repair
-  framework_mapping_notes: 'Configuration control during AI component updates ensures integrity is maintained
-
-
-    8.2 - GPU driver version management (configuration control for driver updates); 10.7 - Change management for model deployments'
-  control_id: SAF-K8S-0802-004
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -23726,16 +23608,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SR-9
   framework_requirement_title: Tamper Resistance and Detection
-  framework_mapping_notes: 'Tamper resistance and detection for AI models and agent components prevents manipulation
-
-
-    8.2 - GPU firmware integrity (tamper detection); 6.2 - Image integrity (tamper detection via signing)'
+  framework_mapping_notes: Authenticated firmware observations can contribute scoped detection evidence to a tamper protection program. Verify actual component and lifecycle coverage and the adopted response.
   control_id: SAF-K8S-0802-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: weak
+  applicability: conditional
+  applicability_condition: The organization's defined tamper protection program uses the selected verified firmware integrity mechanism and has adopted investigation and response for the covered equipment.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-AI-RMF
   framework_name: NIST AI Risk Management Framework

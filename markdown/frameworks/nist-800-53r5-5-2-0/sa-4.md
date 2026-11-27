@@ -29,15 +29,6 @@ Acquisition of agentic AI components (models, tools, plugins) requires security 
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAF-K8S-0802-004 - GPU firmware integrity monitoring](../../controls/SAF-K8S-0802-004.md)
-
-- Domain: D08 - GPU, Accelerator, and Confidential Computing
-- Knowledge Area: 8.2
-- Relation Type: supports
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
-
 ### [SAF-K8S-0904-003 - Notebook and experimentation environment security](../../controls/SAF-K8S-0904-003.md)
 
 - Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
