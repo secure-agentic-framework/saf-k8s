@@ -1,5 +1,6 @@
 """Exercise a bounded synthetic node-onboarding decision and scheduler hold."""
 import json
+import importlib.util
 from pathlib import Path
 import time
 
@@ -31,9 +32,10 @@ SCOPE = (
     "The case observes allowlisted Node status.nodeInfo fields, applies one case-scoped NoSchedule "
     "taint to the default node, and creates one benign digest-pinned pause scheduling probe. A local "
     "decision function combines those observed Kind system fields with separately named, synthetic "
-    "baseline evidence fixtures. This does not onboard a GPU node or validate a production pipeline, "
-    "GPU/device readiness, a real kubelet/runtime/OS security configuration, immutable-root enforcement, "
-    "or any production baseline attestation."
+    "baseline evidence fixtures. The scratch supplement also measures five allowlisted effective kubelet, "
+    "containerd and OS predicates on this exact node against disposable example values. This does not onboard "
+    "a GPU node or validate a production pipeline, GPU/device readiness, immutable-root enforcement, or any "
+    "production baseline attestation."
 )
 
 
@@ -153,6 +155,22 @@ def observe_pending(lab, expected_uid):
     return pod, selected_event
 
 
+def held_probe_state(lab, expected_uid, expected_node_uid, node_name):
+    pod = json.loads(lab.kubectl(
+        "-n", NAMESPACE, "get", "pod", POD_NAME, "-o", "json").stdout)
+    node = json.loads(lab.kubectl("get", "node", node_name, "-o", "json").stdout)
+    hold = any(item.get("key") == HOLD_KEY and item.get("value") == HOLD_VALUE
+               and item.get("effect") == "NoSchedule"
+               for item in node.get("spec", {}).get("taints", []))
+    return {
+        "same_probe_uid": pod.get("metadata", {}).get("uid") == expected_uid,
+        "probe_pending": pod.get("status", {}).get("phase") == "Pending",
+        "probe_unassigned": not pod.get("spec", {}).get("nodeName"),
+        "hold_present": hold,
+        "same_node_uid": node.get("metadata", {}).get("uid") == expected_node_uid,
+    }
+
+
 def wait_running(lab, expected_uid):
     deadline = time.monotonic() + 100
     while time.monotonic() < deadline:
@@ -225,6 +243,56 @@ def run(lab):
          "synthetic_evidence_is_live_measurement": False},
     )
 
+    spec = importlib.util.spec_from_file_location("node_baseline", HERE / "node_baseline.py")
+    node_baseline = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(node_baseline)
+    baseline_measurement = node_baseline.collect(lab, observed)
+    baseline_pass = node_baseline.decide(baseline_measurement, observed["uid"])
+    held_node_before_release = json.loads(lab.kubectl(
+        "get", "node", node_name, "-o", "json").stdout)
+    hold_before_release = any(item.get("key") == HOLD_KEY and item.get("value") == HOLD_VALUE
+                              and item.get("effect") == "NoSchedule"
+                              for item in held_node_before_release.get("spec", {}).get("taints", []))
+    same_node_uid_before_release = (
+        held_node_before_release.get("metadata", {}).get("uid") == observed["uid"])
+    live_gate = (accepted["accepted"] and baseline_pass and hold_before_release
+                 and same_node_uid_before_release)
+    missing_measurement = {"node_uid": observed["uid"], "fields": {}}
+    wrong_uid_measurement = {**baseline_measurement, "node_uid": "mismatched-node-uid"}
+    missing_rejected = not node_baseline.decide(missing_measurement, observed["uid"])
+    wrong_uid_rejected = not node_baseline.decide(wrong_uid_measurement, observed["uid"])
+    after_missing_rejection = held_probe_state(
+        lab, created_probe["metadata"]["uid"], observed["uid"], node_name)
+    after_wrong_uid_rejection = held_probe_state(
+        lab, created_probe["metadata"]["uid"], observed["uid"], node_name)
+    missing_preserved_hold = (missing_rejected and all(after_missing_rejection.values()))
+    wrong_uid_preserved_hold = (wrong_uid_rejected and all(after_wrong_uid_rejection.values()))
+    rejection_preserved_hold = missing_preserved_hold and wrong_uid_preserved_hold
+    lab.check(
+        "red",
+        "Malformed or wrong-UID decisions reject and leave the same probe Pending on the hold taint",
+        rejection_preserved_hold,
+        {"missing_fields_rejected": missing_rejected,
+         "missing_case_hold_preserved": missing_preserved_hold,
+         "missing_decision_post_state": after_missing_rejection,
+         "mismatched_uid_rejected": wrong_uid_rejected,
+         "wrong_uid_case_hold_preserved": wrong_uid_preserved_hold,
+         "wrong_uid_decision_post_state": after_wrong_uid_rejection},
+    )
+
+    lab.check(
+        "positive",
+        "Synthetic approval and live scoped baseline both pass while the node remains held",
+        live_gate,
+        {"synthetic_approval_passed": accepted["accepted"],
+         "live_example_baseline_passed": baseline_pass,
+         "same_node_uid": same_node_uid_before_release,
+         "case_hold_still_present": hold_before_release},
+    )
+
+    if not live_gate or not rejection_preserved_hold:
+        lab.block("Both synthetic and live baseline gates must pass before removing the case hold")
+
     lab.kubectl("taint", "nodes", node_name, f"{HOLD_KEY}-")
     updated_node = json.loads(lab.kubectl("get", "node", node_name, "-o", "json").stdout)
     same_node_uid = updated_node.get("metadata", {}).get("uid") == observed["uid"]
@@ -263,6 +331,14 @@ def run(lab):
         "external_targets_contacted": False,
         "production_baseline_observed": False,
         "gpu_hardware_or_readiness_observed": False,
+        "selected_kind_node_configuration_observed": True,
+        "node_baseline_measurement": baseline_measurement,
+        "node_baseline_policy_is_example_only": True,
+        "invalid_decisions_preserved_hold": rejection_preserved_hold,
+        "invalid_decision_post_states": {
+            "missing_fields": after_missing_rejection,
+            "wrong_uid": after_wrong_uid_rejection,
+        },
     }
     (lab.evidence / "node-onboarding.raw.json").write_text(
         json.dumps(evidence, indent=2, sort_keys=True) + "\n", encoding="utf-8",

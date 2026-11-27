@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-1007-015",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "4e4852e0f43d5133f2b1b2efe28021e5876ae8d5",
+  "catalog_sha256": "65f757846d484079842769b4cec9180fc3a96ab15a5106c821a08ca7293441b6",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "b38c694e797060370a72f8e46097a3f625728b936a95cb478682d58b753870c9",
-  "scope": "One disposable single-node Kind Kubernetes v1.36.1 cluster using the pinned Kind node image. The case observes allowlisted Node status.nodeInfo fields, applies one case-scoped NoSchedule taint to the default node, and creates one benign digest-pinned pause scheduling probe. A local decision function combines those observed Kind system fields with separately named, synthetic baseline evidence fixtures. This does not onboard a GPU node or validate a production pipeline, GPU/device readiness, a real kubelet/runtime/OS security configuration, immutable-root enforcement, or any production baseline attestation.",
-  "cluster": "saf-lab-58b3b2c0f294",
+  "scope": "One disposable single-node Kind Kubernetes v1.36.1 cluster using the pinned Kind node image. The case observes allowlisted Node status.nodeInfo fields, applies one case-scoped NoSchedule taint to the default node, and creates one benign digest-pinned pause scheduling probe. A local decision function combines those observed Kind system fields with separately named, synthetic baseline evidence fixtures. The scratch supplement also measures five allowlisted effective kubelet, containerd and OS predicates on this exact node against disposable example values. This does not onboard a GPU node or validate a production pipeline, GPU/device readiness, immutable-root enforcement, or any production baseline attestation.",
+  "cluster": "saf-lab-7dfab115bdd6",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -91,6 +91,42 @@
           "kernel_version_present": true
         },
         "synthetic_evidence_is_live_measurement": false
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Malformed or wrong-UID decisions reject and leave the same probe Pending on the hold taint",
+      "matched": true,
+      "observed": {
+        "missing_fields_rejected": true,
+        "missing_case_hold_preserved": true,
+        "missing_decision_post_state": {
+          "same_probe_uid": true,
+          "probe_pending": true,
+          "probe_unassigned": true,
+          "hold_present": true,
+          "same_node_uid": true
+        },
+        "mismatched_uid_rejected": true,
+        "wrong_uid_case_hold_preserved": true,
+        "wrong_uid_decision_post_state": {
+          "same_probe_uid": true,
+          "probe_pending": true,
+          "probe_unassigned": true,
+          "hold_present": true,
+          "same_node_uid": true
+        }
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Synthetic approval and live scoped baseline both pass while the node remains held",
+      "matched": true,
+      "observed": {
+        "synthetic_approval_passed": true,
+        "live_example_baseline_passed": true,
+        "same_node_uid": true,
+        "case_hold_still_present": true
       }
     },
     {
