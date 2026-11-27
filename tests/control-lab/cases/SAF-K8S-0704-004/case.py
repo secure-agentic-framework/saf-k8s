@@ -95,3 +95,12 @@ def run(lab):
     (lab.evidence / "metadata-fixture-observations.json").write_text(json.dumps({
         "scope": "synthetic endpoint and inventory", "fixture_response": observed, "inventory": categories,
     }, indent=2) + "\n")
+
+    from importlib.util import module_from_spec, spec_from_file_location
+
+    evidence_spec = spec_from_file_location(
+        "saf_0704_004_effective_metadata_evidence",
+        Path(__file__).with_name("effective_metadata_evidence.py"))
+    evidence_gate = module_from_spec(evidence_spec)
+    evidence_spec.loader.exec_module(evidence_gate)
+    evidence_gate.run(lab, Path(__file__).parent, current_result)

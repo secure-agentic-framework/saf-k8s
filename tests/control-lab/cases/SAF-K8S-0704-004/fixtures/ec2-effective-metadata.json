@@ -1,0 +1,124 @@
+{
+  "fixture_scope": "offline AWS-shaped example; not collected from AWS or an instance metadata endpoint",
+  "ec2_api_version": "2016-11-15",
+  "source_apis": [
+    "https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_DescribeInstances.html",
+    "https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_InstanceMetadataOptionsResponse.html",
+    "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-instance-metadata-options.html"
+  ],
+  "intended_launch_template": {
+    "LaunchTemplateId": "lt-saf-fixture",
+    "Version": "7",
+    "LaunchTemplateData": {
+      "MetadataOptions": {
+        "HttpEndpoint": "enabled",
+        "HttpProtocolIpv6": "disabled",
+        "HttpPutResponseHopLimit": 2,
+        "HttpTokens": "required",
+        "InstanceMetadataTags": "disabled"
+      }
+    }
+  },
+  "observations": [
+    {
+      "case": "applied-matches-intent",
+      "expected_instance_id": "i-saf-fixture-applied",
+      "expected_disposition": "session-required",
+      "describe_instances": {
+        "Reservations": [
+          {
+            "Instances": [
+              {
+                "InstanceId": "i-saf-fixture-applied",
+                "LaunchTemplate": {"LaunchTemplateId": "lt-saf-fixture", "Version": "7"},
+                "MetadataOptions": {
+                  "HttpEndpoint": "enabled",
+                  "HttpProtocolIpv6": "disabled",
+                  "HttpPutResponseHopLimit": 2,
+                  "HttpTokens": "required",
+                  "InstanceMetadataTags": "disabled",
+                  "State": "applied"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "case": "effective-differs-from-template",
+      "expected_instance_id": "i-saf-fixture-drifted",
+      "expected_disposition": "session-not-required",
+      "describe_instances": {
+        "Reservations": [
+          {
+            "Instances": [
+              {
+                "InstanceId": "i-saf-fixture-drifted",
+                "LaunchTemplate": {"LaunchTemplateId": "lt-saf-fixture", "Version": "7"},
+                "MetadataOptions": {
+                  "HttpEndpoint": "enabled",
+                  "HttpProtocolIpv6": "disabled",
+                  "HttpPutResponseHopLimit": 2,
+                  "HttpTokens": "optional",
+                  "InstanceMetadataTags": "disabled",
+                  "State": "applied"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "case": "change-pending",
+      "expected_instance_id": "i-saf-fixture-pending",
+      "expected_disposition": "unverified",
+      "describe_instances": {
+        "Reservations": [
+          {
+            "Instances": [
+              {
+                "InstanceId": "i-saf-fixture-pending",
+                "LaunchTemplate": {"LaunchTemplateId": "lt-saf-fixture", "Version": "7"},
+                "MetadataOptions": {
+                  "HttpEndpoint": "enabled",
+                  "HttpProtocolIpv6": "disabled",
+                  "HttpPutResponseHopLimit": 2,
+                  "HttpTokens": "required",
+                  "InstanceMetadataTags": "disabled",
+                  "State": "pending"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "case": "instance-identity-mismatch",
+      "expected_instance_id": "i-saf-fixture-expected",
+      "expected_disposition": "unverified",
+      "describe_instances": {
+        "Reservations": [
+          {
+            "Instances": [
+              {
+                "InstanceId": "i-saf-fixture-unrelated",
+                "LaunchTemplate": {"LaunchTemplateId": "lt-saf-fixture", "Version": "7"},
+                "MetadataOptions": {
+                  "HttpEndpoint": "enabled",
+                  "HttpProtocolIpv6": "disabled",
+                  "HttpPutResponseHopLimit": 2,
+                  "HttpTokens": "required",
+                  "InstanceMetadataTags": "disabled",
+                  "State": "applied"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

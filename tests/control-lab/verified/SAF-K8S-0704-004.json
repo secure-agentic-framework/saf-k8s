@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0704-004",
-  "catalog_revision": "ce71c8e6ace0ad6237b9569b4e9aac1752c618fd",
-  "catalog_sha256": "3e0c905e6f556138005103b7fbb0af33d934bf75bea38a6fba4b702212ce9ead",
+  "catalog_revision": "9be2534ae12a0dacfe65d1879297a70648c3bc5f",
+  "catalog_sha256": "1da56289e4f344f65fa946b0099b200d7a52a7c4bea62ee17a32261bedc18861",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "04af032f032b1732427fb233b86fc0dc0eb980a408e3265da44d1bad3e9bb5e8",
   "scope": "Read synthetic inventory records and exercise session-required access to a case-owned public marker.",
-  "cluster": "saf-lab-963028ccc34f",
+  "cluster": "saf-lab-9839a1e403d0",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -75,6 +75,19 @@
       "matched": true,
       "observed": {
         "in_session_public_marker": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The offline EC2 response gate matches the requested instance, distinguishes effective settings from template intent, and leaves pending or mismatched evidence unverified",
+      "matched": true,
+      "observed": {
+        "applied_effective_observation_matches": true,
+        "effective_optional_state_overrides_required_template_intent": true,
+        "pending_state_is_unverified": true,
+        "wrong_instance_identity_is_unverified": true,
+        "raw_evidence": "effective-ec2-metadata-shape.raw.json",
+        "provider_settings_or_hop_limit_policy_claimed": false
       }
     }
   ]
