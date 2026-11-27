@@ -30,7 +30,8 @@ SCOPE = (
     "training framework, external service, real identity, external credential, feed, or target is used. "
     "A separate observer Pod has a projected synthetic identity, reads counters, and is refused contribution as unenrolled. "
     "After those 14 checks, a paired fixture compares the same three fixed in-range synthetic values "
-    "with anomaly screening disabled and enabled while schema and assignment checks stay enabled."
+    "with anomaly screening disabled and enabled while schema and assignment checks stay enabled. "
+    "After the 15 existing checks, an isolated TLS-only mock endpoint compares one fixed authenticated vector over verified TLS with cleartext refusal and a CA-trusted alternate-name certificate rejection."
 )
 
 
@@ -494,3 +495,10 @@ def run(lab):
                "screen_off_exact_authenticated_inputs_match": screen_off_inputs_match,
                "exact_authenticated_inputs_match": inputs_match,
                "independent_status_and_aggregate_match": readback_match})
+
+    from importlib.util import module_from_spec, spec_from_file_location
+
+    tls_spec = spec_from_file_location("saf_0901_002_tls_channel", HERE / "tls_channel.py")
+    tls_channel = module_from_spec(tls_spec)
+    tls_spec.loader.exec_module(tls_channel)
+    tls_channel.run_tls_channel(lab, HERE)
