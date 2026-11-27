@@ -102,4 +102,20 @@ behavior for two inert fixture modules. It does not prove a reviewer approved
 an extension, package provenance or signature verification, prevent users
 from installing code outside the tested image/configuration, establish
 production extension settings, or provide durable data-access auditing.
-Those remain adopter evidence.
+
+## Authenticated contents audit
+
+The pinned asynchronous ContentsManager logs operations for the owned marker
+path on each user server. Saving a marker produces an internal metadata get
+followed by a save event. Two explicit authenticated reads then return the
+expected fixed marker, yielding two further get events. The test requires
+this order and independently reads the filtered event fields from each
+matching Ready user Pod. Evidence binds the events to each Pod UID and Hub
+identity and retains only the action, fixed path and schema and time fields.
+
+The existing workspace test separately verifies cross-user denials. The
+ContentsManager reports successful operations. Verify request actor
+attribution, denial instrumentation, durability, integrity and retention in
+the adopted logging pipeline.
+
+[Jupyter Server 2.21.1 ContentsManager](https://github.com/jupyter-server/jupyter_server/blob/v2.21.1/jupyter_server/services/contents/filemanager.py) · [Jupyter Events handlers](https://jupyter-events.readthedocs.io/en/latest/user_guide/configure.html)

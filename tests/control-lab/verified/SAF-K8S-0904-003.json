@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0904-003",
-  "catalog_revision": "282bd11749f5ae808ed43f65a712b328540f1ab5",
+  "catalog_revision": "596bc0d3b5d1da1084da698be61f57a73caa7d0b",
   "catalog_sha256": "1da56289e4f344f65fa946b0099b200d7a52a7c4bea62ee17a32261bedc18861",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "d0b57a1ca68aec60e4ca9d14eb14c94e299fe8f5eee724abc6465e94f7cbbbdd",
   "scope": "One fresh Kind v1.36.1 cluster, two pinned upstream Jupyter base-notebook Pods, and two case-owned benign dataset endpoints. The notebook Pods have distinct non-root UIDs and tokenless service accounts, configured CPU/RAM bounds and restrictive security contexts. Native NetworkPolicy limits each to its labeled endpoint, and native admission enforces the approved image reference. Each real Jupyter kernel executes a fixed harmless cell after policy is active. The pinned synthetic Hub also authenticates two fixture users, spawns their actual KubeSpawner Pods, and applies per-user egress policy to those Pods. Production identity/session lifecycle, extension governance, full image provenance, durable storage, real dataset authorization/audit, and deployed controls require separate evidence. An additional check reads the mounted terminal-interface setting and exact runtime package version, then compares authenticated status and terminal collection GET responses from both synthetic users. Another additive check compares two inert server extensions under baseline and restricted mounted configuration; review approval, provenance, user-installed code restrictions, and durable audit remain adopter evidence.",
-  "cluster": "saf-lab-37bfe7570e7d",
+  "cluster": "saf-lab-37b5af39cac0",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -146,6 +146,18 @@
     },
     {
       "phase": "positive",
+      "claim": "Successful authenticated reads of each owned marker emit fixed-path Jupyter contents events independently readable from the bound user Pod",
+      "matched": true,
+      "observed": {
+        "expected_contents_manager_event_order": true,
+        "both_users_complete_two_authenticated_gets": true,
+        "distinct_ready_user_pods": true,
+        "event_scope": "action=get or save, fixed approved marker path only",
+        "request_or_content_fields_collected": false
+      }
+    },
+    {
+      "phase": "positive",
       "claim": "Authenticated user servers report status, expose no terminal collection, and carry the exact mounted terminal-disable config",
       "matched": true,
       "observed": {
@@ -183,12 +195,12 @@
         "mounted_sha256": {
           "saf-workspace-alice": {
             "approved": "595282fea0b36a0c7b17e4290ecbd5be1a6d96519e0b1cbd506d65f2e91faca9",
-            "config": "425c57b9a653293ed8cd48f6aeb4ff0b87502a4a5fb34dceb8c38f5ff6beb1fe",
+            "config": "d1f8f4676ab026d32b744fb35b8ef4efae8d367de7c96294966450d2571c5748",
             "unapproved": "429909b4d682006a596fe799d63f93927dbaf4af87ff0dbc171778cd911a4c33"
           },
           "saf-workspace-bob": {
             "approved": "595282fea0b36a0c7b17e4290ecbd5be1a6d96519e0b1cbd506d65f2e91faca9",
-            "config": "425c57b9a653293ed8cd48f6aeb4ff0b87502a4a5fb34dceb8c38f5ff6beb1fe",
+            "config": "d1f8f4676ab026d32b744fb35b8ef4efae8d367de7c96294966450d2571c5748",
             "unapproved": "429909b4d682006a596fe799d63f93927dbaf4af87ff0dbc171778cd911a4c33"
           }
         }

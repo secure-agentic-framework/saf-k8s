@@ -91,9 +91,10 @@ def _load_jupyter_server_extension(serverapp):
     ])
 '''
 HUB_EXTENSION_CONFIG = (
-    "import os, sys\n"
+    "import logging, os, sys\n"
     "sys.path.insert(0, '/opt/saf-jupyter-extensions')\n"
     "c.ServerApp.terminals_enabled = False\n"
+    "c.EventLogger.handlers = [logging.FileHandler('/tmp/saf-contents-events.log')]\n"
     "c.ServerApp.jpserver_extensions.update({\n"
     "    'saf_approved_extension': True,\n"
     "    'saf_unapproved_extension': os.environ.get('JUPYTERHUB_USER') == 'saf-workspace-alice',\n"
@@ -630,6 +631,7 @@ def main():
     sessions = {user: login_and_spawn(user) for user in USERS}
     own_read = {}
     extension_matrix = {}
+    audit_second_read = {}
     for user in USERS:
         jar, opener = sessions[user]
         progress.update(phase="own_marker", identity=user)
@@ -647,6 +649,10 @@ def main():
         try: model = json.loads(body)
         except (ValueError, UnicodeDecodeError): model = {}
         own_read[user] = status == 200 and model.get("content") == MARKERS[user]
+        status_second, _, body_second = request(opener, path, referer=referer)
+        try: second_model = json.loads(body_second)
+        except (ValueError, UnicodeDecodeError): second_model = {}
+        audit_second_read[user] = status_second == 200 and second_model.get("content") == MARKERS[user]
         # Read-only endpoints only: never POST /api/terminals or request a shell.
         status_server, _, _ = request(opener, "/user/" + user + "/api/status")
         status_terminals, _, _ = request(opener, "/user/" + user + "/api/terminals")
@@ -681,7 +687,8 @@ def main():
     print(json.dumps({"own_marker_read": own_read, "cross_user_forbidden": cross_denied,
                       "separate_authenticated_sessions": len(sessions) == 2,
                       "server_api": progress.get("server_api", {}),
-                      "extension_matrix": extension_matrix}, sort_keys=True))
+                      "extension_matrix": extension_matrix,
+                      "audit_second_read": audit_second_read}, sort_keys=True))
 
 try:
     main()
@@ -837,6 +844,75 @@ def _exercise_hub_workspace_matrix(lab):
                "two_user_pods_observed": all(len(rows[user]) == 1 for user in (HUB_ALICE, HUB_BOB)),
                "authorization_path": "JupyterHub 5.5.5 single-user server native access scope"})
     (lab.evidence / "hub-workspace-matrix-summary.json").write_text(json.dumps(lab.checks[-1], indent=2) + "\n")
+    audit_pods = json.loads(lab.kubectl("get", "pods", "-l", "saf.example/workspace=hub-spawned",
+                                        "-o", "json").stdout).get("items", [])
+    audit_rows = {}
+    for user in (HUB_ALICE, HUB_BOB):
+        selected = [pod for pod in audit_pods
+                    if pod.get("metadata", {}).get("labels", {}).get("hub.jupyter.org/username") == user]
+        if len(selected) != 1 or not _pod_ready(selected[0]):
+            lab.block("Could not bind contents audit readback to one Ready fixture user Pod")
+        pod = selected[0]
+        main = [container for container in pod.get("spec", {}).get("containers", [])
+                if container.get("image") == SINGLEUSER_IMAGE]
+        if (pod.get("metadata", {}).get("namespace") != NAMESPACE
+                or not pod.get("metadata", {}).get("uid")
+                or pod.get("metadata", {}).get("uid") != rows[user][0][0]
+                or pod.get("spec", {}).get("serviceAccountName") != HUB_USER_SA
+                or len(main) != 1 or main[0].get("image") != SINGLEUSER_IMAGE):
+            lab.block("Contents audit Pod identity did not match the pinned case user server")
+        actor_text = lab.kubectl("exec", pod["metadata"]["name"], "-c", main[0]["name"], "--",
+                                 "python", "-B", "-c",
+                                 "import json,os,jupyter_server; print(json.dumps({'hub_user':os.environ.get('JUPYTERHUB_USER'),'server_version':jupyter_server.__version__},sort_keys=True))",
+                                 timeout=15).stdout.strip()
+        try:
+            actor = json.loads(actor_text)
+        except json.JSONDecodeError:
+            lab.block("Contents audit user-server identity readback was not JSON")
+        if actor.get("hub_user") != user or actor.get("server_version") != "2.21.1":
+            lab.block("Contents audit server actor or pinned Jupyter Server version did not match")
+        audit_reader = r'''import ast,json,pathlib
+events=[]
+for line in pathlib.Path("/tmp/saf-contents-events.log").read_text().splitlines():
+    try: event=json.loads(line)
+    except json.JSONDecodeError:
+        try: event=ast.literal_eval(line)
+        except (ValueError,SyntaxError): continue
+    if isinstance(event,dict) and event.get("action") in ("get","save") and event.get("path")=="saf-fixture-workspace.txt":
+        events.append({key:event[key] for key in ("__timestamp__","__schema__","__schema_version__","action","path") if key in event})
+print(json.dumps(events,sort_keys=True,separators=(",",":")))'''
+        event_text = lab.kubectl("exec", pod["metadata"]["name"], "-c", main[0]["name"], "--",
+                                 "python", "-B", "-c", audit_reader, timeout=15).stdout.strip()
+        try:
+            events = json.loads(event_text)
+        except json.JSONDecodeError:
+            lab.block("Contents audit event readback was not sanitized JSON")
+        if not isinstance(events, list):
+            lab.block("Contents audit event readback did not return a list")
+        audit_rows[user] = {"pod_uid": pod["metadata"]["uid"], "events": events,
+                            "ready": True, "service_account": HUB_USER_SA,
+                            "image": SINGLEUSER_IMAGE, "user_label": user,
+                            "jupyterhub_user_env": actor["hub_user"],
+                            "jupyter_server_version": actor["server_version"]}
+    actions = {user: [event.get("action") for event in audit_rows[user]["events"]]
+               for user in (HUB_ALICE, HUB_BOB)}
+    exact_actions = all(sequence == ["get", "save", "get", "get"] for sequence in actions.values())
+    explicit_reads = result.get("audit_second_read") == {HUB_ALICE: True, HUB_BOB: True}
+    audit_passed = (exact_actions and explicit_reads
+                    and audit_rows[HUB_ALICE]["pod_uid"] != audit_rows[HUB_BOB]["pod_uid"])
+    (lab.evidence / "hub-contents-access-audit.raw.json").write_text(
+        json.dumps({"users": audit_rows, "event_path": "saf-fixture-workspace.txt",
+                    "excluded_fields": ["request_url", "query", "headers", "cookies", "tokens", "content"]},
+                   indent=2, sort_keys=True) + "\n")
+    lab.check("positive", "Successful authenticated reads of each owned marker emit fixed-path Jupyter contents events independently readable from the bound user Pod",
+              audit_passed,
+              {"expected_contents_manager_event_order": exact_actions,
+               "both_users_complete_two_authenticated_gets": explicit_reads,
+               "distinct_ready_user_pods": audit_rows[HUB_ALICE]["pod_uid"] != audit_rows[HUB_BOB]["pod_uid"],
+               "event_scope": "action=get or save, fixed approved marker path only",
+               "request_or_content_fields_collected": False})
+    (lab.evidence / "hub-contents-access-audit-summary.json").write_text(
+        json.dumps(lab.checks[-1], indent=2) + "\n")
     server_rows = result.get("server_api", {})
     config_mounts = {user: _hub_terminal_config_mount(lab, user) for user in (HUB_ALICE, HUB_BOB)}
     endpoint_statuses = {user: server_rows.get(user, {}).get("terminals_endpoint_status")
