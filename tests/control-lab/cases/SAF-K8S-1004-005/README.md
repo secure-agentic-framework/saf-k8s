@@ -26,4 +26,24 @@ evidence.
 - [NIST AI 100-2e2025, Sections 2 and 3](https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.100-2e2025.pdf)
 
 
-Scope clarification for this verification copy: the five fixture fields form a case-owned review projection, not five dimensions claimed by NIST. `system_type` is a local selector for the predictive and generative branches; the other selected fields are informed by NIST AI 100-2e2025 Sections 2 and 3. The fixture does not implement the complete NIST taxonomies. The existing five checks and synthetic-only boundary are unchanged.
+Scope clarification for this verification copy: the five fixture fields form a case-owned review projection, not five dimensions claimed by NIST. `system_type` is a local selector for the predictive and generative branches; the other selected fields are informed by NIST AI 100-2e2025 Sections 2 and 3. The fixture does not implement the complete NIST taxonomies. The five original checks cover this local projection.
+
+
+## Scoped library revision and pending review
+
+A separate owned namespace holds a versioned synthetic library and the review
+record. Kubernetes RBAC gives the impersonated case curator mutation authority
+for the named records and gives the observer read authority. Native admission
+uses the current library ConfigMap as its parameter. It rejects stale references
+and assertions that turn the synthetic observation into an established incident
+or attack classification. The allowed update keeps the exact review pending and
+binds its original synthetic evidence digest to the new library revision.
+
+The case records the exact API object UIDs and returned resource versions.
+It uses authenticated lab-admin impersonation to exercise named RBAC principals.
+The library contains fixture metadata. Human authority, production detection
+coverage, deployed workflow, risk analysis, and the full NIST taxonomy require
+adopter evidence.
+
+- [Kubernetes v1.36 RBAC](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/rbac/)
+- [Kubernetes v1.36 Validating Admission Policy](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/validating-admission-policy/)

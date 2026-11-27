@@ -1,4 +1,5 @@
 """Check evidence-backed, bounded synthetic AML review records."""
+import importlib.util
 import json
 from pathlib import Path
 
@@ -42,7 +43,8 @@ SCOPE = (
     "marker-only overclaim, rejects stale or incomplete records, and preserves unknowns without "
     "assigning an attack class. It does not connect to feeds or external targets, run an AI model, "
     "establish an actual incident, prove deployed controls, or validate a production classification "
-    "workflow."
+    "workflow. A separate native Kubernetes admission and RBAC check binds an inert pending "
+    "review to the current case-owned pattern-library revision and the original synthetic observation."
 )
 
 
@@ -170,3 +172,8 @@ def run(lab):
                 "boundary": "synthetic fixture metadata only; no actual incident or attack is established"}
     (lab.evidence / "aml-review-observations.json").write_text(
         json.dumps(evidence, indent=2, sort_keys=True) + "\n")
+
+    spec = importlib.util.spec_from_file_location("saf_aml_library_review", HERE / "library_review.py")
+    library_review = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(library_review)
+    library_review.run(lab, candidate, valid)

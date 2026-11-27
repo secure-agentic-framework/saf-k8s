@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-1004-005",
-  "catalog_revision": "835f06a4f0c87be20bd2bc9403fd21b47658bdd8",
-  "catalog_sha256": "e38420f524fb15e73e8ffca4c9a87efd965bcdc648e8f97243d8c301bc7ed21d",
+  "catalog_revision": "44fb82eb9a2aec194e6fb8a25f05314d771ddbd8",
+  "catalog_sha256": "65f757846d484079842769b4cec9180fc3a96ab15a5106c821a08ca7293441b6",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "432091281f901c3b96dcd7eb26835ce2ea62ea4fe4b2065643744e863bb63515",
-  "scope": "A disposable Kubernetes v1.36.1 Kind cluster runs one digest-pinned Python mock workload that serves only checked-in synthetic review metadata. The case validates namespace, freshness, evidence references, and a case-owned review schema projecting selected predictive and generative taxonomy fields informed by NIST AI 100-2e2025 Sections 2 and 3. The system_type field, namespace and freshness policy are local schema and review choices; the case does not implement the full NIST taxonomy or all of its classification dimensions. It detects a synthetic marker-only overclaim, rejects stale or incomplete records, and preserves unknowns without assigning an attack class. It does not connect to feeds or external targets, run an AI model, establish an actual incident, prove deployed controls, or validate a production classification workflow.",
-  "cluster": "saf-lab-14853fdf3902",
+  "scope": "A disposable Kubernetes v1.36.1 Kind cluster runs one digest-pinned Python mock workload that serves only checked-in synthetic review metadata. The case validates namespace, freshness, evidence references, and a case-owned review schema projecting selected predictive and generative taxonomy fields informed by NIST AI 100-2e2025 Sections 2 and 3. The system_type field, namespace and freshness policy are local schema and review choices; the case does not implement the full NIST taxonomy or all of its classification dimensions. It detects a synthetic marker-only overclaim, rejects stale or incomplete records, and preserves unknowns without assigning an attack class. It does not connect to feeds or external targets, run an AI model, establish an actual incident, prove deployed controls, or validate a production classification workflow. A separate native Kubernetes admission and RBAC check binds an inert pending review to the current case-owned pattern-library revision and the original synthetic observation.",
+  "cluster": "saf-lab-df5aca03dd98",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -125,6 +125,38 @@
       "observed": {
         "unsupported_concrete_type_rejected": true,
         "ambiguous_record_pending": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Before the guard, the scoped curator can dry-run a stale library reference",
+      "matched": true,
+      "observed": {
+        "stale_request_reaches_admission": true,
+        "live_record_stays_pending": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Native admission refuses stale or overstated reviews and the observer cannot write",
+      "matched": true,
+      "observed": {
+        "stale_denied": true,
+        "overclaim_denied": true,
+        "observer_write_denied": true,
+        "wrong_evidence_digest_denied": true,
+        "observer_exact_read_allowed": true,
+        "no_mutation": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The scoped curator advances the exact pending record to the current library revision",
+      "matched": true,
+      "observed": {
+        "same_library_uid_new_revision": true,
+        "previously_current_revision_denied": true,
+        "same_record_uid_current_pending_data": true
       }
     }
   ]
