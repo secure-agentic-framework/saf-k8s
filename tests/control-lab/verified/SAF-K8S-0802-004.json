@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0802-004",
-  "catalog_revision": "8945288e71832a9f4bd5e49ef756557440bef634",
-  "catalog_sha256": "30b4a0862d9b2e7916f9383d0076a525efe64eb83e7bfd1941001f5eeac21cc3",
+  "catalog_revision": "40dd92975243094ebb460f17818e07d751861f59",
+  "catalog_sha256": "1da56289e4f344f65fa946b0099b200d7a52a7c4bea62ee17a32261bedc18861",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "164326c412a3c45dbe76e73c0e18317110ec9677d93376fff67090a91d7b8f1c",
-  "scope": "A live read-only Kubernetes Job comparing synthetic firmware and change-window records.",
-  "cluster": "saf-lab-b60896327d78",
+  "scope": "A live read-only Kubernetes Job comparing synthetic firmware and change-window records, plus a separate Job verifying detached signatures over exact inert observations with an ephemeral fixture signer.",
+  "cluster": "saf-lab-c3f3fa485d9c",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -63,6 +63,65 @@
         "outside-window": "version-drift-alert",
         "unchanged": "unchanged",
         "unknown-integrity": "integrity-unverified"
+      }
+    },
+    {
+      "phase": "signed_observation_window",
+      "claim": "Only exact signature-valid observations are trusted before window classification",
+      "matched": true,
+      "observed": {
+        "public_key_bound": true,
+        "verification_tool_version": "OpenSSL 3.5.7 9 Jun 2026 (Library: OpenSSL 3.5.7 9 Jun 2026)",
+        "observations": {
+          "changed-marker": {
+            "record": {
+              "device": "fixture-gpu-a",
+              "expected": "fixture-fw-v1",
+              "marker": "firmware-observation:fixture-fw-v1",
+              "observed": "fixture-fw-v2",
+              "observed_at": 52,
+              "record_id": "fixture-observation-1"
+            },
+            "result": "integrity-unverified",
+            "signature": "invalid"
+          },
+          "inside-window": {
+            "record": {
+              "device": "fixture-gpu-a",
+              "expected": "fixture-fw-v1",
+              "marker": "firmware-observation:fixture-fw-v2",
+              "observed": "fixture-fw-v2",
+              "observed_at": 52,
+              "record_id": "fixture-observation-1"
+            },
+            "result": "approved-change",
+            "signature": "valid"
+          },
+          "outside-window": {
+            "record": {
+              "device": "fixture-gpu-a",
+              "expected": "fixture-fw-v1",
+              "marker": "firmware-observation:fixture-fw-v2",
+              "observed": "fixture-fw-v2",
+              "observed_at": 70,
+              "record_id": "fixture-observation-2"
+            },
+            "result": "version-drift-alert",
+            "signature": "valid"
+          },
+          "unsigned": {
+            "record": {
+              "device": "fixture-gpu-a",
+              "expected": "fixture-fw-v1",
+              "marker": "firmware-observation:fixture-fw-v2",
+              "observed": "fixture-fw-v2",
+              "observed_at": 52,
+              "record_id": "fixture-observation-1"
+            },
+            "result": "integrity-unverified",
+            "signature": "absent"
+          }
+        }
       }
     }
   ]
