@@ -5,19 +5,22 @@
   "thresholds": {
     "gpu_percent": 85,
     "gpu_consecutive_samples": 3,
-    "inference_requests_per_minute": 500,
+    "inference_rate_max_multiplier": 2,
     "model_egress_bytes_per_minute": 104857600
   },
   "approved_identities": ["system:serviceaccount:ai-fixture:inference-controller-fixture", "system:serviceaccount:ai-fixture:training-owner-fixture"],
   "records": [
     {"id":"SYNTH-1001-012-01A","rule":"unexpected_inferenceservice_create","kind":"audit","verb":"create","api_group":"serving.kserve.io","resource":"inferenceservices","namespace":"ai-fixture","object":"mock-inference-a","principal":"system:serviceaccount:ai-fixture:unapproved-fixture","expected_owner":"system:serviceaccount:ai-fixture:inference-controller-fixture","fixture_only":true},
     {"id":"SYNTH-1001-012-01B","rule":"unexpected_inferenceservice_create","kind":"audit","verb":"create","api_group":"serving.kserve.io","resource":"inferenceservices","namespace":"ai-fixture","object":"mock-inference-b","principal":"system:serviceaccount:ai-fixture:inference-controller-fixture","expected_owner":"system:serviceaccount:ai-fixture:inference-controller-fixture","fixture_only":true},
+    {"id":"SYNTH-1001-012-01C","rule":"unexpected_inferenceservice_update","kind":"audit","verb":"update","api_group":"serving.kserve.io","resource":"inferenceservices","namespace":"ai-fixture","object":"mock-inference-c","principal":"system:serviceaccount:ai-fixture:unapproved-fixture","expected_owner":"system:serviceaccount:ai-fixture:inference-controller-fixture","fixture_only":true},
+    {"id":"SYNTH-1001-012-01D","rule":"unexpected_inferenceservice_update","kind":"audit","verb":"update","api_group":"serving.kserve.io","resource":"inferenceservices","namespace":"ai-fixture","object":"mock-inference-d","principal":"system:serviceaccount:ai-fixture:inference-controller-fixture","expected_owner":"system:serviceaccount:ai-fixture:inference-controller-fixture","fixture_only":true},
     {"id":"SYNTH-1001-012-02A","rule":"gpu_without_training_job","kind":"metrics","gpu_percent_samples":[91,94,92],"active_training_jobs":0,"workload":"mock-gpu-a","fixture_only":true},
     {"id":"SYNTH-1001-012-02B","rule":"gpu_without_training_job","kind":"metrics","gpu_percent_samples":[91,94,92],"active_training_jobs":1,"workload":"mock-gpu-b","fixture_only":true},
     {"id":"SYNTH-1001-012-03A","rule":"training_job_changed_by_non_owner","kind":"audit","verb":"patch","resource":"jobs","api_group":"batch","namespace":"ai-fixture","object":"mock-training-a","principal":"system:serviceaccount:ai-fixture:other-fixture","owner":"system:serviceaccount:ai-fixture:training-owner-fixture","fixture_only":true},
     {"id":"SYNTH-1001-012-03B","rule":"training_job_changed_by_non_owner","kind":"audit","verb":"update","resource":"jobs","api_group":"batch","namespace":"ai-fixture","object":"mock-training-b","principal":"system:serviceaccount:ai-fixture:training-owner-fixture","owner":"system:serviceaccount:ai-fixture:training-owner-fixture","fixture_only":true},
     {"id":"SYNTH-1001-012-04A","rule":"inference_request_rate_spike","kind":"counter","requests_per_minute":720,"service":"mock-inference-a","baseline_requests_per_minute":80,"fixture_only":true},
     {"id":"SYNTH-1001-012-04B","rule":"inference_request_rate_spike","kind":"counter","requests_per_minute":120,"service":"mock-inference-b","baseline_requests_per_minute":80,"fixture_only":true},
+    {"id":"SYNTH-1001-012-04C","rule":"inference_request_rate_spike","kind":"counter","requests_per_minute":120,"service":"mock-inference-c","baseline_requests_per_minute":40,"fixture_only":true},
     {"id":"SYNTH-1001-012-05A","rule":"large_model_storage_egress","kind":"counter","egress_bytes_per_minute":209715200,"source":"mock-model-storage-a","approved_window":false,"fixture_only":true},
     {"id":"SYNTH-1001-012-05B","rule":"large_model_storage_egress","kind":"counter","egress_bytes_per_minute":209715200,"source":"mock-model-storage-b","approved_window":true,"fixture_only":true},
     {"id":"SYNTH-1001-012-06A","rule":"audit_policy_configmap_changed","kind":"audit","verb":"update","resource":"configmaps","api_group":"","namespace":"kube-system","object":"mock-audit-policy-a","principal":"system:serviceaccount:kube-system:fixture-editor","fixture_only":true},

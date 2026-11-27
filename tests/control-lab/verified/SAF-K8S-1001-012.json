@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-1001-012",
-  "catalog_revision": "8ca957210cb5ed5a74374a1779f0c03a4a7f65c8",
-  "catalog_sha256": "ee384744c842f8d644f583a5aaca5eaaa6b5317fc5eec912d037736ad0661d10",
+  "catalog_revision": "316835c61636e3bfb1f6d42d1a9598314d6efd70",
+  "catalog_sha256": "1da56289e4f344f65fa946b0099b200d7a52a7c4bea62ee17a32261bedc18861",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "877844a92557858d5437258cbb76a6178c21a2602d3596bee07d6372fb545dbe",
-  "scope": "One disposable single-node Kind Kubernetes v1.36.1 cluster. Reads metadata for two exact case-owned tokenless mock Pods, their case-owned ConfigMap, assigned Node, fixed JSON log lines, and namespaced Kubernetes Events. Exercises six explicitly specified decisions on static synthetic audit-shaped records and fabricated benign counters. No SIEM is connected, no AI/GPU runtime exists, no KServe/API extension is installed, and no live attack or external traffic is used. This validates deterministic rule logic and a bounded local Pod/log/Event UID join only; no independent monitoring product or deployed SIEM is connected.",
-  "cluster": "saf-lab-a84183d87007",
+  "scope": "One disposable single-node Kind Kubernetes v1.36.1 cluster. Reads metadata for two exact case-owned tokenless mock Pods, their case-owned ConfigMap, assigned Node, fixed JSON log lines, and namespaced Kubernetes Events. Exercises six synthetic indicator categories, including model-service CREATE and UPDATE, a baseline-bound request-rate counterfactual, and an unauthenticated receiver denial. No SIEM is connected, no AI/GPU runtime exists, no KServe/API extension is installed, and no live attack or external traffic is used. This validates deterministic rule logic and a bounded local Pod/log/Event UID join only; no independent monitoring product or deployed SIEM is connected.",
+  "cluster": "saf-lab-2536f4c0629d",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -55,6 +55,26 @@
       "observed": {
         "rule": "unexpected_inferenceservice_create",
         "fixture_id": "SYNTH-1001-012-01B",
+        "alert": false
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Synthetic positive for unexpected_inferenceservice_update triggers its rule",
+      "matched": true,
+      "observed": {
+        "rule": "unexpected_inferenceservice_update",
+        "fixture_id": "SYNTH-1001-012-01C",
+        "alert": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Approved or benign control for unexpected_inferenceservice_update does not trigger",
+      "matched": true,
+      "observed": {
+        "rule": "unexpected_inferenceservice_update",
+        "fixture_id": "SYNTH-1001-012-01D",
         "alert": false
       }
     },
@@ -116,6 +136,20 @@
         "rule": "inference_request_rate_spike",
         "fixture_id": "SYNTH-1001-012-04B",
         "alert": false
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The same fixed rate is classified against its record-specific baseline and configured multiplier",
+      "matched": true,
+      "observed": {
+        "rule": "inference_request_rate_spike",
+        "same_rate_requests_per_minute": 120,
+        "benign_baseline_requests_per_minute": 80,
+        "counterfactual_baseline_requests_per_minute": 40,
+        "max_baseline_multiplier": 2,
+        "benign_alert": false,
+        "counterfactual_alert": true
       }
     },
     {
@@ -225,6 +259,17 @@
         "credentials_or_raw_event_values_emitted": false,
         "external_targets_contacted": false,
         "siem_connected": false
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The receiver rejects a credential-free inert alert POST",
+      "matched": true,
+      "observed": {
+        "credential_free_status": 401,
+        "authorization_header_sent": false,
+        "probe_body_emitted": false,
+        "receiver_still_contains_only_positive": true
       }
     }
   ]

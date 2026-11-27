@@ -6,7 +6,7 @@ Run from the framework root.
 python3 tests/control-lab/lab.py test SAF-K8S-1001-012 --docker-context desktop-linux
 ```
 
-The Kubernetes v1.36.1 Kind fixture checks six detection predicates with one alerting example and one benign comparison each. The fabricated records cover unexpected model-serving creation, GPU use without training, a non-owner training job change, inference request rate, model storage egress outside an approved window, and an audit-policy configuration change. A separate check reads native metadata and logs for the owned mock Pod and corroborates its identity through Kubernetes Events and Node metadata. A UID join pairs this Pod with its observed Event records and excludes an inert unmatched record and an out-of-scope Pod comparison. The fixture uses no actual AI data or credentials.
+The Kubernetes v1.36.1 Kind fixture retains the original 16 checks and adds four bounded checks (20 total). The six indicator categories retain positive/benign examples; model-service creation now also has a separate non-owner UPDATE positive and approved-owner UPDATE comparison. The inference-rate predicate uses the record's documented baseline and a fixed 2x upper multiplier; a same-rate, lower-baseline counterfactual proves the decision changes with that baseline. The fabricated records also cover GPU use without training, a non-owner training-job change, model-storage egress outside an approved window, and an audit-policy configuration change. A separate check reads native metadata and logs for the owned mock Pod and corroborates its identity through Kubernetes Events and Node metadata. A UID join pairs this Pod with its observed Event records and excludes an inert unmatched record and an out-of-scope Pod comparison. The fixture uses no actual AI data or credentials.
 
 For adoption, map each enabled rule to the actual source and version, field and identity transformations, threshold and time window, approved suppression, and owner. Use an approved evaluation environment or SIEM replay facility to send benign positive and negative events. Confirm receipt and correlation, check ingestion health under SAF-K8S-1001-029, and retain the matched rule revision and timestamp, event and alert identifiers, and the analyst disposition. The native Pod input and static predicates demonstrate these specific cases. Actual SIEM rules, inference and GPU signals, model storage flow data, owner mappings and end-to-end alert handling require adopter evidence.
 
@@ -55,8 +55,13 @@ Evidence records only statuses, booleans, IDs and record counts; key and
 credential values are not logged, and no external destination is contacted.
 
 This demonstrates one local detector-to-receiver path and exact negative
-suppression. It does not demonstrate SIEM integration, production identity,
-real inference/GPU telemetry, actual anomaly detection effectiveness, durable
+suppression. The scratch extension reuses the same baseline predicate and
+threshold input as the static request-rate rule; it also submits one inert
+credential-free alert POST, requires HTTP 401, and checks through the separate
+authenticated observer that receiver state still contains only the valid
+positive. No auth credential is mounted in that probe or included in evidence.
+This does not demonstrate SIEM integration, production identity, real
+inference/GPU telemetry, actual anomaly detection effectiveness, durable
 retention, or human response. Adoption still requires an approved replay with
 the deployed source, rule version, thresholds, forwarding identity, receiver,
 ingestion health and analyst disposition.

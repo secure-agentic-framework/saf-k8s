@@ -6,6 +6,14 @@ import time
 
 HERE = Path(__file__).resolve().parent
 FIXTURES = HERE / "fixtures"
+_rate_spec = importlib.util.spec_from_file_location(
+    "saf_1001_012_fixture_rate_predicate", FIXTURES / "rate_predicate.py",
+)
+if _rate_spec is None or _rate_spec.loader is None:
+    raise RuntimeError("could not load the fixture rate predicate")
+_rate_module = importlib.util.module_from_spec(_rate_spec)
+_rate_spec.loader.exec_module(_rate_module)
+rate_exceeds_baseline = _rate_module.rate_exceeds_baseline
 CONTROL_ID = "SAF-K8S-1001-012"
 NAMESPACE = "saf-test"
 NODE_IMAGE = (
@@ -23,6 +31,7 @@ CASE_LABEL = "saf-lab.example/control"
 FIXTURE_LABEL = "saf-lab.example/fixture"
 RULES = (
     "unexpected_inferenceservice_create",
+    "unexpected_inferenceservice_update",
     "gpu_without_training_job",
     "training_job_changed_by_non_owner",
     "inference_request_rate_spike",
@@ -32,8 +41,8 @@ RULES = (
 SCOPE = (
     "One disposable single-node Kind Kubernetes v1.36.1 cluster. Reads metadata for two exact case-owned "
     "tokenless mock Pods, their case-owned ConfigMap, assigned Node, fixed JSON log lines, and namespaced "
-    "Kubernetes Events. Exercises six explicitly specified decisions on "
-    "static synthetic audit-shaped records and fabricated benign counters. No SIEM is connected, no AI/GPU "
+    "Kubernetes Events. Exercises six synthetic indicator categories, including model-service CREATE and UPDATE, "
+    "a baseline-bound request-rate counterfactual, and an unauthenticated receiver denial. No SIEM is connected, no AI/GPU "
     "runtime exists, no KServe/API extension is installed, and no live attack or external traffic is used. "
     "This validates deterministic rule logic and a bounded local Pod/log/Event UID join only; no independent "
     "monitoring product or deployed SIEM is connected."
@@ -72,8 +81,9 @@ def pod(config_name, name=POD):
 
 def detect(record, thresholds, approved):
     rule = record.get("rule")
-    if rule == "unexpected_inferenceservice_create":
-        return record.get("verb") == "create" and record.get("resource") == "inferenceservices" and record.get("api_group") == "serving.kserve.io" and record.get("principal") not in approved
+    if rule in {"unexpected_inferenceservice_create", "unexpected_inferenceservice_update"}:
+        verb = "create" if rule.endswith("_create") else "update"
+        return record.get("verb") == verb and record.get("resource") == "inferenceservices" and record.get("api_group") == "serving.kserve.io" and record.get("principal") not in approved
     if rule == "gpu_without_training_job":
         samples = record.get("gpu_percent_samples", [])
         return len(samples) >= thresholds["gpu_consecutive_samples"] and all(
@@ -82,7 +92,7 @@ def detect(record, thresholds, approved):
     if rule == "training_job_changed_by_non_owner":
         return record.get("verb") in {"patch", "update"} and record.get("resource") == "jobs" and record.get("api_group") == "batch" and (record.get("principal") != record.get("owner") or record.get("principal") not in approved)
     if rule == "inference_request_rate_spike":
-        return record.get("kind") == "counter" and record.get("requests_per_minute", 0) > thresholds["inference_requests_per_minute"]
+        return record.get("kind") == "counter" and rate_exceeds_baseline(record, thresholds)
     if rule == "large_model_storage_egress":
         return record.get("kind") == "counter" and record.get("egress_bytes_per_minute", 0) > thresholds["model_egress_bytes_per_minute"] and not record.get("approved_window", False)
     if rule == "audit_policy_configmap_changed":
@@ -167,8 +177,9 @@ def run(lab):
             or any(row.get("fixture_only") is not True for row in fixture.get("records", []))):
         lab.block("Static synthetic fixture identity or benign-only marker is invalid")
     by_rule = {rule: [row for row in fixture["records"] if row.get("rule") == rule] for rule in RULES}
-    if any(len(rows) != 2 for rows in by_rule.values()):
-        lab.block("Each rule must have exactly one synthetic alert case and one benign control")
+    if any(len(rows) != (3 if rule == "inference_request_rate_spike" else 2)
+           for rule, rows in by_rule.items()):
+        lab.block("Each rule must have its fixed positive and benign comparator; rate also has a baseline counterfactual")
     thresholds = fixture["thresholds"]
     approved = set(fixture["approved_identities"])
     outcomes = {}
@@ -181,6 +192,17 @@ def run(lab):
         lab.check("green", f"Approved or benign control for {rule} does not trigger",
                   observed[rows[1]["id"]] is False,
                   {"rule": rule, "fixture_id": rows[1]["id"], "alert": observed[rows[1]["id"]]})
+        if rule == "inference_request_rate_spike":
+            lab.check("positive", "The same fixed rate is classified against its record-specific baseline and configured multiplier",
+                      observed[rows[2]["id"]] is True and observed[rows[1]["id"]] is False
+                      and rows[2]["requests_per_minute"] == rows[1]["requests_per_minute"]
+                      and rows[2]["baseline_requests_per_minute"] < rows[1]["baseline_requests_per_minute"],
+                      {"rule": rule, "same_rate_requests_per_minute": rows[1]["requests_per_minute"],
+                       "benign_baseline_requests_per_minute": rows[1]["baseline_requests_per_minute"],
+                       "counterfactual_baseline_requests_per_minute": rows[2]["baseline_requests_per_minute"],
+                       "max_baseline_multiplier": thresholds["inference_rate_max_multiplier"],
+                       "benign_alert": observed[rows[1]["id"]],
+                       "counterfactual_alert": observed[rows[2]["id"]]})
 
     config_obj = {
         "apiVersion": "v1", "kind": "ConfigMap",
