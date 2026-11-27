@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-1004-004",
-  "catalog_revision": "87ac0c92152c37c3433d3bc2d34b5ab29b96b92f",
-  "catalog_sha256": "fcd14a9a5a363c08dececf5478017b63713b748167151c9833c283fd0de8c62c",
+  "catalog_revision": "ba1bf3f3be19c1ee8709a79d6b4b516d238a6e2f",
+  "catalog_sha256": "caa76efc6fa0d98e355098428f9ca91dbd8f04df3ace9709aaa0b9f814dc2f6b",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "d0e46e023c64d95531509ff58f3604bd478b08d6166fd2b923b5c0b400d7dfd8",
-  "scope": "Offline, synthetic threat-intelligence fixture processing in a disposable Kubernetes v1.36.1 Kind cluster. Verifies SHA-256 pin quarantine, expiry quarantine, exact advisory enrichment for one approved mock observation, quiet package-version/image-digest near misses, and one case-owned HTTPS source with pinned local trust and fixed public synthetic bytes. A separate tokenless Job reads the official Kubernetes JSON feed with standard certificate and hostname validation. It verifies and records source and publication metadata. Deployed ingestion freshness, coverage, threat-sharing and SIEM/SOAR decisions require adopter evidence.",
-  "cluster": "saf-lab-6b36af80a11d",
+  "scope": "Offline, synthetic threat-intelligence fixture processing in a disposable Kubernetes v1.36.1 Kind cluster. Verifies SHA-256 pin quarantine, expiry quarantine, exact advisory enrichment for one approved mock observation, quiet package-version/image-digest near misses, and one case-owned HTTPS source with pinned local trust and fixed public synthetic bytes. A separate tokenless Job reads the official Kubernetes JSON feed with standard certificate and hostname validation. It verifies and records source and publication metadata. A local fixed-route counterfactual adds one bounded 503-to-200 retry over the same pinned synthetic bundle. Deployed ingestion freshness, coverage, threat-sharing and SIEM/SOAR decisions require adopter evidence.",
+  "cluster": "saf-lab-4f73f022def5",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -168,6 +168,46 @@
         "status": 200,
         "schema_and_time_checks": true,
         "nonempty_unique_records": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "One bounded local 503 produces no enrichment, then one retry of the same pinned bytes recovers one exact match",
+      "matched": true,
+      "observed": {
+        "attempt_count": 2,
+        "first_accepted": false,
+        "first_body_bytes": 0,
+        "first_enrichment_count": 0,
+        "first_reason": "source_unavailable",
+        "first_status": 503,
+        "recovered": true,
+        "retry_after_seconds": "1",
+        "second_body_bytes": 618,
+        "second_evaluator": {
+          "accepted": true,
+          "enrichments": [
+            {
+              "asset_ref": "saf-fixture/mock-inference/mock-runtime",
+              "enrichment": {
+                "advisory_id": "SYNTH-ADVISORY-1004-004-001",
+                "bundle_id": "SYNTH-BUNDLE-1004-004-01",
+                "fixed_version": "1.0.1",
+                "severity": "synthetic-high",
+                "source_id": "SYNTH-SOURCE-LOCAL-ONLY"
+              },
+              "match": {
+                "image_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                "package": "pkg:generic/saf-fixture-runtime",
+                "version": "1.0.0"
+              },
+              "observation_id": "OBS-SYNTH-APPROVED-001"
+            }
+          ],
+          "reason": null
+        },
+        "second_sha256": "99b0a2d0515a4551e9038413265e1c0b972ccf20f294e6ed38c03327cc29917b",
+        "second_status": 200
       }
     }
   ]

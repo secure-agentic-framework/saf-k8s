@@ -25,6 +25,7 @@ SCOPE = (
     "observation, quiet package-version/image-digest near misses, and one case-owned HTTPS source with pinned local "
     "trust and fixed public synthetic bytes. A separate tokenless Job reads the official Kubernetes JSON feed with "
     "standard certificate and hostname validation. It verifies and records source and publication metadata. "
+    "A local fixed-route counterfactual adds one bounded 503-to-200 retry over the same pinned synthetic bundle. "
     "Deployed ingestion freshness, coverage, threat-sharing and SIEM/SOAR decisions require adopter evidence."
 )
 
@@ -351,3 +352,19 @@ def run(lab):
                                                      "OBS-SYNTH-NEARMISS-IMAGE"],
               approved["quiet_observation_ids"])
     verify_official_feed(lab)
+
+    recovery = intake["bounded_recovery"]
+    lab.check(
+        "positive",
+        "One bounded local 503 produces no enrichment, then one retry of the same pinned bytes recovers one exact match",
+        recovery == {
+            "attempt_count": 2, "first_status": 503, "first_body_bytes": 0,
+            "retry_after_seconds": "1", "first_accepted": False,
+            "first_reason": "source_unavailable", "first_enrichment_count": 0,
+            "second_status": 200,
+            "second_body_bytes": len(load("approved-bundle.json")),
+            "second_sha256": BUNDLE_SHA256,
+            "second_evaluator": {"accepted": True, "reason": None,
+                                 "enrichments": [expected_enrichment()]},
+            "recovered": True,
+        }, recovery)

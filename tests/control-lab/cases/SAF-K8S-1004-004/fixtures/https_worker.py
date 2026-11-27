@@ -53,6 +53,48 @@ def request_status(path, cafile, token=None):
         connection.close()
 
 
+def bounded_recovery(cafile, token, observations):
+    """Exercise one local Retry-After retry without retaining response content."""
+    first_status, first_body, retry_after = request_status("recover", cafile, token=token)
+    first_eval = evaluate_source_response(
+        first_status, first_body, EXPECTED_BUNDLE_SHA256,
+        "2026-11-21T12:00:00Z", observations)
+    first_is_bounded_outage = (
+        first_status == 503 and len(first_body) == 0 and retry_after == "1"
+        and first_eval["accepted"] is False
+        and first_eval["quarantine_reason"] == "source_unavailable"
+        and first_eval["enrichments"] == [])
+    if not first_is_bounded_outage:
+        return {"attempt_count": 1, "first_status": first_status,
+                "first_body_bytes": len(first_body), "retry_after_seconds": retry_after,
+                "first_accepted": first_eval["accepted"],
+                "first_reason": first_eval["quarantine_reason"],
+                "first_enrichment_count": len(first_eval["enrichments"]),
+                "recovered": False}
+    # The local fixture explicitly supplies one second. Do not turn this into a
+    # production polling or backoff recommendation.
+    time.sleep(1)
+    second_status, second_body, _ = request_status("recover", cafile, token=token)
+    second_eval = evaluate_source_response(
+        second_status, second_body, EXPECTED_BUNDLE_SHA256,
+        "2026-11-21T12:00:00Z", observations)
+    return {
+        "attempt_count": 2, "first_status": first_status,
+        "first_body_bytes": len(first_body), "retry_after_seconds": retry_after,
+        "first_accepted": first_eval["accepted"],
+        "first_reason": first_eval["quarantine_reason"],
+        "first_enrichment_count": len(first_eval["enrichments"]),
+        "second_status": second_status,
+        "second_body_bytes": len(second_body),
+        "second_sha256": hashlib.sha256(second_body).hexdigest(),
+        "second_evaluator": {
+            "accepted": second_eval["accepted"],
+            "reason": second_eval["quarantine_reason"],
+            "enrichments": second_eval["enrichments"]},
+        "recovered": second_status == 200 and second_eval["accepted"] is True,
+    }
+
+
 def main():
     ca = (ROOT / "tls-ca.crt").read_bytes()
     ca_digest = hashlib.sha256(ca).hexdigest()
@@ -74,6 +116,7 @@ def main():
         "unavailable", ROOT / "tls-ca.crt", token=token)
     outage_eval = evaluate_source_response(
         outage_status, outage_body, EXPECTED_BUNDLE_SHA256, "2026-11-21T12:00:00Z", observations)
+    recovery = bounded_recovery(ROOT / "tls-ca.crt", token, observations)
     wrong_ca_rejected = False
     try:
         get("approved", ROOT / "wrong-ca.crt")
@@ -110,6 +153,7 @@ def main():
                            "reason": outage_eval["quarantine_reason"],
                            "enrichment_count": len(outage_eval["enrichments"])},
         },
+        "bounded_recovery": recovery,
     }
     print(json.dumps(result, sort_keys=True, separators=(",", ":")))
 

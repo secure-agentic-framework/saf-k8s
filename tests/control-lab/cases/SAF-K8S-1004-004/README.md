@@ -36,12 +36,24 @@ The existing fixture continues to demonstrate quarantine and enrichment.
 Verify the deployed source inventory, subscription cadence, delivery and
 analyst workflow using evidence from the adopter’s environment.
 
+## Bounded local recovery counterfactual
+
+The recovery check uses the case-owned HTTPS server and a fixed synthetic
+bundle. Its `/recover` route returns one empty authenticated 503 with
+`Retry-After: 1`, then serves the same approved pinned bytes on the next request.
+The worker confirms the first response produces `source_unavailable` with zero
+enrichment, waits the supplied one second, retries once, and requires the second
+response to yield exactly the existing synthetic match. It records only bounded
+status, retry, byte-count, digest and evaluator fields. This tests one local
+recovery path; the one-second fixture interval is not a production polling or
+backoff recommendation and makes no claim about a deployed subscriber.
+
 [Official Kubernetes CVE feed](https://kubernetes.io/docs/reference/issues-security/official-cve-feed/)
 
 ## Synthetic source availability counterfactual
 
-This scratch-only additive case keeps the published fixtures and checks, then uses a
-case-generated bearer credential against two additional local HTTPS routes. The
+The case uses a temporary, scoped bearer credential against two local
+HTTPS routes. The
 authenticated `/ready` route returns the same approved synthetic bundle, while the
 authenticated `/unavailable` route returns an empty 503 with `Retry-After: 30`; an
 unauthenticated request receives an empty 401. Both authenticated responses go through
