@@ -20,7 +20,8 @@ SCOPE = (
     "to a synthetic component observation. Pinned offline OSV-Scanner reads the inert package metadata in a "
     "case-built runnable image, and the posture result binds to the exact image observed in Kind. "
     "Benchmark coverage, actual advisory feeds, managed and accelerator settings, and deployed "
-    "monitoring and alerting have separate evidence requirements."
+    "monitoring and alerting have separate evidence requirements. A scoped authenticated Role stream "
+    "compares fixture metadata updates, rule widening and restoration with exact API event revisions."
 )
 
 
@@ -290,3 +291,5 @@ def run(lab):
 
     cases_root = Path(os.environ.get("SAF_CONTROL_CASES_ROOT", HERE.parent)).resolve()
     runpy.run_path(str(HERE / "scanner_posture_addon.py"))["run"](lab, cases_root)
+    runpy.run_path(str(HERE / "role_watch_addon.py"))["run"](
+        lab, HERE, OWNED_NAMESPACE, ROLE, resources["role"]["rules"])

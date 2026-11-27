@@ -54,3 +54,18 @@ or mismatched observations classified unknown. Raw evidence preserves the
 scanner output, report digest, OCI subject, and exact runtime identity.
 
 - [OSV-Scanner v2.7.1](https://github.com/google/osv-scanner/releases/tag/v2.7.1)
+
+
+## Native RBAC posture watch
+
+The observer opens an authenticated Role list and watch scoped to the exact
+case-owned Role. The unfiltered watch and watch for a different Role both
+receive 403. After the stream opens, the test applies a metadata-only change,
+widens a rule on the selected Role, and restores the baseline. It also updates
+an excluded Role. The observer classifies the three governed events and matches
+each to the resource version returned by its API write.
+
+The test uses one finite stream and a projected ServiceAccount token. The
+receipt preserves resource identities, rule changes and dispositions. Watch
+reconnect, alert delivery, broader enrolled resources and production coverage
+require separate evidence. [Kubernetes API watch](https://v1-36.docs.kubernetes.io/docs/reference/using-api/api-concepts/#efficient-detection-of-changes)
