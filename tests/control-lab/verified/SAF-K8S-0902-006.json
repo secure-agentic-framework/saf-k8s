@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0902-006",
-  "catalog_revision": "9a4e0da1ba354e33d663b0dfb1b46b31ab0547c7",
-  "catalog_sha256": "493dd2fccb76973d7c8b6f2f7c58473f4200b3a55539861126b63bcab5cbd2f6",
+  "catalog_revision": "e6dc9285dff5a34a3e9c05c6b12566ef34c34f58",
+  "catalog_sha256": "2dabf76722865b208eecf265e7d68e567a33dc885db36f29a53fd002044e2a61",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "b38eea1e6699b39b8978480602f6122c198a289f723e55e3864069d45cfca006",
+  "control_sha256": "6155cca98a59ede37aae86e21f3e999459f11930d822c70017e7c78819f3519b",
   "scope": "One disposable Kind v1.36.1 cluster runs a digest-pinned synthetic Python cache and queue fixture and two separate CPU-only llama.cpp b9519 server Pods. The mock compares an unscoped key with tenant-scoped keys, verifies same-tenant reuse, and tests one active request, one queued request, and the configured rejection and drain. The real servers use the same digest-bound tiny Stories model and a fixed public prompt. A tokenless client checks the model tokenizer, bounded one-token output, same-process prompt reuse, and zero reused tokens on the first request to a fresh server. On one of those one-slot servers, a separate bounded native witness observes one active completion, one deferred completion, both fixed completion counts, and processing/deferred metrics returning to zero. Deployed serving engines, tenant and concurrent-request isolation, cache zeroing, GPU behavior, and production scheduling or resource guarantees need separate evidence.",
-  "cluster": "saf-lab-446e9596f0ad",
+  "cluster": "saf-lab-597908a73ed9",
   "kubernetes": {
     "clientVersion": {
       "major": "1",

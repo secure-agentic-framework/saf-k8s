@@ -2457,7 +2457,7 @@
     "SAF-K8S-0902-006": {
       "catalog_status": "draft",
       "domain": "D09",
-      "sha256": "b38eea1e6699b39b8978480602f6122c198a289f723e55e3864069d45cfca006",
+      "sha256": "6155cca98a59ede37aae86e21f3e999459f11930d822c70017e7c78819f3519b",
       "title": "LLM serving configuration security"
     },
     "SAF-K8S-0902-008": {
@@ -3572,7 +3572,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "2581ba018be11a47238ce334b334fe4ca28f47c8",
-  "sha256": "493dd2fccb76973d7c8b6f2f7c58473f4200b3a55539861126b63bcab5cbd2f6",
+  "revision": "bb49d26869ce6430523863e894943670a85f28e4",
+  "sha256": "2dabf76722865b208eecf265e7d68e567a33dc885db36f29a53fd002044e2a61",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
