@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0901-004",
-  "catalog_revision": "fdba76329a3f920878a7d6eb9341020db5c6d1a0",
-  "catalog_sha256": "9135dfb3330418c29d3d8f94dc01192bb9eb05ee4c1e9aaf1a876493ca084535",
+  "catalog_revision": "b0ef545077644156f6ee168f80740391dfb8cf76",
+  "catalog_sha256": "ed6243c33229f6466971a9ce3d0c83508509eff6f38c522843b0dd12fb917717",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "bb5f98b699c374c57671af4c249861035dda0e135c0f930fcd524a86ec5329b5",
   "scope": "One disposable Kind v1.36.1 cluster and the saf-test namespace; two immutable, case-owned ConfigMaps carrying synthetic named snapshots; a deliberately changed target ConfigMap; one local bounded restore function; and two short digest-pinned Python Jobs. The case checks fixture SHA-256 values, altered-byte rejection, an over-limit retry request, exact approved payload/label/annotation restoration, and Job conditions and Pod counts. It additionally copies one fixed synthetic checkpoint across source and backup PVCs and restores/read-checks it on a third fresh PVC using three short tokenless Jobs. The three claims use the selected storage class in this same cluster and do not establish independent failure domains. It does not exercise an ML framework, training operator, real checkpoint store, distributed training, data re-ingestion, external backup service, or production retry/rollback configuration.",
-  "cluster": "saf-lab-a7c253eca7a7",
+  "cluster": "saf-lab-bba9a4b5d1a0",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
