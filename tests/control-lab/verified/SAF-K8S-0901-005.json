@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0901-005",
-  "catalog_revision": "bb628cf541d7a7a72e18e64d5f2cd12e7c459bc3",
-  "catalog_sha256": "96ad50c08e7c7fcb717b830fb2376a887ae787e5a40dc3e0d17ed414187197a4",
+  "catalog_revision": "fa24a8e47082d3f72e49c00a766ee32d1fe412d3",
+  "catalog_sha256": "cb0f2271307d0e1791a631bc2767197be15daaeaeb92286b87ec929da7f0ceda",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "b1a68267256a684ea1cee8aac60925b124a574626024b9f52b3e63479914d5b9",
+  "control_sha256": "9eae08ccebd9ee81a587df972fae52d74f5ccd35fb4ef2be78ac06afc7353529",
   "scope": "One disposable Kind cluster on Kubernetes v1.36.1 with two synthetic participant namespaces and one case-owned local aggregation namespace. Two participant mock HTTP responders first exchange only fixed /healthz markers before NetworkPolicy, then the same ordinary health path is checked after namespace policies isolate participants and permit the approved aggregation Service. Both participants independently contact the identical aggregation ClusterIP and port. No model, training, gradient, adversarial input, real service, feed, or external target is used. The same disposable cluster also runs the pinned Flower SecAgg+ workflow with an exact participant egress allowlist. Two directed owned peer marker routes are checked before and after policy, and the actual authorized Flower round completes. The fixture uses fixed inert vectors. Deployed boundaries, identity, privacy settings and protocol security require separate evidence.",
-  "cluster": "saf-lab-eba948d8a467",
+  "cluster": "saf-lab-1ebe42a10981",
   "kubernetes": {
     "clientVersion": {
       "major": "1",

@@ -52,3 +52,19 @@ namespace governance, authenticated enrollment, TLS, cross-cluster transport, di
 Byzantine resistance, or the security of Flower SecAgg+. It uses only fixed synthetic vectors and
 fixed health markers, with no actual training data or attack procedures. The two new checks are the
 participant peer-flow gate and the Flower companion's existing actual-workflow check, for ten total.
+
+
+## Selecting compatible aggregation controls
+
+The pinned workflow supplies the aggregate through the selected Flower
+interface. Check each method's required inputs and outputs against that
+boundary. A conventional robust method that scores individual updates
+requires a reviewed composition that preserves update confidentiality and
+Byzantine resilience together. The adopter verifies the selected threat
+model, differential-privacy accounting, robust aggregation, participant
+identity and real transport paths. This case supplies the scoped one-round
+Flower workflow and participant-network observations.
+
+- [Flower secure aggregation workflow API](https://flower.ai/docs/framework/ref-api/flwr.server.workflow.SecAggPlusWorkflow.html)
+- [Original Krum paper](https://proceedings.neurips.cc/paper_files/paper/2017/hash/f4b9ec30ad9f68f89b29639786cb62ef-Abstract.html)
+- [Original secure aggregation research](https://research.google/pubs/practical-secure-aggregation-for-federated-learning-on-user-held-data/)
