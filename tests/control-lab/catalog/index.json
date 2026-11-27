@@ -3309,7 +3309,7 @@
     "SAF-K8S-1004-001": {
       "catalog_status": "draft",
       "domain": "D10",
-      "sha256": "60a25958522ddf82d8279295506511385ab07b87f5536369ff6ea7ea4d7d7c5c",
+      "sha256": "391ae35da16935b850306c60430eb930b52b95038492feca315e7aff5deb3119",
       "title": "ML threat taxonomy per CTA-2114 mapped to Kubernetes"
     },
     "SAF-K8S-1004-002": {
@@ -3572,7 +3572,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "dedc3bd584c3f8ce034b110c9fc2cdd4c5e07808",
-  "sha256": "05bad5b212e22ea094491dca60d5d4cc21ff6c4cddb0c432dfc5da909786bc07",
+  "revision": "34a25e0957532fa8d1f6b8fd1d669443e0c8ae16",
+  "sha256": "d14b610c9b1134a7b668b8f29ad8d22ae5737d15a82a2aac4dc73cfcd6f477e5",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

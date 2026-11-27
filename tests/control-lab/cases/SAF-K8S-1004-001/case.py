@@ -10,13 +10,11 @@ SCOPE = (
     "One fresh Kind Kubernetes v1.36.1 cluster runs a read-only Python validator Job over abstract, "
     "non-operational incident records and a defensive classification/traceability/ownership worksheet. "
     "The Job independently validates a deliberately incomplete/misclassified baseline and a complete "
-    "candidate worksheet, then checks a permitted synthetic positive record. Raw JSON and stable "
-    "summary evidence are captured. The nine control.* labels and their group boundaries in the "
-    "fixture are provisional SAF-K8S examples pending verification against an authorized CTA-2114 "
-    "normative copy; the test does not validate CTA class membership, definitions, or completeness. "
-    "NIST AI 100-2e2025 is shown only as a separate comparator. The case verifies local worksheet "
-    "traceability behavior and does not establish production coverage, incident attribution, or CTA "
-    "conformance."
+    "candidate worksheet, then checks a permitted synthetic positive record. It also compares exact "
+    "Section 9 labels against an independently maintained reviewed snapshot and rejects a missing "
+    "general poisoning entry plus a stale Evasion label. Raw JSON and stable summary evidence are "
+    "captured. The Section 9 list is non-exhaustive and the worksheet mappings are illustrative. "
+    "Production coverage, incident attribution, and system-specific completeness require separate evidence."
 )
 
 def _wait(lab, name):
@@ -34,6 +32,7 @@ def run(lab):
     cm = {"apiVersion": "v1", "kind": "ConfigMap",
           "metadata": {"name": "saf-1004-001-fixture"},
           "data": {"fixture.json": json.dumps(fixture, sort_keys=True),
+                   "expected_section9_classes.json": (HERE / "expected_section9_classes.json").read_text(),
                    "validator.py": (HERE / "validator.py").read_text()}}
     job = {"apiVersion":"batch/v1","kind":"Job","metadata":{"name":"saf-1004-001-validator"},"spec":{
       "backoffLimit":0,"activeDeadlineSeconds":80,"ttlSecondsAfterFinished":300,"template":{"spec":{
@@ -57,7 +56,22 @@ def run(lab):
               }, report["baseline"])
     lab.check("green", "The worksheet accepts completed links and evidence-backed classifications",
               report["candidate"] == {"missing_class_links": [], "invalid_records": []}
-              and report["cta_attribution"] == "unverified", report["candidate"])
+              and report["cta_conformance"] == "not_established", report["candidate"])
     lab.check("positive", "An independent observation maps to a known owned class",
               report["positive"] == {"class": "control.model_poisoning", "owner": "AI/ML Engineering"},
               report["positive"])
+    label_gate = report["section9_label_gate"]
+    lab.check("source-label-coverage",
+              "The worksheet rejects a missing and outdated Section 9 label and accepts exact reviewed coverage",
+              label_gate["baseline"] == {
+                  "exact_match": False,
+                  "missing_ids": ["control.poisoning_attacks"],
+                  "unexpected_ids": [],
+                  "stale_labels": [{"id": "control.evasion", "expected": "Evasion (Inference)", "actual": "Evasion"}],
+                  "duplicate_ids": [],
+              }
+              and label_gate["candidate"]["exact_match"] is True
+              and label_gate["candidate"]["missing_ids"] == []
+              and label_gate["candidate"]["unexpected_ids"] == []
+              and label_gate["candidate"]["stale_labels"] == []
+              and label_gate["candidate"]["duplicate_ids"] == [], label_gate)

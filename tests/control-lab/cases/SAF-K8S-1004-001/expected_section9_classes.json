@@ -1,0 +1,16 @@
+{
+  "source": "CTA-2114 (November 2025), Section 9, printed pages 16–17.",
+  "scope": "Non-exhaustive threat examples. Kubernetes mapping decisions depend on the system.",
+  "classes": {
+    "control.data_poisoning": "Data Poisoning",
+    "control.model_poisoning": "Model Poisoning",
+    "control.poisoning_attacks": "Poisoning Attacks",
+    "control.targeted_poisoning": "Targeted Poisoning Attacks",
+    "control.label_modification": "Label Modification",
+    "control.model_disclosure": "Model Disclosure",
+    "control.data_disclosure": "Data Disclosure",
+    "control.evasion": "Evasion (Inference)",
+    "control.oracle_attacks": "Oracle Attack",
+    "control.computational_dos": "Denial of service due to inconsistent data"
+  }
+}

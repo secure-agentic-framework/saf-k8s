@@ -3,15 +3,16 @@
   "provenance": {
     "cta_source": "https://www.cta.tech/standards/mitigating-cybersecurity-threats-in-ml-based-systems/",
     "cta_title": "Mitigating Cybersecurity Threats in ML-Based Systems (CTA-2114)",
-    "cta_public_status": "Title, publication date (November 2025), and summary verified; full report is behind member login or paid access. Exact class names and distinctions are not publicly inspectable here.",
+    "cta_public_status": "Section 9 of the November 2025 edition was reviewed for exact labels on printed pages 16–17.",
     "comparator": "NIST AI 100-2e2025, March 2025; https://doi.org/10.6028/NIST.AI.100-2e2025",
-    "mapping_status": "Illustrative worksheet; control-asserted labels are not attributed to CTA-2114 without access to the normative text. NIST labels remain separately namespaced."
+    "mapping_status": "Section 9 labels are checked against an independently stored reviewed snapshot. The local Kubernetes surface, control, detection, and owner mappings are illustrative.",
+    "section9_scope": "The Section 9 threat list is non-exhaustive."
   },
   "classes": [
     {
       "id": "control.data_poisoning",
       "label": "Data Poisoning",
-      "source": "control assertion; CTA exact terminology unverified",
+      "source": "CTA-2114 section 9 label reviewed; local worksheet mapping is illustrative.",
       "surfaces": [
         "training-data storage",
         "data ingestion pipeline"
@@ -28,7 +29,7 @@
     {
       "id": "control.model_poisoning",
       "label": "Model Poisoning",
-      "source": "control assertion; CTA exact terminology unverified",
+      "source": "CTA-2114 section 9 label reviewed; local worksheet mapping is illustrative.",
       "surfaces": [
         "model registry",
         "artifact storage"
@@ -43,9 +44,26 @@
       "owner": "AI/ML Engineering"
     },
     {
+      "id": "control.poisoning_attacks",
+      "label": "Poisoning Attacks",
+      "source": "CTA-2114 section 9 label reviewed; local worksheet mapping is illustrative.",
+      "surfaces": [
+        "training-data pipeline",
+        "training process"
+      ],
+      "controls": [
+        "training update provenance review",
+        "approval and integrity gates"
+      ],
+      "detections": [
+        "unapproved training-data or update lineage"
+      ],
+      "owner": "AI/ML Engineering"
+    },
+    {
       "id": "control.targeted_poisoning",
-      "label": "Targeted Poisoning",
-      "source": "control assertion; CTA exact terminology unverified",
+      "label": "Targeted Poisoning Attacks",
+      "source": "CTA-2114 section 9 label reviewed; local worksheet mapping is illustrative.",
       "surfaces": [
         "training data pipeline",
         "model evaluation"
@@ -62,7 +80,7 @@
     {
       "id": "control.label_modification",
       "label": "Label Modification",
-      "source": "control assertion; CTA exact terminology unverified",
+      "source": "CTA-2114 section 9 label reviewed; local worksheet mapping is illustrative.",
       "surfaces": [
         "labeling workflow",
         "training-data storage"
@@ -78,7 +96,7 @@
     {
       "id": "control.model_disclosure",
       "label": "Model Disclosure",
-      "source": "control assertion; CTA exact terminology unverified",
+      "source": "CTA-2114 section 9 label reviewed; local worksheet mapping is illustrative.",
       "surfaces": [
         "inference service",
         "model registry"
@@ -95,7 +113,7 @@
     {
       "id": "control.data_disclosure",
       "label": "Data Disclosure",
-      "source": "control assertion; CTA exact terminology unverified",
+      "source": "CTA-2114 section 9 label reviewed; local worksheet mapping is illustrative.",
       "surfaces": [
         "inference service",
         "training-data access"
@@ -111,8 +129,8 @@
     },
     {
       "id": "control.evasion",
-      "label": "Evasion",
-      "source": "control assertion; CTA exact terminology unverified",
+      "label": "Evasion (Inference)",
+      "source": "CTA-2114 section 9 label reviewed; local worksheet mapping is illustrative.",
       "surfaces": [
         "inference service",
         "network policy"
@@ -128,8 +146,8 @@
     },
     {
       "id": "control.oracle_attacks",
-      "label": "Oracle Attacks (extraction, inversion, membership inference)",
-      "source": "control assertion; CTA exact terminology unverified",
+      "label": "Oracle Attack",
+      "source": "CTA-2114 section 9 label reviewed; local worksheet mapping is illustrative.",
       "surfaces": [
         "inference API",
         "network policy"
@@ -141,12 +159,17 @@
       "detections": [
         "query-pattern or privacy-evaluation alert"
       ],
-      "owner": "Detection Engineering"
+      "owner": "Detection Engineering",
+      "related_forms": [
+        "extraction",
+        "inversion",
+        "membership inference"
+      ]
     },
     {
       "id": "control.computational_dos",
-      "label": "Denial of Service via computational complexity",
-      "source": "control assertion; CTA exact terminology unverified",
+      "label": "Denial of service due to inconsistent data",
+      "source": "CTA-2114 section 9 label reviewed; local worksheet mapping is illustrative.",
       "surfaces": [
         "inference service",
         "GPU scheduling",
@@ -186,7 +209,7 @@
     }
   ],
   "comparators": [
-    "NIST AI 100-2e2025 distinguishes dimensions of predictive and generative AI taxonomy."
+    "NIST AI 100-2e2025 is a separate comparator."
   ],
   "submissions": {
     "INC-ABSTRACT-01": "control.data_poisoning",

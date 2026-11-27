@@ -1,18 +1,28 @@
-# SAF-K8S-1004-001
+# SAF-K8S-1004-001 ML threat taxonomy worksheet
 
-This Kubernetes Job validates a defensive worksheet for the nine labels listed in the pinned
-catalog. The validator derives case-owned labels for selected abstract observations from
-their signal, surface and evidence. The baseline contains missing worksheet links, a wrong
-classification, a missing classification and mismatched evidence. The repaired worksheet
-and an independently classified positive observation pass.
+Run from the framework checkout.
 
-The CTA listing verifies the document title, scope and publication month. The normative
-taxonomy requires member login or purchase. The exact catalog-asserted CTA labels remain
-unverified. NIST AI 100-2e2025 is an independent comparator. CTA conformance, deployed
-detection coverage and incident attribution need separate evidence.
+```sh
+python3 tests/control-lab/lab.py test SAF-K8S-1004-001 --docker-context desktop-linux
+```
 
-- [CTA-2114 listing](https://www.cta.tech/standards/mitigating-cybersecurity-threats-in-ml-based-systems/)
-- [NIST AI 100-2e2025](https://doi.org/10.6028/NIST.AI.100-2e2025)
+A restricted Kubernetes Job validates a defensive worksheet against fixed
+synthetic incident records. The case rejects missing links and mismatched
+classifications, accepts the repaired worksheet, and confirms an independent
+observation maps to an owned threat class.
 
+The label check uses the ten reviewed entries in CTA-2114 (November 2025),
+Section 9, printed pages 16–17. It rejects a worksheet that omits
+`Poisoning Attacks` and uses the short label `Evasion`. The repaired
+worksheet matches the reviewed list and preserves the previous `control.*`
+IDs. Extraction, inversion, and membership inference are grouped under
+`Oracle Attack`.
 
-Scope clarification for this verification copy: the nine `control.*` labels and their group boundaries in the fixture are provisional SAF-K8S examples pending verification against an authorized CTA-2114 normative copy. The three checks exercise only case-owned worksheet completeness, evidence-to-surface/class lookup, and ownership. A passing case does not validate CTA class membership, definitions, exhaustive coverage, or conformance. NIST AI 100-2e2025 is a separate comparator and is not evidence of CTA-2114 content.
+Section 9 is non-exhaustive. For adoption, record which categories apply to
+the ML system and map them to the deployed surfaces, controls, and detection
+mechanisms. Extend the threat model with any other relevant threats. Use
+evidence from the deployed detection and response workflow to validate those
+mappings.
+
+Sources [CTA-2114](https://www.cta.tech/standards/mitigating-cybersecurity-threats-in-ml-based-systems/)
+and [NIST AI 100-2e2025 comparator](https://doi.org/10.6028/NIST.AI.100-2e2025).

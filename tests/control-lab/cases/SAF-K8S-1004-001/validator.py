@@ -34,8 +34,44 @@ def review(worksheet, submissions, records, evidence):
     return {"missing_class_links": sorted(missing), "invalid_records": sorted(invalid)}
 
 
-fixture = json.loads(Path("/fixture/fixture.json").read_text())
+FIXTURE_DIR = Path(__file__).resolve().parent
+fixture_path = FIXTURE_DIR / "fixture.json"
+if not fixture_path.exists():
+    fixture_path = FIXTURE_DIR / "fixtures.json"
+fixture = json.loads(fixture_path.read_text())
+expected_section9 = json.loads((FIXTURE_DIR / "expected_section9_classes.json").read_text())["classes"]
 worksheet = {entry["id"]: entry for entry in fixture["classes"]}
+
+
+def exact_label_coverage(classes, expected):
+    expected_ids = set(expected)
+    actual = {}
+    duplicates = []
+    for entry in classes:
+        class_id = entry.get("id")
+        label = entry.get("label")
+        if class_id in actual:
+            duplicates.append(class_id)
+        else:
+            actual[class_id] = label
+    actual_ids = set(actual)
+    missing_ids = sorted(expected_ids - actual_ids)
+    unexpected_ids = sorted(actual_ids - expected_ids)
+    stale_labels = [
+        {"id": class_id, "expected": expected[class_id], "actual": actual[class_id]}
+        for class_id in sorted(expected_ids & actual_ids)
+        if actual[class_id] != expected[class_id]
+    ]
+    duplicates = sorted(set(duplicates))
+    return {
+        "exact_match": not (missing_ids or unexpected_ids or stale_labels or duplicates),
+        "missing_ids": missing_ids,
+        "unexpected_ids": unexpected_ids,
+        "stale_labels": stale_labels,
+        "duplicate_ids": duplicates,
+    }
+
+
 baseline_worksheet = copy.deepcopy(worksheet)
 baseline_worksheet["control.data_poisoning"]["controls"] = []
 baseline_worksheet["control.model_poisoning"]["owner"] = ""
@@ -45,13 +81,23 @@ baseline_submissions.pop("INC-ABSTRACT-02")
 baseline_evidence = dict(fixture["evidence"])
 baseline_evidence["fixture:evidence-03"] = ["unrelated-observation", "GPU scheduling"]
 positive_label = evaluate(fixture["positive_record"], worksheet, fixture["evidence"])
+baseline_classes = copy.deepcopy(fixture["classes"])
+baseline_classes = [entry for entry in baseline_classes
+                    if entry["id"] != "control.poisoning_attacks"]
+for entry in baseline_classes:
+    if entry["id"] == "control.evasion":
+        entry["label"] = "Evasion"
+        break
 report = {
     "baseline": review(baseline_worksheet, baseline_submissions,
                        fixture["incident_records"], baseline_evidence),
     "candidate": review(worksheet, fixture["submissions"],
                         fixture["incident_records"], fixture["evidence"]),
     "positive": {"class": positive_label, "owner": worksheet[positive_label]["owner"]},
-    "cta_attribution": "unverified" if all("unverified" in entry["source"]
-                                         for entry in worksheet.values()) else "unsupported",
+    "section9_label_gate": {
+        "baseline": exact_label_coverage(baseline_classes, expected_section9),
+        "candidate": exact_label_coverage(fixture["classes"], expected_section9),
+    },
+    "cta_conformance": "not_established",
 }
 print(json.dumps(report, sort_keys=True))
