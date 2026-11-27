@@ -16,13 +16,13 @@ SCOPE = (
     "digest-pinned default Kind cluster. An evaluator processes only a mounted, "
     "immutable JSON fixture with one allowlisted operation and no model artifact, "
     "network client, or Kubernetes credential. A separate reviewer ServiceAccount "
-    "reads the immutable evaluation, writes an exact approved/rejected disposition "
+    "reads the immutable evaluation, writes exact approved/rejected/escalated dispositions "
     "to a precreated ConfigMap, and creates one synthetic Warning Event for the "
     "rejected toy record. Assertions cover the ungated unsafe counterfactual, exact "
     "rejection and event, exact safe approval, Pod hardening, and RBAC separation. "
     "This does not execute or behaviorally vet a real model; validate sandbox escape "
     "resistance, network policy enforcement, real model quality, data coverage, "
-    "human reviewer identity, escalation, signature verification, or production "
+    "human reviewer identity or procedures, signature verification, or production "
     "promotion/audit workflows."
 )
 
@@ -35,6 +35,8 @@ FIXTURE = {
         {"candidate_id": "toy-reject-v1", "operation": "classify_text",
          "input": {"text": "fixture synthetic rejection sample"},
          "expected_label": "safe"},
+        {"candidate_id": "toy-inconclusive-v1", "operation": "classify_text",
+         "input": {"text": "fixture review-needed sample"}, "expected_label": "safe"},
     ],
 }
 
@@ -214,6 +216,9 @@ def run(lab):
 
     disposition_cm = json.loads(lab.kubectl("get", "configmap", DISPOSITION, "-o", "json").stdout)
     persisted = json.loads(disposition_cm["data"]["decisions.json"])
+    # Independent named GET confirms the durable outcome remains a hold, not approval.
+    hold_readback_cm = json.loads(lab.kubectl("get", "configmap", DISPOSITION, "-o", "json").stdout)
+    hold_readback = json.loads(hold_readback_cm["data"]["decisions.json"])
     event = json.loads(lab.kubectl("get", "events.events.k8s.io", "synthetic-model-rejection",
                                    "-o", "json").stdout)
     separation = {
@@ -231,7 +236,7 @@ def run(lab):
     }
     raw = {"fixture": FIXTURE, "evaluator_stdout": evaluator_stdout,
            "evaluator": evaluation, "reviewer_stdout": reviewer_stdout,
-           "persisted_disposition": persisted, "event": event,
+           "persisted_disposition": persisted, "hold_readback": hold_readback, "event": event,
            "kubernetes_uids": {"evaluation_job": eval_job["metadata"]["uid"],
                                "reviewer_job": reviewer_job["metadata"]["uid"],
                                "baseline_record": prior["metadata"]["uid"],
@@ -245,6 +250,8 @@ def run(lab):
 
     unsafe = next(row for row in evaluation["records"] if row["candidate_id"] == "toy-reject-v1")
     clean = next(row for row in evaluation["records"] if row["candidate_id"] == "toy-clean-v1")
+    inconclusive = next(row for row in evaluation["records"] if row["candidate_id"] == "toy-inconclusive-v1")
+    expected_escalated = next(row for row in persisted["decisions"] if row["candidate_id"] == "toy-inconclusive-v1")
     expected_unsafe = next(row for row in persisted["decisions"] if row["candidate_id"] == "toy-reject-v1")
     expected_clean = next(row for row in persisted["decisions"] if row["candidate_id"] == "toy-clean-v1")
     event_exact = {
@@ -307,16 +314,17 @@ def run(lab):
                                      "evaluation_sha256": evaluation["evaluation_sha256"]}
               and persisted == {"evaluator": "toy-evaluator-v1", "reviewer": REVIEWER,
                                 "evaluation_sha256": evaluation["evaluation_sha256"],
-                                "decisions": [expected_clean, expected_unsafe]},
+                                "decisions": [expected_clean, expected_unsafe, expected_escalated]},
               {"clean_result": clean, "clean_disposition": expected_clean,
                "evaluation_sha256": evaluation["evaluation_sha256"]})
     marker_outputs = {"fixture benign sample": "safe",
-                      "fixture synthetic rejection sample": "unsafe"}
+                      "fixture synthetic rejection sample": "unsafe",
+                      "fixture review-needed sample": "inconclusive"}
     expected_trace = [{"candidate_id": row["candidate_id"],
                        "input_sha256": hashlib.sha256(row["input"]["text"].encode()).hexdigest(),
                        "output_label": marker_outputs[row["input"]["text"]]}
                       for row in FIXTURE["records"]]
-    lab.check("positive", "The evaluator computes the two fixed benign marker outcomes instead of reading prefilled observations",
+    lab.check("positive", "The evaluator computes the three fixed inert marker outcomes instead of reading prefilled observations",
               all("observed_label" not in row for row in FIXTURE["records"])
               and evaluation.get("behavior_trace") == expected_trace
               and [row.get("observed_label") for row in evaluation["records"]]
@@ -324,3 +332,22 @@ def run(lab):
               {"marker_count": len(expected_trace),
                "input_digests_match": evaluation.get("behavior_trace") == expected_trace,
                "outputs": [row.get("observed_label") for row in evaluation["records"]]})
+
+    held_record = next(row for row in hold_readback["decisions"]
+                       if row["candidate_id"] == "toy-inconclusive-v1")
+    lab.check("positive", "An inconclusive inert evaluation is durably escalated and remains held",
+              inconclusive["outcome"] == "inconclusive"
+              and inconclusive["reason"] == "insufficient_evidence"
+              and expected_escalated == {"candidate_id": "toy-inconclusive-v1",
+                                         "disposition": "escalated",
+                                         "reason": "insufficient_evidence",
+                                         "reviewer": REVIEWER,
+                                         "evaluation_sha256": evaluation["evaluation_sha256"]}
+              and hold_readback["evaluation_sha256"] == evaluation["evaluation_sha256"]
+              and held_record == expected_escalated
+              and held_record["disposition"] != "approved",
+              {"candidate_id": held_record["candidate_id"],
+               "disposition": held_record["disposition"],
+               "reason": held_record["reason"],
+               "evaluation_sha256_matches":
+                   hold_readback["evaluation_sha256"] == evaluation["evaluation_sha256"]})

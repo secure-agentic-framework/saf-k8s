@@ -7,15 +7,16 @@ fixture = json.loads(Path("/fixture/fixture.json").read_text())
 allowed = set(fixture["permitted_operations"])
 if fixture["schema"] != "saf-toy-behavior-v1" or allowed != {"classify_text"}:
     raise SystemExit("fixture schema or operation set rejected")
-if len(fixture["records"]) != 2:
+if len(fixture["records"]) != 3:
     raise SystemExit("fixture record count rejected")
 if [row.get("candidate_id") for row in fixture["records"]] != [
-        "toy-clean-v1", "toy-reject-v1"]:
+        "toy-clean-v1", "toy-reject-v1", "toy-inconclusive-v1"]:
     raise SystemExit("candidate set rejected")
 
 marker_outputs = {
     "fixture benign sample": "safe",
     "fixture synthetic rejection sample": "unsafe",
+    "fixture review-needed sample": "inconclusive",
 }
 results = []
 trace = []
@@ -33,13 +34,19 @@ for record in fixture["records"]:
                   "input_sha256": hashlib.sha256(text.encode()).hexdigest(),
                   "output_label": observed_label})
     passed = observed_label == record["expected_label"]
+    if passed:
+        outcome, reason = "pass", "expected_behavior"
+    elif observed_label == "inconclusive":
+        outcome, reason = "inconclusive", "insufficient_evidence"
+    else:
+        outcome, reason = "fail", "behavioral_policy_violation"
     results.append({
         "candidate_id": record["candidate_id"],
         "operation": record["operation"],
         "expected_label": record["expected_label"],
         "observed_label": observed_label,
-        "outcome": "pass" if passed else "fail",
-        "reason": "expected_behavior" if passed else "behavioral_policy_violation",
+        "outcome": outcome,
+        "reason": reason,
     })
 
 canonical = json.dumps({"evaluator": "toy-evaluator-v1", "records": results,

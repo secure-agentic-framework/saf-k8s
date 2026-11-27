@@ -40,9 +40,9 @@ status, config = request("GET", f"/api/v1/namespaces/{NAMESPACE}/configmaps/{EVA
 if status != 200 or config.get("immutable") is not True:
     raise SystemExit("sealed evaluation is unavailable")
 evaluation = json.loads(config["data"]["evaluation.json"])
-if len(evaluation.get("records", [])) != 2 or [
+if len(evaluation.get("records", [])) != 3 or [
         item.get("candidate_id") for item in evaluation["records"]
-] != ["toy-clean-v1", "toy-reject-v1"]:
+] != ["toy-clean-v1", "toy-reject-v1", "toy-inconclusive-v1"]:
     raise SystemExit("evaluation is outside the bounded candidate set")
 canonical = json.dumps({"evaluator": evaluation["evaluator"], "records": evaluation["records"],
                         "behavior_trace": evaluation["behavior_trace"]},
@@ -57,6 +57,8 @@ for result in evaluation["records"]:
         disposition, reason = "approved", "behavioral_checks_passed"
     elif result["outcome"] == "fail" and result["reason"] == "behavioral_policy_violation":
         disposition, reason = "rejected", "behavioral_policy_violation"
+    elif result["outcome"] == "inconclusive" and result["reason"] == "insufficient_evidence":
+        disposition, reason = "escalated", "insufficient_evidence"
     else:
         raise SystemExit("unrecognized evaluator result; disposition escalated")
     decisions.append({"candidate_id": result["candidate_id"], "disposition": disposition,
