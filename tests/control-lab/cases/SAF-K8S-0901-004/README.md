@@ -58,7 +58,7 @@ does not establish who approved that digest or protect it if the trust source
 is compromised.
 
 This does not establish behavior of a training operator, framework checkpoint
-hook, data re-ingestion path, distributed worker coordination, external object
+hook, production data re-ingestion path, distributed worker coordination, external object
 store, PersistentVolume backup, independent backup domain, post-restore model
 validation, or production rollback process. The control's backup-diversity,
 training-job-controller, and validation-pass implementation claims remain
@@ -118,5 +118,28 @@ This witness covers a native Kubernetes Job retry over one same-cluster PVC
 with inert synthetic data. Adoption evidence covers the selected training
 framework, distributed recovery, storage failure domains, backup durability,
 retry and recovery objectives, and model validation.
+
+## Synthetic dataset re-ingestion retry supplement
+
+The isolated scratch candidate preserves the seven existing assertions and
+adds two focused checks. Two bounded Jobs each use one PVC and the same exact
+checkpoint bytes. In the positive path, attempt one verifies an inert fixed
+dataset shard, persists the checkpoint and exits to force Kubernetes retry;
+attempt two re-reads and verifies the same shard before advancing the
+checkpoint. A separate read-only Job verifies persisted bytes. In the negative
+path, attempt one persists the same checkpoint, while attempt two receives a
+different harmless shard with the same declared example identity. It must
+reject the digest mismatch, leave the checkpoint unchanged, and produce the
+same result under independent read-only verification.
+
+The two added assertions cover only digest-checked synthetic shard
+re-ingestion and checkpoint continuity in one disposable Kind cluster. They
+do not exercise production datasets, training operators or frameworks,
+distributed workers, external stores, independent failure domains, or
+organizational retry, retention, approval, and recovery decisions. Raw Job,
+Pod, ConfigMap and verifier observations are written to
+`training-data-reingestion.raw.json` in the case evidence directory. The
+scratch candidate has nine total checks: the seven prior checks plus the
+positive and changed-shard checks.
 
 [Kubernetes v1.36 Job retry and termination](https://v1-36.docs.kubernetes.io/docs/concepts/workloads/controllers/job/)

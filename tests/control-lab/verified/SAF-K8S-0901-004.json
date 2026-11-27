@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0901-004",
-  "catalog_revision": "b0ef545077644156f6ee168f80740391dfb8cf76",
-  "catalog_sha256": "ed6243c33229f6466971a9ce3d0c83508509eff6f38c522843b0dd12fb917717",
+  "catalog_revision": "ba1bf3f3be19c1ee8709a79d6b4b516d238a6e2f",
+  "catalog_sha256": "caa76efc6fa0d98e355098428f9ca91dbd8f04df3ace9709aaa0b9f814dc2f6b",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "bb5f98b699c374c57671af4c249861035dda0e135c0f930fcd524a86ec5329b5",
-  "scope": "One disposable Kind v1.36.1 cluster and the saf-test namespace; two immutable, case-owned ConfigMaps carrying synthetic named snapshots; a deliberately changed target ConfigMap; one local bounded restore function; and two short digest-pinned Python Jobs. The case checks fixture SHA-256 values, altered-byte rejection, an over-limit retry request, exact approved payload/label/annotation restoration, and Job conditions and Pod counts. It additionally copies one fixed synthetic checkpoint across source and backup PVCs and restores/read-checks it on a third fresh PVC using three short tokenless Jobs. The three claims use the selected storage class in this same cluster and do not establish independent failure domains. It does not exercise an ML framework, training operator, real checkpoint store, distributed training, data re-ingestion, external backup service, or production retry/rollback configuration.",
-  "cluster": "saf-lab-bba9a4b5d1a0",
+  "scope": "One disposable Kind v1.36.1 cluster and the saf-test namespace; two immutable, case-owned ConfigMaps carrying synthetic named snapshots; a deliberately changed target ConfigMap; one local bounded restore function; and two short digest-pinned Python Jobs. The case checks fixture SHA-256 values, altered-byte rejection, an over-limit retry request, exact approved payload/label/annotation restoration, and Job conditions and Pod counts. It additionally copies one fixed synthetic checkpoint across source and backup PVCs and restores/read-checks it on a third fresh PVC using three short tokenless Jobs. The three claims use the selected storage class in this same cluster and do not establish independent failure domains. A separate supplement adds digest-checked retry of fixed synthetic data shards. The case does not exercise an ML framework, training operator, real checkpoint store, distributed training, production data re-ingestion, external backup service, or production retry/rollback configuration.",
+  "cluster": "saf-lab-b99814d60974",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -262,6 +262,34 @@
         "independent_read_only_job_verified_final_pvc_bytes": true,
         "retry_and_verifier_jobs_mount_same_claim": true,
         "case_owned_bound_pvc": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "A real bounded Job retry re-ingests the approved shard before continuing the exact checkpoint",
+      "matched": true,
+      "observed": {
+        "first_pod_failed_after_persisting_verified_checkpoint": true,
+        "retry_pod_reingested_same_approved_shard": true,
+        "retry_continued_checkpoint": true,
+        "independent_read_only_readback": true,
+        "checkpoint_sha256": "2f8a895aefe4c9dce82ef7bf96d28a434cd99a0a71b40212c753c42e8525876a",
+        "data_shard_sha256": "ba8801fbf37150db5ff682afa8c69f53cdf38c11ddaa0e74d15783630fe16220"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "A changed harmless shard blocks retry continuation and leaves the persisted checkpoint unchanged",
+      "matched": true,
+      "observed": {
+        "first_pod_persisted_verified_checkpoint": true,
+        "retry_was_attempted_and_rejected": true,
+        "changed_shard_digest_rejected": true,
+        "checkpoint_before_equals_after": true,
+        "independent_read_only_readback_confirms_unchanged_checkpoint": true,
+        "checkpoint_sha256": "2f8a895aefe4c9dce82ef7bf96d28a434cd99a0a71b40212c753c42e8525876a",
+        "approved_data_shard_sha256": "ba8801fbf37150db5ff682afa8c69f53cdf38c11ddaa0e74d15783630fe16220",
+        "changed_retry_shard_sha256": "9af7ee8be0d5a8a95033e3a21f6be70261e30428cb6c5f6accab25bc1e989dca"
       }
     }
   ]

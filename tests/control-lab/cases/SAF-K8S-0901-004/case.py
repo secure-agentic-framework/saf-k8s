@@ -35,9 +35,10 @@ SCOPE = (
     "Job conditions and Pod counts. It additionally copies one fixed synthetic checkpoint "
     "across source and backup PVCs and restores/read-checks it on a third fresh PVC using "
     "three short tokenless Jobs. The three claims use the selected storage class in this "
-    "same cluster and do not establish independent failure domains. It does not exercise "
+    "same cluster and do not establish independent failure domains. A separate supplement "
+    "adds digest-checked retry of fixed synthetic data shards. The case does not exercise "
     "an ML framework, training operator, real checkpoint store, distributed training, "
-    "data re-ingestion, external backup service, or production retry/rollback configuration."
+    "production data re-ingestion, external backup service, or production retry/rollback configuration."
 )
 
 
@@ -327,5 +328,14 @@ def run(lab):
     retry = importlib.util.module_from_spec(retry_spec)
     retry_spec.loader.exec_module(retry)
     evidence["job_retry_continuation"] = retry.run(lab, item, supplement)
+    reingestion_path = HERE / "job_reingestion.py"
+    reingestion_spec = importlib.util.spec_from_file_location(
+        "saf_0901_004_job_reingestion", reingestion_path
+    )
+    if reingestion_spec is None or reingestion_spec.loader is None:
+        lab.block("Training data re-ingestion supplement is unavailable")
+    reingestion = importlib.util.module_from_spec(reingestion_spec)
+    reingestion_spec.loader.exec_module(reingestion)
+    evidence["training_data_reingestion"] = reingestion.run(lab, item, supplement)
     (lab.evidence / "recovery-integrity.raw.json").write_text(
         json.dumps(evidence, indent=2, sort_keys=True) + "\n", encoding="utf-8")
