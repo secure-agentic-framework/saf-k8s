@@ -73,9 +73,30 @@ def run(lab):
 
     host_ok = change(lab, HOST, HOST_RECORD, "approved-host").returncode == 0 and version(lab, HOST_RECORD) == "approved-host"
     device_ok = change(lab, DEVICE, DPU_RECORD, "approved-offload").returncode == 0 and version(lab, DPU_RECORD) == "approved-offload"
+    # kubectl patch reads the named object first. Give the fixture operator
+    # explicit read visibility to test authorization of the PATCH itself.
+    grant(lab, "fixture-host-read", HOST_RECORD, verbs=["get"])
+    bind(lab, "fixture-offload-host-visible", "fixture-host-read", DEVICE)
+    seen = lab.kubectl("--as", DEVICE, "get", "configmap", HOST_RECORD, "-o", "json")
+    offload_host_visible = json.loads(seen.stdout)["data"]["revision"] == "approved-host"
+    cross_scope_attempt = change(lab, DEVICE, HOST_RECORD, "unauthorized-offload-host-edit")
+    diagnostic = cross_scope_attempt.stderr
+    cross_scope_denied = (cross_scope_attempt.returncode != 0 and "forbidden" in diagnostic.lower()
+                          and f'User "{DEVICE}" cannot patch resource "configmaps"' in diagnostic
+                          and f'configmaps "{HOST_RECORD}"' in diagnostic)
+    host_unchanged = version(lab, HOST_RECORD) == "approved-host"
+    sar_denied = not review(lab, DEVICE, HOST_RECORD)
     lab.check("positive", "Each fixture administrator can update only its own policy scope",
-              host_ok and device_ok and not review(lab, DEVICE, HOST_RECORD),
-              {"approved_host_edit": host_ok, "approved_offload_edit": device_ok, "offload_admin_cannot_edit_host": True})
+              host_ok and device_ok and offload_host_visible and cross_scope_denied and host_unchanged and sar_denied,
+              {"approved_host_edit": host_ok, "approved_offload_edit": device_ok,
+               "offload_host_read_visibility": offload_host_visible,
+               "offload_host_patch_denied_by_api": cross_scope_denied,
+               "host_record_unchanged_after_denial": host_unchanged,
+               "sar_denies_host_patch": sar_denied})
     (lab.evidence / "offload-rbac-observations.json").write_text(json.dumps({
         "shared_role_allows_offload_edit": baseline, "offload_write_denied": denied, "read_only_visibility_preserved": visible,
-        "approved_host_edit": host_ok, "approved_offload_edit": device_ok, "device_management_tested": False}, indent=2) + "\n")
+        "approved_host_edit": host_ok, "approved_offload_edit": device_ok,
+        "offload_host_read_visibility": offload_host_visible,
+               "offload_host_patch_denied_by_api": cross_scope_denied,
+        "host_record_unchanged_after_denial": host_unchanged, "sar_denies_host_patch": sar_denied,
+        "device_management_tested": False}, indent=2) + "\n")

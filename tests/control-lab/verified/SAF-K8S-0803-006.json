@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0803-006",
-  "catalog_revision": "182c20caf63778e2f8790a07fc63a87925bfd755",
-  "catalog_sha256": "5737cbee29c5e7c8db557efdbe9d3db24731dc8519fbe2f42f29c746f6d29082",
+  "catalog_revision": "cd6f6d6d5a5066b658147171209b0e44ff35355c",
+  "catalog_sha256": "1da56289e4f344f65fa946b0099b200d7a52a7c4bea62ee17a32261bedc18861",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "59d3fe09ee62a1fb9dff4b880b9bf7509743be861622d93d986d725d0c0e694d",
   "scope": "Live Kubernetes RBAC isolation of synthetic policy records; no device or BMC management interface is used.",
-  "cluster": "saf-lab-491409714d10",
+  "cluster": "saf-lab-96689b16ab3c",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -62,7 +62,10 @@
       "observed": {
         "approved_host_edit": true,
         "approved_offload_edit": true,
-        "offload_admin_cannot_edit_host": true
+        "offload_host_read_visibility": true,
+        "offload_host_patch_denied_by_api": true,
+        "host_record_unchanged_after_denial": true,
+        "sar_denies_host_patch": true
       }
     }
   ]
