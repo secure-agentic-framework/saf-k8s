@@ -12,8 +12,8 @@ REVIEWER = "independent-model-reviewer"
 EVALUATION = "behavioral-evaluation"
 DISPOSITION = "model-disposition"
 SCOPE = (
-    "Runs two bounded Jobs in the precreated saf-test namespace on the runner's "
-    "digest-pinned default Kind cluster. An evaluator processes only a mounted, "
+    "Runs bounded Jobs in the precreated saf-test namespace on the runner's "
+    "digest-pinned default Kind cluster. The toy evaluator processes only a mounted, "
     "immutable JSON fixture with one allowlisted operation and no model artifact, "
     "network client, or Kubernetes credential. A separate reviewer ServiceAccount "
     "reads the immutable evaluation, writes exact approved/rejected/escalated dispositions "
@@ -23,7 +23,12 @@ SCOPE = (
     "This does not execute or behaviorally vet a real model; validate sandbox escape "
     "resistance, network policy enforcement, real model quality, data coverage, "
     "human reviewer identity or procedures, signature verification, or production "
-    "promotion/audit workflows."
+    "promotion/audit workflows. A further tokenless evaluator Job makes one fixed "
+    "four-token CPU request to the digest-pinned llama.cpp b9519 Stories test model, "
+    "records identifiers, counts and hashes only, and obtains an independent "
+    "digest-bound escalated/held review because this smoke request has no approved "
+    "safety rubric or representative dataset. This does not establish model safety "
+    "or network-policy enforcement."
 )
 
 FIXTURE = {
@@ -351,3 +356,11 @@ def run(lab):
                "reason": held_record["reason"],
                "evaluation_sha256_matches":
                    hold_readback["evaluation_sha256"] == evaluation["evaluation_sha256"]})
+
+    native_spec = importlib.util.spec_from_file_location(
+        "saf_0905_045_native_model", HERE / "native_model.py")
+    if native_spec is None or native_spec.loader is None:
+        lab.block("Could not load the bounded native model witness")
+    native_module = importlib.util.module_from_spec(native_spec)
+    native_spec.loader.exec_module(native_module)
+    native_module.run(lab, image, _job, _wait_job, _pod_security, _auth)

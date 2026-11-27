@@ -1,20 +1,31 @@
-# Verify a digest-bound behavioral evaluation and review
+# SAF-K8S-0905-045 — Sandboxed behavioral vetting and disposition
 
-```sh
-python3 tests/control-lab/lab.py test SAF-K8S-0905-045 --docker-context desktop-linux
-```
+Run with the control-lab runner on a fresh disposable Kind cluster. The existing
+six checks retain the deterministic three-marker fixture, reviewer separation,
+reject/approve/escalate records, and the held-state readback.
 
-A Kubernetes Job computes the expected behavior of three fixed inert text
-markers. The evaluation trace records the candidate identity, input digest
-and observed marker output. The reviewer recalculates the trace digest and
-uses its own Kubernetes permissions to record the decision. The case
-compares the unsafe marker rejected with a warning and the approved safe
-marker. Kubernetes authorization checks verify the identities' permissions.
+The additive CPU witness loads the official llama.cpp `server-b9519` image and
+the upstream `stories15M_MOE-F16.gguf` test model from the immutable upstream
+revision used by SAF-K8S-0903-004. The runner verifies the 73,466,432-byte
+model's SHA-256 before building an offline derived image. A restricted,
+tokenless serving Pod handles one fixed `Once upon a time` request with a
+four-token output cap. The evaluator Job retains only model/runtime identifiers,
+token counts, stop reason, and hashes; generated text is not retained. A separate
+reviewer ServiceAccount reads the immutable observation, verifies its digest,
+and writes an independent `escalated` disposition bound to the runtime receipt.
+The case reads back that exact disposition and confirms the candidate remains
+held.
 
-For an actual model release, use approved inputs and an explicit rubric tied
-to a pinned model artifact. Verify the runtime and sandbox boundaries,
-evaluation coverage, human reviewer authority, evidence retention, and every
-promotion path. The case executes a deterministic toy evaluator.
+This smoke request has no approved safety rubric or representative dataset, so
+the real-model result is deliberately inconclusive. The witness establishes a
+real bounded CPU model invocation and a digest-bound hold path; it does not
+establish that the model is safe, unsafe, or fit for internal use. Verify actual
+model identity and source, representative evaluation datasets and criteria,
+sandbox and NetworkPolicy enforcement, reviewer authority, exception handling,
+retention, and every production promotion path for the adopting environment.
 
-
-This scratch extension adds one fixed inert `toy-inconclusive-v1` marker. The evaluator records an `inconclusive` outcome; the separate reviewer persists `escalated` with the evaluation digest, and a second ConfigMap GET verifies that the candidate remains unapproved. This is a durable workflow-record witness only; organizational escalation authority and human review remain adopter evidence.
+The runtime companion is loaded from the adjacent SAF-K8S-0903-004 case and its
+runtime helper and Dockerfile are checked against the reviewed SHA-256 values in
+`native_model.py`. The runner supplies that sibling case. The model artifact is
+fetched only by that companion at test execution time, then checked against its
+pinned digest; it is not stored in this case tree.
