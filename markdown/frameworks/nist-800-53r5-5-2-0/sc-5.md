@@ -54,15 +54,6 @@ Scoped quotas, workload priorities, and service monitoring contribute to protect
 - Applicability: required
 - Strength Reason Code: exact-text-match
 
-### [SAF-K8S-0903-001 - Adversarial example defenses at the serving layer](../../controls/SAF-K8S-0903-001.md)
-
-- Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
-- Knowledge Area: 9.3
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: exact-text-match
-
 ### [SAF-K8S-0903-003 - Inference-time resource controls](../../controls/SAF-K8S-0903-003.md)
 
 - Domain: D09 - AI Workload Security: Training, Serving, and Pipelines

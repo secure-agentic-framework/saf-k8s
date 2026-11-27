@@ -67,10 +67,10 @@ Verified runtime signal coverage supports the monitoring portion of defined cybe
 
 - Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
 - Knowledge Area: 9.3
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: exact-text-match
+- Relation Type: supports
+- Strength: moderate
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-0906-004 - Statistical drift, outlier, and input validation for training data poisoning detection](../../controls/SAF-K8S-0906-004.md)
 

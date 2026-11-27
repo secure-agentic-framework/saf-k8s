@@ -878,16 +878,13 @@
   framework_requirement_id: Annex-XI.2.2
   legacy_requirement_id: Annex-XI:XI(7)(c)
   framework_requirement_title: Technical documentation referred to in Article 53(1), point (a) — technical documentation for providers of general-purpose AI models
-  framework_mapping_notes: |-
-    Where applicable, a detailed description of the measures put in place for the purpose of conducting internal and/or external adversarial testing (e.g. red teaming), model adaptations, including alignment and fine-tuning.
-
-    SAF-K8S provides infrastructure for running adversarial tests: workload isolation for test environments, network controls for test boundaries, and D9 adversarial defense controls (KA 9.3). The testing methodology, results analysis, and mitigation strategy are application-layer and organizational concerns.
+  framework_mapping_notes: Evaluation evidence for an adopted serving safeguard can inform this documentation item within the scope of the applicable model.
   control_id: SAF-K8S-0903-001
-  relation_type: partial
-  strength_level: moderate
-  applicability: required
-  applicability_condition:
-  strength_reason_code: framework-language-interpretation
+  relation_type: supports
+  strength_level: weak
+  applicability: conditional
+  applicability_condition: The provider of a general-purpose AI model with systemic risk records the applicable model evaluation and adversarial testing measures and results in its technical documentation and includes the evaluated serving protections where relevant.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to EU AI Act 2024/1689
   framework_code: EU-AI-ACT
   framework_name: EU AI Act
@@ -1695,16 +1692,13 @@
   framework_requirement_id: Article-15.5
   legacy_requirement_id: Art-15:15(5)-ai-specific-attacks
   framework_requirement_title: Accuracy, robustness and cybersecurity
-  framework_mapping_notes: |-
-    High-risk AI systems shall be resilient against attempts by unauthorised third parties to alter their use, outputs or performance by exploiting system vulnerabilities. The technical solutions aiming to ensure the cybersecurity of high-risk AI systems shall be appropriate to the relevant circumstances and the risks. The technical solutions to address AI specific vulnerabilities shall include, where appropriate, measures to prevent, detect, respond to, resolve and control for attacks trying to manipulate the training data set (data poisoning), or pre-trained components used in training (model poisoning), inputs designed to cause the AI model to make a mistake (adversarial examples or model evasion), confidentiality attacks or model flaws.
-
-    Directly maps to SAF-K8S D9 controls: data poisoning defense (KA 9.6), model supply chain integrity (KA 9.5), adversarial input defense (KA 9.3), model extraction prevention (KA 9.8), and inference request validation (KA 9.2).
+  framework_mapping_notes: An evaluated serving protection supports the covered risk within the documented system boundary.
   control_id: SAF-K8S-0903-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition:
-  strength_reason_code: exact-text-match
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The adopted serving protection applies to a relevant manipulation or disclosure risk of an in-scope high-risk AI system and its effectiveness is evaluated and documented for that system.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to EU AI Act 2024/1689
   framework_code: EU-AI-ACT
   framework_name: EU AI Act
@@ -2919,19 +2913,6 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: framework-language-interpretation
-- mapping_set_name: SAF-K8S to NIST AI RMF 1.0
-  framework_code: NIST-AI-RMF
-  framework_name: NIST AI Risk Management Framework
-  framework_version: '1.0'
-  framework_requirement_id: MAP 2.2
-  framework_requirement_title: Information about the AI system's knowledge limits and how system output may be utilized and overseen by humans is documented. Documentation also includes a description of the capabilities the system can and cannot support, its intended scope of operation, and conditions under which it would not be advisable to deploy the system.
-  framework_mapping_notes: Inference request validation and response filtering enforce operational boundaries. Adversarial example defenses help define system reliability limits.
-  control_id: SAF-K8S-0903-001
-  relation_type: partial
-  strength_level: weak
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST AI RMF 1.0
   framework_code: NIST-AI-RMF
   framework_name: NIST AI Risk Management Framework
@@ -8713,22 +8694,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: AU-5(4)
-  framework_requirement_title: Shutdown on Failure
-  framework_mapping_notes: 'Halting agent operations when auditing fails
-
-
-    9.3 - Circuit breakers halt inference on failure; 6.5 - Admission webhook Fail mode policy stops API mutations when audit/validation cannot proceed'
-  control_id: SAF-K8S-0903-001
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: AU-5(5)
   framework_requirement_title: Alternate Audit Logging Capability
   framework_mapping_notes: 'Fallback logging for agent systems
@@ -11010,22 +10975,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: CP-12
-  framework_requirement_title: Safe Mode
-  framework_mapping_notes: 'Agent safe/degraded mode operation
-
-
-    9.3 - Circuit breakers and graceful degradation (safe mode); 6.5 - Admission webhook Fail mode'
-  control_id: SAF-K8S-0903-001
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: CP-2(2)
   framework_requirement_title: Capacity Planning
   framework_mapping_notes: 'Capacity planning for agent failover
@@ -11107,22 +11056,6 @@
 
     9.3 - Autoscaling safety (maintaining inference availability); 7.3 - Pod disruption budgets'
   control_id: SAF-K8S-0703-012
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: CP-2(5)
-  framework_requirement_title: Continue Mission and Business Functions
-  framework_mapping_notes: 'Maintaining agent operations during disruption
-
-
-    9.3 - Autoscaling safety (maintaining inference availability); 7.3 - Pod disruption budgets'
-  control_id: SAF-K8S-0903-001
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -15306,22 +15239,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: SA-24
-  framework_requirement_title: Design For Cyber Resiliency
-  framework_mapping_notes: 'Cyber resiliency design enables agent systems to withstand and recover from attacks
-
-
-    7.3 - Resource exhaustion resilience (chaos engineering, cyber resiliency); 9.3 - Circuit breakers, graceful degradation'
-  control_id: SAF-K8S-0903-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: SA-3
   framework_requirement_title: System Development Life Cycle
   framework_mapping_notes: For a selected governed Kubernetes delivery path, enforce and retain decisions at the defined Develop, Distribute, and Deploy checkpoints for the same artifact; assess Runtime separately. This is partial implementation evidence for lifecycle security checkpoints and does not establish the full SA-3 system development life cycle, roles, responsibilities, or risk-management integration.
@@ -16110,16 +16027,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SA-8(24)
   framework_requirement_title: Secure Failure and Recovery
-  framework_mapping_notes: 'Agents must fail securely, revoking permissions and preserving audit state on error
-
-
-    9.3 - Circuit breakers, graceful degradation (secure failure); 6.5 - Webhook Fail mode (fail secure)'
+  framework_mapping_notes: A defined and evaluated failure state for the serving component can contribute evidence for this design principle.
   control_id: SAF-K8S-0903-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
+  relation_type: supports
+  strength_level: weak
+  applicability: conditional
+  applicability_condition: The serving component implements documented safe and secure failure design principles with specified states and verified responses for adopted policy dependency faults.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -18775,22 +18689,6 @@
   framework_version: 5.2.0
   framework_requirement_id: SC-5
   framework_requirement_title: Denial-of-service Protection
-  framework_mapping_notes: 'DoS protection for agent endpoints and APIs prevents service disruption attacks
-
-
-    9.3 - Autoscaling safety, EDoS prevention; 7.3 - Resource exhaustion resilience (DoS protection)'
-  control_id: SAF-K8S-0903-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-5
-  framework_requirement_title: Denial-of-service Protection
   framework_mapping_notes: The local reference shows bounded inference work, deadlines and the behavior of one circuit breaker. Verify the organization's selected threat scenarios, configured runtime protections and effective coverage under the adopted workload and network paths.
   control_id: SAF-K8S-0903-003
   relation_type: partial
@@ -18977,22 +18875,6 @@
   applicability: required
   applicability_condition: null
   strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-5(3)
-  framework_requirement_title: Detection and Monitoring
-  framework_mapping_notes: 'DoS detection and monitoring for agent APIs identifies abuse patterns and attacks
-
-
-    2.4 - Runtime threat detection (DoS detection and monitoring); 9.3 - Autoscaling monitoring'
-  control_id: SAF-K8S-0903-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -19490,16 +19372,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SC-7(18)
   framework_requirement_title: Fail Secure
-  framework_mapping_notes: 'Agent boundary protection must fail secure, blocking traffic on component failure
-
-
-    6.5 - Admission webhook failure policies (Fail mode for fail-secure); 9.3 - Circuit breakers'
+  framework_mapping_notes: Evidence of protection during the specified device failures supports the corresponding serving boundary.
   control_id: SAF-K8S-0903-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
+  relation_type: supports
+  strength_level: weak
+  applicability: conditional
+  applicability_condition: A serving component is a designated boundary protection device and evaluated operational failures preserve its defined boundary protections.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -20229,22 +20108,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: SI-10(1)
-  framework_requirement_title: Manual Override Capability
-  framework_mapping_notes: 'Manual override of agent input validation enables human intervention for edge cases
-
-
-    9.3 - Autoscaling safety (manual override of scaling); 10.3 - IR containment (manual override for containment)'
-  control_id: SAF-K8S-0903-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: SI-10(2)
   framework_requirement_title: Review and Resolve Errors
   framework_mapping_notes: 'Reviewing input validation errors in agent systems identifies attack attempts and tuning needs
@@ -20358,22 +20221,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: SI-10(4)
-  framework_requirement_title: Timing Interactions
-  framework_mapping_notes: 'Timing interaction controls for agent inputs prevent race conditions and time-of-check attacks
-
-
-    9.3 - Inference-time resource controls (timing/timeout enforcement); 9.8 - Rate limiting (timing-based controls)'
-  control_id: SAF-K8S-0903-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: SI-10(5)
   framework_requirement_title: Restrict Inputs to Trusted Sources and Approved Formats
   framework_mapping_notes: This control contributes enforcement of one declared JSON request schema and body-size limit at the case-owned gateway and mock model. The portable fixture does not authenticate or restrict input sources and does not test any secure data-pipeline ingestion path; any applicability is limited to an organization's approved use of this specific format policy.
@@ -20447,16 +20294,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SI-11
   framework_requirement_title: Error Handling
-  framework_mapping_notes: 'Agent error handling must not reveal sensitive information or create exploitable states
-
-
-    9.3 - Inference overload handling (graceful degradation, circuit breakers); 9.8 - Information exposure controls'
+  framework_mapping_notes: Verified serving error messages can support the designated information and audience constraints.
   control_id: SAF-K8S-0903-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
+  relation_type: supports
+  strength_level: weak
+  applicability: conditional
+  applicability_condition: Configured serving error messages provide the specified information for corrective action with limited disclosure, and detailed errors are available only to defined authorized roles.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -20619,22 +20463,6 @@
 
     9.1 - Training fault tolerance (corrupted data detection and recovery); 7.3 - Resource exhaustion resilience'
   control_id: SAF-K8S-0703-012
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-13(3)
-  framework_requirement_title: Manual Transfer Between Components
-  framework_mapping_notes: 'Manual failover capability for agent systems provides backup when automation fails
-
-
-    10.5 - IR containment (manual containment actions -- draining nodes, suspending workloads); 9.3 - Autoscaling manual override'
-  control_id: SAF-K8S-0903-001
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -20883,16 +20711,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SI-17
   framework_requirement_title: Fail-safe Procedures
-  framework_mapping_notes: 'Fail-safe procedures for agent systems ensure secure shutdown and data preservation
-
-
-    9.3 - Inference overload handling (graceful degradation, circuit breakers); 6.5 - Admission webhook failure policies (Fail vs. Ignore)'
+  framework_mapping_notes: A verified response to a serving safeguard failure supports the corresponding defined failure condition.
   control_id: SAF-K8S-0903-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
+  relation_type: supports
+  strength_level: weak
+  applicability: conditional
+  applicability_condition: Defined serving failure conditions are covered by adopted fail-safe procedures and their observed behavior is retained.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -22561,22 +22386,6 @@
 
     9.3 - Inference-time resource controls (multi-level timeouts per request); 7.3 - Idle GPU detection and reclamation'
   control_id: SAF-K8S-0703-012
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: exact-text-match
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-7(16)
-  framework_requirement_title: Time Limit on Process Execution Without Supervision
-  framework_mapping_notes: 'Time limits on unsupervised agent execution prevent runaway or compromised processes
-
-
-    9.3 - Inference-time resource controls (multi-level timeouts per request); 7.3 - Idle GPU detection and reclamation'
-  control_id: SAF-K8S-0903-001
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -25188,3 +24997,42 @@
   applicability_condition: The organization defines which inference inputs require validation and verifies the deployed size and format constraints for those inputs.
   strength_reason_code: partial-control-coverage
   framework_mapping_notes: The portable fixture verifies a size restriction for an inert request. Full validity criteria, covered inputs and required rejection or reporting behavior depend on the deployed interface and policy.
+- mapping_set_name: SAF-K8S to NIST SP 800-53r5
+  framework_code: NIST-800-53R5
+  framework_name: NIST SP 800-53 Revision 5
+  framework_version: 5.2.0
+  framework_requirement_id: SI-10
+  framework_requirement_title: Information Input Validation
+  control_id: SAF-K8S-0903-001
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The adopted serving component checks the validity of specified inference inputs before forwarding or processing and the deployed validation paths are verified.
+  strength_reason_code: partial-control-coverage
+  framework_mapping_notes: Serving input validity checks support this requirement within the defined interface and input scope.
+- mapping_set_name: SAF-K8S to NIST SP 800-53r5
+  framework_code: NIST-800-53R5
+  framework_name: NIST SP 800-53 Revision 5
+  framework_version: 5.2.0
+  framework_requirement_id: SI-10(3)
+  framework_requirement_title: Predictable Behavior
+  control_id: SAF-K8S-0903-001
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: Invalid input produces the defined and verified predictable and documented system behavior for the adopted serving interface.
+  strength_reason_code: partial-control-coverage
+  framework_mapping_notes: Verified invalid-input handling provides evidence for the documented serving response.
+- mapping_set_name: SAF-K8S to NIST AI RMF 1.0
+  framework_code: NIST-AI-RMF
+  framework_name: NIST AI Risk Management Framework
+  framework_version: '1.0'
+  framework_requirement_id: MEASURE 2.7
+  framework_requirement_title: AI system security and resilience - as identified in the MAP function - are evaluated and documented.
+  control_id: SAF-K8S-0903-001
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The owner evaluates and documents how the adopted serving safeguards address AI security and resilience risks identified for the deployed system in the Map function.
+  strength_reason_code: partial-control-coverage
+  framework_mapping_notes: Serving-layer evaluation results can contribute to the documented AI security and resilience evaluation.

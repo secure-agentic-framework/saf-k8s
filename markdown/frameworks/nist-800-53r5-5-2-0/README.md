@@ -2,8 +2,8 @@
 
 - Framework Code: NIST-800-53R5
 - Version: 5.2.0
-- Total Reverse Mappings: 1426
-- Distinct Requirements Mapped: 567
+- Total Reverse Mappings: 1418
+- Distinct Requirements Mapped: 563
 
 ## Requirements
 
@@ -457,7 +457,6 @@
 - [SC-5 - Denial-of-service Protection](sc-5.md)
 - [SC-5(1) - Restrict Ability to Attack Other Systems](sc-5-1.md)
 - [SC-5(2) - Capacity, Bandwidth, and Redundancy](sc-5-2.md)
-- [SC-5(3) - Detection and Monitoring](sc-5-3.md)
 - [SC-50 - Software-enforced Separation and Policy Enforcement](sc-50.md)
 - [SC-6 - Resource Availability](sc-6.md)
 - [SC-7 - Boundary Protection](sc-7.md)
@@ -486,10 +485,8 @@
 - [SC-8(4) - Conceal or Randomize Communications](sc-8-4.md)
 - [SI-1 - Policy and Procedures](si-1.md)
 - [SI-10 - Information Input Validation](si-10.md)
-- [SI-10(1) - Manual Override Capability](si-10-1.md)
 - [SI-10(2) - Review and Resolve Errors](si-10-2.md)
 - [SI-10(3) - Predictable Behavior](si-10-3.md)
-- [SI-10(4) - Timing Interactions](si-10-4.md)
 - [SI-10(5) - Restrict Inputs to Trusted Sources and Approved Formats](si-10-5.md)
 - [SI-10(6) - Injection Prevention](si-10-6.md)
 - [SI-11 - Error Handling](si-11.md)
@@ -498,7 +495,6 @@
 - [SI-12(2) - Minimize Personally Identifiable Information in Testing, Training, and Research](si-12-2.md)
 - [SI-12(3) - Information Disposal](si-12-3.md)
 - [SI-13 - Predictable Failure Prevention](si-13.md)
-- [SI-13(3) - Manual Transfer Between Components](si-13-3.md)
 - [SI-13(4) - Standby Component Installation and Notification](si-13-4.md)
 - [SI-13(5) - Failover Capability](si-13-5.md)
 - [SI-14 - Non-persistence](si-14.md)
