@@ -93,3 +93,23 @@ components. The namespaced controller fixture provides the selected observed
 permissions and identity evidence.
 
 [NIST SP 800-53](https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final).
+
+## Vendor-specific scope and cluster-scoped access
+
+Operator scope is product- and mode-specific. Apply the narrowest supported
+controller watch and tenant scope, and explicitly review any cluster-scoped
+permissions or resources required by the selected mode. A namespace is an
+installation boundary; it does not imply that the controller or its operands
+operate only within that namespace. For example, Kueue models `ClusterQueue`
+as cluster-scoped and publishes cluster-wide ClusterRoles; KServe installation
+separates cluster CRDs from namespaced Helm releases; NVIDIA documents that
+GPU Operator operands are deployed on all GPU worker nodes by default. These
+examples support a mode-specific review, not a claim that any particular broad
+grant is necessary.
+
+The seven runtime assertions above remain unchanged and prove only the pinned
+KubeRay 1.8.0 namespace-scoped mode and the synthetic authorization pattern.
+They do not validate other vendors, alternate modes, the necessity of grants,
+or deployed vulnerability and upgrade processes.
+
+Additional primary vendor sources: [Kueue concepts](https://kueue.sigs.k8s.io/docs/concepts/) and [Kueue RBAC](https://kueue.sigs.k8s.io/docs/tasks/manage/rbac/); [KServe installation](https://kserve.github.io/website/docs/install/kserve-install); [NVIDIA GPU Operator installation](https://docs.nvidia.com/datacenter/cloud-native/gpu-operator/26.7/getting-started.html).

@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0901-007",
-  "catalog_revision": "946bb476204343aefa7db166e70e24bbf53b01d1",
-  "catalog_sha256": "ee384744c842f8d644f583a5aaca5eaaa6b5317fc5eec912d037736ad0661d10",
+  "catalog_revision": "b2367a7abe414da5c92e2b9743ca0c8773ff93d9",
+  "catalog_sha256": "caa76efc6fa0d98e355098428f9ca91dbd8f04df3ace9709aaa0b9f814dc2f6b",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "05c37c86fb548a4aa59553ec79fc57a571ec469ec81a0f36069edfad2816fa6d",
+  "control_sha256": "0e56517f3e2d386d7211c41e2c93a3b8c550fbbe4f98680923405c46bdd2a13c",
   "scope": "One disposable Kind Kubernetes v1.36.1 cluster. The first case verifies exact named resource access for a synthetic controller identity. The second case renders the pinned official KubeRay 1.8.0 chart with its namespace-scoped Role and dedicated ServiceAccount. Native calls compare RayCluster access and status authorization in the watched and adjacent namespaces and for cluster-scoped Nodes. The real controller reports suspension and creates an internal Service only for the watched fixture. Review adopted vendor roles individually, including effective Secret grants and release/upgrade policy.",
-  "cluster": "saf-lab-4be327a55ecc",
+  "cluster": "saf-lab-b329995f230e",
   "kubernetes": {
     "clientVersion": {
       "major": "1",

@@ -2403,7 +2403,7 @@
     "SAF-K8S-0901-007": {
       "catalog_status": "draft",
       "domain": "D09",
-      "sha256": "05c37c86fb548a4aa59553ec79fc57a571ec469ec81a0f36069edfad2816fa6d",
+      "sha256": "0e56517f3e2d386d7211c41e2c93a3b8c550fbbe4f98680923405c46bdd2a13c",
       "title": "AI operator privilege management"
     },
     "SAF-K8S-0901-008": {
@@ -3572,7 +3572,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "0d9235f43b9ad7d90a03aa73cee75529b1bb2137",
-  "sha256": "35df7491bd397658a1388e115707e6e237745bbb0619c35f2825c8cd00bd42f3",
+  "revision": "ecdbf3347560e9109a2fc7427d25baa8d3a6228f",
+  "sha256": "caa76efc6fa0d98e355098428f9ca91dbd8f04df3ace9709aaa0b9f814dc2f6b",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
