@@ -27,15 +27,6 @@ Authenticated enrollment bound to an intended registered Node supports device id
 - Applicability: required
 - Strength Reason Code: partial-control-coverage
 
-### [SAF-K8S-0804-001 - TEE-based model and data protection for AI workloads](../../controls/SAF-K8S-0804-001.md)
-
-- Domain: D08 - GPU, Accelerator, and Confidential Computing
-- Knowledge Area: 8.4
-- Relation Type: supports
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
-
 ### [SAF-K8S-0804-002 - Remote attestation for TEE integrity verification](../../controls/SAF-K8S-0804-002.md)
 
 - Domain: D08 - GPU, Accelerator, and Confidential Computing

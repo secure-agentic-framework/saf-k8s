@@ -9783,22 +9783,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: CM-2(7)
-  framework_requirement_title: Configure Systems and Components for High-risk Areas
-  framework_mapping_notes: 'Hardened agent configs for sensitive deployments
-
-
-    8.4 - Confidential computing (TEE for high-sensitivity AI workloads); 3.1 - PSS Restricted profile for high-risk'
-  control_id: SAF-K8S-0804-001
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: CM-3(2)
   framework_requirement_title: Testing, Validation, and Documentation of Changes
   framework_mapping_notes: The native fixture demonstrates a promotion decision that rejects failed, skipped, or missing required checks and rejects mismatched artifact digest, source revision, test revision, or policy revision, then admits and reads back one matching immutable record. This supports a pre-finalization check gate; it does not demonstrate change approval, test execution, the validity of evidence producers, or the organization’s change records.
@@ -10618,22 +10602,6 @@
 
     8.4 - Confidential computing (TEE for protected code execution); 2.2 - Sandboxed runtimes'
   control_id: SAF-K8S-0202-004
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: CM-7(7)
-  framework_requirement_title: Code Execution in Protected Environments
-  framework_mapping_notes: 'Agent code execution in sandboxes/containers
-
-
-    8.4 - Confidential computing (TEE for protected code execution); 2.2 - Sandboxed runtimes'
-  control_id: SAF-K8S-0804-001
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -12258,22 +12226,6 @@
   framework_version: 5.2.0
   framework_requirement_id: IA-3
   framework_requirement_title: Device Identification and Authentication
-  framework_mapping_notes: 'Agent/device identity authentication (non-human identity)
-
-
-    2.1 - Kubelet TLS bootstrapping (node device identification); 8.4 - Remote attestation for TEE devices'
-  control_id: SAF-K8S-0804-001
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: IA-3
-  framework_requirement_title: Device Identification and Authentication
   framework_mapping_notes: Fresh evidence can support unique identification and authentication for an approved device profile. Verify the named device identity binding and actual connection gate.
   control_id: SAF-K8S-0804-002
   relation_type: supports
@@ -12349,16 +12301,13 @@
   framework_version: 5.2.0
   framework_requirement_id: IA-3(4)
   framework_requirement_title: Device Attestation
-  framework_mapping_notes: 'Agent runtime attestation
-
-
-    8.4 - Remote attestation (verifying TEE integrity, hardware attestation); 10.7 - Hardware attestation for new nodes'
+  framework_mapping_notes: Hardware evidence can support device identification and authentication for the adopted confidential profile. Verify the actual device binding and update process. Placement declarations supply scheduling inputs.
   control_id: SAF-K8S-0804-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The admitted confidential workload uses verified evidence to identify and authenticate the relevant hardware device under the organization's configuration management process.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -15901,22 +15850,6 @@
   framework_version: 5.2.0
   framework_requirement_id: SA-8(16)
   framework_requirement_title: Self-reliant Trustworthiness
-  framework_mapping_notes: 'Agent components should be self-reliant in enforcing their security properties
-
-
-    8.4 - Confidential computing (self-reliant hardware trust via TEE remote attestation)'
-  control_id: SAF-K8S-0804-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SA-8(16)
-  framework_requirement_title: Self-reliant Trustworthiness
   framework_mapping_notes: Denying sensitive use on absent evidence can contribute to secure behavior when an external verifier is unavailable. Evaluate the defined element's dependence on the verifier and its behavior in isolation. A remote appraisal result by itself supplies evidence of measured state.
   control_id: SAF-K8S-0804-002
   relation_type: supports
@@ -16572,16 +16505,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SA-8(9)
   framework_requirement_title: Trusted Components
-  framework_mapping_notes: 'Trusted component identification is essential for agent systems relying on external models and tools
-
-
-    6.2 - Image signing (verifying trusted components); 8.4 - Remote attestation (hardware trust verification)'
+  framework_mapping_notes: A verified confidential computing profile can contribute to assurance for selected components' assigned confidentiality and integrity functions. Evaluate the trustworthiness of the complete dependency chain for the adopted design.
   control_id: SAF-K8S-0804-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: weak
+  applicability: conditional
+  applicability_condition: The organization documents the trust dependencies of the selected workload, hardware, firmware, verifier and runtime and supports each assigned function with commensurate assurance evidence.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -17566,22 +17496,6 @@
   framework_version: 5.2.0
   framework_requirement_id: SC-28(1)
   framework_requirement_title: Cryptographic Protection
-  framework_mapping_notes: 'Encryption of agent data at rest protects sensitive information stored by agent systems
-
-
-    1.2 - etcd KMS encryption; 7.1 - dm-crypt/LUKS volume encryption; 8.4 - Sealed storage in TEEs'
-  control_id: SAF-K8S-0804-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-28(1)
-  framework_requirement_title: Cryptographic Protection
   framework_mapping_notes: >-
     For the actual information and storage path, assess the configured cryptographic protection against unauthorized disclosure and modification. Confirm coverage and recovery in the deployment.
   control_id: SAF-K8S-0804-004
@@ -17618,22 +17532,6 @@
   strength_level: moderate
   applicability: conditional
   applicability_condition: Independent evidence verifies the selected protection and custody for stored domain keys
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-28(3)
-  framework_requirement_title: Cryptographic Keys
-  framework_mapping_notes: 'Protecting cryptographic keys used by agent systems prevents compromise of encrypted data
-
-
-    4.3 - KMS providers (protecting cryptographic keys at rest); 8.4 - TEE key management and sealed storage'
-  control_id: SAF-K8S-0804-001
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
   strength_reason_code: null
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
