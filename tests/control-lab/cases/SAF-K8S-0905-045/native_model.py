@@ -146,6 +146,7 @@ def _evaluate(lab, python_image, make_job, wait_job, pod_security, auth):
         {"name": "MODEL_SHA256", "value": runtime_module.MODEL_SHA256},
         {"name": "MODEL_BYTES", "value": str(runtime_module.MODEL_BYTES if hasattr(runtime_module, "MODEL_BYTES") else MODEL_BYTES)},
         {"name": "LLAMA_RELEASE", "value": "b9519"},
+        {"name": "MODEL_ARCH", "value": provenance["node_architecture"]},
     ]
     lab.create(evaluator_job)
     evaluator_job_result, runtime_receipt, evaluator_stdout = wait_job(lab, EVALUATOR)
@@ -156,6 +157,11 @@ def _evaluate(lab, python_image, make_job, wait_job, pod_security, auth):
         and evaluator_pods[0].get("metadata", {}).get("labels", {}).get("app") == EVALUATOR
     )
     token_digest = runtime_receipt.get("request", {}).get("completion_token_ids_sha256")
+    architecture = provenance["node_architecture"]
+    baseline_applicable = architecture == "arm64"
+    behavior_match = token_digest == _digest([29892, 727, 471, 263]) if baseline_applicable else None
+    behavior_outcome = ("pass" if behavior_match is True else
+                        "fail" if behavior_match is False else "inconclusive")
     expected_runtime_fields = {
         "candidate_id": "external-stories15m-moe-fixture",
         "outcome": "inconclusive",
@@ -163,7 +169,7 @@ def _evaluate(lab, python_image, make_job, wait_job, pod_security, auth):
         "model": {"alias": "stories15m-moe", "sha256": MODEL_SHA256,
                   "bytes": MODEL_BYTES, "llama_release": "b9519"},
         "runtime": {"pod_uid": server_uid, "image_id": server_image_id,
-                    "health_status": 200},
+                    "health_status": 200, "architecture": architecture},
         "request": {"prompt_sha256": hashlib.sha256(b"Once upon a time").hexdigest(),
                     "prompt_token_count": 4,
                     "prompt_token_ids_sha256": _digest(EXPECTED_PROMPT_IDS),
@@ -171,7 +177,16 @@ def _evaluate(lab, python_image, make_job, wait_job, pod_security, auth):
                     "completion_token_count": 4,
                     "completion_token_ids_sha256": token_digest,
                     "completion_limit": 4, "completion_stop_type": "limit"},
-        "coverage": "A fixed smoke request does not apply an approved model-safety rubric or representative evaluation set.",
+        "behavior_evaluation": {
+            "rubric_id": "arm64-stories15m-once-upon-a-time-seed42-four-token-regression-v1",
+            "baseline_architecture": "arm64",
+            "baseline_applicable": baseline_applicable,
+            "expected_token_ids_sha256": _digest([29892, 727, 471, 263]),
+            "observed_token_ids_sha256": token_digest,
+            "matches_baseline": behavior_match,
+            "outcome": behavior_outcome,
+        },
+        "coverage": "One exact-output regression sample is not an approved model-safety rubric or representative evaluation set.",
     }
     receipt_without_digest = {key: value for key, value in runtime_receipt.items()
                               if key != "runtime_receipt_sha256"}
@@ -236,6 +251,8 @@ def _evaluate(lab, python_image, make_job, wait_job, pod_security, auth):
          "model_alias": runtime_receipt["model"]["alias"],
          "completion_limit": runtime_receipt["request"]["completion_limit"]},
     )
+    behavior_evaluation = runtime_receipt["behavior_evaluation"]
+    rubric_outcome = behavior_evaluation["outcome"]
     expected_disposition = {
         "candidate_id": "external-stories15m-moe-fixture",
         "disposition": "escalated",
@@ -243,6 +260,8 @@ def _evaluate(lab, python_image, make_job, wait_job, pod_security, auth):
         "reviewer": REVIEWER,
         "evaluation_sha256": evaluation_digest,
         "runtime_receipt_sha256": runtime_receipt["runtime_receipt_sha256"],
+        "behavior_rubric_id": behavior_evaluation["rubric_id"],
+        "behavior_rubric_outcome": rubric_outcome,
     }
     review_ok = (
         review_stdout == expected_disposition
@@ -302,6 +321,30 @@ def _evaluate(lab, python_image, make_job, wait_job, pod_security, auth):
              == runtime_receipt.get("runtime_receipt_sha256"),
          "independent_readback_matches": disposition == expected_disposition,
          "reviewer_cannot_update_evaluation": reviewer_may_not_update_eval},
+    )
+    if behavior_evaluation.get("baseline_applicable"):
+        rubric_claim = (
+            "The arm64 model's fixed benign-prompt regression result is recorded and the candidate remains held"
+        )
+        rubric_ok = (
+            behavior_evaluation.get("matches_baseline") is True
+            and rubric_outcome == "pass"
+            and disposition.get("behavior_rubric_outcome") == rubric_outcome
+            and disposition.get("disposition") == "escalated"
+        )
+    else:
+        rubric_claim = "Without a reviewed output baseline for this architecture, the model remains escalated"
+        rubric_ok = (rubric_outcome == "inconclusive"
+                     and behavior_evaluation.get("matches_baseline") is None
+                     and disposition.get("disposition") == "escalated")
+    lab.check(
+        "positive", rubric_claim, rubric_ok,
+        {"rubric_id": behavior_evaluation.get("rubric_id"),
+         "baseline_applicable": behavior_evaluation.get("baseline_applicable"),
+         "matches_baseline": behavior_evaluation.get("matches_baseline"),
+         "rubric_outcome": rubric_outcome,
+         "disposition": disposition.get("disposition"),
+         "overall_safety_approval": False},
     )
 
 

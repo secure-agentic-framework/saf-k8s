@@ -9,6 +9,8 @@ PORT = 8080
 PROMPT = "Once upon a time"
 EXPECTED_IDS = [9038, 2501, 263, 931]
 EXPECTED_SPECIAL_IDS = [1, 9038, 2501, 263, 931]
+EXPECTED_OUTPUT_IDS = [29892, 727, 471, 263]
+RUBRIC_ID = "arm64-stories15m-once-upon-a-time-seed42-four-token-regression-v1"
 ALIAS = "stories15m-moe"
 TOKEN_LIMIT = 4
 
@@ -66,6 +68,15 @@ def digest(value):
     return hashlib.sha256(json.dumps(value, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
 
 
+architecture = os.environ["MODEL_ARCH"]
+baseline_applicable = architecture == "arm64"
+output_matches = output_ids == EXPECTED_OUTPUT_IDS if baseline_applicable else None
+behavior_outcome = (
+    "pass" if output_matches is True else
+    "fail" if output_matches is False else
+    "inconclusive"
+)
+
 receipt = {
     "schema": "saf-lab/native-model-observation/v1",
     "candidate_id": "external-stories15m-moe-fixture",
@@ -81,6 +92,7 @@ receipt = {
         "pod_uid": os.environ["MODEL_SERVER_UID"],
         "image_id": os.environ["MODEL_SERVER_IMAGE_ID"],
         "health_status": status,
+        "architecture": architecture,
     },
     "request": {
         "prompt_sha256": hashlib.sha256(PROMPT.encode()).hexdigest(),
@@ -92,7 +104,16 @@ receipt = {
         "completion_limit": TOKEN_LIMIT,
         "completion_stop_type": completion["stop_type"],
     },
-    "coverage": "A fixed smoke request does not apply an approved model-safety rubric or representative evaluation set.",
+    "behavior_evaluation": {
+        "rubric_id": RUBRIC_ID,
+        "baseline_architecture": "arm64",
+        "baseline_applicable": baseline_applicable,
+        "expected_token_ids_sha256": digest(EXPECTED_OUTPUT_IDS),
+        "observed_token_ids_sha256": digest(output_ids),
+        "matches_baseline": output_matches,
+        "outcome": behavior_outcome,
+    },
+    "coverage": "One exact-output regression sample is not an approved model-safety rubric or representative evaluation set.",
 }
 receipt["runtime_receipt_sha256"] = digest(receipt)
 print(json.dumps(receipt, sort_keys=True, separators=(",", ":")))

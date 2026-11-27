@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0905-045",
-  "catalog_revision": "596bc0d3b5d1da1084da698be61f57a73caa7d0b",
+  "catalog_revision": "9be2534ae12a0dacfe65d1879297a70648c3bc5f",
   "catalog_sha256": "1da56289e4f344f65fa946b0099b200d7a52a7c4bea62ee17a32261bedc18861",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "d7744b79a02f9e4eb89a31c789f908c9caf212dbea2c71a91108e6898827e352",
-  "scope": "Runs bounded Jobs in the precreated saf-test namespace on the runner's digest-pinned default Kind cluster. The toy evaluator processes only a mounted, immutable JSON fixture with one allowlisted operation and no model artifact, network client, or Kubernetes credential. A separate reviewer ServiceAccount reads the immutable evaluation, writes exact approved/rejected/escalated dispositions to a precreated ConfigMap, and creates one synthetic Warning Event for the rejected toy record. Assertions cover the ungated unsafe counterfactual, exact rejection and event, exact safe approval, Pod hardening, and RBAC separation. This does not execute or behaviorally vet a real model; validate sandbox escape resistance, network policy enforcement, real model quality, data coverage, human reviewer identity or procedures, signature verification, or production promotion/audit workflows. A further tokenless evaluator Job makes one fixed four-token CPU request to the digest-pinned llama.cpp b9519 Stories test model, records identifiers, counts and hashes only, and obtains an independent digest-bound escalated/held review because this smoke request has no approved safety rubric or representative dataset. The bounded network comparison uses the runner's bundled kindnet and proves one same-namespace evaluator-to-model HTTP route while an unrelated inert peer is blocked under the exact selector. This does not establish production model safety, cluster-wide network coverage, or promotion.",
-  "cluster": "saf-lab-838e4d25e741",
+  "scope": "Runs bounded Jobs in the precreated saf-test namespace on the runner's digest-pinned default Kind cluster. The toy evaluator processes only a mounted, immutable JSON fixture with one allowlisted operation and no model artifact, network client, or Kubernetes credential. A separate reviewer ServiceAccount reads the immutable evaluation, writes exact approved/rejected/escalated dispositions to a precreated ConfigMap, and creates one synthetic Warning Event for the rejected toy record. Assertions cover the ungated unsafe counterfactual, exact rejection and event, exact safe approval, Pod hardening, and RBAC separation. This does not execute or behaviorally vet a real model; validate sandbox escape resistance, network policy enforcement, real model quality, data coverage, human reviewer identity or procedures, signature verification, or production promotion/audit workflows. A further tokenless evaluator Job makes one fixed four-token CPU request to the digest-pinned llama.cpp b9519 Stories test model, records identifiers, counts and hashes only, and compares its fixed benign story prompt with an arm64-only pinned golden-output regression. A matching regression still obtains an independent digest-bound escalated/held review because one sample is not an approved safety rubric or representative dataset; either a match or mismatch remains held for independent review. The bounded network comparison uses the runner's bundled kindnet and proves one same-namespace evaluator-to-model HTTP route while an unrelated inert peer is blocked under the exact selector. This does not establish production model safety, cluster-wide network coverage, or promotion.",
+  "cluster": "saf-lab-4aa68fdb145b",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -208,6 +208,19 @@
         "runtime_digest_bound": true,
         "independent_readback_matches": true,
         "reviewer_cannot_update_evaluation": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The arm64 model's fixed benign-prompt regression result is recorded and the candidate remains held",
+      "matched": true,
+      "observed": {
+        "rubric_id": "arm64-stories15m-once-upon-a-time-seed42-four-token-regression-v1",
+        "baseline_applicable": true,
+        "matches_baseline": true,
+        "rubric_outcome": "pass",
+        "disposition": "escalated",
+        "overall_safety_approval": false
       }
     }
   ]

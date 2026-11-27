@@ -10,11 +10,18 @@ revision used by SAF-K8S-0903-004. The runner verifies the 73,466,432-byte
 model's SHA-256 before building an offline derived image. A restricted,
 tokenless serving Pod handles one fixed `Once upon a time` request with a
 four-token output cap. The evaluator Job retains only model/runtime identifiers,
-token counts, stop reason, and hashes; generated text is not retained. A separate
-reviewer ServiceAccount reads the immutable observation, verifies its digest,
-and writes an independent `escalated` disposition bound to the runtime receipt.
-The case reads back that exact disposition and confirms the candidate remains
-held.
+token counts, stop reason, and hashes; generated text is not retained. On arm64,
+the evaluator also compares the exact four-token output signature for this one
+fixed benign prompt to the same pinned model/runtime signature observed in two
+retained 0903-004 CPU-engine raw records. This is a one-item deterministic output
+regression check. It does not interpret the generated text or classify broader
+safety behavior. No approved output baseline is asserted for amd64; that path
+remains inconclusive. A separate reviewer ServiceAccount reads the immutable
+observation, verifies its digest, and writes a disposition bound to the runtime
+receipt. A matching regression remains `escalated` because one sample is not
+sufficient to approve a model. A mismatch is recorded as a regression signal and
+also remains `escalated`; one fixed output does not establish unsafe behavior.
+The case independently reads back the decision.
 
 Before the model request, the case verifies the runner's bundled kindnet DaemonSet
 is ready. A dedicated tokenless client with the evaluator's exact policy label first reaches
@@ -25,14 +32,13 @@ carry the same selector label before it makes the bounded model request. This
 proves this one bundled-kindnet-enforced namespace path, not broad cluster or
 production policy coverage.
 
-This smoke request has no approved safety rubric or representative dataset, so
-the real-model result is deliberately inconclusive. The witness establishes a
-real bounded CPU model invocation, one isolated serving route, and a digest-bound
-hold path; it does not establish that the model is safe, unsafe, or fit for
-internal use. Verify actual model identity and source, representative evaluation
-datasets and criteria, enforcement in the adopted CNI across every serving path,
-reviewer authority, exception handling, retention, and every production
-promotion path for the adopting environment.
+This one-entry regression is separate from a model-safety judgment. The witness
+establishes a bounded CPU model invocation, one isolated serving route, and a
+digest-bound disposition; it does not establish that the model is safe, unsafe,
+or fit for internal use. Verify actual model identity and source, representative
+evaluation datasets and criteria, enforcement in the adopted CNI across every
+serving path, reviewer authority, exception handling, retention, and every
+production promotion path for the adopting environment.
 
 The runtime companion is loaded from the adjacent SAF-K8S-0903-004 case and its
 runtime helper and Dockerfile are checked against the reviewed SHA-256 values in
@@ -41,5 +47,11 @@ fetched only by that companion at test execution time, then checked against its
 pinned digest; it is not stored in this case tree. The runner must supply the
 adjacent SAF-K8S-0903-004 case.
 
-The harness also checks that the same client and peer Pods persist and that
-the peer still serves its local health response after policy takes effect.
+The arm64 baseline is the SHA-256 of the canonical four-token sequence
+observed in retained CPU-runtime receipts for SAF-K8S-0903-004. The lab and
+framework receipts agree on the pinned model digest, arm64 runtime and
+completion sequence. The fixture stores its expected digest only and keeps
+generated text and token IDs out of the review evidence. Other architectures
+remain held pending a reviewed baseline.
+
+[Verified CPU model companion](../../verified/SAF-K8S-0903-004.json)
