@@ -12,7 +12,7 @@ PORT = 8080
 SCOPE = (
     "One default Kubernetes v1.36.1 Kind cluster runs a digest-pinned Python fixture for the original synthetic input, work, virtual-deadline and degradation checks. "
     "An additive owned local HTTP worker performs bounded tiny work units and measures monotonic request, cumulative-session and batch deadlines during processing; counters show completed work stops at each elapsed boundary and within-budget comparators complete. "
-    "The original policy clock and overload signal remain synthetic, and the new worker is not an inference engine or production circuit breaker. "
+    "The original policy clock and overload signal remain synthetic. The additive deadline and breaker references run in bounded case-owned Kubernetes workloads; these are fixture implementations, not production inference components. "
     "Kubernetes CPU/memory container limits are inspected separately from extended-resource quantity. Real GPU memory ceilings, device-plugin/MIG behavior, model-serving deadline enforcement, cloud quotas/costs, service-mesh configuration, and production policy require separate evidence."
 )
 
@@ -184,3 +184,10 @@ def run(lab):
     supplement = importlib.util.module_from_spec(supplement_spec)
     supplement_spec.loader.exec_module(supplement)
     supplement.run(lab)
+
+    breaker_path = HERE / "circuit_breaker_supplement.py"
+    breaker_spec = importlib.util.spec_from_file_location(
+        "saf_k8s_0903_003_circuit_breaker_reference", breaker_path)
+    breaker_supplement = importlib.util.module_from_spec(breaker_spec)
+    breaker_spec.loader.exec_module(breaker_supplement)
+    breaker_supplement.run(lab)

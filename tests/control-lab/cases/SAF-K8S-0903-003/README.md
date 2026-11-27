@@ -37,3 +37,27 @@ interrupt an individual work unit, establish hard real-time guarantees, or
 validate model-server, GPU, service-mesh, cloud-cost, production overload, or
 circuit-breaker behavior. The pre-existing virtual-deadline and synthetic
 degradation observations remain independent evidence.
+
+## Bounded circuit-breaker reference supplement
+
+The additive circuit_breaker_supplement.py creates an immutable ConfigMap and
+runs circuit_breaker_job.py in one bounded Kubernetes Job. The Job uses the
+same digest-pinned Python image as the published fixture, a read-only source
+mount, no service-account token, non-root UID/GID 65534, a read-only root
+filesystem, dropped capabilities, and fixed CPU/memory limits. The breaker,
+fixed-response backend, and probe all execute inside that Job's Pod. The
+backend binds only to that Pod's loopback interface; no Service or external
+request is used. The harness reads the Job's exact owned Pod, successful
+container exit, and single JSON observation from its logs.
+
+The worker sends exactly four backend requests: two controlled 503 responses
+to reach the configured threshold, one healthy half-open probe, and one
+recovery request. An open request and a competing request during the
+in-flight half-open probe are rejected without incrementing the backend call
+count. The finite cooldown and probe hold are fixed in the fixture, and server
+threads are stopped before Job exit.
+
+This adds one local state-machine assertion. It is not production middleware,
+a service-mesh or deployed model-server circuit breaker, and it does not show
+that a real inference path uses this behavior. The original six assertions
+and their Kubernetes fixture remain unchanged.
