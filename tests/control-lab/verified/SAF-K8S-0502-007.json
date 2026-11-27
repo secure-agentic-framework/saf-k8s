@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0502-007",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "3d1adea20b660321f10276b2f1fbefb416d6e7f1",
+  "catalog_sha256": "05bad5b212e22ea094491dca60d5d4cc21ff6c4cddb0c432dfc5da909786bc07",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "716ad6e6ae3d05a2c9f9ba5936cf649533dc5c838e966f8c40ab335873c52c62",
+  "control_sha256": "34ad4b6669cb546e8eb328336c831674cd4502f3d42605946f8cd9cbd978e8f6",
   "scope": "One runner-owned Kind cluster running Kubernetes v1.36.1 with digest-pinned Cilium 1.20.5 and embedded Hubble. In the runner-created saf-test namespace, one non-root client Pod and two case-owned HTTP sink Pods exchange only fixed-marker IPv4 TCP/18080 requests. The case checks the active agent configuration, absence of namespace delegation and Pod opt-outs, and Hubble endpoint, IP, and policy verdicts for ordinary traffic. Direct invalid-source packet handling, additional CNIs, IPv6, host-network paths and production coverage remain unverified.",
-  "cluster": "saf-lab-414bc558ace3",
+  "cluster": "saf-lab-07e49835c0ef",
   "kind_ready_wait": "0s",
   "kubernetes": {
     "clientVersion": {

@@ -11,3 +11,12 @@ matching Hubble verdict, and retained access to the allowed endpoint.
 The receipts identify the live source and destination Pods, IPs, and Cilium
 observations. Invalid-source packet drop behavior, managed CNI and
 alternate-path coverage remain unverified.
+
+The corrected catalog requires each adopter to identify its supported source
+validation paths, relevant managed endpoints, approved exceptions and
+uncovered network paths. This reference observes Cilium 1.20.5 configuration,
+the exact fixture Pod annotations and ordinary IPv4 policy and telemetry.
+Enforcement for deployed address families, chained or additional interfaces,
+provider datapaths and host-network paths needs scoped evidence.
+
+- [Cilium 1.20.5 chart configuration](https://github.com/cilium/cilium/blob/v1.20.5/install/kubernetes/cilium/values.yaml)

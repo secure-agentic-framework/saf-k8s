@@ -1239,7 +1239,7 @@
     "SAF-K8S-0502-007": {
       "catalog_status": "draft",
       "domain": "D05",
-      "sha256": "716ad6e6ae3d05a2c9f9ba5936cf649533dc5c838e966f8c40ab335873c52c62",
+      "sha256": "34ad4b6669cb546e8eb328336c831674cd4502f3d42605946f8cd9cbd978e8f6",
       "title": "Kubernetes pod IP anti-spoofing enforcement and validation"
     },
     "SAF-K8S-0502-008": {
@@ -3572,7 +3572,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "30e107dfd48775123c0648b91a78ff530b601bae",
-  "sha256": "828e3e3c145cfe3018121cb3d9b8ed0f02b4b25d098f065e97ffb72fe1bff420",
+  "revision": "3c2eb06b97f555bcb70ae8ffc54c1e2ede54e685",
+  "sha256": "05bad5b212e22ea094491dca60d5d4cc21ff6c4cddb0c432dfc5da909786bc07",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
