@@ -60,7 +60,7 @@ case. Kind's node is not represented as GPU-capable.
 
 ## Signed-record verifier path
 
-The case preserves the original four checks and adds four checks. It
+The case preserves the original four checks and adds six checks (10 total). It
 uses the runner host's `/usr/bin/openssl` CLI and supports OpenSSL 1.1.1 or newer and
 LibreSSL 3.3.6 or newer. This host's exact provider version is kept in raw evidence.
 The case creates a per-run RSA-2048 key in a mode-0700 temporary directory. The
@@ -81,9 +81,24 @@ signed record removes only that taint; the same Pod UID then schedules. The exis
 fictional driver-evidence record remains separate and is not cryptographically or
 physically verified.
 
-This is a verifier and scheduling-gate fixture only. It does not authenticate hardware,
-measure boot state, verify a real driver, establish an external trust chain, or test
-production control of labels, taints, exceptions or tolerations. No GPU capability or
-production onboarding claim is made. The replay check uses a case-local in-memory nonce set only; it does not establish
+This is a verifier and scheduling-gate fixture only. An additive two-check ordinary
+artifact comparator runs the existing OpenSSL CLI over a fixed, non-executable text
+file and a one-byte-changed copy. The exact file-byte hash must match the case-pinned
+fixture digest; the changed copy must fail while the same Node UID remains tainted and
+the same signed probe remains Pending. Raw evidence retains only the filenames,
+byte counts, SHA-256 values, and held-state booleans. This tests digest computation
+and mismatch handling for those inert bytes; it does not inspect a GPU driver or
+module or establish its provenance or integrity.
+
+The case does not authenticate hardware, measure boot state, verify a real driver,
+establish an external trust chain, or test production control of labels, taints,
+exceptions or tolerations. No GPU capability or production onboarding claim is made.
+The replay check uses a case-local in-memory nonce set only; it does not establish
 replay-state persistence across verifier restarts or deployments. After the valid
 path, the case deletes its probe and verifies removal of only its own taint and label.
+
+The signed fixture envelope also includes the approved artifact digest. The
+same valid envelope with a different actual measurement receives an
+artifact-digest mismatch decision. The unchanged measured digest allows the
+fresh signed authorization to proceed. A separate read checks that the same
+probe and hold persist after the mismatch.

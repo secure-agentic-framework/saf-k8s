@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-1007-016",
-  "catalog_revision": "2673765fb440949d181085671aacec31fb29ca79",
-  "catalog_sha256": "65f757846d484079842769b4cec9180fc3a96ab15a5106c821a08ca7293441b6",
+  "catalog_revision": "596bc0d3b5d1da1084da698be61f57a73caa7d0b",
+  "catalog_sha256": "1da56289e4f344f65fa946b0099b200d7a52a7c4bea62ee17a32261bedc18861",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "889abe14de019dbfefa183cbea07391331a1e41c02ddb24b44c8a0b92b03fbaf",
   "scope": "One disposable default-layout Kind v1.36.1 node. The case labels that node as a synthetic candidate, observes an inert digest-pinned pause Pod schedule before a fixture-scoped NoSchedule taint, then observes an untolerating Pod remain unscheduled and a tolerating Pod receive a scheduler-assigned nodeName. It parses local fictional attestation and driver-evidence JSON fixtures and records mock eligibility decisions. This does not provision or identify GPU hardware, install or inspect a driver, cryptographically attest hardware, verify a real driver or checksum, integrate production trust roots, or establish production label/taint authority. A separate test-only exact-byte RSA signature check uses a per-run ephemeral key and the actual Kind Node UID plus fresh nonce; it does not represent hardware attestation.",
-  "cluster": "saf-lab-c4c505c9f2d8",
+  "cluster": "saf-lab-c57720ea322e",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -89,6 +89,33 @@
         "scheduler_assigned_candidate_node": true,
         "cryptographic_attestation_verified": false,
         "host_driver_or_checksum_inspected": false
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "OpenSSL hashes the exact inert fixture bytes to their case-pinned digest while the signed probe remains Pending",
+      "matched": true,
+      "observed": {
+        "artifact_class": "ordinary-non-executable-fixture-bytes",
+        "artifact_name": "ordinary-artifact.txt",
+        "artifact_byte_count": 129,
+        "observed_sha256_matches_case_fixture_digest": true,
+        "same_node_uid": true,
+        "same_signed_probe_pending": true,
+        "case_taint_present": true,
+        "gpu_driver_or_module_claim": false
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "A valid envelope and mismatched measured artifact digest leave the same probe Pending",
+      "matched": true,
+      "observed": {
+        "envelope_signature_valid": true,
+        "measured_artifact_rejected": true,
+        "same_node_uid": true,
+        "same_probe_stays_held": true,
+        "fresh_nonce_remains_available": true
       }
     },
     {

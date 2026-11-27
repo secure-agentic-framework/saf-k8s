@@ -16,7 +16,9 @@ TAINT = "saf-k8s.example/gpu-candidate"
 WORKLOAD_LABEL = "saf-k8s.example/control-1007-016-workload"
 OPENSSL = "/usr/bin/openssl"
 OPENSSL_MINIMUM = {"OpenSSL": (1, 1, 1), "LibreSSL": (3, 3, 6)}
-ATTESTATION_SCHEMA = "urn:example:saf-k8s:attestation-test:v1"
+ATTESTATION_SCHEMA = "urn:example:saf-k8s:attestation-test:v2"
+ORDINARY_ARTIFACT = HERE / "fixtures" / "ordinary-artifact.txt"
+ORDINARY_ARTIFACT_SHA256 = "d84a96ed33077b838ea2e5283356a0284729b5b2ecd18491906bb6a4156f9bff"
 PAUSE_IMAGE = (
     "registry.k8s.io/pause:3.10.1@sha256:"
     "278fb9dbcca9518083ad1e11276933a2e96f23de604a3a08cc3c80002767d24c"
@@ -176,6 +178,7 @@ def canonical_attestation(subject_uid, nonce):
         "test_only": True,
         "subject_node_uid": subject_uid,
         "nonce": nonce,
+        "fixture_artifact_sha256": ORDINARY_ARTIFACT_SHA256,
     }
     return json.dumps(record, sort_keys=True, separators=(",", ":"), ensure_ascii=True).encode("utf-8")
 
@@ -189,8 +192,67 @@ def sign_bytes(lab, private_key, directory, name, message):
     return message_path, signature_path
 
 
+def openssl_sha256(lab, path):
+    result = lab.command(OPENSSL, "dgst", "-sha256", str(path), timeout=15)
+    match = re.search(r"=\s*([0-9a-f]{64})\s*$", result.stdout.strip())
+    if not match:
+        lab.block("OpenSSL did not return a bounded SHA-256 digest for the fixture artifact")
+    return match.group(1)
+
+
+def verify_ordinary_artifact_digest(lab, node_name, node_uid, probe_name, probe_uid):
+    """Hash inert bytes as a verifier-mechanics example; it is not driver evidence."""
+    artifact_bytes = ORDINARY_ARTIFACT.read_bytes()
+    if not 1 <= len(artifact_bytes) <= 512:
+        lab.block("The ordinary-artifact digest fixture is outside its fixed small size")
+    observed_digest = openssl_sha256(lab, ORDINARY_ARTIFACT)
+    before_change = held_observation(lab, node_name, probe_name, probe_uid)
+    node_before = as_json(lab, "get", "node", node_name)
+    node_uid_before = node_before.get("metadata", {}).get("uid") == node_uid
+    digest_matches = observed_digest == ORDINARY_ARTIFACT_SHA256
+    positive_still_held = (before_change == {
+        "taint_present": True, "same_pod_uid_pending": True,
+        "scheduler_reports_case_taint": True} and node_uid_before)
+    lab.check("positive", "OpenSSL hashes the exact inert fixture bytes to their case-pinned digest while the signed probe remains Pending",
+              digest_matches and positive_still_held,
+              {"artifact_class": "ordinary-non-executable-fixture-bytes",
+               "artifact_name": ORDINARY_ARTIFACT.name,
+               "artifact_byte_count": len(artifact_bytes),
+               "observed_sha256_matches_case_fixture_digest": digest_matches,
+               "same_node_uid": node_uid_before,
+               "same_signed_probe_pending": before_change["same_pod_uid_pending"],
+               "case_taint_present": before_change["taint_present"],
+               "gpu_driver_or_module_claim": False})
+
+    with tempfile.TemporaryDirectory(prefix="saf-1007-016-artifact-") as temp:
+        changed = Path(temp) / "changed-ordinary-artifact.txt"
+        changed.write_bytes(artifact_bytes + b"\x00")
+        changed_digest = openssl_sha256(lab, changed)
+    after_change = held_observation(lab, node_name, probe_name, probe_uid)
+    node_after = as_json(lab, "get", "node", node_name)
+    node_uid_after = node_after.get("metadata", {}).get("uid") == node_uid
+    mismatch_holds = (changed_digest != ORDINARY_ARTIFACT_SHA256 and after_change == {
+        "taint_present": True, "same_pod_uid_pending": True,
+        "scheduler_reports_case_taint": True} and node_uid_after)
+    save_raw(lab, "ordinary-artifact-digest.raw.json", {
+        "evidence_class": "ordinary-non-executable-fixture-bytes-only",
+        "artifact_name": ORDINARY_ARTIFACT.name,
+        "artifact_byte_count": len(artifact_bytes),
+        "approved_fixture_sha256": ORDINARY_ARTIFACT_SHA256,
+        "observed_sha256": observed_digest,
+        "changed_artifact_byte_count": len(artifact_bytes) + 1,
+        "changed_observed_sha256": changed_digest,
+        "changed_digest_rejected": changed_digest != ORDINARY_ARTIFACT_SHA256,
+        "node_uid": node_uid,
+        "probe_uid": probe_uid,
+        "held_before_and_after": positive_still_held and mismatch_holds,
+        "gpu_driver_or_module_claim": False,
+    })
+    return observed_digest, changed_digest
+
+
 def verify_test_attestation(lab, public_key, directory, name, message, signature,
-                            expected_uid, expected_nonce, used_nonces):
+                            expected_uid, expected_nonce, used_nonces, observed_artifact_digest):
     message_path = directory / f"verify-{name}.envelope.json"
     signature_path = directory / f"verify-{name}.sig"
     message_path.write_bytes(message)
@@ -215,6 +277,9 @@ def verify_test_attestation(lab, public_key, directory, name, message, signature
         return {**output, "decision": "hold", "reason": "subject-mismatch"}
     if record.get("nonce") != expected_nonce:
         return {**output, "decision": "hold", "reason": "nonce-mismatch"}
+    if (observed_artifact_digest != ORDINARY_ARTIFACT_SHA256
+            or record.get("fixture_artifact_sha256") != observed_artifact_digest):
+        return {**output, "decision": "hold", "reason": "artifact-digest-mismatch"}
     if expected_nonce in used_nonces:
         return {**output, "decision": "hold", "reason": "nonce-replay"}
     used_nonces.add(expected_nonce)
@@ -247,6 +312,9 @@ def run_signed_authorization(lab, node_name, node_uid, existing_tolerations):
     if (pending.get("metadata", {}).get("uid") != probe_uid or scheduled(pending)
             or not unschedulable_for_fixture_taint(pending)):
         lab.block("Signed authorization probe did not remain Pending under the case taint")
+
+    measured_digest, changed_digest = verify_ordinary_artifact_digest(
+        lab, node_name, node_uid, probe_name, probe_uid)
 
     primary_nonce = secrets.token_hex(16)
     wrong_nonce = secrets.token_hex(16)
@@ -298,36 +366,57 @@ def run_signed_authorization(lab, node_name, node_uid, existing_tolerations):
         cases = {}
         cases["bad_signature"] = verify_test_attestation(
             lab, public_key, directory, "bad-signature", valid_message, bytes(bad_signature),
-            node_uid, primary_nonce, primary_seen)
+            node_uid, primary_nonce, primary_seen, measured_digest)
         held_after_bad_sig = held_observation(lab, node_name, probe_name, probe_uid)
         cases["wrong_nonce"] = verify_test_attestation(
             lab, public_key, directory, "wrong-nonce", wrong_nonce_message,
-            wrong_nonce_signature_path.read_bytes(), node_uid, primary_nonce, primary_seen)
+            wrong_nonce_signature_path.read_bytes(), node_uid, primary_nonce, primary_seen, measured_digest)
         held_after_wrong_nonce = held_observation(lab, node_name, probe_name, probe_uid)
         cases["wrong_node"] = verify_test_attestation(
             lab, public_key, directory, "wrong-node", wrong_node_message,
-            wrong_node_signature_path.read_bytes(), node_uid, primary_nonce, primary_seen)
+            wrong_node_signature_path.read_bytes(), node_uid, primary_nonce, primary_seen, measured_digest)
         held_after_wrong_node = held_observation(lab, node_name, probe_name, probe_uid)
         cases["wrong_trust_root"] = verify_test_attestation(
             lab, public_key, directory, "wrong-trust-root", valid_message,
-            untrusted_signature, node_uid, primary_nonce, primary_seen)
+            untrusted_signature, node_uid, primary_nonce, primary_seen, measured_digest)
         held_after_wrong_root = held_observation(lab, node_name, probe_name, probe_uid)
         cases["wrong_shape"] = verify_test_attestation(
             lab, public_key, directory, "wrong-shape", wrong_shape_message,
-            wrong_shape_signature_path.read_bytes(), node_uid, primary_nonce, primary_seen)
+            wrong_shape_signature_path.read_bytes(), node_uid, primary_nonce, primary_seen, measured_digest)
         held_after_wrong_shape = held_observation(lab, node_name, probe_name, probe_uid)
         replay_first = verify_test_attestation(
             lab, public_key, directory, "replay-first", replay_message,
-            replay_signature_path.read_bytes(), node_uid, replay_nonce, replay_seen)
+            replay_signature_path.read_bytes(), node_uid, replay_nonce, replay_seen, measured_digest)
         cases["replay"] = verify_test_attestation(
             lab, public_key, directory, "replay-repeat", replay_message,
-            replay_signature_path.read_bytes(), node_uid, replay_nonce, replay_seen)
+            replay_signature_path.read_bytes(), node_uid, replay_nonce, replay_seen, measured_digest)
         held_after_replay = held_observation(lab, node_name, probe_name, probe_uid)
+        changed = verify_test_attestation(
+            lab, public_key, directory, "changed-artifact", valid_message, valid_signature,
+            node_uid, primary_nonce, primary_seen, changed_digest)
+        held_after_changed_artifact = held_observation(lab, node_name, probe_name, probe_uid)
+        same_node = as_json(lab, "get", "node", node_name)["metadata"]["uid"] == node_uid
+        changed_holds = changed == {
+            "cryptographic_signature_valid": True, "openssl_returncode": 0,
+            "decision": "hold", "reason": "artifact-digest-mismatch",
+        } and held_after_changed_artifact == {
+            "taint_present": True, "same_pod_uid_pending": True, "scheduler_reports_case_taint": True,
+        } and same_node and primary_nonce not in primary_seen
+        lab.check("green", "A valid envelope and mismatched measured artifact digest leave the same probe Pending",
+                  changed_holds,
+                  {"envelope_signature_valid": changed["cryptographic_signature_valid"],
+                   "measured_artifact_rejected": changed["reason"] == "artifact-digest-mismatch",
+                   "same_node_uid": same_node, "same_probe_stays_held": changed_holds,
+                   "fresh_nonce_remains_available": primary_nonce not in primary_seen})
         valid = verify_test_attestation(
             lab, public_key, directory, "valid", valid_message, valid_signature,
-            node_uid, primary_nonce, primary_seen)
+            node_uid, primary_nonce, primary_seen, measured_digest)
 
         raw_cases = {
+            "changed_artifact": {"verification": changed,
+                                 "measured_artifact_sha256": changed_digest,
+                                 "held_state": held_after_changed_artifact},
+
             "valid": {"envelope_utf8": valid_message.decode("utf-8"),
                       "envelope_sha256": hashlib.sha256(valid_message).hexdigest(),
                       "signature_base64": base64.b64encode(valid_signature).decode("ascii"),
@@ -411,7 +500,8 @@ def run_signed_authorization(lab, node_name, node_uid, existing_tolerations):
         save_raw(lab, "signed-test-authorization.raw.json", raw)
         authorization_valid = (valid["decision"] == "authorized-test-fixture"
                                and valid["cryptographic_signature_valid"]
-                               and node_uid_matches_before_release and held_before_release)
+                               and node_uid_matches_before_release and held_before_release
+                               and changed_holds and measured_digest == ORDINARY_ARTIFACT_SHA256)
         lab.check("positive", "Exact-byte signature authorizes only the current Node UID and fresh nonce",
                   authorization_valid,
                   {"signature_valid": valid["cryptographic_signature_valid"],
