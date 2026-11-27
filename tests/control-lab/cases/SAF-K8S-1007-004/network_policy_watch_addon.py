@@ -17,7 +17,7 @@ def parse_time(value):
     return datetime.datetime.fromisoformat(value.replace("Z", "+00:00"))
 
 
-def run(lab, case_dir, namespace, name, baseline):
+def run(lab, case_dir, namespace, name, baseline, neighbor_namespace):
     policy = json.loads(lab.kubectl("-n", namespace, "get", "networkpolicy", name, "-o", "json").stdout)
     uid = policy["metadata"]["uid"]
     if policy["spec"] != baseline or not uid:
@@ -31,8 +31,11 @@ def run(lab, case_dir, namespace, name, baseline):
     }))
     lab.kubectl("-n", namespace, "create", "-f", "-", payload=json.dumps({
         "apiVersion": api, "kind": "Role", "metadata": {"name": OBSERVER, "namespace": namespace},
-        "rules": [{"apiGroups": ["networking.k8s.io"], "resources": ["networkpolicies"],
-                   "resourceNames": [name], "verbs": ["list", "watch"]}],
+        "rules": [
+            {"apiGroups": ["networking.k8s.io"], "resources": ["networkpolicies"],
+             "resourceNames": [name], "verbs": ["list", "watch"]},
+            {"apiGroups": ["events.k8s.io"], "resources": ["events"], "verbs": ["create"]},
+        ],
     }))
     lab.kubectl("-n", namespace, "create", "-f", "-", payload=json.dumps({
         "apiVersion": api, "kind": "RoleBinding", "metadata": {"name": OBSERVER, "namespace": namespace},
@@ -44,7 +47,8 @@ def run(lab, case_dir, namespace, name, baseline):
         "immutable": True, "data": {"client.py": (Path(case_dir) / "network_policy_watch_client.py").read_text()},
     }))
     env = {"WATCH_NAMESPACE": namespace, "WATCH_POLICY": name, "WATCH_UID": uid,
-           "EXCLUDED_POLICY": EXCLUDED, "EXPECTED_SPEC": json.dumps(baseline)}
+           "EXCLUDED_POLICY": EXCLUDED, "EXCLUDED_NAMESPACE": neighbor_namespace,
+           "EXPECTED_SPEC": json.dumps(baseline)}
     job = json.loads(lab.kubectl("-n", namespace, "create", "-f", "-", "-o", "json", payload=json.dumps({
         "apiVersion": "batch/v1", "kind": "Job", "metadata": {"name": OBSERVER, "namespace": namespace},
         "spec": {"backoffLimit": 0, "activeDeadlineSeconds": 120,
@@ -56,7 +60,9 @@ def run(lab, case_dir, namespace, name, baseline):
                      "containers": [{
                          "name": "watch", "image": IMAGE, "imagePullPolicy": "IfNotPresent",
                          "command": ["python", "-B", "/fixture/client.py"],
-                         "env": [{"name": key, "value": value} for key, value in env.items()],
+                         "env": ([{"name": key, "value": value} for key, value in env.items()]
+                                 + [{"name": "WATCH_POD_UID", "valueFrom": {
+                                     "fieldRef": {"fieldPath": "metadata.uid"}}}]),
                          "resources": {"requests": {"cpu": "10m", "memory": "16Mi"},
                                        "limits": {"cpu": "100m", "memory": "64Mi"}},
                          "securityContext": {"readOnlyRootFilesystem": True, "allowPrivilegeEscalation": False,
@@ -226,3 +232,87 @@ def run(lab, case_dir, namespace, name, baseline):
                "independent_read_shows_restored_spec": gap_spec_matches,
                "resumed_events_match_exact_missed_writes": gap_trace_matches,
                "job_pod_identity_bound": pod_identity})
+
+    # The watcher emits an API-side Warning Event only for actual drift transitions.
+    alert_responses = [event.get("alert_sink_response") for event in [*events, *gap_events]
+                       if event.get("decision") == "drift"]
+    alert_list = json.loads(lab.kubectl(
+        "-n", namespace, "get", "events.events.k8s.io", "-o", "json").stdout)
+    persisted = [event for event in alert_list.get("items", [])
+                 if event.get("reportingController") == "saf-k8s.example/network-policy-posture-watch"]
+    probe_status = armed.get("neighbor_event_create_status")
+    probe_name = armed.get("neighbor_event_probe_name")
+    probe_absence = lab.kubectl(
+        "-n", neighbor_namespace, "get", "events.events.k8s.io", probe_name,
+        "-o", "name", "--ignore-not-found", allow_failure=True)
+    probe_not_created = probe_absence.returncode == 0 and not probe_absence.stdout.strip()
+
+    expected_drift_writes = [drifted, gap_drift]
+    expected_source_versions = [write["resource_version"] for write in expected_drift_writes]
+    by_source = {event.get("metadata", {}).get("annotations", {}).get(
+        "saf-k8s.example/source-resource-version"): event for event in persisted}
+    source_versions_match = (len(persisted) == 2 and len(by_source) == 2
+                             and set(by_source) == set(expected_source_versions))
+    no_non_drift_alerts = all(
+        event.get("alert_sink_response") is None
+        for event in [*events, *gap_events] if event.get("decision") != "drift")
+    owner_and_subject_match = source_versions_match and pod_identity
+    event_payloads_safe = source_versions_match
+    api_responses_match = source_versions_match and len(alert_responses) == 2
+    for write, response in zip(expected_drift_writes, alert_responses):
+        event = by_source.get(write["resource_version"], {})
+        metadata = event.get("metadata", {})
+        regarding = event.get("regarding", {})
+        owner_and_subject_match = owner_and_subject_match and (
+            metadata.get("namespace") == namespace
+            and metadata.get("labels", {}).get("saf-k8s.example/control-1007-004")
+            == "network-policy-alert"
+            and event.get("reportingController") == "saf-k8s.example/network-policy-posture-watch"
+            and event.get("reportingInstance") == pod["metadata"]["uid"]
+            and regarding == {"apiVersion": "networking.k8s.io/v1", "kind": "NetworkPolicy",
+                              "namespace": namespace, "name": name, "uid": uid}
+            and metadata.get("annotations", {}).get("saf-k8s.example/source-resource-version")
+            == write["resource_version"])
+        event_payloads_safe = event_payloads_safe and (
+            event.get("type") == "Warning" and event.get("reason") == "NetworkPolicyPostureDrift"
+            and event.get("action") == "DetectPostureDrift"
+            and event.get("note") == "Fixture-owned NetworkPolicy posture differs from its declared baseline."
+            and bool(event.get("eventTime")))
+        api_responses_match = api_responses_match and (
+            response is not None and response.get("status") == 201
+            and response.get("event_name") == metadata.get("name")
+            and response.get("event_uid") == metadata.get("uid")
+            and response.get("event_resource_version") == metadata.get("resourceVersion")
+            and response.get("source_resource_version") == write["resource_version"])
+    persisted_raw = [{
+        "name": e.get("metadata", {}).get("name"),
+        "uid": e.get("metadata", {}).get("uid"),
+        "resource_version": e.get("metadata", {}).get("resourceVersion"),
+        "annotations": e.get("metadata", {}).get("annotations", {}),
+        "reportingController": e.get("reportingController"),
+        "reportingInstance": e.get("reportingInstance"),
+        "regarding": e.get("regarding"), "eventTime": e.get("eventTime"),
+        "type": e.get("type"), "reason": e.get("reason"), "action": e.get("action"),
+        "note": e.get("note"),
+    } for e in persisted]
+    (lab.evidence / "posture-network-policy-alert-events.raw.json").write_text(json.dumps({
+        "fixture_only": True, "namespace": namespace, "policy_name": name, "policy_uid": uid,
+        "job_uid": job_uid, "pod_uid": pod["metadata"]["uid"],
+        "pod_owner_and_service_account_bound": pod_identity,
+        "neighbor_event_create_status": probe_status, "neighbor_probe_event_absent": probe_not_created,
+        "expected_drift_source_resource_versions": expected_source_versions,
+        "watcher_api_create_responses": alert_responses, "persisted_events": persisted_raw,
+    }, indent=2, sort_keys=True) + "\n")
+    lab.check("positive", "The watcher emits exactly one persisted Warning Event for each observed NetworkPolicy drift revision",
+              source_versions_match and owner_and_subject_match and event_payloads_safe
+              and api_responses_match and no_non_drift_alerts,
+              {"persisted_event_count": len(persisted), "expected_drift_count": 2,
+               "source_resource_versions_match": source_versions_match,
+               "source_policy_and_reporter_identity_bound": owner_and_subject_match,
+               "warning_action_reason_and_note_bounded": event_payloads_safe,
+               "create_responses_match_persisted_objects": api_responses_match,
+               "no_event_for_unchanged_or_recovered": no_non_drift_alerts})
+    lab.check("positive", "The watcher identity cannot create or leave an alert Event in the neighboring namespace",
+              probe_status == 403 and probe_not_created,
+              {"neighbor_create_status_403": probe_status == 403,
+               "neighbor_probe_event_absent": probe_not_created})

@@ -24,7 +24,9 @@ SCOPE = (
     "compares fixture metadata updates, rule widening and restoration with exact API event revisions. "
     "A separately authorized NetworkPolicy watcher matches metadata, ingress widening and restoration "
     "to the selected object's UID and API resource versions. The NetworkPolicy comparison uses API "
-    "observations only; CNI enforcement and ongoing monitoring require separate evidence."
+    "observations only; CNI enforcement and ongoing monitoring require separate evidence. The watcher "
+    "also emits fixture-scoped Warning Events for drift transitions, bound to policy revisions and "
+    "observer Pod identity; this does not establish durable or external alert delivery."
 )
 
 
@@ -297,4 +299,5 @@ def run(lab):
     runpy.run_path(str(HERE / "role_watch_addon.py"))["run"](
         lab, HERE, OWNED_NAMESPACE, ROLE, resources["role"]["rules"])
     runpy.run_path(str(HERE / "network_policy_watch_addon.py"))["run"](
-        lab, HERE, OWNED_NAMESPACE, NETWORK_POLICY, resources["networkpolicy"]["spec"])
+        lab, HERE, OWNED_NAMESPACE, NETWORK_POLICY, resources["networkpolicy"]["spec"],
+        NEIGHBOR_NAMESPACE)

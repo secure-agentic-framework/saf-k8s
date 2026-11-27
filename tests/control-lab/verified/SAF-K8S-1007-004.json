@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-1007-004",
-  "catalog_revision": "480335ba0a96d5de7f4045f6141741d3191db90d",
-  "catalog_sha256": "65f757846d484079842769b4cec9180fc3a96ab15a5106c821a08ca7293441b6",
+  "catalog_revision": "fdba76329a3f920878a7d6eb9341020db5c6d1a0",
+  "catalog_sha256": "9135dfb3330418c29d3d8f94dc01192bb9eb05ee4c1e9aaf1a876493ca084535",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "3851049878e612a02b34e15f8233da5a5349117f1b032d4fbb0615edc9ac2cb9",
-  "scope": "Disposable Kind v1.36.1 cluster. Creates an owned namespace, one digest-pinned synthetic mock workload, a default-deny NetworkPolicy, and a named-object read-only Role. Captures API-visible posture, detects controlled changes to Pod Security Admission labels, NetworkPolicy rules and Role verbs, reapplies the desired manifests, and verifies recovery from live API reads. Joins an offline fictional advisory fixture to a synthetic component observation. Pinned offline OSV-Scanner reads the inert package metadata in a case-built runnable image, and the posture result binds to the exact image observed in Kind. Benchmark coverage, actual advisory feeds, managed and accelerator settings, and deployed monitoring and alerting have separate evidence requirements. A scoped authenticated Role stream compares fixture metadata updates, rule widening and restoration with exact API event revisions. A separately authorized NetworkPolicy watcher matches metadata, ingress widening and restoration to the selected object's UID and API resource versions. The NetworkPolicy comparison uses API observations only; CNI enforcement and ongoing monitoring require separate evidence.",
-  "cluster": "saf-lab-3affd41999f3",
+  "scope": "Disposable Kind v1.36.1 cluster. Creates an owned namespace, one digest-pinned synthetic mock workload, a default-deny NetworkPolicy, and a named-object read-only Role. Captures API-visible posture, detects controlled changes to Pod Security Admission labels, NetworkPolicy rules and Role verbs, reapplies the desired manifests, and verifies recovery from live API reads. Joins an offline fictional advisory fixture to a synthetic component observation. Pinned offline OSV-Scanner reads the inert package metadata in a case-built runnable image, and the posture result binds to the exact image observed in Kind. Benchmark coverage, actual advisory feeds, managed and accelerator settings, and deployed monitoring and alerting have separate evidence requirements. A scoped authenticated Role stream compares fixture metadata updates, rule widening and restoration with exact API event revisions. A separately authorized NetworkPolicy watcher matches metadata, ingress widening and restoration to the selected object's UID and API resource versions. The NetworkPolicy comparison uses API observations only; CNI enforcement and ongoing monitoring require separate evidence. The watcher also emits fixture-scoped Warning Events for drift transitions, bound to policy revisions and observer Pod identity; this does not establish durable or external alert delivery.",
+  "cluster": "saf-lab-2f6e7baa168e",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -188,6 +188,29 @@
         "independent_read_shows_restored_spec": true,
         "resumed_events_match_exact_missed_writes": true,
         "job_pod_identity_bound": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The watcher emits exactly one persisted Warning Event for each observed NetworkPolicy drift revision",
+      "matched": true,
+      "observed": {
+        "persisted_event_count": 2,
+        "expected_drift_count": 2,
+        "source_resource_versions_match": true,
+        "source_policy_and_reporter_identity_bound": true,
+        "warning_action_reason_and_note_bounded": true,
+        "create_responses_match_persisted_objects": true,
+        "no_event_for_unchanged_or_recovered": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The watcher identity cannot create or leave an alert Event in the neighboring namespace",
+      "matched": true,
+      "observed": {
+        "neighbor_create_status_403": true,
+        "neighbor_probe_event_absent": true
       }
     }
   ]

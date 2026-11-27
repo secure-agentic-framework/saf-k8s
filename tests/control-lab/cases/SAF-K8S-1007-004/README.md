@@ -18,7 +18,7 @@ Raw API snapshots and assessment inputs are written to the run evidence director
 
 Demonstrated in this fixture: API-visible posture snapshots; drift detection for one Namespace's Pod Security Admission labels, one NetworkPolicy, and one namespaced Role; desired-state recovery by reapplying owned manifests; digest-pinned mock workload identity; exact synthetic advisory/component matching and a near miss; and exclusion of an out-of-scope fixture neighboring object from the fixture's fingerprint.
 
-Not demonstrated: complete CIS Kubernetes Benchmark coverage or a kube-bench scan; functional packet filtering (Kind's default networking does not establish NetworkPolicy enforcement); deployed image or scanner coverage; real advisory authenticity, freshness, ingestion, or vulnerability exposure; NVIDIA GPU/CUDA bulletin correlation; managed Kubernetes settings; webhook, OPA, or Kyverno configuration monitoring; ClusterRole/Binding and ServiceAccount-token monitoring; continuous scheduling, near-real-time alert delivery, remediation approval, or production dashboard behavior. The fixture provides no evidence for those claims in the pinned control.
+Not demonstrated: complete CIS Kubernetes Benchmark coverage or a kube-bench scan; functional packet filtering (Kind's default networking does not establish NetworkPolicy enforcement); deployed image or scanner coverage; real advisory authenticity, freshness, ingestion, or vulnerability exposure; NVIDIA GPU/CUDA bulletin correlation; managed Kubernetes settings; webhook, OPA, or Kyverno configuration monitoring; ClusterRole/Binding and ServiceAccount-token monitoring; continuous scheduling, production or external alert delivery, remediation approval, or production dashboard behavior. The fixture provides no evidence for those claims in the pinned control.
 
 The control's statement about systematic lifecycle monitoring is testable only for this finite synthetic resource scope. A successful case would support the narrow implementation behavior above, not prove organization-wide continuous security posture management.
 
@@ -67,7 +67,7 @@ each to the resource version returned by its API write.
 
 The test uses one finite stream and a projected ServiceAccount token. The
 receipt preserves resource identities, rule changes and dispositions. Watch
-reconnect, alert delivery, broader enrolled resources and production coverage
+reconnect, production alert delivery, broader enrolled resources and production coverage
 require separate evidence. [Kubernetes API watch](https://v1-36.docs.kubernetes.io/docs/reference/using-api/api-concepts/#efficient-detection-of-changes)
 
 ## Native NetworkPolicy posture watch
@@ -89,5 +89,26 @@ widening, and exact spec restoration. The receipt retains each write response,
 UID, resourceVersion, generation, managed-field timestamps where present, and
 watch-event receive timestamps. It compares the ordered events with those exact
 write revisions. The test makes no connectivity probes and establishes no CNI
-packet enforcement, continuous monitoring service, alert delivery, or production
+packet enforcement, continuous monitoring service, durable or external alert delivery, or production
 coverage.
+
+## Scratch additive: API-side regression alert sink
+
+The scratch copy adds a narrow `events.k8s.io/v1` sink to the existing authenticated
+NetworkPolicy watcher. Its namespaced Role retains the selected-policy list/watch
+permission and adds only `create` for Events in the owned fixture namespace. The
+watcher creates one `Warning` Event for each actual `drift` transition, including a
+drift observed after reconnect; metadata-only and recovery transitions emit none.
+The runner independently lists the persisted case-labeled Events and requires their
+source resourceVersion annotations to equal exactly the two drift write revisions.
+
+Each Event's `regarding` identifies the exact NetworkPolicy UID/name/namespace. Its
+`reportingInstance` is the watch Pod UID; the existing Job owner-reference and
+ServiceAccount checks bind that Pod to the case observer. A neighbor-namespace create
+attempt must receive 403, and the named probe Event must remain absent there. Notes are
+fixed safe text and contain no policy rules. This disposable namespace is the only
+write scope for the observer's Event permission.
+
+Kubernetes Events have limited retention and are best-effort supplemental data. This
+proves an API-side sink in the fixture only; persistent alert transport, SIEM delivery,
+monitoring cadence, triage, and approved remediation remain adopter evidence.
