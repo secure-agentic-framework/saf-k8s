@@ -30,7 +30,9 @@ SCOPE = (
     "durable storage, real dataset authorization/audit, and deployed controls require separate evidence."
     " An additional check reads the mounted terminal-interface setting and exact "
     "runtime package version, then compares authenticated status and terminal "
-    "collection GET responses from both synthetic users."
+    "collection GET responses from both synthetic users. Another additive check compares "
+    "two inert server extensions under baseline and restricted mounted configuration; "
+    "review approval, provenance, user-installed code restrictions, and durable audit remain adopter evidence."
 )
 
 ROOT = Path(__file__).resolve().parent
@@ -44,6 +46,59 @@ HUB_SECRET = "saf-hub-password"
 HUB_PROBE_SCRIPT = "hub-auth-probe.py"
 HUB_WORKSPACE_SCRIPT = "hub-workspace-matrix.py"
 HUB_ROUTE_SCRIPT = "hub-route-probe.py"
+APPROVED_EXTENSION_SOURCE = '''import json
+from jupyter_server.base.handlers import JupyterHandler
+from tornado import web
+
+FIXTURE_VERSION = "1.0.0"
+FIXTURE_MARKER = "saf-approved-extension-v1"
+
+class Handler(JupyterHandler):
+    @web.authenticated
+    def get(self):
+        self.set_header("Content-Type", "application/json")
+        self.finish(json.dumps({"extension": "approved", "version": FIXTURE_VERSION,
+                                "marker": FIXTURE_MARKER}, sort_keys=True))
+
+def _jupyter_server_extension_points():
+    return [{"module": "saf_approved_extension"}]
+
+def _load_jupyter_server_extension(serverapp):
+    serverapp.web_app.add_handlers(".*$", [
+        (serverapp.base_url.rstrip("/") + "/saf-fixture/approved", Handler)
+    ])
+'''
+UNAPPROVED_EXTENSION_SOURCE = '''import json
+from jupyter_server.base.handlers import JupyterHandler
+from tornado import web
+
+FIXTURE_VERSION = "1.0.0"
+FIXTURE_MARKER = "saf-unapproved-extension-v1"
+
+class Handler(JupyterHandler):
+    @web.authenticated
+    def get(self):
+        self.set_header("Content-Type", "application/json")
+        self.finish(json.dumps({"extension": "unapproved", "version": FIXTURE_VERSION,
+                                "marker": FIXTURE_MARKER}, sort_keys=True))
+
+def _jupyter_server_extension_points():
+    return [{"module": "saf_unapproved_extension"}]
+
+def _load_jupyter_server_extension(serverapp):
+    serverapp.web_app.add_handlers(".*$", [
+        (serverapp.base_url.rstrip("/") + "/saf-fixture/unapproved", Handler)
+    ])
+'''
+HUB_EXTENSION_CONFIG = (
+    "import os, sys\n"
+    "sys.path.insert(0, '/opt/saf-jupyter-extensions')\n"
+    "c.ServerApp.terminals_enabled = False\n"
+    "c.ServerApp.jpserver_extensions.update({\n"
+    "    'saf_approved_extension': True,\n"
+    "    'saf_unapproved_extension': os.environ.get('JUPYTERHUB_USER') == 'saf-workspace-alice',\n"
+    "})\n"
+)
 CHART = ROOT / "vendor" / "jupyterhub-4.4.5.tgz"
 CHART_SHA256 = "27ad182c708244537f425a7ec3354d1a098776e7acd96b7f0d9a4d38f0cda415"
 HUB_IMAGE = "quay.io/jupyterhub/k8s-hub:4.4.5@sha256:6ce210488f5598e2dd5130d82e84d9f74b72538b66895861240bd84926ec50bd"
@@ -348,8 +403,16 @@ def _hub_values():
             "extraFiles": {
                 "saf-terminals-disabled.py": {
                     "mountPath": "/etc/jupyter/jupyter_server_config.py",
-                    "stringData": "c.ServerApp.terminals_enabled = False\n",
-                }
+                    "stringData": HUB_EXTENSION_CONFIG,
+                },
+                "saf-approved-extension.py": {
+                    "mountPath": "/opt/saf-jupyter-extensions/saf_approved_extension.py",
+                    "stringData": APPROVED_EXTENSION_SOURCE,
+                },
+                "saf-unapproved-extension.py": {
+                    "mountPath": "/opt/saf-jupyter-extensions/saf_unapproved_extension.py",
+                    "stringData": UNAPPROVED_EXTENSION_SOURCE,
+                },
             },
             "networkPolicy": {
                 "enabled": True,
@@ -566,6 +629,7 @@ def login_and_spawn(username):
 def main():
     sessions = {user: login_and_spawn(user) for user in USERS}
     own_read = {}
+    extension_matrix = {}
     for user in USERS:
         jar, opener = sessions[user]
         progress.update(phase="own_marker", identity=user)
@@ -590,6 +654,24 @@ def main():
             "authenticated_status_ok": status_server == 200,
             "terminals_endpoint_status": status_terminals,
         }
+        extension_matrix[user] = {}
+        for extension in ("approved", "unapproved"):
+            try:
+                status_extension, _, extension_body = request(
+                    opener, "/user/" + user + "/saf-fixture/" + extension,
+                    referer=BASE + "/user/" + user + "/")
+            except (OSError, TimeoutError, urllib.error.URLError, ValueError):
+                status_extension, extension_body = 0, b""
+            try:
+                extension_document = json.loads(extension_body)
+            except (ValueError, UnicodeDecodeError):
+                extension_document = {}
+            extension_matrix[user][extension] = {
+                "status": status_extension,
+                "marker_matches": extension_document.get("marker") ==
+                    "saf-" + ("approved" if extension == "approved" else "unapproved") + "-extension-v1",
+                "version": extension_document.get("version", ""),
+            }
     cross_denied = {}
     for reader, owner in ((USERS[0], USERS[1]), (USERS[1], USERS[0])):
         _, opener = sessions[reader]
@@ -598,7 +680,8 @@ def main():
         cross_denied[reader + "_to_" + owner] = status == 403
     print(json.dumps({"own_marker_read": own_read, "cross_user_forbidden": cross_denied,
                       "separate_authenticated_sessions": len(sessions) == 2,
-                      "server_api": progress.get("server_api", {})}, sort_keys=True))
+                      "server_api": progress.get("server_api", {}),
+                      "extension_matrix": extension_matrix}, sort_keys=True))
 
 try:
     main()
@@ -783,6 +866,57 @@ def _exercise_hub_workspace_matrix(lab):
                    and config_mounts[user].get("mounted_config_ok") is True for user in (HUB_ALICE, HUB_BOB)),
                "terminal_create_called": False})
     (lab.evidence / "hub-terminal-readonly-summary.json").write_text(json.dumps(lab.checks[-1], indent=2) + "\n")
+    extension_rows = result.get("extension_matrix", {})
+    extension_mounts = {user: _hub_extension_identity(lab, user) for user in (HUB_ALICE, HUB_BOB)}
+    extension_expectations = {
+        HUB_ALICE: {"approved": (200, True), "unapproved": (200, True)},
+        HUB_BOB: {"approved": (200, True), "unapproved": (404, False)},
+    }
+    extension_routes_match = all(
+        extension_rows.get(user, {}).get(extension, {}).get("status") == expected[0]
+        and extension_rows.get(user, {}).get(extension, {}).get("marker_matches") is expected[1]
+        and (expected[0] != 200 or extension_rows.get(user, {}).get(extension, {}).get("version") == "1.0.0")
+        for user, routes in extension_expectations.items()
+        for extension, expected in routes.items())
+    extension_identity_match = all(
+        extension_mounts[user].get("mounted_files_match") is True
+        and extension_mounts[user].get("jupyter_server_version") == "2.21.1"
+        and extension_mounts[user].get("approved_version") == "1.0.0"
+        and extension_mounts[user].get("unapproved_version") == "1.0.0"
+        for user in (HUB_ALICE, HUB_BOB))
+    extension_identity_stable = all(
+        extension_mounts[user].get("uid_before")
+        and extension_mounts[user].get("uid_before") == extension_mounts[user].get("uid_after")
+        and extension_mounts[user].get("ready_before") is True
+        and extension_mounts[user].get("ready_after") is True
+        for user in (HUB_ALICE, HUB_BOB))
+    (lab.evidence / "hub-extension-policy.raw.json").write_text(json.dumps({
+        "users": {user: {"pod_uid_before": extension_mounts[user].get("uid_before"),
+                         "pod_uid_after": extension_mounts[user].get("uid_after"),
+                         "mounted": extension_mounts[user],
+                         "routes": extension_rows.get(user, {})}
+                   for user in (HUB_ALICE, HUB_BOB)},
+        "expected": extension_expectations,
+    }, indent=2) + "\n")
+    lab.check("positive", "Pinned Jupyter Server loads both baseline fixture extensions and only the approved extension under the restricted user policy",
+              extension_routes_match and extension_identity_match and extension_identity_stable,
+              {"baseline_both_fixture_extensions_callable": (
+                   extension_rows.get(HUB_ALICE, {}).get("approved", {}).get("status") == 200
+                   and extension_rows.get(HUB_ALICE, {}).get("unapproved", {}).get("status") == 200),
+               "restricted_approved_extension_callable": (
+                   extension_rows.get(HUB_BOB, {}).get("approved", {}).get("status") == 200),
+               "restricted_unapproved_extension_not_available": (
+                   extension_rows.get(HUB_BOB, {}).get("unapproved", {}).get("status") == 404),
+               "authenticated_route_matrix_matches": extension_routes_match,
+               "exact_config_and_module_digests_match": extension_identity_match,
+               "pinned_jupyter_server_2_21_1": all(
+                   extension_mounts[user].get("jupyter_server_version") == "2.21.1"
+                   for user in (HUB_ALICE, HUB_BOB)),
+               "same_ready_user_pod_before_and_after": extension_identity_stable,
+               "extension_fixture_versions": {"approved": "1.0.0", "unapproved": "1.0.0"},
+               "mounted_sha256": {user: extension_mounts[user].get("sha256", {})
+                                  for user in (HUB_ALICE, HUB_BOB)}})
+    (lab.evidence / "hub-extension-policy-summary.json").write_text(json.dumps(lab.checks[-1], indent=2) + "\n")
     _exercise_hub_spawned_egress(lab)
 
 
@@ -1057,11 +1191,81 @@ def _hub_terminal_config_mount(lab, user):
         result = json.loads(observed)
     except json.JSONDecodeError:
         return False
-    expected_hash = hashlib.sha256(b"c.ServerApp.terminals_enabled = False\n").hexdigest()
+    expected_hash = hashlib.sha256(HUB_EXTENSION_CONFIG.encode()).hexdigest()
     return {"mounted_config_ok": result.get("exists") is True
             and result.get("sha256") == expected_hash
             and result.get("disabled_line") is True,
             "jupyter_server_version": result.get("jupyter_server_version", "")}
+
+
+def _hub_extension_identity(lab, user):
+    selected = json.loads(lab.kubectl(
+        "get", "pods", "-l", f"hub.jupyter.org/username={user}", "-o", "json").stdout).get("items", [])
+    if len(selected) != 1 or not _pod_ready(selected[0]):
+        return {}
+    pod = selected[0]
+    spec = pod.get("spec", {})
+    if (pod.get("metadata", {}).get("namespace") != NAMESPACE
+            or not pod.get("metadata", {}).get("uid")
+            or not any(container.get("image") == SINGLEUSER_IMAGE
+                       for container in spec.get("containers", []))):
+        return {}
+    expected = {
+        "saf-terminals-disabled.py": "/etc/jupyter/jupyter_server_config.py",
+        "saf-approved-extension.py": "/opt/saf-jupyter-extensions/saf_approved_extension.py",
+        "saf-unapproved-extension.py": "/opt/saf-jupyter-extensions/saf_unapproved_extension.py",
+    }
+    secret_volumes = [volume for volume in spec.get("volumes", [])
+                      if volume.get("secret", {}).get("secretName") == "singleuser"]
+    if len(secret_volumes) != 1:
+        return {}
+    volume = secret_volumes[0]
+    keys = {item.get("key") for item in volume.get("secret", {}).get("items", [])}
+    if not set(expected).issubset(keys):
+        return {}
+    main = [container for container in spec.get("containers", [])
+            if all(any(mount.get("name") == volume.get("name")
+                       and mount.get("mountPath") == path
+                       and mount.get("subPath") == key
+                       for mount in container.get("volumeMounts", []))
+                   for key, path in expected.items())]
+    if len(main) != 1:
+        return {}
+    name = pod["metadata"]["name"]
+    inspector = r'''import hashlib,json,pathlib,jupyter_server
+paths={"config":"/etc/jupyter/jupyter_server_config.py",
+       "approved":"/opt/saf-jupyter-extensions/saf_approved_extension.py",
+       "unapproved":"/opt/saf-jupyter-extensions/saf_unapproved_extension.py"}
+data={name:pathlib.Path(path).read_bytes() for name,path in paths.items()}
+versions={}
+for name,path in (("approved","/opt/saf-jupyter-extensions/saf_approved_extension.py"),
+                  ("unapproved","/opt/saf-jupyter-extensions/saf_unapproved_extension.py")):
+    text=pathlib.Path(path).read_text()
+    versions[name]="1.0.0" if 'FIXTURE_VERSION = "1.0.0"' in text else ""
+print(json.dumps({"jupyter_server_version":jupyter_server.__version__,
+ "hashes":{name:hashlib.sha256(value).hexdigest() for name,value in data.items()},
+ "versions":versions},sort_keys=True))'''
+    try:
+        observed = json.loads(lab.kubectl("exec", name, "-c", main[0]["name"], "--",
+            "python", "-B", "-c", inspector, timeout=12).stdout.strip())
+    except (json.JSONDecodeError, KeyError):
+        return {}
+    expected_hashes = {
+        "config": hashlib.sha256(HUB_EXTENSION_CONFIG.encode()).hexdigest(),
+        "approved": hashlib.sha256(APPROVED_EXTENSION_SOURCE.encode()).hexdigest(),
+        "unapproved": hashlib.sha256(UNAPPROVED_EXTENSION_SOURCE.encode()).hexdigest(),
+    }
+    identity_before = {"uid": pod["metadata"]["uid"], "ready": _pod_ready(pod)}
+    refreshed = json.loads(lab.kubectl("get", "pods", name, "-o", "json").stdout)
+    identity_after = {"uid": refreshed.get("metadata", {}).get("uid"), "ready": _pod_ready(refreshed)}
+    return {"uid_before": identity_before["uid"], "uid_after": identity_after["uid"],
+            "ready_before": identity_before["ready"], "ready_after": identity_after["ready"],
+            "mounted_files_match": observed.get("hashes") == expected_hashes,
+            "sha256": observed.get("hashes", {}),
+            "jupyter_server_version": observed.get("jupyter_server_version"),
+            "approved_version": observed.get("versions", {}).get("approved"),
+            "unapproved_version": observed.get("versions", {}).get("unapproved"),
+            "hashes_match": observed.get("hashes") == expected_hashes}
 
 
 def _save_failure_diagnostics(lab, password):

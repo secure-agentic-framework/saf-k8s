@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0904-003",
-  "catalog_revision": "449a50b516dcd3542b9b762af6e42a8120cf2f22",
-  "catalog_sha256": "96ad50c08e7c7fcb717b830fb2376a887ae787e5a40dc3e0d17ed414187197a4",
+  "catalog_revision": "282bd11749f5ae808ed43f65a712b328540f1ab5",
+  "catalog_sha256": "1da56289e4f344f65fa946b0099b200d7a52a7c4bea62ee17a32261bedc18861",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "d0b57a1ca68aec60e4ca9d14eb14c94e299fe8f5eee724abc6465e94f7cbbbdd",
-  "scope": "One fresh Kind v1.36.1 cluster, two pinned upstream Jupyter base-notebook Pods, and two case-owned benign dataset endpoints. The notebook Pods have distinct non-root UIDs and tokenless service accounts, configured CPU/RAM bounds and restrictive security contexts. Native NetworkPolicy limits each to its labeled endpoint, and native admission enforces the approved image reference. Each real Jupyter kernel executes a fixed harmless cell after policy is active. The pinned synthetic Hub also authenticates two fixture users, spawns their actual KubeSpawner Pods, and applies per-user egress policy to those Pods. Production identity/session lifecycle, extension governance, full image provenance, durable storage, real dataset authorization/audit, and deployed controls require separate evidence. An additional check reads the mounted terminal-interface setting and exact runtime package version, then compares authenticated status and terminal collection GET responses from both synthetic users.",
-  "cluster": "saf-lab-028f59205eec",
+  "scope": "One fresh Kind v1.36.1 cluster, two pinned upstream Jupyter base-notebook Pods, and two case-owned benign dataset endpoints. The notebook Pods have distinct non-root UIDs and tokenless service accounts, configured CPU/RAM bounds and restrictive security contexts. Native NetworkPolicy limits each to its labeled endpoint, and native admission enforces the approved image reference. Each real Jupyter kernel executes a fixed harmless cell after policy is active. The pinned synthetic Hub also authenticates two fixture users, spawns their actual KubeSpawner Pods, and applies per-user egress policy to those Pods. Production identity/session lifecycle, extension governance, full image provenance, durable storage, real dataset authorization/audit, and deployed controls require separate evidence. An additional check reads the mounted terminal-interface setting and exact runtime package version, then compares authenticated status and terminal collection GET responses from both synthetic users. Another additive check compares two inert server extensions under baseline and restricted mounted configuration; review approval, provenance, user-installed code restrictions, and durable audit remain adopter evidence.",
+  "cluster": "saf-lab-37bfe7570e7d",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -162,6 +162,36 @@
         },
         "exact_config_mounted_for_both_users": true,
         "terminal_create_called": false
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Pinned Jupyter Server loads both baseline fixture extensions and only the approved extension under the restricted user policy",
+      "matched": true,
+      "observed": {
+        "baseline_both_fixture_extensions_callable": true,
+        "restricted_approved_extension_callable": true,
+        "restricted_unapproved_extension_not_available": true,
+        "authenticated_route_matrix_matches": true,
+        "exact_config_and_module_digests_match": true,
+        "pinned_jupyter_server_2_21_1": true,
+        "same_ready_user_pod_before_and_after": true,
+        "extension_fixture_versions": {
+          "approved": "1.0.0",
+          "unapproved": "1.0.0"
+        },
+        "mounted_sha256": {
+          "saf-workspace-alice": {
+            "approved": "595282fea0b36a0c7b17e4290ecbd5be1a6d96519e0b1cbd506d65f2e91faca9",
+            "config": "425c57b9a653293ed8cd48f6aeb4ff0b87502a4a5fb34dceb8c38f5ff6beb1fe",
+            "unapproved": "429909b4d682006a596fe799d63f93927dbaf4af87ff0dbc171778cd911a4c33"
+          },
+          "saf-workspace-bob": {
+            "approved": "595282fea0b36a0c7b17e4290ecbd5be1a6d96519e0b1cbd506d65f2e91faca9",
+            "config": "425c57b9a653293ed8cd48f6aeb4ff0b87502a4a5fb34dceb8c38f5ff6beb1fe",
+            "unapproved": "429909b4d682006a596fe799d63f93927dbaf4af87ff0dbc171778cd911a4c33"
+          }
+        }
       }
     },
     {

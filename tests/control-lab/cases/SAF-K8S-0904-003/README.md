@@ -82,3 +82,24 @@ contrast would require a second separately installed Hub release or chart
 upgrade changing only `terminals_enabled`, followed by the same two-user
 authenticated GETs. It is intentionally not added because that would duplicate
 Hub provisioning and disrupt the single pinned egress scenario.
+
+## Inert Jupyter Server extension policy comparison
+
+The same two authenticated Hub-spawned workspaces expose a fixed comparison
+through their ordinary user routes. Alice is the case-only baseline: the
+mounted `ServerApp.jpserver_extensions` config enables both case-owned inert
+modules. Bob uses the policy configuration that enables only
+`saf_approved_extension`; the same harmless `saf_unapproved_extension` module
+is present but explicitly disabled. Authenticated GETs require the approved
+marker route on both users, the second marker route on baseline Alice, and a
+404 for that route on restricted Bob. The check binds the result to the same
+Ready Pod UIDs, the mounted config and module SHA-256 values, and
+Jupyter Server 2.21.1. The modules return only fixed fixture JSON and do not
+read workspace data or perform other actions.
+
+This demonstrates the pinned server's configured extension enable/disable
+behavior for two inert fixture modules. It does not prove a reviewer approved
+an extension, package provenance or signature verification, prevent users
+from installing code outside the tested image/configuration, establish
+production extension settings, or provide durable data-access auditing.
+Those remain adopter evidence.
