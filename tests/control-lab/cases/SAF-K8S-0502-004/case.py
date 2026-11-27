@@ -26,6 +26,16 @@ OPERATOR_IMAGE = (
     "quay.io/cilium/operator-generic:v1.20.5@sha256:"
     "c6e7de6665aa9701db86c4fe46828a75a0d167afe084a9ffb5bce34b2c4fa8c4"
 )
+PREVIOUS_CILIUM_VERSION = "1.20.4"
+PREVIOUS_CHART_SHA256 = "505abff8385811df1a949776fc42e9f10697989a332acc86d6e8933efcb855ed"
+PREVIOUS_AGENT_IMAGE = (
+    "quay.io/cilium/cilium:v1.20.4@sha256:"
+    "20fe92e4c86641233a450098c158d2d29085f3419931ab6bf681d2485dedf16e"
+)
+PREVIOUS_OPERATOR_IMAGE = (
+    "quay.io/cilium/operator-generic:v1.20.4@sha256:"
+    "7a7a3489dc66ad67e420d285c8a8d2e169b0957ad15e120f593d27081bf38d82"
+)
 RELEASE = "cilium"
 NAMESPACE = "saf-test"
 SERVER = "marker-server"
@@ -45,9 +55,11 @@ COMPONENT_FAILURE_REASONS = {
 INSTALLS_CNI = True
 SCOPE = (
     "One fresh harness-owned Kind v0.32.0 / Kubernetes v1.36.1 cluster, with "
-    "Kind's default CNI disabled and Cilium 1.20.5 installed from the checked "
-    "OCI chart archive. The case verifies the chart and Cilium agent/operator "
-    "image pins, then checks one TCP marker request between two case-owned "
+    "Kind's default CNI disabled. The case installs Cilium 1.20.4 and upgrades "
+    "to 1.20.5 from checked OCI chart archives. Both pre- and post-upgrade "
+    "agent/operator Pods are Ready on the expected pins. The same owned policy "
+    "and server Pod UIDs are observed with the policy realized on both versions. "
+    "One TCP marker request follows the approved path between two case-owned "
     "pods in the cluster. A deliberately invalid readiness-probe threshold is "
     "submitted through Helm with and without --atomic. The case requires API "
     "rejection for both attempts, a deployed rollback revision for the atomic trial, restored user "
@@ -57,8 +69,8 @@ SCOPE = (
     "while keeping the agent datapath pinned. A case-owned namespaced "
     "CiliumNetworkPolicy permits only ordinary marker-client ingress to the "
     "marker-server TCP port, remains realized through the tested Helm lifecycle, "
-    "and is removed afterward. This does not test a new Cilium version or failed "
-    "agent datapath rollout, and does not assess production baseline, CVE status "
+    "and is removed afterward. Scope excludes failed agent datapath rollout, "
+    "production baseline, CVE status "
     "or patch timeliness, provider SLAs, RBAC "
     "process, PSA configuration, or production-scale availability."
 )
@@ -182,7 +194,7 @@ def _wait_endpoint_ready(lab, timeout=45):
     lab.block("The exact marker server CiliumEndpoint did not report ready with an assigned identity")
 
 
-def _effective_agent_policy_state(lab):
+def _effective_agent_policy_state(lab, expected_agent_image=AGENT_IMAGE):
     """Read only this owned endpoint from its pinned local Cilium agent."""
     pod = _json(_kubectl(lab, "-n", NAMESPACE, "get", "pod", SERVER, "-o", "json"))
     endpoint = _json(_kubectl(lab, "-n", NAMESPACE, "get", "ciliumendpoint", SERVER, "-o", "json"))
@@ -205,7 +217,7 @@ def _effective_agent_policy_state(lab):
         agent_images = [c.get("image") for c in containers if c.get("name") == "cilium-agent"]
         conditions = candidate.get("status", {}).get("conditions", [])
         ready = any(c.get("type") == "Ready" and c.get("status") == "True" for c in conditions)
-        if agent_images == [AGENT_IMAGE] and ready:
+        if agent_images == [expected_agent_image] and ready:
             local_agents.append(candidate)
     if len(local_agents) != 1:
         lab.block("Could not identify exactly one ready, digest-pinned Cilium agent on the marker-server node")
@@ -568,10 +580,10 @@ def _run_rollout_recovery(lab, chart):
               recovered_marker_ok, recovered_marker)
 
 
-def _install(lab, chart, values):
+def _install(lab, chart, values, version_overrides):
     _helm(
         lab, "install", RELEASE, str(chart), "--namespace", "kube-system",
-        "--values", str(values), "--wait", "--timeout", "4m",
+        "--values", str(values), *version_overrides, "--wait", "--timeout", "4m",
         timeout=260,
     )
     _kubectl(lab, "wait", "--for=condition=Ready", "node", "--all",
@@ -606,6 +618,98 @@ def _new_revision_statuses(history, revision):
     return [row["status"] for row in ordered if int(row["revision"]) > revision]
 
 
+def _checked_chart(lab, workspace, version, expected_sha):
+    _helm(lab, "pull", CHART_SOURCE, "--version", version,
+          "--destination", str(workspace), "--registry-config",
+          str(workspace / "helm-registry.json"), timeout=120)
+    chart = workspace / f"cilium-{version}.tgz"
+    digest = hashlib.sha256(chart.read_bytes()).hexdigest()
+    if digest != expected_sha:
+        lab.block(f"Cilium {version} chart digest mismatch: {digest}")
+    return chart
+
+
+def _component_pod(lab, selector, container_name, expected_image):
+    found = _json(_kubectl(lab, "-n", "kube-system", "get", "pods",
+                           "-l", selector, "-o", "json")).get("items", [])
+    observations = []
+    for pod in found:
+        metadata = pod["metadata"]
+        if metadata.get("deletionTimestamp") is not None:
+            continue
+        pinned = any(container["name"] == container_name and container["image"] == expected_image
+                     for container in pod["spec"].get("containers", []))
+        statuses = pod.get("status", {}).get("containerStatuses", [])
+        status = next((status for status in statuses if status["name"] == container_name), {})
+        if pinned and status.get("ready") and status.get("state", {}).get("running"):
+            observations.append({
+                "pod_uid": metadata["uid"],
+                "node": pod["spec"]["nodeName"],
+                "image": expected_image,
+                "runtime_image_id": status.get("imageID"),
+            })
+    if len(observations) != 1 or not observations[0]["runtime_image_id"]:
+        lab.block(f"Expected one ready fixture {container_name} with the exact pin and runtime image ID")
+    return observations[0]
+
+
+def _patch_observation(lab, version, agent_image, operator_image):
+    for target in ("daemonset/cilium", "deployment/cilium-operator"):
+        _kubectl(lab, "-n", "kube-system", "rollout", "status", target,
+                 "--timeout=120s", timeout=130)
+    agent = _component_pod(lab, "k8s-app=cilium", "cilium-agent", agent_image)
+    operator = _component_pod(lab, "io.cilium/app=operator,name=cilium-operator",
+                              "cilium-operator", operator_image)
+    history, _ = _revision_and_values(lab)
+    deployed = [row for row in history if row.get("status") == "deployed"]
+    if len(deployed) != 1 or deployed[0].get("chart") != f"cilium-{version}":
+        lab.block(f"Helm did not report a unique deployed Cilium {version} chart")
+    _wait_endpoint_ready(lab)
+    datapath = _effective_agent_policy_state(lab, agent_image)
+    marker, _ = _wait_for_marker(lab)
+    return {
+        "chart": deployed[0]["chart"], "revision": int(deployed[0]["revision"]),
+        "agent": agent, "operator": operator, "datapath": datapath, "marker": marker,
+    }
+
+
+def _patch_upgrade(lab, chart, values):
+    before = _patch_observation(lab, PREVIOUS_CILIUM_VERSION,
+                                PREVIOUS_AGENT_IMAGE, PREVIOUS_OPERATOR_IMAGE)
+    lab.check("positive", "The earlier pinned Cilium chart and release Pods serve the approved marker",
+              before["marker"],
+              {"chart": before["chart"], "agent_and_operator_ready_and_pinned": True,
+               "case_policy_realized": True, "approved_marker": before["marker"]})
+    _helm(lab, "upgrade", RELEASE, str(chart), "-n", "kube-system",
+          "--reset-values", "--values", str(values), "--atomic",
+          "--wait", "--timeout", "4m", timeout=280)
+    after = _patch_observation(lab, CILIUM_VERSION, AGENT_IMAGE, OPERATOR_IMAGE)
+    replacements = all(
+        before[role]["pod_uid"] != after[role]["pod_uid"]
+        and before[role]["runtime_image_id"] != after[role]["runtime_image_id"]
+        and before[role]["node"] == after[role]["node"]
+        for role in ("agent", "operator")
+    )
+    datapath_retained = all(
+        before["datapath"][key] == after["datapath"][key]
+        for key in ("captured_pod_uid", "captured_policy_uid")
+    )
+    next_revision = after["revision"] == before["revision"] + 1
+    evidence = {
+        "source_chart": before["chart"], "installed_chart": after["chart"],
+        "next_helm_revision_deployed": next_revision,
+        "agent_and_operator_uids_and_runtime_images_changed": replacements,
+        "same_workload_and_policy_uids": datapath_retained,
+        "case_policy_realized_after": after["datapath"]["owned_policy_ingress_rule_count"] > 0,
+        "approved_marker": after["marker"],
+    }
+    (lab.evidence / "cilium-patch-upgrade.json").write_text(json.dumps(
+        {"before": before, "after": after, "observations": evidence},
+        indent=2, sort_keys=True) + "\n")
+    lab.check("green", "Cilium patch upgrade rolls both pinned components and the same realized policy serves its approved marker",
+              replacements and datapath_retained and next_revision and after["marker"], evidence)
+
+
 def run(lab):
     kind_version = lab.command("kind", "version").stdout.strip()
     if not kind_version.startswith(KIND_VERSION):
@@ -616,28 +720,26 @@ def run(lab):
         lab.block(f"Expected Kubernetes {KUBERNETES_VERSION}, got {actual_k8s!r}")
 
     work = Path(lab.kubeconfig).parent
-    registry = work / "helm-registry.json"
-    _helm(lab, "pull", CHART_SOURCE, "--version", CILIUM_VERSION,
-          "--destination", str(work), "--registry-config", str(registry), timeout=120)
-    chart = work / f"cilium-{CILIUM_VERSION}.tgz"
-    chart_hash = hashlib.sha256(chart.read_bytes()).hexdigest()
-    if chart_hash != CHART_SHA256:
-        lab.block(f"Cilium chart digest mismatch: {chart_hash}")
+    previous_chart = _checked_chart(lab, work, PREVIOUS_CILIUM_VERSION, PREVIOUS_CHART_SHA256)
+    chart = _checked_chart(lab, work, CILIUM_VERSION, CHART_SHA256)
     values = Path(__file__).with_name("cilium-values.yaml")
-    _install(lab, chart, values)
+    _install(lab, previous_chart, values, [
+        "--set-string", f"image.tag=v{PREVIOUS_CILIUM_VERSION}",
+        "--set-string", f"image.digest={PREVIOUS_AGENT_IMAGE.split('@', 1)[1]}",
+        "--set-string", f"operator.image.genericDigest={PREVIOUS_OPERATOR_IMAGE.split('@', 1)[1]}",
+    ])
+    _prepare_workloads(lab)
+    approved_policy = _approved_marker_policy()
+    _create(lab, approved_policy)
+    _patch_upgrade(lab, chart, values)
 
     images_ok, images = _assert_images(lab)
     lab.check("positive", "Baseline Cilium agent and operator images match digest pins",
               images_ok, images)
-    _prepare_workloads(lab)
     baseline_ok, baseline_result = _wait_for_marker(lab)
     lab.check("positive", "Baseline in-cluster marker service is reachable",
               baseline_ok, baseline_result)
 
-    # The baseline path becomes a Cilium-enforced allow rule. There is no deny
-    # request or policy-bypass comparison in this case.
-    approved_policy = _approved_marker_policy()
-    _create(lab, approved_policy)
     policy_before_upgrade = _wait_endpoint_ready(lab)
     effective_policy_before_upgrade = _effective_agent_policy_state(lab)
     policy_marker_ok, policy_marker = _wait_for_marker(lab)

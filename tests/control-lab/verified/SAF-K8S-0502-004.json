@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0502-004",
-  "catalog_revision": "8ca957210cb5ed5a74374a1779f0c03a4a7f65c8",
-  "catalog_sha256": "ee384744c842f8d644f583a5aaca5eaaa6b5317fc5eec912d037736ad0661d10",
+  "catalog_revision": "a24855e3900ed910a689f49ecb1b67ddb52a39b1",
+  "catalog_sha256": "96ad50c08e7c7fcb717b830fb2376a887ae787e5a40dc3e0d17ed414187197a4",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "f06e22c5c452b35b47b329f77be73d5507a0bfdd04d960b30efaec6d29dc09af",
-  "scope": "One fresh harness-owned Kind v0.32.0 / Kubernetes v1.36.1 cluster, with Kind's default CNI disabled and Cilium 1.20.5 installed from the checked OCI chart archive. The case verifies the chart and Cilium agent/operator image pins, then checks one TCP marker request between two case-owned pods in the cluster. A deliberately invalid readiness-probe threshold is submitted through Helm with and without --atomic. The case requires API rejection for both attempts, a deployed rollback revision for the atomic trial, restored user values, and the same marker request afterward. An additive lifecycle branch rolls Cilium agents after a valid monitor-aggregation setting change, then observes a failed operator workload image rollout and explicit Helm rollback while keeping the agent datapath pinned. A case-owned namespaced CiliumNetworkPolicy permits only ordinary marker-client ingress to the marker-server TCP port, remains realized through the tested Helm lifecycle, and is removed afterward. This does not test a new Cilium version or failed agent datapath rollout, and does not assess production baseline, CVE status or patch timeliness, provider SLAs, RBAC process, PSA configuration, or production-scale availability.",
-  "cluster": "saf-lab-ae6a8fff84a1",
+  "scope": "One fresh harness-owned Kind v0.32.0 / Kubernetes v1.36.1 cluster, with Kind's default CNI disabled. The case installs Cilium 1.20.4 and upgrades to 1.20.5 from checked OCI chart archives. Both pre- and post-upgrade agent/operator Pods are Ready on the expected pins. The same owned policy and server Pod UIDs are observed with the policy realized on both versions. One TCP marker request follows the approved path between two case-owned pods in the cluster. A deliberately invalid readiness-probe threshold is submitted through Helm with and without --atomic. The case requires API rejection for both attempts, a deployed rollback revision for the atomic trial, restored user values, and the same marker request afterward. An additive lifecycle branch rolls Cilium agents after a valid monitor-aggregation setting change, then observes a failed operator workload image rollout and explicit Helm rollback while keeping the agent datapath pinned. A case-owned namespaced CiliumNetworkPolicy permits only ordinary marker-client ingress to the marker-server TCP port, remains realized through the tested Helm lifecycle, and is removed afterward. Scope excludes failed agent datapath rollout, production baseline, CVE status or patch timeliness, provider SLAs, RBAC process, PSA configuration, or production-scale availability.",
+  "cluster": "saf-lab-626c02122fd6",
   "kind_ready_wait": "0s",
   "kubernetes": {
     "clientVersion": {
@@ -39,6 +39,31 @@
   "status": "passed",
   "cleanup": "deleted",
   "checks": [
+    {
+      "phase": "positive",
+      "claim": "The earlier pinned Cilium chart and release Pods serve the approved marker",
+      "matched": true,
+      "observed": {
+        "chart": "cilium-1.20.4",
+        "agent_and_operator_ready_and_pinned": true,
+        "case_policy_realized": true,
+        "approved_marker": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Cilium patch upgrade rolls both pinned components and the same realized policy serves its approved marker",
+      "matched": true,
+      "observed": {
+        "source_chart": "cilium-1.20.4",
+        "installed_chart": "cilium-1.20.5",
+        "next_helm_revision_deployed": true,
+        "agent_and_operator_uids_and_runtime_images_changed": true,
+        "same_workload_and_policy_uids": true,
+        "case_policy_realized_after": true,
+        "approved_marker": true
+      }
+    },
     {
       "phase": "positive",
       "claim": "Baseline Cilium agent and operator images match digest pins",
