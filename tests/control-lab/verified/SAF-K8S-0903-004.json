@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0903-004",
-  "catalog_revision": "e30e84421ec479fa034f773d5b9df4046c9ea7a6",
-  "catalog_sha256": "3f6d0b09957f7ae05620954a6210b52df977b8cbc7dcdd43769137d72662c8bb",
+  "catalog_revision": "2b8602c39ffd1b31cfa18036b4366537ae17538d",
+  "catalog_sha256": "abe40f941f7d427f9b0a6925bad25da44b0fb08979ab503301fb56399c7bf4b0",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "8ab52426324ece7773d94406977a8d84ffcc1b89c2128202c0d70e6068b0fb6b",
-  "scope": "A pinned llama.cpp engine also loads a tiny CPU model and checks real tokenizer and completion counts. A second Pod uses the exact same executable and prompts with only the input guard disabled. Disposable Kubernetes v1.36.1 Pods run deterministic synthetic generation fixtures. The original in-process fixture has on/off branches for whitespace-token input and fake output, with fixed synthetic session IDs and a logical clock. The BPE HTTP fixture uses fixed template-expanded cl100k_base prompts, synthetic tokens, a guarded path and a same-worker input-guard-off comparison. The guarded serving container's effective CPU quota and memory cgroup ceiling are observed and compared with declared limits. This is container-bound evidence only; no CPU load, GPU, or cache validation. The HTTP fixture has no authenticated caller/session identity or concurrent generation. Neither fixture runs a real model or serving framework, configures a real KV cache, or measures GPU memory. Production route coverage, identity binding, concurrency, cache and device budgets, cgroup behavior, and monitoring require separate adopter evidence.",
-  "cluster": "saf-lab-a9f402ae6697",
+  "scope": "A pinned llama.cpp engine also loads a tiny CPU model and checks real tokenizer and completion counts. A local bounded policy comparison checks rejection before dispatch and an accepted four-token request against the same native Pod. A second Pod uses the exact same executable and prompts with only the input guard disabled. Disposable Kubernetes v1.36.1 Pods run deterministic synthetic generation fixtures. The original in-process fixture has on/off branches for whitespace-token input and fake output, with fixed synthetic session IDs and a logical clock. The BPE HTTP fixture uses fixed template-expanded cl100k_base prompts, synthetic tokens, a guarded path and a same-worker input-guard-off comparison. The guarded serving container's effective CPU quota and memory cgroup ceiling are observed and compared with declared limits. This is container-bound evidence only; no CPU load, GPU, or cache validation. The HTTP fixture has no authenticated caller/session identity or concurrent generation. Neither fixture runs a real model or serving framework, configures a real KV cache, or measures GPU memory. Production route coverage, identity binding, concurrency, cache and device budgets, cgroup behavior, and monitoring require separate adopter evidence.",
+  "cluster": "saf-lab-decf168095a6",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -514,6 +514,19 @@
         "stop_type": "limit",
         "model": "stories15m-moe",
         "gpu_layers": 0
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "A four-token guard refuses the identical five-token request before dispatch and allows exact-boundary native generation",
+      "matched": true,
+      "observed": {
+        "unprotected_native_generation_observed_five": true,
+        "guard_refused_exact_over_budget_request": true,
+        "no_guard_dispatch_before_rejection_readback": true,
+        "guarded_native_generation_observed_four": true,
+        "one_guard_dispatch_in_final_readback": true,
+        "native_pod_container_and_image_unchanged": true
       }
     }
   ]

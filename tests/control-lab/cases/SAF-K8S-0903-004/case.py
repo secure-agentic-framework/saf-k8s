@@ -9,6 +9,7 @@ IMAGE = ("docker.io/library/python:3.13-slim@sha256:"
          "e48f59cdba69a3cbd9ed2cf0f348d90d45a8d350d98134cf1070bc106ee9ed90")
 SCOPE = (
     "A pinned llama.cpp engine also loads a tiny CPU model and checks real tokenizer and completion counts. "
+    "A local bounded policy comparison checks rejection before dispatch and an accepted four-token request against the same native Pod. "
     "A second Pod uses the exact same executable and prompts with only the input guard disabled. "
     "Disposable Kubernetes v1.36.1 Pods run deterministic synthetic generation fixtures. "
     "The original in-process fixture has on/off branches for whitespace-token input and fake "
@@ -181,3 +182,8 @@ def run(lab):
     engine = importlib.util.module_from_spec(engine_spec)
     engine_spec.loader.exec_module(engine)
     engine.run(lab)
+    policy_path = HERE / "native_output_policy.py"
+    policy_spec = importlib.util.spec_from_file_location("native_output_policy", policy_path)
+    policy = importlib.util.module_from_spec(policy_spec)
+    policy_spec.loader.exec_module(policy)
+    policy.run(lab)

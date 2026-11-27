@@ -47,3 +47,21 @@ and [pinned model revision](https://huggingface.co/ggml-org/stories15M_MOE/commi
 
 The disposable runner owns the fixture Pods and tears down their Kind cluster
 after evidence capture.
+
+
+## Native request output budget
+
+The case keeps the original native model and all prior checks. It compares
+one fixed five-token completion directly against the pinned CPU backend with
+the same request through a local four-token guard. The guard binds only to the
+existing fixture client Pod loopback. The over-budget request receives an
+explicit rejection and the guard dispatch counter stays at zero. The allowed
+four-token request reaches the exact same native server and produces four
+tokens. The result preserves bounded counts and the exact server identity.
+Verify equivalent policies on actual routes, model instances, streaming and
+session paths, and independently measure cache allocation and device budgets.
+
+In the pinned server source, an explicit task token count takes precedence
+over the global default when checking the remaining generation budget.
+
+[llama.cpp b9519 server budget source](https://github.com/ggml-org/llama.cpp/blob/b9519/tools/server/server-context.cpp#L263-L277)
