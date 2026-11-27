@@ -61,7 +61,7 @@ class Handler(BaseHTTPRequestHandler):
         self._reply(200, payload)
 
     def do_POST(self):
-        if self.path not in {"/audit", "/access"}:
+        if self.path not in {"/audit", "/access", "/k8s-audit"}:
             self._reply(404)
             return
         if not self._authorized():

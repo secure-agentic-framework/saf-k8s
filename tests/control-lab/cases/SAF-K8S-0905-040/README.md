@@ -21,7 +21,19 @@ and the successful change. The observer compares the resource revision,
 the deployed configuration and an owned registry read that changes from
 allowed to denied after rolling the registry Pod with its persistent data. The
 registry access records reach the receiver. The policy-change audit event comes
-from the Kubernetes configuration owner’s API path.
+from the Kubernetes configuration owner’s API path. The case selects only its
+validated `audit.k8s.io/v1` Metadata event for the exact `registry-config` patch by
+the approved impersonated service account. It projects a minimal allowlist with the
+same Audit ID, operation, effective username, object reference, response code, and
+source timestamp into one immutable ConfigMap record. A separate pinned Fluent Bit
+Pod mounts that ConfigMap read-only and forwards it over the receiver's existing
+verified TLS and synthetic credential to a distinct `k8s-audit` stream. The case
+compares the source and receiver Audit ID, selected fields, and canonical digest.
+It does not mirror or forward the rest of the node audit log.
+
+This demonstrates delivery of the selected authoritative event through this
+case-owned pipeline. The one-record projection is a bounded test harness bridge;
+it does not prove a production collector's broad Kubernetes audit-feed coverage.
 
 For each deployed registry, inventory the authoritative event sources,
 effective authorization revisions, adopted administrative and OCI

@@ -1,0 +1,32 @@
+service:
+  flush: 1
+  log_level: warn
+  scheduler.base: 1
+  scheduler.cap: 2
+pipeline:
+  inputs:
+    - name: tail
+      tag: k8s.audit.config-owner
+      path: /audit-event/audit.jsonl
+      parser: k8s_audit_json
+      read_from_head: true
+      refresh_interval: 1
+  outputs:
+    - name: http
+      match: k8s.audit.config-owner
+      host: sink.saf-test.svc.cluster.local
+      port: 8443
+      uri: /k8s-audit
+      format: json_lines
+      json_date_key: false
+      workers: 1
+      tls: on
+      tls.verify: on
+      tls.verify_hostname: on
+      tls.ca_file: /sink-ca/ca.pem
+      http_user: __SINK_USER__
+      http_passwd: __SINK_PASSWORD__
+      retry_limit: 8
+parsers:
+  - name: k8s_audit_json
+    format: json

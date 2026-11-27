@@ -39,7 +39,8 @@ SCOPE = (
     "long receiver outages, sender restart recovery, general deduplication, production access controls, "
     "SIEM delivery and retention are open. A final case-only "
     "Kubernetes configuration-owner update records a metadata-only API audit event for the named Zot config "
-    "ConfigMap and compares one inert registry read before and after its access-policy revision. This is not a "
+    "ConfigMap, forwards its exact event through a one-record projection to the protected sink, and compares "
+    "one inert registry read before and after its access-policy revision. This is not a "
     "native Zot permission-change audit event or production GitOps identity proof."
 )
 
@@ -153,9 +154,17 @@ def _temporary_forwarding_material():
         forwarding_config.touch(mode=0o600, exist_ok=False)
         forwarding_config.write_text(rendered)
         os.chmod(forwarding_config, 0o600)
+        api_template = (Path(__file__).resolve().parent / "api-audit-fluent-bit.yaml").read_text()
+        api_rendered = api_template.replace("__SINK_USER__", json.dumps(SINK_ACTOR))
+        api_rendered = api_rendered.replace("__SINK_PASSWORD__", json.dumps(valid_password))
+        api_forwarding_config = root / "api-audit-fluent-bit.yaml"
+        api_forwarding_config.touch(mode=0o600, exist_ok=False)
+        api_forwarding_config.write_text(api_rendered)
+        os.chmod(api_forwarding_config, 0o600)
         yield {"ca_cert": ca_cert, "sink_cert": sink_cert, "sink_key": sink_key,
                "username": username, "password": password, "wrong_password": wrong_password,
-               "forwarding_config": forwarding_config}
+               "forwarding_config": forwarding_config,
+               "api_forwarding_config": api_forwarding_config}
     except (OSError, subprocess.CalledProcessError, subprocess.TimeoutExpired):
         raise RuntimeError("temporary fixture sink identity/TLS generation failed") from None
     finally:
@@ -202,6 +211,8 @@ def _setup(lab):
                     f"--from-file=password={material['wrong_password']}")
         lab.kubectl("create", "secret", "generic", "forwarding-config",
                     f"--from-file=fluent-bit.yaml={material['forwarding_config']}")
+        lab.kubectl("create", "secret", "generic", "api-audit-forwarding-config",
+                    f"--from-file=fluent-bit.yaml={material['api_forwarding_config']}")
     config = {"distSpecVersion": "1.1.0", "storage": {"rootDirectory": "/var/lib/registry"},
               "log": {"level": "info", "output": ACCESS, "audit": AUDIT},
               "extensions": {"trust": {"enable": True, "cosign": True}},
@@ -215,7 +226,8 @@ def _setup(lab):
     lab.kubectl("create", "configmap", "cosign-public-key",
                 f"--from-file=public.pem={HERE / 'cosign-public.pem'}")
     _configmap(lab, "scripts", {name: (HERE / name).read_text() for name in
-                                 ("sink.py", "probe.py", "read_sink.py", "sink_auth_probe.py",
+                                 ("sink.py", "probe.py", "read_sink.py", "read_k8s_audit.py",
+                                  "sink_auth_probe.py",
                                   "admin_event_probe.py", "config_read_probe.py")})
     _submit(lab, {"apiVersion": "v1", "kind": "PersistentVolumeClaim",
                   "metadata": {"name": "sink-data"},
@@ -449,6 +461,156 @@ def _config_owner_events(lab):
     return selected
 
 
+def _forward_authoritative_audit_event(lab, event):
+    """Forward exactly one approved Metadata event through a read-only projection."""
+    def finish(matched, observation, raw):
+        (lab.evidence / "forwarded-config-owner-audit-event.json").write_text(
+            json.dumps(raw, indent=2, sort_keys=True) + "\n")
+        lab.check("config-owner-forwarded",
+                  "The exact authorized Kubernetes Metadata audit event reaches the protected central sink",
+                  matched, observation)
+        return observation
+
+    ref = event.get("objectRef", {}) if isinstance(event, dict) else {}
+    source_valid = (isinstance(event, dict) and bool(event.get("auditID"))
+                    and _effective_audit_user(event) == CONFIG_OWNER
+                    and event.get("apiVersion") == "audit.k8s.io/v1"
+                    and event.get("kind") == "Event"
+                    and event.get("level") == "Metadata"
+                    and event.get("verb") == "patch"
+                    and event.get("stage") == "ResponseComplete"
+                    and ref.get("namespace") == NAMESPACE
+                    and ref.get("apiGroup", "") == ""
+                    and ref.get("resource") == "configmaps"
+                    and ref.get("name") == "registry-config"
+                    and event.get("responseStatus", {}).get("code") == 200
+                    and event.get("requestObject") is None
+                    and event.get("responseObject") is None)
+    if not source_valid:
+        observation = {
+            "source_metadata_event_valid": False,
+            "source_projection_records": 0,
+            "source_projection_bytes_bounded": False,
+            "effective_config_owner_matches": False,
+            "metadata_request_and_response_absent": False,
+            "sink_api_audit_records": 0,
+            "same_audit_id_at_sink": False,
+            "source_sink_event_digest_matches": False,
+            "no_unrelated_api_records_forwarded": False,
+        }
+        return finish(False, observation, {"source_event_valid": False})
+
+    source_digest = hashlib.sha256(json.dumps(
+        event, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+    source_user = event.get("impersonatedUser") or event.get("user") or {}
+    source_ref = event["objectRef"]
+    projection_event = {
+        "apiVersion": event["apiVersion"],
+        "kind": event["kind"],
+        "level": event["level"],
+        "auditID": event["auditID"],
+        "stage": event["stage"],
+        "stageTimestamp": event.get("stageTimestamp"),
+        "verb": event["verb"],
+        "effectiveUsername": source_user.get("username"),
+        "objectRef": {key: source_ref.get(key) for key in
+                      ("apiGroup", "apiVersion", "resource", "namespace", "name")},
+        "responseStatus": {"code": event["responseStatus"]["code"]},
+        "source": "case-owned-kube-apiserver-audit-metadata",
+    }
+    projection_digest = hashlib.sha256(json.dumps(
+        projection_event, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+    projection = json.dumps(projection_event, sort_keys=True, separators=(",", ":")) + "\n"
+    baseline = json.loads(lab.kubectl("exec", "deployment/probe", "--", "python",
+                                      "/app/read_k8s_audit.py", event["auditID"], projection_digest,
+                                      timeout=10).stdout)
+    baseline_empty = (baseline.get("sink_api_audit_record_count") == 0
+                      and baseline.get("matching_audit_ids") == [])
+    with tempfile.TemporaryDirectory(prefix="saf-0905-040-api-audit-projection-") as directory:
+        os.chmod(directory, 0o700)
+        event_file = Path(directory) / "audit.jsonl"
+        event_file.touch(mode=0o600, exist_ok=False)
+        event_file.write_text(projection, encoding="utf-8")
+        os.chmod(event_file, 0o600)
+        if event_file.read_text(encoding="utf-8") != projection:
+            lab.block("The one-record API audit projection changed before ConfigMap creation")
+        if len(event_file.read_bytes().splitlines()) != 1 or event_file.stat().st_size > 65536:
+            lab.block("The API audit projection exceeded its one-record size bound")
+        # File-path input avoids placing the metadata record in the runner's command log.
+        lab.kubectl("create", "configmap", "api-audit-event",
+                    f"--from-file=audit.jsonl={event_file}")
+        lab.kubectl("patch", "configmap/api-audit-event", "--type=merge",
+                    "-p", '{"immutable":true}')
+
+    volumes = [
+        _volume("config", secret={"secretName": "api-audit-forwarding-config",
+                                  "defaultMode": 0o440}),
+        _volume("audit-event", configMap={"name": "api-audit-event"}),
+        _volume("sink-ca", configMap={"name": "sink-ca"}),
+    ]
+    container = _container("fluent-bit", FLUENT_BIT,
+                           [_mount("config", "/config", read_only=True),
+                            _mount("audit-event", "/audit-event", read_only=True),
+                            _mount("sink-ca", "/sink-ca", read_only=True)],
+                           args=["-c", "/config/fluent-bit.yaml"])
+    _deployment(lab, "api-audit-forwarder", [container], volumes)
+    _wait(lab, "api-audit-forwarder")
+
+    start = time.monotonic()
+    deadline = start + 35
+    delivery = {"sink_api_audit_record_count": 0, "matching_audit_ids": [],
+                "matching_event_sha256": [], "expected_event_sha256_matches": False}
+    while deadline - time.monotonic() >= 10:
+        result = lab.kubectl("exec", "deployment/probe", "--", "python",
+                             "/app/read_k8s_audit.py", event["auditID"], projection_digest,
+                             timeout=10)
+        delivery = json.loads(result.stdout)
+        if delivery.get("sink_api_audit_record_count") == 1:
+            break
+        time.sleep(0.5)
+
+    received_ids = delivery.get("matching_audit_ids", [])
+    received_digests = delivery.get("matching_event_sha256", [])
+    received_metadata = delivery.get("matching_metadata", [])
+    exact_identity = received_ids == [event["auditID"]]
+    source_sink_metadata_matches = received_metadata == [projection_event]
+    digest_matches = (received_digests == [projection_digest]
+                      and delivery.get("expected_event_sha256_matches") is True)
+    no_unrelated_rows = delivery.get("sink_api_audit_record_count") == 1
+    observation = {
+        "source_metadata_event_valid": True,
+        "source_projection_records": 1,
+        "source_projection_bytes_bounded": True,
+        "effective_config_owner_matches": _effective_audit_user(event) == CONFIG_OWNER,
+        "metadata_request_and_response_absent": (event.get("requestObject") is None
+                                                   and event.get("responseObject") is None),
+        "sink_api_audit_records_before": baseline.get("sink_api_audit_record_count", 0),
+        "audit_id_absent_before_forwarding": baseline_empty,
+        "sink_api_audit_records": delivery.get("sink_api_audit_record_count", 0),
+        "same_audit_id_at_sink": exact_identity,
+        "source_sink_metadata_fields_match": source_sink_metadata_matches,
+        "source_sink_event_digest_matches": digest_matches,
+        "no_unrelated_api_records_forwarded": no_unrelated_rows,
+    }
+    raw = {
+        "source_audit_id": event["auditID"],
+        "baseline_sink_api_audit_record_count": baseline.get("sink_api_audit_record_count", 0),
+        "baseline_matching_audit_ids": baseline.get("matching_audit_ids", []),
+        "sink_matching_audit_ids": received_ids,
+        "source_event_sha256": source_digest,
+        "projected_event_sha256": projection_digest,
+        "sink_matching_event_sha256": received_digests,
+        "source_metadata": projection_event,
+        "sink_matching_metadata": received_metadata,
+        "source_projection_record_count": 1,
+        "sink_api_audit_record_count": delivery.get("sink_api_audit_record_count", 0),
+        "receipt_poll_within_35s": time.monotonic() < deadline,
+    }
+    matched = (baseline_empty and exact_identity and source_sink_metadata_matches and digest_matches
+               and no_unrelated_rows)
+    return finish(matched, observation, raw)
+
+
 def _read_count(rows, status, path):
     return sum(row["stream"] == "access" and row["method"] == "GET" and row["path"] == path
                and row["status"] == status and row["actor"] == ACTOR for row in rows)
@@ -607,6 +769,7 @@ def verify_config_owner_change(lab):
     stable_evidence["registry_access_events_forwarded"] = operations_are_forwarded
     lab.check("config-owner", "A scoped Kubernetes ConfigMap owner change is metadata-audited and changes the allowed marker read to denied",
               ok and operations_are_forwarded, stable_evidence)
+    _forward_authoritative_audit_event(lab, event)
 
 
 def run(lab):
