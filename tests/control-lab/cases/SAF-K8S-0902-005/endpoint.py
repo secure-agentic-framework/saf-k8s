@@ -1,6 +1,7 @@
 """TLS-protected test-only inference models, router and fixed clients."""
 import http.client
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+import hashlib
 import json
 import os
 import socket
@@ -12,7 +13,13 @@ AUDIENCE = "urn:saf:route:"
 EXPECTED = "synthetic-v2"
 ROUTER_NAME = "router.saf-inference.test"
 MODEL = "saf-fixture-model"
-SCENARIOS = {"initial", "denied-primary", "failover", "denied-peer", "stale", "recovered"}
+SCENARIOS = {"initial", "denied-primary", "same-label-wrong-bytes", "failover",
+             "denied-peer", "stale", "recovered"}
+
+
+def model_digest():
+    with open("/model/model.bin", "rb") as model_file:
+        return hashlib.sha256(model_file.read()).hexdigest()
 
 
 def identity(socket):
@@ -63,15 +70,17 @@ class ModelHandler(JsonHandler):
             self.reply(403, {"result": "not-authorized"})
             return
         version = os.environ["MODEL_REVISION"]
+        digest = model_digest()
         if self.path == "/status":
-            result = {"model": MODEL, "revision": version}
-        elif self.path == "/infer" and self.headers.get("If-Match") == version:
+            result = {"model": MODEL, "revision": version, "sha256": digest}
+        elif (self.path == "/infer" and self.headers.get("If-Match") == version
+              and self.headers.get("If-Match-SHA256") == digest):
             result = {"model": MODEL, "revision": version,
-                      "marker": os.environ["MODEL_MARKER"]}
+                      "marker": os.environ["MODEL_MARKER"], "sha256": digest}
         else:
             self.reply(412, {"result": "model-pin-required"})
             return
-        receipt = {"event": event, "path": self.path, "revision": version,
+        receipt = {"event": event, "path": self.path, "revision": version, "sha256": digest,
                    "router_identity_authenticated": True}
         print(json.dumps(receipt, sort_keys=True), flush=True)
         self.reply(200, result)
@@ -98,16 +107,19 @@ class RouterHandler(JsonHandler):
             try:
                 proof, status = secure_client(host, port, f"{name}.saf-inference.test",
                                               "/status", "/tls", headers)
-                if proof != 200 or status != {"model": MODEL, "revision": EXPECTED}:
+                if proof != 200 or status != {"model": MODEL, "revision": EXPECTED,
+                                               "sha256": os.environ["EXPECTED_MODEL_SHA256"]}:
                     outcomes[name] = "stale-or-unverified"
                     continue
                 code, result = secure_client(host, port, f"{name}.saf-inference.test",
                                              "/infer", "/tls",
-                                             {**headers, "If-Match": EXPECTED})
+                                             {**headers, "If-Match": EXPECTED,
+                                              "If-Match-SHA256": os.environ["EXPECTED_MODEL_SHA256"]})
             except (OSError, ValueError, http.client.HTTPException):
                 outcomes[name] = "unavailable"
                 continue
-            if code != 200 or result.get("revision") != EXPECTED or result.get("model") != MODEL:
+            if (code != 200 or result.get("revision") != EXPECTED or result.get("model") != MODEL
+                    or result.get("sha256") != os.environ["EXPECTED_MODEL_SHA256"]):
                 outcomes[name] = "stale-or-unverified"
                 continue
             self.reply(200, {"route": name, **result})
