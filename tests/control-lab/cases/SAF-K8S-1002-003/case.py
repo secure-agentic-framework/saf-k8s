@@ -292,3 +292,11 @@ def run(lab):
     retirement = module_from_spec(retirement_spec)
     retirement_spec.loader.exec_module(retirement)
     retirement.run(lab)
+
+    # Run a real bounded CPU PyTorch fit after the published seven checks and
+    # monitor-retirement contract have completed.
+    training_path = Path(__file__).resolve().parent / "pytorch_training.py"
+    training_spec = spec_from_file_location("saf_1002_003_pytorch_training", training_path)
+    training = module_from_spec(training_spec)
+    training_spec.loader.exec_module(training)
+    training.run(lab, Path(__file__).resolve().parent)

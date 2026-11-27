@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-1002-003",
-  "catalog_revision": "3f65185f2e64894c20d741e3d13c7c17e373022a",
-  "catalog_sha256": "63ca25b48ffb8f35202c5c4db9c599eb98e12d31aa18f4d0d69d91a9e3ec5423",
+  "catalog_revision": "82ec3173ae8c8eb1cc15dc102e79681c44573f58",
+  "catalog_sha256": "1da56289e4f344f65fa946b0099b200d7a52a7c4bea62ee17a32261bedc18861",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "19cbcfc550d34ef187e6e18bdada8dbfd56da69a016f646657c8c796630a2a4d",
   "scope": "A disposable Kubernetes v1.36.1 Kind cluster reconciles native Prometheus Operator Prometheus, ServiceMonitor, and PodMonitor resources. Namespace-scoped discovery RBAC and selector labels limit scraping to two safe synthetic CPU workloads. Prometheus API queries prove no samples before monitor enrollment and exact per-workload stage, measured latency, and quality markers after enrollment. A supplementary check runs the checksum-pinned llama.cpp b9519 CPU server with a tiny pinned model, enables its native Prometheus exporter, and compares a fixed four-token completion with the observed increase in its generation-token counter. The case then observes target retirement and the absence of synthetic series under a 30-second lookback after each monitor removal. The native llama.cpp target remains healthy. GPU/DCGM telemetry, native training signals, production attribution, default query lookback, and durable retention have separate evidence requirements.",
-  "cluster": "saf-lab-d99460927fe6",
+  "cluster": "saf-lab-835627af2059",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -121,6 +121,36 @@
         "retained_series_state_matches": true,
         "native_llama_target_survives": true,
         "synthetic_query_lookback": "30s"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The real PyTorch workload exposes a zero optimizer-step baseline before training",
+      "matched": true,
+      "observed": {
+        "target_up": true,
+        "metric": "saf_torch_optimizer_steps_total",
+        "exact_zero_baseline": true,
+        "framework": "pytorch",
+        "device": "cpu",
+        "pod_uid_bound": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Prometheus scrapes step count and measured loss from a real pinned PyTorch CPU training run",
+      "matched": true,
+      "observed": {
+        "target_up": true,
+        "torch_version": "2.15.0+cpu",
+        "device": "cpu",
+        "optimizer_steps": 3.0,
+        "steps_scraped_after_training": true,
+        "same_series": true,
+        "loss_matches_framework_measurement": true,
+        "loss_decreased": true,
+        "pod_uid_bound": true,
+        "gpu_used": false
       }
     }
   ]
