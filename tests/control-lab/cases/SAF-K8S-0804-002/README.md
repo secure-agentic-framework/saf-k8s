@@ -28,3 +28,37 @@ chain or collateral, online freshness source, platform-specific trust policy,
 authoritative nonce issuance, resistance to privileged namespace actors or
 control of real workload execution. Those remain adopter evidence. The time
 value remains the fixed fixture clock and the signed record remains synthetic.
+
+## Verifier-result and relying-party boundary supplement
+
+After the published five checks, a separate case-owned Appraiser Job verifies
+the existing signed inert evidence and publishes six signed, bounded fixture
+result records into pre-created named slots. A distinct Relying Party Job
+starts only after the Appraiser Job completes and has a different
+ServiceAccount. It verifies the Appraiser signature and expected audience,
+subject, request reference, challenge, measurement digest, approval status, and
+current wall-clock validity interval before patching one harmless
+pre-created ConfigMap marker. Other signed results vary approval status,
+audience, subject, request reference, or expiry; the seventh result is absent
+and is accepted as unavailable only on the exact Kubernetes NotFound status
+for that ConfigMap name. All other use markers remain in their
+not-authorized state.
+
+Before binding writer Roles, server dry-run patches are denied for both
+identities. After binding, the Appraiser can patch only its six named result
+slots and the Relying Party can read those slots and patch only the approved
+use marker. Crossed writes are denied by RBAC. The test removes both
+RoleBindings after their respective phases and removes the temporary fixture
+signing Secret after Appraiser completion. Evidence retains result digests,
+timestamps, object identities, and minimized decisions, never private key
+material.
+
+The result envelope is a local synthetic test format, not an EAT token, RATS
+Attestation Result profile, vendor quote, TPM quote, or platform-rooted claim.
+The test key and public-key pin are generated for this run; their handling is
+not a production trust-provisioning design. This supplement demonstrates a
+portable verifier-to-relying-party decision boundary and a harmless use gate
+only. It does not prove hardware-backed evidence, vendor collateral appraisal,
+TEE measurement semantics, online challenge issuance, deployed confidential
+resource access, or runtime renewal/revocation. Those require the selected
+platform, verifier, workload integration, and adopter evidence.

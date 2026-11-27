@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0804-002",
-  "catalog_revision": "63535a0e881f115fa7d977ad1ba2566a6643b681",
-  "catalog_sha256": "1da56289e4f344f65fa946b0099b200d7a52a7c4bea62ee17a32261bedc18861",
+  "catalog_revision": "5a51c447ad7d34f16572ee53da2609f42629134e",
+  "catalog_sha256": "2a4f9e4bc3c869a7a1bdeff571919ff8fd3cbc0f2b1964ced26040db14837309",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "af70822e079a17aa12b52bfa153c927ead164076fbe8becfc2edb92f9d89d95f",
-  "scope": "Actual OpenSSL signature checking and a Kubernetes Job applying fixture binding, freshness, and reuse rules.",
-  "cluster": "saf-lab-6de8f8c3046a",
+  "scope": "Actual OpenSSL signature checking and Kubernetes Jobs applying fixture binding, freshness, and reuse rules, plus a synthetic role-separated verifier-result and relying-party gate.",
+  "cluster": "saf-lab-a21e80b93783",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -88,6 +88,22 @@
         "scoped_permissions_match": true,
         "default_identity_denied": true,
         "state_creator_matches_winning_owned_job_identity": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "A separate relying party accepts one live-valid signed verifier result and permits only the harmless approved marker; invalid or unavailable results leave every other marker unchanged",
+      "matched": true,
+      "observed": {
+        "distinct_owned_appraiser_and_rp_identities": true,
+        "six_signed_result_variants_created": true,
+        "approved_signed_result_bound_and_live": true,
+        "wrong_approval_audience_subject_request_expiry_and_absence_denied": true,
+        "wrong_claims_denied_with_valid_signatures_and_expiry_denied_at_time_check": true,
+        "only_approved_marker_slot_changed_to_matching_result": true,
+        "baseline_denied_then_exact_and_crossed_writes_bound_by_rbac": true,
+        "temporary_fixture_signing_secret_removed": true,
+        "writer_role_bindings_removed_after_their_phases": true
       }
     }
   ]

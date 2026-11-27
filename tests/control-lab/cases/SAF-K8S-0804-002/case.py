@@ -3,7 +3,7 @@
 import json
 from pathlib import Path
 
-SCOPE = "Actual OpenSSL signature checking and a Kubernetes Job applying fixture binding, freshness, and reuse rules."
+SCOPE = "Actual OpenSSL signature checking and Kubernetes Jobs applying fixture binding, freshness, and reuse rules, plus a synthetic role-separated verifier-result and relying-party gate."
 IMAGE = "docker.io/library/python:3.13-slim@sha256:e48f59cdba69a3cbd9ed2cf0f348d90d45a8d350d98134cf1070bc106ee9ed90"
 JOB = "fixture-attestation-appraisal"
 CONFIG = "fixture-attestation-appraisal"
@@ -71,3 +71,8 @@ def run(lab):
     module = module_from_spec(spec)
     spec.loader.exec_module(module)
     module.run(lab, root)
+
+    result_spec = spec_from_file_location("saf_0804_002_verifier_result_boundary", root / "verifier_result_boundary.py")
+    result_module = module_from_spec(result_spec)
+    result_spec.loader.exec_module(result_module)
+    result_module.run(lab, root)
