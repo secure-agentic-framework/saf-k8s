@@ -3914,22 +3914,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: AC-16(3)
-  framework_requirement_title: Maintenance of Attribute Associations by System
-  framework_mapping_notes: 'System-maintained security attributes on agent data
-
-
-    8.1 - GPU Feature Discovery automatically maintains hardware attributes on nodes; 7.2 - Automated namespace label management maintains classification attributes system-wide'
-  control_id: SAF-K8S-0801-006
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: AC-16(4)
   framework_requirement_title: Association of Attributes by Authorized Individuals
   framework_mapping_notes: 'Manual tagging of agent-processed data
@@ -15312,22 +15296,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: SA-23
-  framework_requirement_title: Specialization
-  framework_mapping_notes: 'Specializing agent components to specific functions reduces attack surface per component
-
-
-    8.1 - GPU device plugins (specialized hardware resource management); 2.2 - RuntimeClass specialization'
-  control_id: SAF-K8S-0801-006
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: SA-24
   framework_requirement_title: Design For Cyber Resiliency
   framework_mapping_notes: 'Cyber resiliency design enables agent systems to withstand and recover from attacks
@@ -15576,22 +15544,6 @@
 
     1.4 - CIS benchmarks (configuration baselines for acquired components); 8.1 - GPU device plugin configuration'
   control_id: SAF-K8S-0801-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SA-4(5)
-  framework_requirement_title: System, Component, and Service Configurations
-  framework_mapping_notes: 'Security configurations for acquired agentic AI components must be documented
-
-
-    1.4 - CIS benchmarks (configuration baselines for acquired components); 8.1 - GPU device plugin configuration'
-  control_id: SAF-K8S-0801-006
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -16460,16 +16412,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SA-8(6)
   framework_requirement_title: Minimized Sharing
-  framework_mapping_notes: 'Minimizing shared state between agents reduces cross-contamination and lateral movement risk
-
-
-    8.1 - MIG GPU partitioning (minimized hardware sharing); 7.2 - Namespace isolation (minimized resource sharing)'
+  framework_mapping_notes: Dedicated allocation can support minimized sharing when the selected hardware and scheduling controls enforce the defined boundary. A release gate contributes the reuse decision.
   control_id: SAF-K8S-0801-006
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: weak
+  applicability: conditional
+  applicability_condition: The adopted allocation design minimizes unnecessary accelerator sharing among defined trust domains and verifies where sharing is expressly approved.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -17839,22 +17788,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: SC-30(5)
-  framework_requirement_title: Concealment of System Components
-  framework_mapping_notes: 'Concealing agent system components from adversary discovery prevents targeted attacks
-
-
-    5.5 - Private cluster configuration (concealing API server); 8.1 - GPU topology metadata concealment'
-  control_id: SAF-K8S-0801-006
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: SC-31
   framework_requirement_title: Covert Channel Analysis
   framework_mapping_notes: 'Covert channel analysis identifies hidden data exfiltration paths in agent communications
@@ -17982,16 +17915,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SC-32
   framework_requirement_title: System Partitioning
-  framework_mapping_notes: 'Partitioning agent systems by function and trust level limits compromise propagation
-
-
-    8.1 - MIG GPU partitioning (hardware-enforced partitioning); 7.2 - Namespace isolation (system partitioning)'
+  framework_mapping_notes: A dedicated allocation boundary can contribute accelerator separation within the adopted partitioning design. Verify the actual allocation, protected interfaces and cross-domain restrictions.
   control_id: SAF-K8S-0801-006
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: weak
+  applicability: conditional
+  applicability_condition: The system adopts a separately verified physical or logical accelerator partition for organization-defined components and separation circumstances.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -18323,22 +18253,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: SC-39
-  framework_requirement_title: Process Isolation
-  framework_mapping_notes: 'Process isolation between agents prevents cross-contamination and lateral movement
-
-
-    2.2 - Container runtime isolation (process isolation); 3.2 - Security contexts (process-level isolation); 8.1 - MIG GPU partitioning'
-  control_id: SAF-K8S-0801-006
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: SC-39(2)
   framework_requirement_title: Separate Execution Domain Per Thread
   framework_mapping_notes: 'Separate execution domains per agent thread prevent cross-thread data leakage
@@ -18403,22 +18317,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: SC-39(2)
-  framework_requirement_title: Separate Execution Domain Per Thread
-  framework_mapping_notes: 'Separate execution domains per agent thread prevent cross-thread data leakage
-
-
-    8.1 - MIG partitioning (separate execution domains per GPU instance); 2.2 - RuntimeClass (separate execution domains via gVisor/Kata)'
-  control_id: SAF-K8S-0801-006
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: SC-4
   framework_requirement_title: Information in Shared System Resources
   framework_mapping_notes: 'Preventing information leakage in shared agent resources (memory, context) is critical
@@ -18469,16 +18367,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SC-4
   framework_requirement_title: Information in Shared System Resources
-  framework_mapping_notes: 'Preventing information leakage in shared agent resources (memory, context) is critical
-
-
-    8.1 - GPU memory isolation (cross-tenant data remnant prevention); 8.5 - GPU memory scraping prevention'
+  framework_mapping_notes: Quarantine and configuration-specific evidence support protection of shared resources on reassignment. The portable fixture verifies the release decision using synthetic records. Device behavior requires separate verification.
   control_id: SAF-K8S-0801-006
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The adopted system verifies that the exact accelerator reuse path prevents unauthorized or unintended transfer of prior-workload information to the next tenant.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -18595,16 +18490,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SC-4(2)
   framework_requirement_title: Multilevel or Periods Processing
-  framework_mapping_notes: 'Multilevel processing controls prevent data leakage between agent sessions of different sensitivity
-
-
-    8.1 - MIG partitioning (hardware-enforced multilevel isolation); 7.2 - Multi-tenancy isolation for AI workloads'
+  framework_mapping_notes: The release decision can support an explicit classification or security-category transition when the selected serial reuse procedure and the accelerator boundary are independently verified.
   control_id: SAF-K8S-0801-006
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The adopted use case explicitly transitions between information classification levels or security categories under organization-defined procedures that prevent unauthorized transfer during serial reuse.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -19623,22 +19515,6 @@
 
     8.1 - Hardware topology exposure risks (preventing discovery of GPU topology and node metadata)'
   control_id: SAF-K8S-0801-004
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SC-7(16)
-  framework_requirement_title: Prevent Discovery of System Components
-  framework_mapping_notes: 'Preventing discovery of agent infrastructure components reduces reconnaissance opportunities
-
-
-    8.1 - Hardware topology exposure risks (preventing discovery of GPU topology and node metadata)'
-  control_id: SAF-K8S-0801-006
   relation_type: supports
   strength_level: strong
   applicability: required
@@ -21032,22 +20908,6 @@
 
     8.1 - GPU memory isolation verification; 8.5 - GPU memory scraping detection; 3.2 - Security contexts (memory protections)'
   control_id: SAF-K8S-0801-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SI-16
-  framework_requirement_title: Memory Protection
-  framework_mapping_notes: 'Memory protection for agent processes prevents exploitation of memory corruption vulnerabilities
-
-
-    8.1 - GPU memory isolation verification; 8.5 - GPU memory scraping detection; 3.2 - Security contexts (memory protections)'
-  control_id: SAF-K8S-0801-006
   relation_type: direct
   strength_level: strong
   applicability: required
@@ -23655,22 +23515,6 @@
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
   framework_version: 5.2.0
-  framework_requirement_id: SR-5
-  framework_requirement_title: Acquisition Strategies, Tools, and Methods
-  framework_mapping_notes: 'Acquisition strategies for AI components must address unique supply chain security needs
-
-
-    8.1 - Device plugin framework (GPU acquisition/provisioning); 6.1 - Base image selection (image acquisition strategy)'
-  control_id: SAF-K8S-0801-006
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
   framework_requirement_id: SR-5(1)
   framework_requirement_title: Adequate Supply
   framework_mapping_notes: 'Adequate supply of AI models and tools ensures availability and prevents vendor lock-in
@@ -23742,22 +23586,6 @@
 
     7.3 - Resource exhaustion resilience (ensuring adequate GPU/compute supply); 8.1 - GPU resource allocation'
   control_id: SAF-K8S-0801-004
-  relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
-- mapping_set_name: SAF-K8S to NIST SP 800-53r5
-  framework_code: NIST-800-53R5
-  framework_name: NIST SP 800-53 Revision 5
-  framework_version: 5.2.0
-  framework_requirement_id: SR-5(1)
-  framework_requirement_title: Adequate Supply
-  framework_mapping_notes: 'Adequate supply of AI models and tools ensures availability and prevents vendor lock-in
-
-
-    7.3 - Resource exhaustion resilience (ensuring adequate GPU/compute supply); 8.1 - GPU resource allocation'
-  control_id: SAF-K8S-0801-006
   relation_type: supports
   strength_level: strong
   applicability: required

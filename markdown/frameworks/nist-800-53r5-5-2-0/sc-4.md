@@ -42,10 +42,10 @@ Preventing information leakage in shared agent resources (memory, context) is cr
 
 - Domain: D08 - GPU, Accelerator, and Confidential Computing
 - Knowledge Area: 8.1
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
+- Relation Type: supports
+- Strength: moderate
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-0805-004 - Accelerator sharing risk and eligible workload placement](../../controls/SAF-K8S-0805-004.md)
 
