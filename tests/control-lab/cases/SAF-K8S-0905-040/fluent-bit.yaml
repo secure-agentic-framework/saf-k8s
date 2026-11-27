@@ -1,6 +1,8 @@
 service:
   flush: 1
   log_level: warn
+  scheduler.base: 1
+  scheduler.cap: 2
 pipeline:
   inputs:
     - name: tail
@@ -30,6 +32,7 @@ pipeline:
       tls.ca_file: /sink-ca/ca.pem
       http_user: __SINK_USER__
       http_passwd: __SINK_PASSWORD__
+      retry_limit: 8
     - name: http
       match: zot.access
       host: sink.saf-test.svc.cluster.local
@@ -44,6 +47,7 @@ pipeline:
       tls.ca_file: /sink-ca/ca.pem
       http_user: __SINK_USER__
       http_passwd: __SINK_PASSWORD__
+      retry_limit: 8
 parsers:
   - name: zot_json
     format: json

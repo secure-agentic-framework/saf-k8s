@@ -26,14 +26,18 @@ REPO = "saf-test/audit-model"
 AUDIT = "/events/audit.jsonl"
 ACCESS = "/events/access.jsonl"
 ADMIN_PATH = "/v2/_zot/ext/cosign"
+RETRY_PATH = f"/v2/{REPO}/manifests/retry-503-v1"
 SCOPE = (
     "One fresh Kind cluster runs two authenticated Zot v2.1.23 registries. The same "
     "inert OCI operations occur with forwarding off and on. Fluent Bit 5.1.2 ships "
     "native audit and HTTP access events to an independent HTTP receiver backed by a "
     "PVC. The receiver is replaced, retained events are compared, and a fresh event "
-    "sequence is delivered. Covers model manifest publish, pull, retag and digest "
+    "sequence is delivered. A separate exact inert registry access record receives "
+    "one authenticated HTTP 503 before sink commit and is then accepted on retry. "
+    "Covers model manifest publish, pull, retag and digest "
     "deletion plus one permitted admin-only Cosign public-key upload. Other permission and administrative event sources, loss recovery during "
-    "a receiver outage, production access controls, SIEM delivery and retention are open. A final case-only "
+    "long receiver outages, sender restart recovery, general deduplication, production access controls, "
+    "SIEM delivery and retention are open. A final case-only "
     "Kubernetes configuration-owner update records a metadata-only API audit event for the named Zot config "
     "ConfigMap and compares one inert registry read before and after its access-policy revision. This is not a "
     "native Zot permission-change audit event or production GitOps identity proof."
@@ -361,6 +365,62 @@ def _await_admin_events(lab, expected):
     return received
 
 
+def verify_one_503_retry(lab):
+    tag = "retry-503"
+    started = time.monotonic()
+    probe = json.loads(lab.kubectl("exec", "deployment/probe", "--", "python", "/app/probe.py",
+                                   "http://with-forwarding:5000", tag).stdout)
+    marker = {("PUT", RETRY_PATH)}
+    local = _local(lab, "with-forwarding", marker)
+    local_access = [row for row in local if row["stream"] == "access"]
+    received = _await_corpus(lab, marker, local)
+    received_access = [row for row in received if row["stream"] == "access"]
+    retry_state = json.loads(lab.kubectl(
+        "exec", "deployment/probe", "--", "python", "/app/read_sink.py",
+        "https://sink.saf-test.svc.cluster.local:8443/retry-state").stdout)
+    failed_hashes = retry_state.get("rejected_body_sha256", [])
+    accepted_hashes = retry_state.get("accepted_body_sha256", [])
+    recovered_same_chunk = (len(failed_hashes) == 1 and len(accepted_hashes) == 1
+                            and failed_hashes[0] == accepted_hashes[0])
+    source_received_match = (_count(local_access, timestamp=True)
+                             == _count(received_access, timestamp=True)
+                             and len(local_access) == 1 and len(received_access) == 1)
+    ok = (probe.get("publish_status") == 201 and probe.get("pull_status") == 200
+          and probe.get("retag_status") == 201 and probe.get("delete_status") == 202
+          and retry_state.get("rejected_attempts") == 1
+          and retry_state.get("accepted_attempts") == 1
+          and retry_state.get("rejected_marker_records") == 1
+          and retry_state.get("accepted_marker_records") == 1
+          and recovered_same_chunk and source_received_match)
+    observation = {
+        "fixed_registry_sequence_succeeded": bool(
+            probe.get("publish_status") == 201 and probe.get("pull_status") == 200
+            and probe.get("retag_status") == 201 and probe.get("delete_status") == 202),
+        "source_marker_records": len(local_access),
+        "sink_marker_records": len(received_access),
+        "source_sink_marker_identity_matches": source_received_match,
+        "authenticated_precommit_503_count": retry_state.get("rejected_attempts") == 1,
+        "post_503_accepted_marker_count": retry_state.get("accepted_marker_records") == 1,
+        "same_request_body_retried": recovered_same_chunk,
+    }
+    evidence = {
+        "observed": observation,
+        "exact_source_access_events": local_access,
+        "exact_delivered_access_events": received_access,
+        "rejected_body_sha256": failed_hashes,
+        "accepted_body_sha256": accepted_hashes,
+        "rejected_attempts": retry_state.get("rejected_attempts"),
+        "accepted_attempts": retry_state.get("accepted_attempts"),
+        "rejected_marker_records": retry_state.get("rejected_marker_records"),
+        "accepted_marker_records": retry_state.get("accepted_marker_records"),
+        "case_elapsed_seconds": time.monotonic() - started,
+    }
+    (lab.evidence / "bounded-forwarding-retry.json").write_text(
+        json.dumps(evidence, indent=2, sort_keys=True) + "\n")
+    lab.check("retry", "Fluent Bit retries one rejected authenticated registry access batch and the exact marker is committed once",
+              ok, observation)
+
+
 def _sink_uid(lab):
     raw = lab.kubectl("get", "pods", "-l", "app=sink", "-o", "json")
     pod, = json.loads(raw.stdout)["items"]
@@ -628,4 +688,5 @@ def run(lab):
     lab.check("admin-event", "The permitted Zot trust-key administration is attributed in native audit and access records and forwarded exactly",
               admin_event_ok, safe_admin)
 
+    verify_one_503_retry(lab)
     verify_config_owner_change(lab)
