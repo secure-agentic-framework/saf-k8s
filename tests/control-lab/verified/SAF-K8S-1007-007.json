@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-1007-007",
-  "catalog_revision": "53d500e17fb8c54ca4f0be31234fc1e21acd4fdc",
-  "catalog_sha256": "65f757846d484079842769b4cec9180fc3a96ab15a5106c821a08ca7293441b6",
+  "catalog_revision": "244952584f5934652636d482f9548086f40541fd",
+  "catalog_sha256": "f744308abbfe44deef8377df1955d70b543aa25dc3b0adca73d6d9ddf1792f64",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "4cd30960a684800bed363d14247e132b2adb54a88f1aca2e3bd035568aaa23c4",
+  "control_sha256": "e2c5a5ee46ed5c423303c868202158db3f119e56e16a07a106b2d549b7489ac2",
   "scope": "One disposable Kind v1.36.1 cluster. A small server-side dry-run Pod request is compared before and after a namespace CPU/memory ResourceQuota; a second request at the remaining declared budget is admitted. Two case-owned PriorityClasses are read back and resolved onto dry-run Pods, with preemption disabled. One tokenless, low-resource HTTP fixture Pod is observed Ready and read through the Kubernetes API Service proxy before and after quota checks, and looks up the exact in-cluster Kubernetes Service via CoreDNS. A pinned Metrics Server provides fresh native PodMetrics samples around those probes, and read-only container logs are checked for additional fixed health requests. A further 5m CPU / 8Mi memory Pod shares the namespace within quota, serves through an independent case Service, and has fresh observed PodMetrics during coexistence. This does not create CPU load or simulate training. An additive scheduler fixture uses one case-owned worker with a verified 1-CPU allocatable profile and idle bounded Pods to compare non-preempting queue behavior with a separate higher-priority preemption phase. It does not demonstrate protection of built-in control-plane components, CoreDNS resolution latency, production metrics or log pipelines, log forwarding lag, node/network capacity, or production service availability.",
-  "cluster": "saf-lab-234c591e23fe",
+  "cluster": "saf-lab-ebce637283a7",
   "kubernetes": {
     "clientVersion": {
       "major": "1",

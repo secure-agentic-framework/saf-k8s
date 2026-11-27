@@ -1,4 +1,4 @@
-# SAF-K8S-1007-007 Metrics companion candidate
+# SAF-K8S-1007-007 — Cluster service protection
 
 The case retains the 11 admission, priority and health checks and adds three checks with a TLS-verified Metrics Server. Run `python3 tests/control-lab/lab.py test SAF-K8S-1007-007 --docker-context desktop-linux` from the framework checkout. This normal test command builds a temporary Kind profile for the owned cluster.
 
@@ -99,3 +99,18 @@ measure CPU saturation, large-scale training behavior, built-in critical
 component protection, production capacity, service latency, logging pipelines,
 or production availability. Actual deployed cluster sizing and service health
 remain adopter evidence.
+
+
+## Verify capacity and placement
+
+ResourceQuota governs namespace admission for the configured accounting fields.
+Check its `status.hard` and `status.used` values together with the effective
+service and training Pod requests, Node allocatable resources, and the eligible
+placement topology. Quota totals can exceed available capacity and do not
+reserve resources on a Node. Priority influences ordering and eligible preemption.
+Confirm the applicable priority class, independent capacity or isolation, and
+service health under a representative approved workload. Keep the topology,
+measured headroom, DNS, metrics, and log delivery observations with the review.
+
+[Kubernetes ResourceQuota semantics](https://v1-36.docs.kubernetes.io/docs/concepts/policy/resource-quotas/#how-kubernetes-resourcequotas-work)
+[Kubernetes Pod priority](https://v1-36.docs.kubernetes.io/docs/concepts/scheduling-eviction/pod-priority-preemption/)

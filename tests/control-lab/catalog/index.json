@@ -3513,7 +3513,7 @@
     "SAF-K8S-1007-007": {
       "catalog_status": "draft",
       "domain": "D10",
-      "sha256": "4cd30960a684800bed363d14247e132b2adb54a88f1aca2e3bd035568aaa23c4",
+      "sha256": "e2c5a5ee46ed5c423303c868202158db3f119e56e16a07a106b2d549b7489ac2",
       "title": "Cluster service protection from AI training resource exhaustion"
     },
     "SAF-K8S-1007-010": {
@@ -3572,7 +3572,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "313b1da1d182a9dd02d704a202302007614d7d07",
-  "sha256": "abe40f941f7d427f9b0a6925bad25da44b0fb08979ab503301fb56399c7bf4b0",
+  "revision": "df6a3e3fa8799c2f19fc701b7ee3e9a756400b99",
+  "sha256": "f744308abbfe44deef8377df1955d70b543aa25dc3b0adca73d6d9ddf1792f64",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
