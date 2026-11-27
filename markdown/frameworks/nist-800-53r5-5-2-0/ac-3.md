@@ -100,3 +100,12 @@ Core to agent authorization -- enforcing what agents can do
 - Strength: moderate
 - Applicability: conditional
 - Strength Reason Code: partial-control-coverage
+
+### [SAF-K8S-0901-006 - Gang scheduling security (Volcano, Kueue)](../../controls/SAF-K8S-0901-006.md)
+
+- Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
+- Knowledge Area: 9.1
+- Relation Type: partial
+- Strength: moderate
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage

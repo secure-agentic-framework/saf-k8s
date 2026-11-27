@@ -54,15 +54,6 @@ Governed workload identifier assignment and approved provider identity binding a
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAF-K8S-0901-006 - Gang scheduling security (Volcano, Kueue)](../../controls/SAF-K8S-0901-006.md)
-
-- Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
-- Knowledge Area: 9.1
-- Relation Type: supports
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
-
 ### [SAF-K8S-0901-007 - AI operator privilege management](../../controls/SAF-K8S-0901-007.md)
 
 - Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
