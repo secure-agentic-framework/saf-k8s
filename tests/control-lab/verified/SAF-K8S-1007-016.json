@@ -1,17 +1,11 @@
 {
   "control_id": "SAF-K8S-1007-016",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "2673765fb440949d181085671aacec31fb29ca79",
+  "catalog_sha256": "65f757846d484079842769b4cec9180fc3a96ab15a5106c821a08ca7293441b6",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "889abe14de019dbfefa183cbea07391331a1e41c02ddb24b44c8a0b92b03fbaf",
-  "scope": "One disposable default-layout Kind v1.36.1 node. The case labels that node as a synthetic candidate, observes an inert digest-pinned pause Pod schedule before a fixture-scoped NoSchedule taint, then observes an untolerating Pod remain unscheduled and a tolerating Pod receive a scheduler-assigned nodeName. It parses local fictional attestation and driver-evidence JSON fixtures and records mock eligibility decisions. This does not provision or identify GPU hardware, install or inspect a driver, cryptographically verify attestation, verify signatures or real checksums, integrate an onboarding gate with Kubernetes, or establish production label/taint authority.",
-  "review_timing": {
-    "queued_at": "2026-11-22T19:28:38.255056+00:00",
-    "cluster_ready_at": "2026-11-22T19:29:06.881635+00:00",
-    "approval_at": "2026-11-22T19:30:20.114535+00:00",
-    "case_loaded_at": "2026-11-22T19:30:20.181319+00:00"
-  },
-  "cluster": "saf-lab-b0d9532905d9",
+  "scope": "One disposable default-layout Kind v1.36.1 node. The case labels that node as a synthetic candidate, observes an inert digest-pinned pause Pod schedule before a fixture-scoped NoSchedule taint, then observes an untolerating Pod remain unscheduled and a tolerating Pod receive a scheduler-assigned nodeName. It parses local fictional attestation and driver-evidence JSON fixtures and records mock eligibility decisions. This does not provision or identify GPU hardware, install or inspect a driver, cryptographically attest hardware, verify a real driver or checksum, integrate production trust roots, or establish production label/taint authority. A separate test-only exact-byte RSA signature check uses a per-run ephemeral key and the actual Kind Node UID plus fresh nonce; it does not represent hardware attestation.",
+  "cluster": "saf-lab-c4c505c9f2d8",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -41,7 +35,6 @@
       "platform": "linux/arm64"
     }
   },
-  "approved_case_sha256": "26e7f30958c770dedfe6b73f2e6c37e9e9bb2e80e550ad120a40d306b3ab2f84",
   "status": "passed",
   "cleanup": "deleted",
   "checks": [
@@ -96,6 +89,53 @@
         "scheduler_assigned_candidate_node": true,
         "cryptographic_attestation_verified": false,
         "host_driver_or_checksum_inspected": false
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Invalid signed attestations keep the scoped node tainted and the same probe Pending",
+      "matched": true,
+      "observed": {
+        "bad_signature_held": true,
+        "wrong_nonce_signature_valid": true,
+        "wrong_node_signature_valid": true,
+        "wrong_root_signature_valid_under_untrusted_key": true,
+        "wrong_root_rejected_under_approved_key": true,
+        "valid_nonobject_json_held": true,
+        "replay_first_accepted_then_repeat_rejected": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Exact-byte signature authorizes only the current Node UID and fresh nonce",
+      "matched": true,
+      "observed": {
+        "signature_valid": true,
+        "subject_and_nonce_bound": true,
+        "node_uid_matches_before_release": true,
+        "case_hold_present_before_release": true,
+        "ephemeral_test_root": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Valid signed test authorization clears only the case taint and schedules the same probe",
+      "matched": true,
+      "observed": {
+        "case_taint_absent": true,
+        "same_probe_uid_scheduled_to_candidate": true,
+        "node_uid_matches_after_release": true,
+        "node_uid_matches_after_scheduling": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Scoped taint, candidate label and signed probe are cleaned up",
+      "matched": true,
+      "observed": {
+        "case_taint_absent": true,
+        "candidate_label_absent": true,
+        "probe_absent": true
       }
     }
   ]
