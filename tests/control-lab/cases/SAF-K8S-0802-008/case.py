@@ -10,6 +10,9 @@ ROOT = Path(__file__).parent
 CONFIG = "fixture-module-review"
 POLICY = "fixture-approved-module-review"
 POD = "fixture-reviewed-accelerator"
+SUBMITTER = "fixture-module-workload-submitter"
+SUBMITTER_READ_ROLE = "fixture-module-review-submit-read"
+SUBMITTER_READ_BINDING = "fixture-module-review-submit-read"
 SIGNER_DENIAL = "Fixture signature is unapproved"
 MODE_DENIAL = "Fixture module enforcement is unverified"
 BOOT_DENIAL = "Fixture boot evidence is unverified"
@@ -85,6 +88,15 @@ def run(lab):
                 "fixture.example/module-policy=true")
     fields = {"signature": "unapproved", "module-policy": "enforced", "boot-review": "verified", "digest": digest}
     lab.create({"apiVersion": "v1", "kind": "ConfigMap", "metadata": {"name": CONFIG}, "data": fields})
+    lab.create({"apiVersion": "rbac.authorization.k8s.io/v1", "kind": "Role",
+                "metadata": {"name": SUBMITTER_READ_ROLE},
+                "rules": [{"apiGroups": [""], "resources": ["configmaps"], "resourceNames": [CONFIG],
+                           "verbs": ["get"]}]})
+    lab.create({"apiVersion": "rbac.authorization.k8s.io/v1", "kind": "RoleBinding",
+                "metadata": {"name": SUBMITTER_READ_BINDING},
+                "subjects": [{"kind": "User", "apiGroup": "rbac.authorization.k8s.io", "name": SUBMITTER}],
+                "roleRef": {"kind": "Role", "apiGroup": "rbac.authorization.k8s.io",
+                            "name": SUBMITTER_READ_ROLE}})
     pod = workload(digest)
     baseline = observe(lab, pod)
     lab.check("red", "A cryptographically valid alternate signature and claimed boot state alone leave the fixture admissible",
@@ -104,6 +116,30 @@ def run(lab):
                "changed_bytes_rejected": changed_not_trusted})
 
     update(lab, enforced)
+    before_parameter = json.loads(lab.kubectl("get", "configmap", CONFIG, "-o", "json").stdout)
+    before_uid = before_parameter["metadata"]["uid"]
+    before_data = before_parameter["data"]
+    submitted_read = json.loads(lab.kubectl("--as", SUBMITTER, "get", "configmap", CONFIG, "-o", "json").stdout)
+    can_read_parameter = (submitted_read["metadata"]["uid"] == before_uid
+                          and submitted_read["data"] == before_data)
+    if not can_read_parameter:
+        lab.block("The fixture submitter's exact parameter read differs from the independent API read")
+    submitter_patch = lab.kubectl("--as", SUBMITTER, "patch", "configmap", CONFIG, "--type=merge",
+                                  "-p", json.dumps({"data": {"signature": "fixture-forged-trusted"}}),
+                                  allow_failure=True)
+    denial = submitter_patch.stderr.lower()
+    status_denied_patch = (submitter_patch.returncode != 0 and "error from server (forbidden)" in denial and
+                           f'configmaps "{CONFIG}" is forbidden' in denial and
+                           f'user "{SUBMITTER.lower()}" cannot patch resource "configmaps"' in denial and
+                           'namespace "saf-test"' in denial)
+    after_parameter = json.loads(lab.kubectl("get", "configmap", CONFIG, "-o", "json").stdout)
+    unchanged_parameter = (after_parameter["metadata"]["uid"] == before_uid and
+                           after_parameter["data"] == before_data)
+    lab.check("evidence_record_write_rejected", "The fixture submitter can read but cannot patch the exact module-evidence parameter",
+              can_read_parameter and status_denied_patch and unchanged_parameter,
+              {"exact_parameter_get_allowed": can_read_parameter,
+               "api_status_forbids_patch": status_denied_patch,
+               "parameter_uid_and_data_unchanged": unchanged_parameter})
     approved = observe(lab, pod)
     altered_digest = hashlib.sha256(modified_marker.read_bytes()).hexdigest()
     wrong_digest = observe(lab, workload(altered_digest), denial=DIGEST_DENIAL)
@@ -115,4 +151,9 @@ def run(lab):
     (lab.evidence / "module-trust-observations.json").write_text(json.dumps({
         "fixture_signature_verified": trusted, "unapproved_signature_denied": unapproved,
         "permissive_policy_denied": permissive, "missing_boot_evidence_denied": boot_unknown,
-        "mismatched_digest_denied": wrong_digest, "fixture_ready": True, "host_evidence_is_synthetic": True}, indent=2) + "\n")
+        "mismatched_digest_denied": wrong_digest, "fixture_ready": True,
+        "submitter_get_allowed": can_read_parameter, "submitter_patch_denied": status_denied_patch,
+        "parameter_uid_and_data_unchanged": unchanged_parameter,
+        "parameter_readback": {"uid_before": before_uid, "uid_after": after_parameter["metadata"]["uid"],
+                               "data_before": before_data, "data_after": after_parameter["data"]},
+        "host_evidence_is_synthetic": True}, indent=2) + "\n")
