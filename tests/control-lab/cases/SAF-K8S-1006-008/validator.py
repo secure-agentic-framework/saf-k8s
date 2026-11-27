@@ -1,11 +1,14 @@
 """Fixture-only contract checker; it never loads training code or model weights."""
 import hashlib
 import json
+import re
 import sys
+from datetime import date
 
 
 SCHEMA = "saf-k8s.example/ai-development-evidence/v1"
 PROFILE = "NIST.SP.800-218A-2024-07"
+ASSESSMENT_SCHEMA = "saf-k8s.example/profile-applicability-assessment/v1"
 TASKS = {
     "PO.3.3",  # Configure tools to generate artifacts of secure-development support.
     "PO.5.1",  # Separate and protect software-development environments.
@@ -23,6 +26,105 @@ def _sha256(value):
 def _reject(message):
     print("REJECT " + message, flush=True)
     raise SystemExit(23)
+
+
+def _check_profile_assessment(document):
+    """Validate fixture record completeness and references, not risk judgments."""
+    if document.get("schema") != ASSESSMENT_SCHEMA:
+        _reject("assessment_schema_mismatch")
+    if document.get("profile") != PROFILE:
+        _reject("assessment_profile_edition_mismatch")
+    required_text = ("assessment_id", "model_category", "producer_role")
+    if any(not isinstance(document.get(key), str) or not document[key].strip()
+           for key in required_text):
+        _reject("assessment_context_missing")
+    activities = document.get("development_activities")
+    if not isinstance(activities, list) or not activities or any(
+            not isinstance(item, str) or not item.strip() for item in activities):
+        _reject("development_activities_missing")
+
+    evidence = document.get("evidence", {})
+    controls = document.get("known_controls", [])
+    if not isinstance(evidence, dict) or not isinstance(controls, list) or not controls:
+        _reject("assessment_reference_catalog_missing")
+    for ref_id, item in evidence.items():
+        uri = item.get("uri") if isinstance(item, dict) else None
+        digest = item.get("sha256") if isinstance(item, dict) else None
+        payload = item.get("fixture_payload") if isinstance(item, dict) else None
+        if (not isinstance(item, dict) or item.get("ref_id") != ref_id
+                or not isinstance(item.get("owner"), str) or not item["owner"].strip()
+                or not isinstance(uri, str) or not uri.endswith(".example.invalid/evidence")
+                or not isinstance(digest, str) or re.fullmatch(r"[0-9a-f]{64}", digest) is None
+                or not isinstance(payload, str) or _sha256(payload) != digest
+                or item.get("state") != "synthetic_fixture"):
+            _reject("evidence_reference_integrity_mismatch")
+
+    if document.get("asserts_compliance") is not False:
+        _reject("assessment_must_not_claim_compliance")
+
+    tasks = document.get("task_decisions")
+    if not isinstance(tasks, list) or not tasks:
+        _reject("task_decisions_missing")
+    seen = set()
+    applicable = set()
+    for task in tasks:
+        if not isinstance(task, dict):
+            _reject("task_decision_shape_invalid")
+        task_id = task.get("task_id")
+        if not isinstance(task_id, str) or not task_id or task_id in seen:
+            _reject("task_id_missing_or_duplicate")
+        seen.add(task_id)
+        state = task.get("applicability")
+        rationale = task.get("rationale")
+        if not isinstance(rationale, str) or not rationale.strip():
+            _reject("applicability_rationale_missing")
+        if state == "applicable":
+            applicable.add(task_id)
+            mapped = task.get("control_ids")
+            refs = task.get("evidence_refs")
+            if not isinstance(mapped, list) or not mapped or any(c not in controls for c in mapped):
+                _reject("applicable_task_unmapped")
+            if not isinstance(refs, list) or not refs or any(ref not in evidence for ref in refs):
+                _reject("applicable_task_evidence_reference_invalid")
+        elif state == "not_applicable":
+            if task.get("control_ids") or task.get("evidence_refs"):
+                _reject("not_applicable_task_has_coverage_mapping")
+        else:
+            _reject("applicability_state_invalid")
+
+    gaps = document.get("gaps")
+    if not isinstance(gaps, list):
+        _reject("gap_register_missing")
+    gap_ids = set()
+    for gap in gaps:
+        if not isinstance(gap, dict):
+            _reject("gap_record_invalid")
+        gap_id = gap.get("gap_id")
+        if not gap_id or gap_id in gap_ids:
+            _reject("gap_id_missing_or_duplicate")
+        gap_ids.add(gap_id)
+        try:
+            valid_review_date = date.fromisoformat(gap.get("review_date", "")).isoformat() == gap.get("review_date")
+        except (TypeError, ValueError):
+            valid_review_date = False
+        if (not isinstance(gap.get("owner"), str) or not gap["owner"].strip() or not valid_review_date
+                or not isinstance(gap.get("task_ids"), list) or not gap["task_ids"]
+                or any(task_id not in applicable for task_id in gap["task_ids"])):
+            _reject("gap_owner_review_or_task_reference_missing")
+
+    print(json.dumps({
+        "decision": "synthetic_assessment_record_complete",
+        "assessment_id": document["assessment_id"],
+        "profile": PROFILE,
+        "task_count": len(tasks),
+        "applicable_task_count": len(applicable),
+        "not_applicable_task_count": len(tasks) - len(applicable),
+        "tracked_gap_count": len(gaps),
+        "reference_integrity": "fixture_ids_resolved",
+        "risk_decisions": "not_evaluated",
+        "organizational_approval": "not_evaluated",
+        "asserts_compliance": False,
+    }, sort_keys=True), flush=True)
 
 
 def _check_development(document):
@@ -122,6 +224,10 @@ def main():
     scenario = bundle.get("scenarios", {}).get(scenario_name)
     if scenario is None:
         _reject("scenario_missing")
+
+    if scenario.get("evidence_scope") == "profile_applicability_assessment_fixture":
+        _check_profile_assessment(scenario)
+        return
 
     if scenario.get("evidence_scope") == "ai_system_deployment_and_operation":
         if scenario.get("schema") != SCHEMA or scenario.get("profile") != PROFILE:

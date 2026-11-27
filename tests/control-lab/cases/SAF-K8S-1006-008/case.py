@@ -29,7 +29,8 @@ SCOPE = (
     " Two case-owned namespaces compare bounded Kubernetes API authorization with short-lived projected "
     "ServiceAccount identities. A temporary cross-namespace binding establishes successful GET and LIST; "
     "its removal denies those requests for the developer while own reads and approved protected reads remain allowed. "
-    "The readbacks follow the same immutable objects and the exact Job-owned Pods. Adopter evidence covers the broader PO.5.1 practice."
+    "The readbacks follow the same immutable objects and the exact Job-owned Pods. Adopter evidence covers the broader PO.5.1 practice. "
+    "Three additional bounded Jobs validate one synthetic Profile-applicability assessment record and two malformed counterfactuals; they verify record structure and reference integrity only."
 )
 
 
@@ -204,3 +205,43 @@ def run(lab):
     isolation = module_from_spec(spec)
     spec.loader.exec_module(isolation)
     isolation.run(lab)
+
+    assessment = _run_scenario(lab, fixtures, "profile-assessment-valid")
+    assessment_result = json.loads(assessment["raw_pod_logs"])
+    lab.check(
+        "positive",
+        "Native validator accepts a synthetic applicability record with rationale, resolved references, and an owned dated gap",
+        assessment["job_state"] == "complete" and assessment["exit_code"] == 0
+        and assessment_result == {
+            "decision": "synthetic_assessment_record_complete",
+            "assessment_id": "saf-fixture-assessment-001",
+            "profile": "NIST.SP.800-218A-2024-07",
+            "task_count": 3,
+            "applicable_task_count": 2,
+            "not_applicable_task_count": 1,
+            "tracked_gap_count": 1,
+            "reference_integrity": "fixture_ids_resolved",
+            "risk_decisions": "not_evaluated",
+            "organizational_approval": "not_evaluated",
+            "asserts_compliance": False,
+        },
+        {"job_state": assessment["job_state"], "raw_pod_logs": assessment["raw_pod_logs"]},
+    )
+
+    missing_rationale = _run_scenario(lab, fixtures, "profile-assessment-missing-rationale")
+    lab.check(
+        "red",
+        "Native validator rejects a task applicability decision without a rationale",
+        missing_rationale["job_state"] == "failed" and missing_rationale["exit_code"] == 23
+        and "REJECT applicability_rationale_missing" in missing_rationale["raw_pod_logs"],
+        {"job_state": missing_rationale["job_state"], "raw_pod_logs": missing_rationale["raw_pod_logs"]},
+    )
+
+    unmapped = _run_scenario(lab, fixtures, "profile-assessment-unmapped-task")
+    lab.check(
+        "red",
+        "Native validator rejects an applicable task without a valid control mapping",
+        unmapped["job_state"] == "failed" and unmapped["exit_code"] == 23
+        and "REJECT applicable_task_unmapped" in unmapped["raw_pod_logs"],
+        {"job_state": unmapped["job_state"], "raw_pod_logs": unmapped["raw_pod_logs"]},
+    )

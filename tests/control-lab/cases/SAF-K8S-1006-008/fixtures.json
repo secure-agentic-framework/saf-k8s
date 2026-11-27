@@ -49,14 +49,14 @@
         "PW.3.2"
       ],
       "training_run": {
+        "artifact_id": "saf-fixture-artifact-001",
         "artifact_sha256": "7d5005bb98a70aea7ac774fd72ae24ca08ca1b007dc9769ab88bbe479ca7bb5a",
         "artifact_version": "1.0.0",
-        "environment_id": "saf-fixture-training-env-001",
-        "environment_version": "1.0.0",
-        "artifact_id": "saf-fixture-artifact-001",
         "dataset_id": "saf-fixture-dataset-001",
         "dataset_sha256": "ac39cfac2b08672f9f972bdc55335303d6d45c8d48606e2b32152ec5c1c42f35",
         "dataset_version": "1.0.0",
+        "environment_id": "saf-fixture-training-env-001",
+        "environment_version": "1.0.0",
         "execution": "not_performed",
         "fixture_only": true,
         "pipeline_ref": "https://pipeline-001.example.invalid/version/1.0.0",
@@ -74,6 +74,235 @@
       },
       "profile": "NIST.SP.800-218A-2024-07",
       "schema": "saf-k8s.example/ai-development-evidence/v1"
+    },
+    "profile-assessment-missing-rationale": {
+      "asserts_compliance": false,
+      "assessment_id": "saf-fixture-assessment-001",
+      "development_activities": [
+        "data sourcing",
+        "evaluation",
+        "integration"
+      ],
+      "evidence": {
+        "EV-DATA-01": {
+          "fixture_payload": "synthetic data provenance fixture evidence",
+          "owner": "fixture-team",
+          "ref_id": "EV-DATA-01",
+          "sha256": "d5250b3284ca1d4be7ad9f76f91942a4b0dee505264395850d532c8fb6add256",
+          "state": "synthetic_fixture",
+          "uri": "https://assess.example.invalid/evidence"
+        },
+        "EV-ENV-01": {
+          "fixture_payload": "synthetic namespace authorization fixture evidence",
+          "owner": "fixture-team",
+          "ref_id": "EV-ENV-01",
+          "sha256": "caf0609503e6602d3adb95b926afa1224b77cb1fd57ce8ec4586e560e971f366",
+          "state": "synthetic_fixture",
+          "uri": "https://assess.example.invalid/evidence"
+        }
+      },
+      "evidence_scope": "profile_applicability_assessment_fixture",
+      "gaps": [
+        {
+          "disposition": "synthetic unresolved evidence gap",
+          "gap_id": "GAP-001",
+          "owner": "fixture-team",
+          "review_date": "2027-01-15",
+          "task_ids": [
+            "PO.5.1"
+          ]
+        }
+      ],
+      "known_controls": [
+        "SAF-K8S-1006-008"
+      ],
+      "model_category": "synthetic dual-use foundation-model development fixture",
+      "producer_role": "synthetic model-development team",
+      "profile": "NIST.SP.800-218A-2024-07",
+      "schema": "saf-k8s.example/profile-applicability-assessment/v1",
+      "task_decisions": [
+        {
+          "applicability": "applicable",
+          "control_ids": [
+            "SAF-K8S-1006-008"
+          ],
+          "evidence_refs": [
+            "EV-ENV-01"
+          ],
+          "rationale": "Synthetic assessment records that development-environment separation is in the selected scope; this fixture does not judge the risk decision.",
+          "task_id": "PO.5.1"
+        },
+        {
+          "applicability": "applicable",
+          "control_ids": [
+            "SAF-K8S-1006-008"
+          ],
+          "evidence_refs": [
+            "EV-DATA-01"
+          ],
+          "rationale": "Synthetic assessment records provenance tracking as selected for the fixture activities; this fixture does not judge the risk decision.",
+          "task_id": "PW.3.2"
+        },
+        {
+          "applicability": "not_applicable",
+          "control_ids": [],
+          "evidence_refs": [],
+          "rationale": "",
+          "task_id": "PS.2.1"
+        }
+      ]
+    },
+    "profile-assessment-unmapped-task": {
+      "asserts_compliance": false,
+      "assessment_id": "saf-fixture-assessment-001",
+      "development_activities": [
+        "data sourcing",
+        "evaluation",
+        "integration"
+      ],
+      "evidence": {
+        "EV-DATA-01": {
+          "fixture_payload": "synthetic data provenance fixture evidence",
+          "owner": "fixture-team",
+          "ref_id": "EV-DATA-01",
+          "sha256": "d5250b3284ca1d4be7ad9f76f91942a4b0dee505264395850d532c8fb6add256",
+          "state": "synthetic_fixture",
+          "uri": "https://assess.example.invalid/evidence"
+        },
+        "EV-ENV-01": {
+          "fixture_payload": "synthetic namespace authorization fixture evidence",
+          "owner": "fixture-team",
+          "ref_id": "EV-ENV-01",
+          "sha256": "caf0609503e6602d3adb95b926afa1224b77cb1fd57ce8ec4586e560e971f366",
+          "state": "synthetic_fixture",
+          "uri": "https://assess.example.invalid/evidence"
+        }
+      },
+      "evidence_scope": "profile_applicability_assessment_fixture",
+      "gaps": [
+        {
+          "disposition": "synthetic unresolved evidence gap",
+          "gap_id": "GAP-001",
+          "owner": "fixture-team",
+          "review_date": "2027-01-15",
+          "task_ids": [
+            "PO.5.1"
+          ]
+        }
+      ],
+      "known_controls": [
+        "SAF-K8S-1006-008"
+      ],
+      "model_category": "synthetic dual-use foundation-model development fixture",
+      "producer_role": "synthetic model-development team",
+      "profile": "NIST.SP.800-218A-2024-07",
+      "schema": "saf-k8s.example/profile-applicability-assessment/v1",
+      "task_decisions": [
+        {
+          "applicability": "applicable",
+          "control_ids": [
+            "SAF-K8S-1006-008"
+          ],
+          "evidence_refs": [
+            "EV-ENV-01"
+          ],
+          "rationale": "Synthetic assessment records that development-environment separation is in the selected scope; this fixture does not judge the risk decision.",
+          "task_id": "PO.5.1"
+        },
+        {
+          "applicability": "applicable",
+          "control_ids": [],
+          "evidence_refs": [
+            "EV-DATA-01"
+          ],
+          "rationale": "Synthetic assessment records provenance tracking as selected for the fixture activities; this fixture does not judge the risk decision.",
+          "task_id": "PW.3.2"
+        },
+        {
+          "applicability": "not_applicable",
+          "control_ids": [],
+          "evidence_refs": [],
+          "rationale": "Fixture assumes no acquirer-facing release activity is in this assessment slice; this is an example rationale only.",
+          "task_id": "PS.2.1"
+        }
+      ]
+    },
+    "profile-assessment-valid": {
+      "asserts_compliance": false,
+      "assessment_id": "saf-fixture-assessment-001",
+      "development_activities": [
+        "data sourcing",
+        "evaluation",
+        "integration"
+      ],
+      "evidence": {
+        "EV-DATA-01": {
+          "fixture_payload": "synthetic data provenance fixture evidence",
+          "owner": "fixture-team",
+          "ref_id": "EV-DATA-01",
+          "sha256": "d5250b3284ca1d4be7ad9f76f91942a4b0dee505264395850d532c8fb6add256",
+          "state": "synthetic_fixture",
+          "uri": "https://assess.example.invalid/evidence"
+        },
+        "EV-ENV-01": {
+          "fixture_payload": "synthetic namespace authorization fixture evidence",
+          "owner": "fixture-team",
+          "ref_id": "EV-ENV-01",
+          "sha256": "caf0609503e6602d3adb95b926afa1224b77cb1fd57ce8ec4586e560e971f366",
+          "state": "synthetic_fixture",
+          "uri": "https://assess.example.invalid/evidence"
+        }
+      },
+      "evidence_scope": "profile_applicability_assessment_fixture",
+      "gaps": [
+        {
+          "disposition": "synthetic unresolved evidence gap",
+          "gap_id": "GAP-001",
+          "owner": "fixture-team",
+          "review_date": "2027-01-15",
+          "task_ids": [
+            "PO.5.1"
+          ]
+        }
+      ],
+      "known_controls": [
+        "SAF-K8S-1006-008"
+      ],
+      "model_category": "synthetic dual-use foundation-model development fixture",
+      "producer_role": "synthetic model-development team",
+      "profile": "NIST.SP.800-218A-2024-07",
+      "schema": "saf-k8s.example/profile-applicability-assessment/v1",
+      "task_decisions": [
+        {
+          "applicability": "applicable",
+          "control_ids": [
+            "SAF-K8S-1006-008"
+          ],
+          "evidence_refs": [
+            "EV-ENV-01"
+          ],
+          "rationale": "Synthetic assessment records that development-environment separation is in the selected scope; this fixture does not judge the risk decision.",
+          "task_id": "PO.5.1"
+        },
+        {
+          "applicability": "applicable",
+          "control_ids": [
+            "SAF-K8S-1006-008"
+          ],
+          "evidence_refs": [
+            "EV-DATA-01"
+          ],
+          "rationale": "Synthetic assessment records provenance tracking as selected for the fixture activities; this fixture does not judge the risk decision.",
+          "task_id": "PW.3.2"
+        },
+        {
+          "applicability": "not_applicable",
+          "control_ids": [],
+          "evidence_refs": [],
+          "rationale": "Fixture assumes no acquirer-facing release activity is in this assessment slice; this is an example rationale only.",
+          "task_id": "PS.2.1"
+        }
+      ]
     },
     "release-mismatch": {
       "artifact": {
@@ -122,14 +351,14 @@
         "PW.3.2"
       ],
       "training_run": {
+        "artifact_id": "saf-fixture-artifact-001",
         "artifact_sha256": "7d5005bb98a70aea7ac774fd72ae24ca08ca1b007dc9769ab88bbe479ca7bb5a",
         "artifact_version": "1.0.0",
-        "environment_id": "saf-fixture-training-env-001",
-        "environment_version": "1.0.0",
-        "artifact_id": "saf-fixture-artifact-001",
         "dataset_id": "saf-fixture-dataset-001",
         "dataset_sha256": "ac39cfac2b08672f9f972bdc55335303d6d45c8d48606e2b32152ec5c1c42f35",
         "dataset_version": "1.0.0",
+        "environment_id": "saf-fixture-training-env-001",
+        "environment_version": "1.0.0",
         "execution": "not_performed",
         "fixture_only": true,
         "pipeline_ref": "https://pipeline-001.example.invalid/version/1.0.0",
@@ -151,10 +380,10 @@
         "dataset_id": "saf-fixture-dataset-001",
         "fixture_payload": "SYNTHETIC ONLY: sample=fixture-a,label=0\\nsample=fixture-b,label=1\\n",
         "integrity_observation": "fixture_digest_only",
+        "provenance_gap": "No source provenance was recorded for the inert dataset fixture.",
         "provenance_state": "unknown",
         "sha256": "ac39cfac2b08672f9f972bdc55335303d6d45c8d48606e2b32152ec5c1c42f35",
-        "version": "1.0.0",
-        "provenance_gap": "No source provenance was recorded for the inert dataset fixture."
+        "version": "1.0.0"
       },
       "environment": {
         "environment_id": "saf-fixture-training-env-001",
@@ -185,14 +414,14 @@
         "PW.3.2"
       ],
       "training_run": {
+        "artifact_id": "saf-fixture-artifact-001",
         "artifact_sha256": "7d5005bb98a70aea7ac774fd72ae24ca08ca1b007dc9769ab88bbe479ca7bb5a",
         "artifact_version": "1.0.0",
-        "environment_id": "saf-fixture-training-env-001",
-        "environment_version": "1.0.0",
-        "artifact_id": "saf-fixture-artifact-001",
         "dataset_id": "saf-fixture-dataset-001",
         "dataset_sha256": "ac39cfac2b08672f9f972bdc55335303d6d45c8d48606e2b32152ec5c1c42f35",
         "dataset_version": "1.0.0",
+        "environment_id": "saf-fixture-training-env-001",
+        "environment_version": "1.0.0",
         "execution": "not_performed",
         "fixture_only": true,
         "pipeline_ref": "https://pipeline-001.example.invalid/version/1.0.0",

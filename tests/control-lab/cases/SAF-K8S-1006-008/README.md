@@ -6,7 +6,7 @@ Run from the control lab with a disposable Docker-backed Kind cluster:
 python3 lab.py test SAF-K8S-1006-008 --docker-context desktop-linux
 ```
 
-This case uses Kubernetes v1.36.1 and digest-pinned `kindest/node` and Python images. It creates four native Jobs in the lab's test namespace. The Jobs only parse checked-in synthetic JSON and hash inert fixture strings; they do not train, load, call, modify, or evaluate a model. The dataset content is synthetic, the training run is explicitly `not_performed`, and the artifact is metadata only with `weights_present: false`. Every external-looking reference uses the reserved `example.invalid` domain.
+This case uses Kubernetes v1.36.1 and digest-pinned `kindest/node` and Python images. It retains the original native Jobs and appends three bounded native Jobs for synthetic profile-applicability record validation. The Jobs only parse checked-in synthetic JSON and hash inert fixture strings; they do not train, load, call, modify, or evaluate a model. The dataset content is synthetic, the training run is explicitly `not_performed`, and the artifact is metadata only with `weights_present: false`. Every external-looking reference uses the reserved `example.invalid` domain.
 
 Each Job has its own status and pod log. The case retains the raw Job object, Pod list, and log beside the fixture used for that scenario. The outcomes are:
 
@@ -39,6 +39,12 @@ The task names and AI-specific additions are in the [official NIST SP 800-218A P
 - The PW.3.1 supplement rejects changed or missing synthetic partitions before feature publication and verifies the expected output from the approved partition. Data-poisoning and bias analysis, signed releases, model weight protection, and operation of adopted pipelines need their own evidence.
 
 The Jobs use only synthetic fixture metadata.
+
+## Supplemental synthetic applicability-record check
+
+Three added native Jobs use the same `validator.py` entry path as the original evidence scenarios. The positive record includes a Profile edition, synthetic model category and producer role, development activities, task-by-task applicability rationales, control and evidence references, and one unresolved gap with an owner and review date. Two counterfactual records independently omit a rationale and remove the control mapping for an applicable task; the validator must reject each.
+
+This supplemental check validates only the fixture record's structure and references. It does not decide whether a task is applicable, whether a rationale is sound, whether the selected task set is complete, whether a control or evidence item is effective, or whether an organization approved the assessment. The examples are not risk decisions or a conformance result. The existing 11 checks and their evidence remain intact; the staged candidate expects 14 total checks.
 
 ## PO.5.1 development-environment API authorization
 

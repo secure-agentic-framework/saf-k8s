@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-1006-008",
-  "catalog_revision": "8648106bf5cb7c0a3b102a268538199bdad892ef",
-  "catalog_sha256": "fcd14a9a5a363c08dececf5478017b63713b748167151c9833c283fd0de8c62c",
+  "catalog_revision": "449a50b516dcd3542b9b762af6e42a8120cf2f22",
+  "catalog_sha256": "96ad50c08e7c7fcb717b830fb2376a887ae787e5a40dc3e0d17ed414187197a4",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "92e7f71ed052a937dc36e9d133c69024a6948c17ac579b759e53da843cf88227",
-  "scope": "One disposable Kubernetes v1.36.1 Kind cluster runs three native, short-lived Jobs using a digest-pinned Python image. Each Job reads only checked-in synthetic metadata: an inert dataset string, a training-run record marked not performed, and a metadata-only model artifact placeholder. The Jobs check schema/task identifiers, fixture digests, scope labels, and release-to-run artifact references. Separate Job status and logs expose a consistent development fixture, a deliberate release provenance mismatch, and an out-of-profile operation record whose governance and actual operation remain unknown. This does not train or load a model, establish organizational compliance, evaluate real data or weights, prove production provenance, or assess deployment/operation controls. Separate local Jobs gate a synthetic feature on the exact manifest and partition bytes, and a read-only Job checks the expected output or its absence. Two case-owned namespaces compare bounded Kubernetes API authorization with short-lived projected ServiceAccount identities. A temporary cross-namespace binding establishes successful GET and LIST; its removal denies those requests for the developer while own reads and approved protected reads remain allowed. The readbacks follow the same immutable objects and the exact Job-owned Pods. Adopter evidence covers the broader PO.5.1 practice.",
-  "cluster": "saf-lab-a416faee78d4",
+  "scope": "One disposable Kubernetes v1.36.1 Kind cluster runs three native, short-lived Jobs using a digest-pinned Python image. Each Job reads only checked-in synthetic metadata: an inert dataset string, a training-run record marked not performed, and a metadata-only model artifact placeholder. The Jobs check schema/task identifiers, fixture digests, scope labels, and release-to-run artifact references. Separate Job status and logs expose a consistent development fixture, a deliberate release provenance mismatch, and an out-of-profile operation record whose governance and actual operation remain unknown. This does not train or load a model, establish organizational compliance, evaluate real data or weights, prove production provenance, or assess deployment/operation controls. Separate local Jobs gate a synthetic feature on the exact manifest and partition bytes, and a read-only Job checks the expected output or its absence. Two case-owned namespaces compare bounded Kubernetes API authorization with short-lived projected ServiceAccount identities. A temporary cross-namespace binding establishes successful GET and LIST; its removal denies those requests for the developer while own reads and approved protected reads remain allowed. The readbacks follow the same immutable objects and the exact Job-owned Pods. Adopter evidence covers the broader PO.5.1 practice. Three additional bounded Jobs validate one synthetic Profile-applicability assessment record and two malformed counterfactuals; they verify record structure and reference integrity only.",
+  "cluster": "saf-lab-41a64fa2e7ff",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -171,6 +171,33 @@
         "saf1006-po51-protected_absent": true,
         "clusterrolebinding_saf1006-po51-temporary-broad-read-binding_absent": true,
         "clusterrole_saf1006-po51-temporary-broad-read_absent": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Native validator accepts a synthetic applicability record with rationale, resolved references, and an owned dated gap",
+      "matched": true,
+      "observed": {
+        "job_state": "complete",
+        "raw_pod_logs": "{\"applicable_task_count\": 2, \"asserts_compliance\": false, \"assessment_id\": \"saf-fixture-assessment-001\", \"decision\": \"synthetic_assessment_record_complete\", \"not_applicable_task_count\": 1, \"organizational_approval\": \"not_evaluated\", \"profile\": \"NIST.SP.800-218A-2024-07\", \"reference_integrity\": \"fixture_ids_resolved\", \"risk_decisions\": \"not_evaluated\", \"task_count\": 3, \"tracked_gap_count\": 1}\n"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Native validator rejects a task applicability decision without a rationale",
+      "matched": true,
+      "observed": {
+        "job_state": "failed",
+        "raw_pod_logs": "REJECT applicability_rationale_missing\n"
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Native validator rejects an applicable task without a valid control mapping",
+      "matched": true,
+      "observed": {
+        "job_state": "failed",
+        "raw_pod_logs": "REJECT applicable_task_unmapped\n"
       }
     }
   ]
