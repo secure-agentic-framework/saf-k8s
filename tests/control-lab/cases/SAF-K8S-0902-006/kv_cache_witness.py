@@ -21,7 +21,14 @@ PYTHON_IMAGE = (
 )
 
 
-def _server_pod(name, image):
+def _server_pod(name, image, *, metrics=False):
+    args = ["--model", MODEL, "--alias", "stories15m-moe",
+            "--host", "0.0.0.0", "--port", str(PORT),
+            "--ctx-size", "256", "--n-predict", "1", "--seed", "42",
+            "--temp", "0", "--threads", "1", "--parallel", "1",
+            "--n-gpu-layers", "0", "--slots"]
+    if metrics:
+        args.append("--metrics")
     return {
         "apiVersion": "v1", "kind": "Pod",
         "metadata": {"name": name, "namespace": NAMESPACE,
@@ -36,11 +43,7 @@ def _server_pod(name, image):
             "containers": [{
                 "name": "llama-server", "image": image,
                 "imagePullPolicy": "Never",
-                "args": ["--model", MODEL, "--alias", "stories15m-moe",
-                         "--host", "0.0.0.0", "--port", str(PORT),
-                         "--ctx-size", "256", "--n-predict", "1", "--seed", "42",
-                         "--temp", "0", "--threads", "1", "--parallel", "1",
-                         "--n-gpu-layers", "0", "--slots"],
+                "args": args,
                 "ports": [{"name": "http", "containerPort": PORT, "protocol": "TCP"}],
                 "startupProbe": {"httpGet": {"path": "/health", "port": "http"},
                                  "periodSeconds": 2, "timeoutSeconds": 2,
@@ -100,8 +103,11 @@ def run_kv_cache_witness(lab):
     image, image_provenance = companion._build_and_load(lab)
     lab.create({"apiVersion": "v1", "kind": "ConfigMap",
                 "metadata": {"name": PREFIX + "-client", "namespace": NAMESPACE},
-                "immutable": True, "data": {"llama_cache_client.py":
-                                              (HERE / "llama_cache_client.py").read_text(encoding="utf-8")}})
+                "immutable": True, "data": {
+                    "llama_cache_client.py":
+                        (HERE / "llama_cache_client.py").read_text(encoding="utf-8"),
+                    "llama_queue_client.py":
+                        (HERE / "llama_queue_client.py").read_text(encoding="utf-8")}})
     lab.create(_client_pod())
     lab.kubectl("-n", NAMESPACE, "wait", "--for=condition=Ready",
                 "pod/" + PREFIX + "-client", "--timeout=60s", timeout=70)
@@ -109,7 +115,7 @@ def run_kv_cache_witness(lab):
     names = [PREFIX + "-a", PREFIX + "-b"]
     provenance = []
     for name in names:
-        lab.create(_server_pod(name, image))
+        lab.create(_server_pod(name, image, metrics=(name == names[0])))
         lab.kubectl("-n", NAMESPACE, "wait", "--for=condition=Ready", "pod/" + name,
                     "--timeout=120s", timeout=130)
         server = json.loads(lab.kubectl("-n", NAMESPACE, "get", "pod", name,
@@ -141,7 +147,7 @@ def run_kv_cache_witness(lab):
                "prompt": "Once upon a time", "pod_provenance": provenance,
                "image_provenance": image_provenance, "companion_sha256": COMPANION_PINS,
                "observation": observation,
-               "claim_boundary": "process-local prompt-cache reuse; distinct fresh instance starts without prior prompt cache; no tenant, GPU, memory-zeroing, or concurrent-request isolation claim"}
+              "claim_boundary": "process-local prompt-cache reuse; distinct fresh instance starts without prior prompt cache; no tenant, GPU, memory-zeroing, or concurrent-request isolation claim"}
     (lab.evidence / "llama-kv-cache.raw.json").write_text(
         json.dumps(receipt, sort_keys=True, indent=2) + "\n", encoding="utf-8")
     lab.check("positive", "b9519 reports prompt tokens reused on a repeated request to one instance",
@@ -157,3 +163,38 @@ def run_kv_cache_witness(lab):
               {"a_cached_prompt_tokens": observation.get("a_second_cache_n"),
                "fresh_b_cached_prompt_tokens": observation.get("b_first_cache_n"),
                "distinct_pod_uids": provenance[0]["uid"] != provenance[1]["uid"]})
+
+    queue_result = lab.kubectl("-n", NAMESPACE, "exec", "pod/" + PREFIX + "-client", "--",
+                               "python", "-B", "/fixture/llama_queue_client.py",
+                               provenance[0]["pod_ip"], timeout=90, allow_failure=True)
+    try:
+        queue_observation = json.loads(queue_result.stdout)
+    except json.JSONDecodeError as error:
+        lab.block(f"The native queue client did not return bounded counter evidence: {error}")
+    queue_receipt = {
+        "release": "llama.cpp b9519",
+        "model_alias": "stories15m-moe",
+        "server_pod": provenance[0],
+        "image_provenance": image_provenance,
+        "parallel_slots": 1,
+        "metrics_endpoint": "/metrics",
+        "observation": queue_observation,
+        "claim_boundary": "one native one-slot queue/defer/drain sequence; no tenant, priority, GPU, KV-zeroing, or production load claim",
+    }
+    (lab.evidence / "llama-native-queue.raw.json").write_text(
+        json.dumps(queue_receipt, sort_keys=True, indent=2) + "\n", encoding="utf-8")
+    normalized = {
+        "baseline_idle": queue_observation.get("baseline_idle") is True,
+        "one_request_processing": queue_observation.get("one_active_before_second_submission") is True,
+        "second_request_deferred": queue_observation.get("one_active_one_deferred") is True,
+        "both_bounded_requests_completed": queue_observation.get("both_bounded_completions_succeeded") is True,
+        "processing_and_deferred_returned_to_zero": queue_observation.get("queue_returned_to_zero") is True,
+        "submitted_count": queue_observation.get("request_counts", {}).get("submitted"),
+        "completed_count": queue_observation.get("request_counts", {}).get("completed"),
+    }
+    lab.check("positive", "b9519 defers one fixed request at its one-slot limit and drains after both complete",
+              queue_result.returncode == 0 and all(normalized[key] for key in (
+                  "baseline_idle", "one_request_processing", "second_request_deferred",
+                  "both_bounded_requests_completed", "processing_and_deferred_returned_to_zero"))
+              and normalized["submitted_count"] == 2 and normalized["completed_count"] == 2,
+              normalized)

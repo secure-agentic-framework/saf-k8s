@@ -24,6 +24,7 @@ SCOPE = (
     "The mock compares an unscoped key with tenant-scoped keys, verifies same-tenant reuse, and tests one active request, one queued request, and the configured rejection and drain. "
     "The real servers use the same digest-bound tiny Stories model and a fixed public prompt. "
     "A tokenless client checks the model tokenizer, bounded one-token output, same-process prompt reuse, and zero reused tokens on the first request to a fresh server. "
+    "On one of those one-slot servers, a separate bounded native witness observes one active completion, one deferred completion, both fixed completion counts, and processing/deferred metrics returning to zero. "
     "Deployed serving engines, tenant and concurrent-request isolation, cache zeroing, GPU behavior, and production scheduling or resource guarantees need separate evidence."
 )
 LABELS = {"saf-lab.example/control": CONTROL_ID,

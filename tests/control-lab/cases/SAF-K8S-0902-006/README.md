@@ -34,3 +34,14 @@ Docker with BuildKit, and HTTPS access for the pinned model and image assets.
 The result covers reuse in one process and an empty initial prompt cache in a
 second process. Tenant mapping, concurrent request isolation, cache zeroing,
 accelerator behavior, and adoption in deployed engines require separate evidence.
+
+The same case also enables the pinned b9519 `/metrics` endpoint on the first
+server and sends two fixed completions from the tokenless client. It waits for
+the native `requests_processing=1, requests_deferred=0` state before submitting
+the second request, observes `requests_processing=1, requests_deferred=1`, then
+requires both finite completions to report their configured generated-token
+counts and the two counters to return to zero. The first completion is capped
+at 192 tokens and the second at 8; the witness records counts and status only,
+not prompt or response text. This is one controlled one-slot defer-and-drain
+observation. It does not establish queue fairness, priority, preemption,
+tenant-specific scheduling, KV-memory isolation, GPU behavior, or load capacity.

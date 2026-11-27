@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0902-006",
-  "catalog_revision": "d1b8447a22de8db36ec31676b53c34496d4d3f59",
-  "catalog_sha256": "63ca25b48ffb8f35202c5c4db9c599eb98e12d31aa18f4d0d69d91a9e3ec5423",
+  "catalog_revision": "9a4e0da1ba354e33d663b0dfb1b46b31ab0547c7",
+  "catalog_sha256": "493dd2fccb76973d7c8b6f2f7c58473f4200b3a55539861126b63bcab5cbd2f6",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "b38eea1e6699b39b8978480602f6122c198a289f723e55e3864069d45cfca006",
-  "scope": "One disposable Kind v1.36.1 cluster runs a digest-pinned synthetic Python cache and queue fixture and two separate CPU-only llama.cpp b9519 server Pods. The mock compares an unscoped key with tenant-scoped keys, verifies same-tenant reuse, and tests one active request, one queued request, and the configured rejection and drain. The real servers use the same digest-bound tiny Stories model and a fixed public prompt. A tokenless client checks the model tokenizer, bounded one-token output, same-process prompt reuse, and zero reused tokens on the first request to a fresh server. Deployed serving engines, tenant and concurrent-request isolation, cache zeroing, GPU behavior, and production scheduling or resource guarantees need separate evidence.",
-  "cluster": "saf-lab-992d06d471c0",
+  "scope": "One disposable Kind v1.36.1 cluster runs a digest-pinned synthetic Python cache and queue fixture and two separate CPU-only llama.cpp b9519 server Pods. The mock compares an unscoped key with tenant-scoped keys, verifies same-tenant reuse, and tests one active request, one queued request, and the configured rejection and drain. The real servers use the same digest-bound tiny Stories model and a fixed public prompt. A tokenless client checks the model tokenizer, bounded one-token output, same-process prompt reuse, and zero reused tokens on the first request to a fresh server. On one of those one-slot servers, a separate bounded native witness observes one active completion, one deferred completion, both fixed completion counts, and processing/deferred metrics returning to zero. Deployed serving engines, tenant and concurrent-request isolation, cache zeroing, GPU behavior, and production scheduling or resource guarantees need separate evidence.",
+  "cluster": "saf-lab-446e9596f0ad",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -212,6 +212,20 @@
         "a_cached_prompt_tokens": 4,
         "fresh_b_cached_prompt_tokens": 0,
         "distinct_pod_uids": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "b9519 defers one fixed request at its one-slot limit and drains after both complete",
+      "matched": true,
+      "observed": {
+        "baseline_idle": true,
+        "one_request_processing": true,
+        "second_request_deferred": true,
+        "both_bounded_requests_completed": true,
+        "processing_and_deferred_returned_to_zero": true,
+        "submitted_count": 2,
+        "completed_count": 2
       }
     }
   ]
