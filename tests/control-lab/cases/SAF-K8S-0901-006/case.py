@@ -207,3 +207,4 @@ def run(lab):
     runpy.run_path(str(HERE / "volcano_install.py"))["run"](lab)
     runpy.run_path(str(HERE / "volcano_workload.py"))["run"](lab)
     runpy.run_path(str(HERE / "queue_intake_object_count.py"))["run"](lab)
+    runpy.run_path(str(HERE / "volcano_tenant_priority.py"))["run"](lab)

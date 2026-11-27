@@ -58,19 +58,21 @@ and managed-cluster behavior.
 
 - [Kubernetes v1.36 ResourceQuota](https://v1-36.docs.kubernetes.io/docs/concepts/policy/resource-quotas/)
 - [Kubernetes v1.36 RBAC authorization](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/rbac/)
-- [Kueue v0.20.7 installation and supported Kubernetes versions](https://kueue.sigs.k8s.io/docs/getting-started/installation/)
-- [Kueue ClusterQueue](https://kueue.sigs.k8s.io/docs/concepts/cluster_queue/)
-- [Kueue LocalQueue](https://kueue.sigs.k8s.io/docs/concepts/local_queue/)
-- [Kueue workload admission](https://kueue.sigs.k8s.io/v0.20/docs/concepts/admission/)
-- [Kueue all-or-nothing scheduling](https://kueue.sigs.k8s.io/docs/concepts/all_or_nothing/)
-- [Volcano v1.15 Queue resource management](https://volcano.sh/docs/v1.15.0/keyfeatures/queueresourcemanagement/)
-- [Volcano Queue](https://volcano.sh/docs/concepts/queue/)
-- [Volcano scheduler actions](https://volcano.sh/docs/scheduler/actions/)
+- [Kueue v0.17.7 installation and Kubernetes prerequisite](https://kueue.sigs.k8s.io/v0.17/docs/installation/)
+- [Kueue v0.17 ClusterQueue](https://kueue.sigs.k8s.io/v0.17/docs/concepts/cluster_queue/)
+- [Kueue v0.17 LocalQueue](https://kueue.sigs.k8s.io/v0.17/docs/concepts/local_queue/)
+- [Kueue v0.17 workload admission](https://kueue.sigs.k8s.io/v0.17/docs/concepts/admission/)
+- [Kueue v0.17 all-or-nothing scheduling](https://kueue.sigs.k8s.io/v0.17/docs/concepts/all_or_nothing/)
+- [Volcano v1.16 Queue resource management](https://volcano.sh/docs/v1.16.0/keyfeatures/queueresourcemanagement/)
+- [Volcano v1.16 Queue](https://volcano.sh/docs/v1.16.0/concepts/queue/)
+- [Volcano v1.16 scheduler actions](https://volcano.sh/docs/v1.16.0/scheduler/actions/)
+- [Volcano v1.16 VolcanoJob and priorityClassName](https://volcano.sh/docs/v1.16.0/concepts/volcanojob/)
+- [Kubernetes v1.36 ValidatingAdmissionPolicy](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/validating-admission-policy/)
 
 ## Bounded Kueue fair-sharing and FIFO observations
 
-This scratch extension preserves the published case's 21 checks and adds a
-separate CPU-only comparison on pinned Kueue v0.17.7. The AFS fixture compares
+The published case includes the base namespace checks and separate CPU-only
+comparisons on pinned Kueue v0.17.7. The AFS fixture compares
 equal-priority, equal-input pending Workloads after releasing a 100m holder and
 observes the newer lower-use Workload first. An independent ClusterQueue sets
 `admissionMode: NoAdmissionFairSharing` with `StrictFIFO`. It observes the exact
@@ -79,9 +81,10 @@ from the peer queue; before release it rechecks equal live priorities and
 seed-matched candidate inputs. It then observes the older candidate admitted
 first and the younger candidate admitted after the older reservation is
 released. Exact API objects, queue accounting, quantities and timestamps are
-retained in raw evidence; normalized booleans feed the receipt. This is a
-bounded single-selection CPU observation, not evidence for GPU resources,
-production demand behavior, preemption, Volcano, or managed clusters.
+retained in raw evidence; normalized booleans feed the receipt. These are
+bounded single-selection CPU observations, not evidence for GPU resources,
+sustained fairness under representative demand, Volcano fair-share, or managed
+cluster configuration.
 
 The existing indexed readiness-timeout fixture also records its exact Job and
 Workload UIDs and raw `status.requeueState` before foreground deletion. It waits
@@ -139,8 +142,8 @@ older peer after the first reservation is released. Exact Workload and Job
 identities and queue accounting are retained in the raw evidence.
 
 This exercises the enabled mode for one controlled CPU workload profile. The
-mode-off FIFO comparator, Volcano, GPU and adopted fairness remain separate
-verification work.
+paired mode-off comparison is a separate CPU-only FIFO check. Neither one
+establishes fairness under representative sustained demand or for GPU queues.
 
 [Kueue Admission Fair Sharing](https://kueue.sigs.k8s.io/v0.17/docs/concepts/admission_fair_sharing/)
 
@@ -155,7 +158,7 @@ reserved by either contender before release.
 
 ## Bounded within-queue preemption and recovery
 
-The additive scratch extension creates a separate CPU-only Kueue v0.17.7
+The published case creates a separate CPU-only Kueue v0.17.7
 ClusterQueue with `withinClusterQueue: LowerPriority`, no cohort, and 100m
 nominal CPU quota. It observes an admitted 100m victim with its exact
 Job-owned Ready Pod, then creates a same-queue 100m preemptor whose live
@@ -207,3 +210,32 @@ observations. Per-queue pending-only intake enforcement needs evidence from
 its configured admission mechanism.
 
 - [Kubernetes v1.36 object-count quota](https://v1-36.docs.kubernetes.io/docs/concepts/policy/resource-quotas/#object-count-quota)
+
+## Bounded Volcano tenant priority selection policy
+
+The scratch-only additive witness runs after the published case's 50 checks.
+It creates one isolated namespace, one 100m CPU Volcano Queue, a tenant service
+account restricted to `create` on VolcanoJobs in that namespace, and two
+case-owned PriorityClasses. The normal class has value 10. A reserved class has
+value 500 and `preemptionPolicy: Never`; the fixture does not run work under
+that class.
+
+A Kubernetes `ValidatingAdmissionPolicy` with `failurePolicy: Fail` and a
+`Deny` binding matches only VolcanoJob create/update requests in this exact
+fixture namespace. Its CEL rule permits only the normal class at the
+VolcanoJob level and rejects a task template override to another class. Using
+the tenant service account, the case creates one harmless one-worker,
+10m/16Mi VolcanoJob under the approved class and observes its exact job-owned
+Ready Pod. The same identity then submits one request selecting the reserved
+class at the Job level and a second request using it at the task-template
+level. Both must receive VAP denials; independent API reads require both denied
+objects to be absent and the approved Job UID to remain present. It uses no
+high-priority workload, preemption, scale, or load. The fixture and raw
+request/API evidence are in `volcano_tenant_priority.py` and
+`volcano-tenant-priority-raw.json`.
+
+This proves one explicit namespace-scoped policy for one pinned Kubernetes and
+Volcano fixture. It does not prove production policy ownership or admission
+coverage in managed clusters, nor fairness/preemption under Volcano. The
+published Volcano case's existing checks remain unchanged; this scratch
+addition contributes two checks and is not runtime evidence until paired.
