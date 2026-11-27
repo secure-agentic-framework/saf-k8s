@@ -51,7 +51,9 @@ SCOPE = (
     "A third isolated cluster checks five TLS webhook event deliveries, one transient 503 retry, "
     "and native audit counters. A fourth isolated cluster makes two 400-KiB synthetic ConfigMap "
     "writes to observe the 1-MiB file-rotation threshold and exact-once retention in active and "
-    "rotated files. These finite fixtures do not model sustained traffic, production capacity, "
+    "rotated files. Four more bounded writes in that profile exercise the two-file backup cap "
+    "and verify that the oldest added marker is pruned while the latest three remain once. "
+    "These finite fixtures do not model sustained traffic, production capacity, "
     "retention adequacy, alert delivery, I/O pressure, real AI traffic, or cluster-wide coverage."
 )
 
@@ -431,6 +433,8 @@ def run(lab):
                                "--image", NODE_IMAGE, "--kubeconfig", str(additional.kubeconfig),
                                "--wait", "90s", "--config", str(config), timeout=480)
             rotation_result = rotation_runtime["run"](additional, temporary)
+            backup_runtime = runpy.run_path(str(Path(__file__).with_name("audit_backup_limit.py")))
+            backup_result = backup_runtime["run"](additional, temporary)
         finally:
             additional.command("kind", "delete", "cluster", "--name", additional.cluster,
                                "--kubeconfig", str(additional.kubeconfig), timeout=90)
@@ -439,3 +443,6 @@ def run(lab):
         lab.check("positive", "Two bounded full-fidelity audit events trigger rotation and remain in active or rotated logs",
                   all(rotation_result.values()) and cluster_deleted,
                   {**rotation_result, "rotation_cluster_deleted": cluster_deleted})
+        lab.check("positive", "The bounded audit-log backup cap prunes the oldest marker and retains the newest three records",
+                  all(backup_result.values()) and cluster_deleted,
+                  {**backup_result, "backup_limit_cluster_deleted": cluster_deleted})

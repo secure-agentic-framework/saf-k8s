@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-1001-004",
-  "catalog_revision": "de970734f6ee12251e87c7312400b425a7649ccc",
-  "catalog_sha256": "caa76efc6fa0d98e355098428f9ca91dbd8f04df3ace9709aaa0b9f814dc2f6b",
+  "catalog_revision": "9a4e0da1ba354e33d663b0dfb1b46b31ab0547c7",
+  "catalog_sha256": "493dd2fccb76973d7c8b6f2f7c58473f4200b3a55539861126b63bcab5cbd2f6",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "ef6cb448b5bb3ceffff834f639b4dcc3732ef62a0d45c7659957482629f5bdc9",
-  "scope": "Two fresh, single-control-plane Kind Kubernetes v1.36.1 clusters compare the same seven measured API operations under broad and selective audit policies. The policy comparison checks finite event selection, retained write detail, and a reduction in sampled poll bytes. A third isolated cluster checks five TLS webhook event deliveries, one transient 503 retry, and native audit counters. A fourth isolated cluster makes two 400-KiB synthetic ConfigMap writes to observe the 1-MiB file-rotation threshold and exact-once retention in active and rotated files. These finite fixtures do not model sustained traffic, production capacity, retention adequacy, alert delivery, I/O pressure, real AI traffic, or cluster-wide coverage.",
-  "cluster": "saf-lab-e383891fb2db",
+  "scope": "Two fresh, single-control-plane Kind Kubernetes v1.36.1 clusters compare the same seven measured API operations under broad and selective audit policies. The policy comparison checks finite event selection, retained write detail, and a reduction in sampled poll bytes. A third isolated cluster checks five TLS webhook event deliveries, one transient 503 retry, and native audit counters. A fourth isolated cluster makes two 400-KiB synthetic ConfigMap writes to observe the 1-MiB file-rotation threshold and exact-once retention in active and rotated files. Four more bounded writes in that profile exercise the two-file backup cap and verify that the oldest added marker is pruned while the latest three remain once. These finite fixtures do not model sustained traffic, production capacity, retention adequacy, alert delivery, I/O pressure, real AI traffic, or cluster-wide coverage.",
+  "cluster": "saf-lab-5d53a4c6adda",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -255,6 +255,22 @@
         "two_subthreshold_records_cross_limit": true,
         "output_bounded": true,
         "rotation_cluster_deleted": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The bounded audit-log backup cap prunes the oldest marker and retains the newest three records",
+      "matched": true,
+      "observed": {
+        "four_writes_succeeded": true,
+        "oldest_marker_observed_before_pruning": true,
+        "exactly_two_backups_plus_active": true,
+        "oldest_marker_pruned_by_backup_limit": true,
+        "newest_three_full_fidelity_markers_retained_once": true,
+        "all_four_records_subthreshold_and_large_enough_to_rotate": true,
+        "newest_event_in_active_file": true,
+        "bounded_output": true,
+        "backup_limit_cluster_deleted": true
       }
     }
   ]

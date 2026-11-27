@@ -120,3 +120,25 @@ the isolated run directory.
 This bounded witness demonstrates native file rotation and marker retention for two
 synthetic writes. It is not a throughput, disk-capacity, retention-duration, I/O pressure,
 production storage, or sustained AI workload test.
+
+## Bounded backup-count pruning witness
+
+In the same isolated file-backend cluster, an additive fixture makes four more
+case-owned ConfigMap creates with 400-KiB inert ASCII values. The first added
+marker is independently observed in a complete RequestResponse audit record
+before the remaining writes. Each record must be below the configured 1-MiB
+rotation threshold and large enough to drive the bounded sequence. With
+`--audit-log-maxbackup=2`, the fixture waits up to 12 seconds for asynchronous
+rotation cleanup, then requires exactly two timestamped backup files plus the
+active file. The first marker must have been observed before pruning and be
+absent afterward; the newest three marker events must remain exactly once with
+three distinct Audit-IDs and full request/response values. Raw evidence keeps
+only fixture marker names, IDs, file names, line sizes and hashes, count results,
+and whole-file sizes and hashes; it does not retain the large fixture values or
+audit lines.
+
+This verifies the configured file-count behavior for four bounded local writes.
+It does not establish suitable retention, age-based pruning, storage capacity,
+production durability, or loss-free delivery beyond the retained backup limit.
+See the [Kubernetes v1.36.1 audit logging guide](https://v1-36.docs.kubernetes.io/docs/tasks/debug/debug-cluster/audit/)
+and [pinned Lumberjack v2 write and backup behavior](https://github.com/natefinch/lumberjack/blob/v2.0/lumberjack.go).
