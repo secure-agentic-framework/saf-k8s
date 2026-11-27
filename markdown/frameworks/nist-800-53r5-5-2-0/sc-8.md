@@ -98,3 +98,12 @@ The CNI-selection procedure can support transmission confidentiality when it req
 - Strength: moderate
 - Applicability: conditional
 - Strength Reason Code: partial-control-coverage
+
+### [SAF-K8S-0902-005 - Multi-cluster inference routing and failover security](../../controls/SAF-K8S-0902-005.md)
+
+- Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
+- Knowledge Area: 9.2
+- Relation Type: partial
+- Strength: moderate
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
