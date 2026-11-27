@@ -2397,7 +2397,7 @@
     "SAF-K8S-0901-006": {
       "catalog_status": "draft",
       "domain": "D09",
-      "sha256": "5919b504460cafb2e637e6a06aa30a6cd854b08b615c6868c7643ec642ded918",
+      "sha256": "ffc3c74f9fdbee08d41b8feeb3e4dd107c97359273ca2f34d7c1f7b586f5d1f3",
       "title": "Gang scheduling security (Volcano, Kueue)"
     },
     "SAF-K8S-0901-007": {
@@ -3572,7 +3572,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "e9f57f5dda0f6321a731f330485bda72d9e35e71",
-  "sha256": "96ad50c08e7c7fcb717b830fb2376a887ae787e5a40dc3e0d17ed414187197a4",
+  "revision": "470414116f4439350e1acbf77f196103c8300083",
+  "sha256": "d2b92c3bb79554f6ec0211fdc75392a2d7b4889b6ff9d5aab3519ecee1d1f34b",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

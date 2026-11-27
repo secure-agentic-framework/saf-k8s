@@ -211,31 +211,30 @@ its configured admission mechanism.
 
 - [Kubernetes v1.36 object-count quota](https://v1-36.docs.kubernetes.io/docs/concepts/policy/resource-quotas/#object-count-quota)
 
-## Bounded Volcano tenant priority selection policy
+## Published Volcano tenant priority selection policy
 
-The scratch-only additive witness runs after the published case's 50 checks.
-It creates one isolated namespace, one 100m CPU Volcano Queue, a tenant service
-account restricted to `create` on VolcanoJobs in that namespace, and two
-case-owned PriorityClasses. The normal class has value 10. A reserved class has
-value 500 and `preemptionPolicy: Never`; the fixture does not run work under
-that class.
+The published 52-check case includes one case-scoped ValidatingAdmissionPolicy
+with `failurePolicy: Fail`. It permits the tenant's approved normal-priority
+VolcanoJob and denies its two reserved-priority selections: the Job-level class
+and the task-template override. Independent reads confirm both refused Jobs
+are absent and the approved Job UID remains present. This checks admission of
+fixed benign requests; it does not run a high-priority workload or establish
+production policy ownership, managed-cluster admission coverage, Volcano
+fair-share, or Volcano preemption.
 
-A Kubernetes `ValidatingAdmissionPolicy` with `failurePolicy: Fail` and a
-`Deny` binding matches only VolcanoJob create/update requests in this exact
-fixture namespace. Its CEL rule permits only the normal class at the
-VolcanoJob level and rejects a task template override to another class. Using
-the tenant service account, the case creates one harmless one-worker,
-10m/16Mi VolcanoJob under the approved class and observes its exact job-owned
-Ready Pod. The same identity then submits one request selecting the reserved
-class at the Job level and a second request using it at the task-template
-level. Both must receive VAP denials; independent API reads require both denied
-objects to be absent and the approved Job UID to remain present. It uses no
-high-priority workload, preemption, scale, or load. The fixture and raw
-request/API evidence are in `volcano_tenant_priority.py` and
-`volcano-tenant-priority-raw.json`.
+## Accounting-only extended-resource quota and LimitRange comparison
 
-This proves one explicit namespace-scoped policy for one pinned Kubernetes and
-Volcano fixture. It does not prove production policy ownership or admission
-coverage in managed clusters, nor fairness/preemption under Volcano. The
-published Volcano case's existing checks remain unchanged; this scratch
-addition contributes two checks and is not runtime evidence until paired.
+The added case uses a synthetic qualified resource key,
+`saf.example/lab-accelerator`, only in Kubernetes API server-side dry-run
+requests. The same 1-unit Pod request is accepted before a namespace
+ResourceQuota exists and refused after `requests.saf.example/lab-accelerator`
+is set to zero. A CPU/memory-only dry-run remains admissible under that quota.
+A separate LimitRange then rejects a synthetic 200m per-container CPU request
+under a 100m maximum. No Pod persists and no device plugin, accelerator
+resource, allocation, or hardware behavior is installed or simulated. These
+checks demonstrate the distinct admission accounting surfaces only; actual GPU
+quotas and allocation remain adopter evidence. This scratch candidate adds five
+checks to the published 52-check base and is not paired runtime evidence.
+
+- [Kubernetes v1.36 ResourceQuota for extended resources](https://v1-36.docs.kubernetes.io/docs/concepts/policy/resource-quotas/#quota-for-extended-resources)
+- [Kubernetes v1.36 LimitRange](https://v1-36.docs.kubernetes.io/docs/concepts/policy/limit-range/)

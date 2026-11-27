@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0901-006",
-  "catalog_revision": "af2fabe1d28fd367a36c79f1ce7869385cd61504",
-  "catalog_sha256": "ed6243c33229f6466971a9ce3d0c83508509eff6f38c522843b0dd12fb917717",
+  "catalog_revision": "3dbd532f456996c975072583c7cce9ace8fe0337",
+  "catalog_sha256": "d2b92c3bb79554f6ec0211fdc75392a2d7b4889b6ff9d5aab3519ecee1d1f34b",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "5919b504460cafb2e637e6a06aa30a6cd854b08b615c6868c7643ec642ded918",
-  "scope": "A disposable Kind v1.36.1 cluster verifies native namespace quota, selected tenant and platform RBAC, and the pinned Kueue v0.17.7 controller's quota, readiness-timeout, and named tenant workload-priority behavior. A case-owned timeout Job's exact Workload UID and raw requeue state are captured before foreground cleanup because the pinned controller has a global PodsReady gate. Separate CPU-only LocalQueues demonstrate sampled historical-use ordering with Admission Fair Sharing enabled: with equal live priorities and sufficient quota after release, the newer lower-use Workload is admitted first. A distinct ClusterQueue explicitly disables Admission Fair Sharing and uses StrictFIFO; it observes the exact 100m seed admitted, Ready, and completed in its queue while the peer remains unseeded, then observes the older of two equal-priority, seed-matched candidates admitted first after release. These are bounded CPU-only scheduler observations. A third isolated Kueue ClusterQueue enables only within-queue LowerPriority preemption; it observes a 100m victim's eviction by a higher-priority Job and recovery of the same victim Job with a replacement Ready Pod after exact preemptor Job, Workload and owned Pod cleanup. A separate Volcano v1.16.1 fixture verifies the exact controller and scheduler inputs, scoped authorization and a two-worker CPU group held below its Queue capacity requirement and admitted after capacity is raised. A separate namespace verifies that object-count admission counts completed as well as suspended Jobs. Accelerator quotas, representative workload demand and adopted deployments remain distinct evidence requirements.",
-  "cluster": "saf-lab-b40a960f49af",
+  "control_sha256": "ffc3c74f9fdbee08d41b8feeb3e4dd107c97359273ca2f34d7c1f7b586f5d1f3",
+  "scope": "A disposable Kind v1.36.1 cluster verifies native namespace quota, selected tenant and platform RBAC, and the pinned Kueue v0.17.7 controller's quota, readiness-timeout, and named tenant workload-priority behavior. A case-owned timeout Job's exact Workload UID and raw requeue state are captured before foreground cleanup because the pinned controller has a global PodsReady gate. Separate CPU-only LocalQueues demonstrate sampled historical-use ordering with Admission Fair Sharing enabled: with equal live priorities and sufficient quota after release, the newer lower-use Workload is admitted first. A distinct ClusterQueue explicitly disables Admission Fair Sharing and uses StrictFIFO; it observes the exact 100m seed admitted, Ready, and completed in its queue while the peer remains unseeded, then observes the older of two equal-priority, seed-matched candidates admitted first after release. These are bounded CPU-only scheduler observations. A third isolated Kueue ClusterQueue enables only within-queue LowerPriority preemption; it observes a 100m victim's eviction by a higher-priority Job and recovery of the same victim Job with a replacement Ready Pod after exact preemptor Job, Workload and owned Pod cleanup. A separate Volcano v1.16.1 fixture verifies the exact controller and scheduler inputs, scoped authorization and a two-worker CPU group held below its Queue capacity requirement and admitted after capacity is raised. A separate namespace verifies that object-count admission counts completed as well as suspended Jobs. An accounting-only API dry-run uses one synthetic extended-resource name to distinguish aggregate ResourceQuota from per-container LimitRange bounds; it neither installs a device plugin nor demonstrates accelerator allocation. Representative workload demand and adopted deployments remain distinct evidence requirements.",
+  "cluster": "saf-lab-d548bfd2f47f",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -595,6 +595,63 @@
         "reserved_task_override_denied": true,
         "both_denied_jobs_absent": true,
         "approved_job_uid_persists": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Without ResourceQuota the same synthetic extended-resource Pod is admitted by server dry-run",
+      "matched": true,
+      "observed": {
+        "quota_absent": true,
+        "dry_run_created": true,
+        "resource_key": "saf.example/lab-accelerator"
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "A zero ResourceQuota for requests.saf.example/lab-accelerator refuses that same dry-run request",
+      "matched": true,
+      "observed": {
+        "quota_uid_observed": true,
+        "hard": {
+          "requests.saf.example/lab-accelerator": "0"
+        },
+        "denial_has_exact_quota": true,
+        "denial_has_exact_resource": true,
+        "denied": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The extended-resource quota leaves an ordinary CPU/memory Pod admissible",
+      "matched": true,
+      "observed": {
+        "dry_run_created": true,
+        "requests": {
+          "cpu": "50m",
+          "memory": "32Mi"
+        }
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "LimitRange independently rejects a synthetic per-container CPU request above its 100m bound",
+      "matched": true,
+      "observed": {
+        "matching_container_max_read_back": true,
+        "limit_range_uid_observed": true,
+        "per_container_max_cpu": "100m",
+        "request_cpu": "200m",
+        "denied_by_cpu_bound": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "All server-side dry-run requests leave the owned namespace without Pods",
+      "matched": true,
+      "observed": {
+        "pod_count": 0,
+        "no_dry_run_pods_persisted": true
       }
     }
   ]

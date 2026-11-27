@@ -37,8 +37,10 @@ SCOPE = (
     "fixture verifies the exact controller and scheduler inputs, scoped authorization and a two-worker CPU group "
     "held below its Queue capacity requirement and admitted after capacity is raised. A separate "
     "namespace verifies that object-count admission counts completed as well as suspended Jobs. "
-    "Accelerator quotas, "
-    "representative workload demand and adopted deployments remain distinct evidence requirements."
+    "An accounting-only API dry-run uses one synthetic extended-resource name to distinguish aggregate "
+    "ResourceQuota from per-container LimitRange bounds; it neither installs a device plugin nor "
+    "demonstrates accelerator allocation. Representative workload demand and adopted deployments "
+    "remain distinct evidence requirements."
 )
 
 
@@ -208,3 +210,4 @@ def run(lab):
     runpy.run_path(str(HERE / "volcano_workload.py"))["run"](lab)
     runpy.run_path(str(HERE / "queue_intake_object_count.py"))["run"](lab)
     runpy.run_path(str(HERE / "volcano_tenant_priority.py"))["run"](lab)
+    runpy.run_path(str(HERE / "quota_resource_scope.py"))["run"](lab)
