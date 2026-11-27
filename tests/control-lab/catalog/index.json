@@ -2985,7 +2985,7 @@
     "SAF-K8S-0910-004": {
       "catalog_status": "draft",
       "domain": "D09",
-      "sha256": "bf7e4c8150a2cb7e28cd74cf0f37ad760dc038b20d2c1e89fa0acf35ccd411ea",
+      "sha256": "92b4f1ee1626e29ffcc1ee1a19678aaa3a4ee84fcd7fb5943ff6934bea8a8b5e",
       "title": "Federated learning cross-cluster coordination security"
     },
     "SAF-K8S-0910-015": {
@@ -3572,7 +3572,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "63c908a37f73dcee34a850ed9ff293155a6d5ac7",
-  "sha256": "aca73c8b9b5a6fa1486fef25fbcc7754b6bf3feba10909dd64da70f91a10504a",
+  "revision": "8c060dc166342efab677fd30aceeef3c5c9cd215",
+  "sha256": "2a4f9e4bc3c869a7a1bdeff571919ff8fd3cbc0f2b1964ced26040db14837309",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

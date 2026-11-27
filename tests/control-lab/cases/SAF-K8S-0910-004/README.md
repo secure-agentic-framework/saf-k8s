@@ -56,3 +56,10 @@ four published assertions plus one additive check; no extra Kind cluster or PVC.
 has a 5m CPU/16Mi memory request and 100m CPU/64Mi memory limit. Raw decision details, both fixture
 root fingerprints and the observed rejected-chain root fingerprint are included in
 `federated-round-coordination.json`.
+
+The catalog revision defines applicable federation controls by deployed trust
+boundary and threat assumptions. This replay demonstrates the fixed two-cluster
+coordination path, approved service identities and observed participant
+decisions over mutual TLS. Deployed credential provisioning, any required
+privacy and robust aggregation composition, and monitoring need their own
+evidence.

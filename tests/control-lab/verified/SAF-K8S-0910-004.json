@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0910-004",
-  "catalog_revision": "cd6f6d6d5a5066b658147171209b0e44ff35355c",
-  "catalog_sha256": "1da56289e4f344f65fa946b0099b200d7a52a7c4bea62ee17a32261bedc18861",
+  "catalog_revision": "4eaeb0d165a1c8496fdce570172cf8918d4d8aff",
+  "catalog_sha256": "2a4f9e4bc3c869a7a1bdeff571919ff8fd3cbc0f2b1964ced26040db14837309",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "bf7e4c8150a2cb7e28cd74cf0f37ad760dc038b20d2c1e89fa0acf35ccd411ea",
+  "control_sha256": "92b4f1ee1626e29ffcc1ee1a19678aaa3a4ee84fcd7fb5943ff6934bea8a8b5e",
   "scope": "Two distinct, disposable Kind clusters host one mTLS round receiver and one participant each. A pinned Python fixture accepts a stale synthetic vector in an explicitly unenforced baseline, then enforces exact round, protocol, membership, and duplicate checks. A separately identified observer reads the receiver's service state, and a valid harmless contribution submitted with that observer identity is refused without changing state. This covers one toy coordination path, not production FL, secure aggregation, differential privacy, Byzantine tolerance, or cluster-wide audit controls. A synthetic verified-root/identity pair distinguishes the approved fixture trust policy from a self-reported cluster label; it does not attest physical origin.",
-  "cluster": "saf-lab-518e0e99bc13",
+  "cluster": "saf-lab-9310f8ff9047",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
