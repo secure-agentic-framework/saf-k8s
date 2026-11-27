@@ -1,4 +1,5 @@
 """Verify bounded kube-apiserver audit backup-count pruning with inert writes."""
+from datetime import datetime, timedelta, timezone
 import hashlib
 import json
 import re
@@ -26,7 +27,7 @@ def _event_for_marker(event, marker):
             and ref.get("name") == marker and event.get("verb") == "create")
 
 
-def _read_records(audit_dir):
+def _read_records(audit_dir, markers=MARKERS):
     audit_path = audit_dir / ACTIVE_NAME
     paths = sorted((path for path in audit_dir.iterdir() if path.is_file()),
                    key=lambda path: path.name)
@@ -42,7 +43,7 @@ def _read_records(audit_dir):
                 event = json.loads(line)
             except json.JSONDecodeError:
                 continue
-            for marker in MARKERS:
+            for marker in markers:
                 if _event_for_marker(event, marker):
                     request_value = event.get("requestObject", {}).get("data", {}).get("fixture", "")
                     response_value = event.get("responseObject", {}).get("data", {}).get("fixture", "")
@@ -187,3 +188,66 @@ def run(lab, temporary):
         "newest_event_in_active_file": newest_active,
         "bounded_output": bounded_files,
     }
+
+
+def exercise_age_limit(lab, temporary):
+    audit_dir = temporary / "rotation-audit"
+    _active, paths, backups, prior = _read_records(audit_dir)
+    if len(backups) != MAXBACKUP or len(paths) != MAXBACKUP + 1:
+        lab.block("Expected the exact backup-count snapshot before the age contrast")
+    oldest_retained = next((row for row in prior if row["marker"] == MARKERS[1]), {})
+    aged_source = audit_dir / oldest_retained.get("file", "")
+    if aged_source not in backups:
+        lab.block("The first retained fixture marker was not in a rotated log")
+
+    # Keep the count below the threshold, so count pruning cannot explain
+    # the old file disappearing. All files belong to this disposable case.
+    kept = temporary / "backup-count-snapshot"
+    kept.mkdir()
+    for backup in backups:
+        if backup != aged_source:
+            backup.rename(kept / backup.name)
+    old_time = datetime.now(timezone.utc) - timedelta(days=MAXAGE_DAYS + 1)
+    old_stamp = old_time.strftime("%Y-%m-%dT%H-%M-%S.%f")[:-3]
+    old_path = audit_dir / f"audit-{old_stamp}.jsonl"
+    aged_source.rename(old_path)
+    _active, _, pre_files, pre_records = _read_records(audit_dir)
+    present_old = any(row["file"] == old_path.name and row["audit_id"] == oldest_retained["audit_id"]
+                      for row in pre_records)
+    recent_mtime = time.time() - old_path.stat().st_mtime < (MAXAGE_DAYS - 1) * 86400
+    count_below_limit = len(pre_files) == 1 and len(pre_files) + 1 <= MAXBACKUP
+
+    marker = "saf-audit-age-trigger"
+    manifest = temporary / f"{marker}.json"
+    manifest.write_text(json.dumps({
+        "apiVersion": "v1", "kind": "ConfigMap",
+        "metadata": {"name": marker, "namespace": NAMESPACE},
+        "data": {"fixture": "x" * VALUE_BYTES},
+    }, separators=(",", ":")) + "\n")
+    lab.kubectl("create", "-f", str(manifest), timeout=45)
+    deadline = time.monotonic() + ROTATION_WAIT_SECONDS
+    while time.monotonic() < deadline:
+        _active, _, after_files, records = _read_records(audit_dir, (*MARKERS, marker))
+        if not old_path.exists() and len(after_files) == 1:
+            break
+        time.sleep(0.25)
+
+    _active, _, after_files, records = _read_records(audit_dir, (*MARKERS, marker))
+    current = [row for row in records if row["marker"] == marker]
+    previous = [row for row in records if row["marker"] == MARKERS[3]]
+    flags = {
+        "known_old_file_present_before_rotation": present_old,
+        "old_filename_and_recent_modification_time": recent_mtime,
+        "rotation_would_not_exceed_backup_count": count_below_limit,
+        "old_named_backup_absent": not old_path.exists(),
+        "one_recent_rotation_present": len(after_files) == 1 and len(previous) == 1
+            and previous[0]["file"] == after_files[0].name and previous[0]["full_request_response_present"],
+        "new_marker_in_active_with_full_fidelity": len(current) == 1 and current[0]["file"] == ACTIVE_NAME
+            and current[0]["full_request_response_present"] and current[0]["response_code"] == 201,
+    }
+    (lab.evidence / "audit-backup-age-observation.raw.json").write_text(json.dumps({
+        "older_backup_name": old_path.name, "source_audit_id": oldest_retained["audit_id"],
+        "expected_age_days": MAXAGE_DAYS, "rotated_names_after": [file.name for file in after_files],
+        "recent_marker_records": [*previous, *current], "observations": flags,
+    }, indent=2, sort_keys=True) + "\n")
+    return flags

@@ -142,3 +142,17 @@ It does not establish suitable retention, age-based pruning, storage capacity,
 production durability, or loss-free delivery beyond the retained backup limit.
 See the [Kubernetes v1.36.1 audit logging guide](https://v1-36.docs.kubernetes.io/docs/tasks/debug/debug-cluster/audit/)
 and [pinned Lumberjack v2 write and backup behavior](https://github.com/natefinch/lumberjack/blob/v2.0/lumberjack.go).
+
+
+## Age-based audit backup retention
+
+After the backup-count comparison, the fixture retains the exact observed
+audit record in a backup named with an eight-day-old timestamp. It moves the
+other counted backup aside in the disposable scratch directory. The next
+case-owned ConfigMap write rotates the active file and yields room for both
+backups under the count setting. Kubernetes removes the old-named backup
+under its configured seven-day age limit, retains the recent rotation, and
+writes the full new marker to the active file. The result records both
+backup identities and the age/count contrast without adjusting a system
+clock. The adopted retention policy and proven retention objectives
+require actual storage and operational evidence.

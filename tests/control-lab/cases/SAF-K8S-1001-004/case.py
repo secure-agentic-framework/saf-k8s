@@ -53,6 +53,7 @@ SCOPE = (
     "writes to observe the 1-MiB file-rotation threshold and exact-once retention in active and "
     "rotated files. Four more bounded writes in that profile exercise the two-file backup cap "
     "and verify that the oldest added marker is pruned while the latest three remain once. "
+    "An age-check rotation expires an old-named owned backup while the number of files stays below the counted limit. "
     "These finite fixtures do not model sustained traffic, production capacity, "
     "retention adequacy, alert delivery, I/O pressure, real AI traffic, or cluster-wide coverage."
 )
@@ -435,6 +436,7 @@ def run(lab):
             rotation_result = rotation_runtime["run"](additional, temporary)
             backup_runtime = runpy.run_path(str(Path(__file__).with_name("audit_backup_limit.py")))
             backup_result = backup_runtime["run"](additional, temporary)
+            age_result = backup_runtime["exercise_age_limit"](additional, temporary)
         finally:
             additional.command("kind", "delete", "cluster", "--name", additional.cluster,
                                "--kubeconfig", str(additional.kubeconfig), timeout=90)
@@ -446,3 +448,6 @@ def run(lab):
         lab.check("positive", "The bounded audit-log backup cap prunes the oldest marker and retains the newest three records",
                   all(backup_result.values()) and cluster_deleted,
                   {**backup_result, "backup_limit_cluster_deleted": cluster_deleted})
+        lab.check("positive", "The audit age limit removes the old-named backup below the count threshold",
+                  all(age_result.values()) and cluster_deleted,
+                  {**age_result, "age_limit_cluster_deleted": cluster_deleted})

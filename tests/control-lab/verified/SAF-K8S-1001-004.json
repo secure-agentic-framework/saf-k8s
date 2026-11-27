@@ -4,8 +4,8 @@
   "catalog_sha256": "493dd2fccb76973d7c8b6f2f7c58473f4200b3a55539861126b63bcab5cbd2f6",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "ef6cb448b5bb3ceffff834f639b4dcc3732ef62a0d45c7659957482629f5bdc9",
-  "scope": "Two fresh, single-control-plane Kind Kubernetes v1.36.1 clusters compare the same seven measured API operations under broad and selective audit policies. The policy comparison checks finite event selection, retained write detail, and a reduction in sampled poll bytes. A third isolated cluster checks five TLS webhook event deliveries, one transient 503 retry, and native audit counters. A fourth isolated cluster makes two 400-KiB synthetic ConfigMap writes to observe the 1-MiB file-rotation threshold and exact-once retention in active and rotated files. Four more bounded writes in that profile exercise the two-file backup cap and verify that the oldest added marker is pruned while the latest three remain once. These finite fixtures do not model sustained traffic, production capacity, retention adequacy, alert delivery, I/O pressure, real AI traffic, or cluster-wide coverage.",
-  "cluster": "saf-lab-5d53a4c6adda",
+  "scope": "Two fresh, single-control-plane Kind Kubernetes v1.36.1 clusters compare the same seven measured API operations under broad and selective audit policies. The policy comparison checks finite event selection, retained write detail, and a reduction in sampled poll bytes. A third isolated cluster checks five TLS webhook event deliveries, one transient 503 retry, and native audit counters. A fourth isolated cluster makes two 400-KiB synthetic ConfigMap writes to observe the 1-MiB file-rotation threshold and exact-once retention in active and rotated files. Four more bounded writes in that profile exercise the two-file backup cap and verify that the oldest added marker is pruned while the latest three remain once. An age-check rotation expires an old-named owned backup while the number of files stays below the counted limit. These finite fixtures do not model sustained traffic, production capacity, retention adequacy, alert delivery, I/O pressure, real AI traffic, or cluster-wide coverage.",
+  "cluster": "saf-lab-3916433c4275",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -271,6 +271,20 @@
         "newest_event_in_active_file": true,
         "bounded_output": true,
         "backup_limit_cluster_deleted": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The audit age limit removes the old-named backup below the count threshold",
+      "matched": true,
+      "observed": {
+        "known_old_file_present_before_rotation": true,
+        "old_filename_and_recent_modification_time": true,
+        "rotation_would_not_exceed_backup_count": true,
+        "old_named_backup_absent": true,
+        "one_recent_rotation_present": true,
+        "new_marker_in_active_with_full_fidelity": true,
+        "age_limit_cluster_deleted": true
       }
     }
   ]
