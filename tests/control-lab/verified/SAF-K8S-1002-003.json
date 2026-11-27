@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-1002-003",
-  "catalog_revision": "82ec3173ae8c8eb1cc15dc102e79681c44573f58",
-  "catalog_sha256": "1da56289e4f344f65fa946b0099b200d7a52a7c4bea62ee17a32261bedc18861",
+  "catalog_revision": "dedc3bd584c3f8ce034b110c9fc2cdd4c5e07808",
+  "catalog_sha256": "05bad5b212e22ea094491dca60d5d4cc21ff6c4cddb0c432dfc5da909786bc07",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "19cbcfc550d34ef187e6e18bdada8dbfd56da69a016f646657c8c796630a2a4d",
-  "scope": "A disposable Kubernetes v1.36.1 Kind cluster reconciles native Prometheus Operator Prometheus, ServiceMonitor, and PodMonitor resources. Namespace-scoped discovery RBAC and selector labels limit scraping to two safe synthetic CPU workloads. Prometheus API queries prove no samples before monitor enrollment and exact per-workload stage, measured latency, and quality markers after enrollment. A supplementary check runs the checksum-pinned llama.cpp b9519 CPU server with a tiny pinned model, enables its native Prometheus exporter, and compares a fixed four-token completion with the observed increase in its generation-token counter. The case then observes target retirement and the absence of synthetic series under a 30-second lookback after each monitor removal. The native llama.cpp target remains healthy. GPU/DCGM telemetry, native training signals, production attribution, default query lookback, and durable retention have separate evidence requirements.",
-  "cluster": "saf-lab-835627af2059",
+  "scope": "A disposable Kubernetes v1.36.1 Kind cluster reconciles native Prometheus Operator Prometheus, ServiceMonitor, and PodMonitor resources. Namespace-scoped discovery RBAC and selector labels limit scraping to two safe synthetic CPU workload endpoints. Prometheus queries verify no samples before enrollment and bounded training-stage, measured latency, and quality markers from the original synthetic workloads after enrollment. A pinned llama.cpp b9519 CPU server exposes its native Prometheus metrics; the observed generation-token counter increase matches one fixed four-token completion. A pinned PyTorch 2.15.0+cpu training Job performs three optimizer steps on fixed synthetic data; Prometheus scrapes its app-owned optimizer-step counter and measured loss gauge, matched to an independent training receipt. The case also observes retirement of the two synthetic monitor targets and their instant-query series under a 30-second lookback while the llama.cpp target remains available. The reference records the selected CPU producer-to-scrape paths and fixture lifecycle. GPU/DCGM and other hardware telemetry, provider-deployed framework instrumentation, production attribution, default query lookback, and durable retention require separate evidence.",
+  "cluster": "saf-lab-b630eb68c102",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
