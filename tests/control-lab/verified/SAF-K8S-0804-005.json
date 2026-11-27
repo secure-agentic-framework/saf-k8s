@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0804-005",
-  "catalog_revision": "e661e7507c0934ded1afa9a0c7c280add042adc7",
-  "catalog_sha256": "ae8d7f52b03aff887877d626abd88aba00fe9cfdb0826c6d1d51d06f8cbcac6c",
+  "catalog_revision": "cd6f6d6d5a5066b658147171209b0e44ff35355c",
+  "catalog_sha256": "1da56289e4f344f65fa946b0099b200d7a52a7c4bea62ee17a32261bedc18861",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "dcb8e2dddfa3b419b5f58d19d29e9ad4b1bc1d44a108dfa81b2be365e488c613",
   "scope": "Actual Kubernetes RBAC release and revocation driven by modeled attestation decisions; no keys or secrets are released.",
-  "cluster": "saf-lab-4a162c26990a",
+  "cluster": "saf-lab-9cc339b00412",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -65,6 +65,18 @@
       "matched": true,
       "observed": {
         "later_read_denied": true
+      }
+    },
+    {
+      "phase": "recipient",
+      "claim": "Fresh approval releases only ciphertext bound to the intended recipient, and mismatched recipients produce no release record",
+      "matched": true,
+      "observed": {
+        "matching_decision_record_created": true,
+        "tuple_bound": true,
+        "matching_recipient_recovers_exact_marker": true,
+        "second_fixture_key_oaep_rejected": true,
+        "wrong_receipt_or_request_recipient_denied_without_record": true
       }
     }
   ]

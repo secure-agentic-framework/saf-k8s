@@ -90,3 +90,12 @@ def run(lab):
     (lab.evidence / "sensitive-release-observations.json").write_text(json.dumps({
         "modeled_attestation": True, "prior_target_unavailable": still_denied, "public_marker_released": received,
         "unrelated_reads_denied": narrow, "later_read_denied": after, "real_key_release_tested": False}, indent=2) + "\n")
+
+    # Additive software-only recipient binding witness; original checks above are unchanged.
+    import importlib.util as _importlib_util
+    from pathlib import Path as _Path
+    _recipient_spec = _importlib_util.spec_from_file_location(
+        "recipient_release", _Path(__file__).with_name("recipient_release.py"))
+    _recipient_release = _importlib_util.module_from_spec(_recipient_spec)
+    _recipient_spec.loader.exec_module(_recipient_release)
+    _recipient_release.run(lab)
