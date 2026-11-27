@@ -361,11 +361,62 @@ def run(lab):
     # Keep connection reuse and control-plane acknowledgement as separate outputs.
     proxy_ack = wait_for_proxy_ack(lab, BACKEND)
     session_source_ack = wait_for_proxy_ack(lab, session_name)
-    # Keep only the approved route on the established connection after policy
-    # activation. The old connection is never used for a disallowed-path probe.
+    # Observe the approved path after activation before checking the second route.
     session_after_policy = session_request(lab, session_name, ALLOWED_PATH, "session-after-policy")
     session_after_connection = logged_peer(
         lab, "approved", ALLOWED_PATH, "session-after-policy", 200)
+    # Exercise the newly acknowledged route restriction on the same already-open
+    # application connection, then observe the allowed route after its 403.
+    session_denied = session_request(
+        lab, session_name, OTHER_PATH, "session-denied-after-policy")
+    session_denied_connection = logged_peer(
+        lab, "approved", OTHER_PATH, "session-denied-after-policy", 403)
+    session_allowed_after_denial = session_request(
+        lab, session_name, ALLOWED_PATH, "session-allowed-after-denial")
+    session_allowed_after_denial_connection = logged_peer(
+        lab, "approved", ALLOWED_PATH, "session-allowed-after-denial", 200)
+    existing_path_enforcement = {
+        "denied_path_gets_exact_403_after_policy_ack": (
+            session_denied.get("status") == 403
+            and session_denied.get("body") == "RBAC: access denied"
+            and session_denied_connection is not None),
+        "denied_request_uses_existing_application_socket": (
+            session_denied.get("request_used_prior_app_socket") is True
+            and session_denied.get("request_local_port") == session_after_policy.get("local_port")),
+        "destination_proxy_confirms_peer_and_denied_request": session_denied_connection is not None,
+        "approved_followup_uses_same_application_socket": (
+            session_allowed_after_denial.get("request_used_prior_app_socket") is True
+            and session_allowed_after_denial.get("request_local_port") == session_denied.get("local_port")),
+        "approved_route_after_denial_remains_200": (
+            session_allowed_after_denial.get("status") == 200
+            and session_allowed_after_denial.get("body") == "saf-identity-marker"
+            and session_allowed_after_denial_connection is not None),
+    }
+    path_lifecycle = {
+        "application_socket_open_after_denied_response": session_denied.get("socket_open_after_response"),
+        "allowed_followup_used_prior_application_socket":
+            session_allowed_after_denial.get("request_used_prior_app_socket"),
+        "denied_request_socket_local_port": session_denied.get("request_local_port"),
+        "socket_state_before_allowed_followup": session_denied.get("local_port"),
+        "allowed_followup_request_local_port": session_allowed_after_denial.get("request_local_port"),
+        "allowed_followup_response_local_port": session_allowed_after_denial.get("local_port"),
+        "destination_connection_id_before_denial": session_after_connection,
+        "destination_connection_id_for_denial": session_denied_connection,
+        "destination_connection_changed_before_denial": (
+            session_after_connection != session_denied_connection),
+        "destination_connection_id_for_allowed_followup": session_allowed_after_denial_connection,
+        "destination_connection_changed_after_denial": (
+            session_denied_connection != session_allowed_after_denial_connection),
+    }
+    (lab.evidence / "established-path-enforcement-observations.json").write_text(
+        json.dumps({"policy_acknowledged_before_probe": True,
+                    "denied_path": session_denied,
+                    "allowed_followup": session_allowed_after_denial,
+                    "checks": existing_path_enforcement,
+                    "observed_lifecycle": path_lifecycle}, indent=2, sort_keys=True) + "\n")
+    lab.check("green", "The established application connection enforces the updated request path policy",
+              all(existing_path_enforcement.values()),
+              existing_path_enforcement)
     # Earlier clients can retain their mesh upstream connections across an xDS update.
     # Use new outbound proxies with the same identities for the after-policy matrix.
     for name in ("approved", "other"):

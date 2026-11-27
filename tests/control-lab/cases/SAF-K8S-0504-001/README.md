@@ -10,9 +10,10 @@ both routes before policy activation. After activation, two fresh client
 proxies use the same ServiceAccounts. The approved identity still reaches the
 allowed route, and the other three combinations receive HTTP 403.
 
-The evidence covers the fresh-client authorization matrix and one established
-HTTP/1.1 application connection on the approved route. See the approved
-connection continuation and replacement section for the observed lifecycle.
+The evidence covers the fresh-client authorization matrix, plus the established
+HTTP/1.1 application connection on both an approved and a denied route after
+policy acknowledgement. See the connection continuation and replacement
+section for observed lifecycle detail.
 
 [Istio authorization](https://istio.io/latest/docs/reference/config/security/authorization-policy/)
 · [Istio peer authentication](https://istio.io/latest/docs/reference/config/security/peer_authentication/)
@@ -40,7 +41,14 @@ Use this checklist for an owner-approved review of one deployed Istio mesh and r
 The approved HTTP/1.1 request is repeated over the same application socket
 after policy reconciliation. The raw fixture record preserves the destination
 Envoy connection IDs and any change independently. Continued use of the
-application socket permits a different destination connection. The owner
+application socket permits a different destination connection. The additive
+check then sends the fixed `/other` request on that same already-open socket and
+requires the destination proxy to return HTTP 403 for the approved identity.
+It follows with the fixed `/allow` request and requires HTTP 200. The separate
+`established-path-enforcement-observations.json` records the exact route/status
+connection IDs and whether the 403 response leaves the application and
+destination connections open for the allowed follow-up. It does not infer same
+connection use from the later request if the denied response closes it. The owner
 then deletes the exact client Pod using a 20-second grace period. Both Pod
 specs carry the pinned native-sidecar lifecycle hook. The approved
 replacement has a distinct UID and returns the fixed marker using the same
@@ -49,6 +57,16 @@ approved identity over a new destination connection.
 The pinned Istio 1.32.0 `istioctl proxy-status --output json` output provides
 structured status for the exact case-owned source and destination proxies.
 The test checks CDS, LDS, EDS, and RDS status after policy activation and
-after reconnection. The scope is the approved route and named client
-replacement. Fleet deployment coverage, existing in-flight streams, and
-actual pooled connections require adopter evidence.
+after reconnection. The composed candidate has 17 checks: the 16 published
+assertions plus one grouped established-request route check. This evidence
+covers only fixed HTTP/1.1 routes in the owned fixture. Fleet deployment
+coverage, other protocols, existing in-flight streams, and unrelated pooled
+connections require adopter evidence.
+
+The application socket and destination proxy connection are observed
+independently. The first live observation retained the same application socket
+for the approved, denied, and approved requests while Envoy reported a new
+destination connection for the denied request. The assertion requires
+the application connection to carry the expected decisions and the destination
+proxy to report each request with the expected identity, path, and response.
+The raw record keeps the individual destination connection identifiers for each run.

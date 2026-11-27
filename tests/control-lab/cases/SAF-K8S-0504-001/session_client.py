@@ -9,6 +9,8 @@ import json
 TARGET = "saf-identity-target"
 ALLOWED = {("/allow", "session-before-policy"),
            ("/allow", "session-after-policy"),
+           ("/other", "session-denied-after-policy"),
+           ("/allow", "session-allowed-after-denial"),
            ("/allow", "session-reconnected")}
 backend = HTTPConnection(TARGET, 8080, timeout=6)
 lock = Lock()
@@ -42,6 +44,7 @@ class Handler(BaseHTTPRequestHandler):
             previous_socket = backend.sock
             previous_fd = previous_socket.fileno() if previous_socket is not None else None
             previous_local = previous_socket.getsockname() if previous_socket is not None else None
+            request_used_prior_socket = previous_socket is not None
             backend.request("GET", path, headers={"X-SAF-CASE": marker})
             response = backend.getresponse()
             body = response.read(1024).decode().strip()
@@ -53,7 +56,10 @@ class Handler(BaseHTTPRequestHandler):
                       and previous_local == current_local)
             observed = {"status": response.status, "body": body,
                         "local_port": current_local[1] if current_local else None,
-                        "same_socket_as_prior_request": reused}
+                        "same_socket_as_prior_request": reused,
+                        "request_used_prior_app_socket": request_used_prior_socket,
+                        "request_local_port": previous_local[1] if previous_local else None,
+                        "socket_open_after_response": current_socket is not None}
 
         payload = json.dumps(observed, sort_keys=True).encode()
         self.send_response(200)

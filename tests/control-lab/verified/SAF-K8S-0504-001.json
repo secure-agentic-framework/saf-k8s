@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0504-001",
-  "catalog_revision": "8ca957210cb5ed5a74374a1779f0c03a4a7f65c8",
-  "catalog_sha256": "ee384744c842f8d644f583a5aaca5eaaa6b5317fc5eec912d037736ad0661d10",
+  "catalog_revision": "5a51c447ad7d34f16572ee53da2609f42629134e",
+  "catalog_sha256": "2a4f9e4bc3c869a7a1bdeff571919ff8fd3cbc0f2b1964ced26040db14837309",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "741d6736c68e18e1ac7f84995b551cb983a879ab04bda31155afda202c564e5f",
   "scope": "A fresh local Kind Kubernetes v1.36.1 cluster with Istio 1.32.0 sidecars and namespace-owned ServiceAccounts. Two workload identities reach the same two owned HTTP routes before workload policy activation. The destination proxy authenticates exact SPIFFE URI SANs. Requests from fresh client proxies after a scoped authorization change distinguish the approved identity and path from independent denied controls. A separate approved identity reuses one owned HTTP/1.1 client socket for an allowed request across policy activation, then the owner gracefully replaces that exact fixture Pod and reconnects with the same identity. Application-socket reuse, destination-proxy connection IDs, injected drain hook, and version-pinned xDS acknowledgement are captured separately. Existing in-flight streams and production mesh policy coverage need further evidence.",
-  "cluster": "saf-lab-49efe024b2ef",
+  "cluster": "saf-lab-0c90a53396b5",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -120,6 +120,18 @@
         "http_status": 200,
         "exact_body_matched": true,
         "destination_proxy_confirmed_mtls_peer": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "The established application connection enforces the updated request path policy",
+      "matched": true,
+      "observed": {
+        "denied_path_gets_exact_403_after_policy_ack": true,
+        "denied_request_uses_existing_application_socket": true,
+        "destination_proxy_confirms_peer_and_denied_request": true,
+        "approved_followup_uses_same_application_socket": true,
+        "approved_route_after_denial_remains_200": true
       }
     },
     {
