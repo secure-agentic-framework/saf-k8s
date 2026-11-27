@@ -2,11 +2,12 @@
 import json
 import os
 from pathlib import Path
+import ssl
 import sys
 import time
 from datetime import timedelta
 from urllib.error import HTTPError, URLError
-from urllib.request import Request, urlopen
+from urllib.request import ProxyHandler, Request, HTTPSHandler, build_opener, urlopen
 
 
 WORKER_ID = os.environ["FIXTURE_WORKER_ID"]
@@ -14,6 +15,10 @@ RANK_BY_WORKER = {"worker-a": 0, "worker-b": 1}
 REQUEST_KEY_BY_WORKER = {"worker-a": "worker_a_valid", "worker-b": "worker_b_valid"}
 REQUESTS = Path(__file__).with_name("requests.json")
 TOKEN_PATH = Path("/run/fixture-identity/token")
+API_TOKEN_PATH = Path("/run/fixture-identity/api-token")
+API_CA_PATH = Path("/run/fixture-identity/ca.crt")
+NAMESPACE = "saf-0901-002"
+GATE = "gloo-collective-start-gate"
 
 
 def post(url, body, token):
@@ -39,6 +44,28 @@ def wait_enrollment_health(base):
             pass
         time.sleep(0.25)
     raise RuntimeError("enrollment endpoint did not become ready")
+
+
+def wait_collective_gate():
+    token = API_TOKEN_PATH.read_text(encoding="utf-8").strip()
+    host = os.environ["KUBERNETES_SERVICE_HOST"]
+    port = os.environ["KUBERNETES_SERVICE_PORT_HTTPS"]
+    url = (f"https://{host}:{port}/api/v1/namespaces/{NAMESPACE}/configmaps/{GATE}")
+    tls = ssl.create_default_context(cafile=str(API_CA_PATH))
+    client = build_opener(ProxyHandler({}), HTTPSHandler(context=tls))
+    deadline = time.monotonic() + 120
+    while time.monotonic() < deadline:
+        request = Request(url, headers={"Authorization": "Bearer " + token,
+                                        "Accept": "application/json"})
+        try:
+            with client.open(request, timeout=5) as response:
+                gate = json.loads(response.read(4096))
+        except (HTTPError, URLError, OSError, TimeoutError, ValueError):
+            raise RuntimeError("collective start gate read failed")
+        if gate.get("data", {}).get("start") == "go":
+            return
+        time.sleep(0.2)
+    raise RuntimeError("collective start gate expired")
 
 
 def main():
@@ -70,6 +97,12 @@ def main():
                                             "round_id": "round-7",
                                             "rank": expected_rank}):
             raise RuntimeError("worker was not assigned the expected fixture rank")
+
+        # Hold both ranks at an authenticated Kubernetes API read gate while
+        # the host installs exact Pod-IP-pair counters on their WireGuard nodes.
+        print("SAF_GLOO_READY " + json.dumps({"worker_id": WORKER_ID,
+              "rank": expected_rank, "enrolled": True}, sort_keys=True), flush=True)
+        wait_collective_gate()
 
         stage = "collective"
         vector = request_body["vector"]

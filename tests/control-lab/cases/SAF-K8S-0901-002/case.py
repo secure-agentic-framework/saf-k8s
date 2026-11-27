@@ -5,6 +5,8 @@ import time
 
 
 HERE = Path(__file__).resolve().parent
+PROFILE_CASE = HERE.parent / "SAF-K8S-0502-002" / "case.py"
+INSTALLS_CNI = True
 NODE_IMAGE = (
     "kindest/node:v1.36.1@sha256:"
     "3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5"
@@ -18,7 +20,16 @@ SERVICE = "aggregation"
 PORT = 8080
 WORKER_LABEL = "saf-k8s.example/0901-002-role"
 SCOPE = (
-    "One disposable Kind cluster on Kubernetes v1.36.1 hosts two synthetic worker Pods, "
+    "One disposable two-node Kind v0.32.0 cluster on Kubernetes v1.36.1 runs the exact "
+    "published SAF-K8S-0502-002 Cilium 1.20.5 WireGuard profile before this control's "
+    "workloads are created. Its four profile assertions remain separate from this case's "
+    "19 existing application assertions. One added Gloo path assertion requires a total "
+    "of 24 matched checks. The Gloo workers are pinned to different nodes and an "
+    "additional passive per-pair WireGuard counter check binds their real fixed collective "
+    "to the cross-node Cilium tunnel. This demonstrates Cilium-managed cross-node traffic only. "
+    "It does not demonstrate Gloo-native TLS, Gloo peer authentication, same-node encryption, "
+    "production route coverage, or production identity governance. "
+    "The cluster hosts two synthetic worker Pods, "
     "one observer Pod, and one case-owned ClusterIP aggregation mock. The mock has an "
     "Kubernetes TokenReview verification of audience-scoped Pod identities, an enrollment-to-round table, "
     "and accepts only a fixed v1 JSON schema with "
@@ -34,6 +45,20 @@ SCOPE = (
     "with anomaly screening disabled and enabled while schema and assignment checks stay enabled. "
     "After the 15 existing checks, an isolated TLS-only mock endpoint compares one fixed authenticated vector over verified TLS with cleartext refusal and a CA-trusted alternate-name certificate rejection."
 )
+
+
+def _load_profile_case():
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("saf_0901_002_wireguard_profile", PROFILE_CASE)
+    if spec is None or spec.loader is None:
+        raise RuntimeError("published two-node WireGuard profile is unavailable")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def prepare_kind(_lab, temporary):
+    return _load_profile_case().prepare_kind(_lab, temporary)
 
 
 def kubectl(lab, *args, timeout=35, allow_failure=False, **kwargs):
@@ -188,6 +213,9 @@ def read(lab, key):
 
 
 def run(lab):
+    # Reuse the exact published two-node Cilium profile before creating any
+    # 0901 workloads. It leaves WireGuard enabled for the subsequent Gloo path.
+    _load_profile_case().run(lab)
     verify_platform(lab)
     apply(lab, {"apiVersion": "v1", "kind": "Namespace",
                 "metadata": {"name": NAMESPACE,

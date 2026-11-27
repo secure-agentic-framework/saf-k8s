@@ -2,7 +2,7 @@
 
 ## Executable slice
 
-This draft exercises a narrow request-validation slice of the pinned control in a disposable Kind v0.32.0 cluster running Kubernetes v1.36.1. The node and every fixture Pod use digest-pinned images. It creates one case-owned ClusterIP aggregation endpoint, two synthetic worker clients, and a distinct observer client in one namespace. The endpoint has a fixed in-memory assignment table (`worker-a` and `worker-b` assigned to `round-7`) and a case-defined JSON schema: request ID, worker ID, assigned round, schema version, and a three-element finite numeric vector whose components are within `[-0.05, 0.05]`.
+This scratch fixture first replays the exact four-check SAF-K8S-0502-002 two-node Cilium 1.20.5 WireGuard profile, then runs the 19 existing SAF-K8S-0901-002 application assertions and one added Gloo path assertion. The node and every fixture Pod use digest-pinned images. It creates one case-owned ClusterIP aggregation endpoint, two synthetic worker clients, and a distinct observer client in one namespace. The endpoint has a fixed in-memory assignment table (`worker-a` and `worker-b` assigned to `round-7`) and a case-defined JSON schema: request ID, worker ID, assigned round, schema version, and a three-element finite numeric vector whose components are within `[-0.05, 0.05]`.
 
 The red baseline starts the same mock with assignment and schema enforcement disabled. It receives three harmless fixed requests: a correctly shaped request from an enrolled synthetic worker for the wrong round, a short vector, and an out-of-range vector. Each receives the permissive mock's accepted response; only safely shaped, in-range values enter its arithmetic. The case captures these receipts and raw mock events, then replaces only the aggregator Pod with enforcement enabled. The Service address and client Pods remain the same. Green repeats the requests and expects one assignment rejection and two schema/range rejections. The un-enrolled observer is rejected separately before contribution accounting. Positive checks send one ordinary assigned update from each worker. A separate observer Pod reads the exact mock output and accounting twice; the expected result is a mean vector of `[0.015, -0.01, 0.01]`, two accepted contributions, and stable counters of five enrolled-worker requests, two accepts, and three rejects split by reason.
 
@@ -60,7 +60,7 @@ These fixed values are ordinary numeric examples, not generated malicious
 training inputs. The test checks only this authored deterministic fixture
 policy; it does not validate a learned anomaly detector, a statistical
 distribution, real model-specific thresholds, false-positive rates, poisoning
-or Byzantine resistance, or deployment response. The case includes 19 checks, including the two CPU Gloo checks below.
+or Byzantine resistance, or deployment response. The application case retains 19 checks. This scratch runner adds four profile checks and one Gloo path-attribution check, for 24 total.
 Screening-off receipts are written as `screening-off-policy.raw.json` and
 related `screening-off-*` files; screening receipts use `screening-policy.raw.json`
 and related screening request/readback files under the evidence directory.
@@ -116,16 +116,25 @@ returns a fixed rank after TokenReview and assigned-round validation.
 
 The runner builds and imports a CPU runtime using the case's hash-locked
 wheel set and an offline Docker build. The module checks PyTorch `2.15.0+cpu`
-and Gloo availability in each worker. The two Pods perform exactly one
-length-three `torch.distributed` Gloo SUM each, with a 30-second process-group
+and Gloo availability in each worker. The two Pods are pinned to different
+Cilium nodes. They complete the existing TokenReview enrollment, then wait at
+a narrowly authorized read-only Kubernetes API gate. Before releasing it, the
+harness installs passive `cilium_wg0` ingress counters filtered to the exact
+worker Pod IP pair and TCP, then confirms both counters start at zero. This
+keeps enrollment/setup traffic outside the measured interval. The Pods perform
+exactly one length-three `torch.distributed` Gloo SUM each, with a 30-second process-group
 timeout. Their expected sum is `[0.03, -0.02, 0.02]`; the expected mean remains
 the published mock result `[0.015, -0.01, 0.01]`. Resource requests/limits are
 bounded to 250m/500m CPU and 512Mi/1Gi memory per worker. The reducer is not a
 model or training loop.
 
-This checks the library collective on two legitimate enrolled worker Pods. It
-does not make Gloo authenticate peers or prove that the deployed network path
-matches this case. Production peer authentication, worker identity lifecycle,
+The added path assertion binds exact worker Pod UIDs/IPs/nodes, the rank-zero
+EndpointSlice, reciprocal Cilium peer coverage and recent handshakes, and
+positive per-pair counters on both WireGuard interfaces to the completed
+collective. This checks cross-node Cilium WireGuard protection for this fixed
+traffic in the disposable case. It does not make Gloo authenticate peers or
+use Gloo-native TLS. Cilium node-peer encryption is separate from application
+TokenReview enrollment. Production peer authentication, worker identity lifecycle,
 real collective membership controls, framework topology, robust aggregation,
 gradient anomaly behavior, and model-quality outcomes remain adopter evidence.
 The two additive checks require exact rank/admission events and the same
