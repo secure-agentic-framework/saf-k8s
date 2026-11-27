@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-1001-007",
-  "catalog_revision": "fff7bcbb8d37ceab7e9ae9e6884cff5725ae27cb",
-  "catalog_sha256": "65f757846d484079842769b4cec9180fc3a96ab15a5106c821a08ca7293441b6",
+  "catalog_revision": "ba1bf3f3be19c1ee8709a79d6b4b516d238a6e2f",
+  "catalog_sha256": "caa76efc6fa0d98e355098428f9ca91dbd8f04df3ace9709aaa0b9f814dc2f6b",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "fae14622a867ccba17728cfb10cd5188ab094099f8868c7492272538453e405e",
-  "scope": "Kubernetes Metadata audit versus scoped telemetry for synthetic HTTP workloads in two pods on one local kind node, plus one isolated pinned-Istio synthetic access-log request. The case uses fictional model information, an inert prompt marker, and a pod-local collector. A separate harmless JSON artifact read is bound to a projected workload identity and an independent API receipt. The additive native fixture runs one pinned llama.cpp b9519 CPU model and observes its model-load path, readiness, and one fixed bounded request. It does not establish GPU process accounting, production mesh rollout, forwarding, alerting, or retention. One additional Pod reads only a fictional metadata JSON descriptor and independently patches a named case receipt with a minimized event bound to its projected ServiceAccount identity. The native server supplement uses CPU only and does not provide GPU process telemetry.",
-  "cluster": "saf-lab-86fbbe225049",
+  "scope": "Kubernetes Metadata audit versus scoped telemetry for synthetic HTTP workloads in two pods on one local kind node, plus one isolated pinned-Istio synthetic access-log request. The case uses fictional model information, an inert prompt marker, and a pod-local collector. A separate harmless JSON artifact read is bound to a projected workload identity and an independent API receipt. The additive native fixture runs one pinned llama.cpp b9519 CPU model and observes its model-load path, readiness, and one fixed bounded request. It also routes one fixed native inference request through an owned mesh Service and correlates its destination metadata log by a fixed case header. It does not establish GPU process accounting, production mesh rollout, forwarding, alerting, or retention. One additional Pod reads only a fictional metadata JSON descriptor and independently patches a named case receipt with a minimized event bound to its projected ServiceAccount identity. The native server supplement uses CPU only; one fixed inference completion is also routed through the pinned Istio sidecars and correlated by a case-only request header. Neither witness provides GPU process telemetry or production forwarding/retention evidence.",
+  "cluster": "saf-lab-626f9372df8b",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -161,6 +161,18 @@
         "native_completion_accounting_equals_four": true,
         "native_startup_output_not_retained": true,
         "prompt_or_response_text_not_retained": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "One actual bounded CPU model completion is correlated with its metadata-only destination Envoy record",
+      "matched": true,
+      "observed": {
+        "native_completion_success_and_four_token_accounting": true,
+        "one_exact_ready_service_endpoint_uses_model_pod_uid": true,
+        "destination_envoy_record_matches_method_path_status_and_correlator": true,
+        "pinned_mesh_proxies_and_native_model_identity_match": true,
+        "prompt_or_response_text_retained": false
       }
     }
   ]

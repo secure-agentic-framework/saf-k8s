@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 import re
 import subprocess
+import time
 
 
 COMPANION = "SAF-K8S-0903-004"
@@ -16,6 +17,32 @@ COMPANION_SHA256 = {
 MODEL_PATH = "/models/stories15M_MOE-F16.gguf"
 MODEL_SHA256 = "1240dfc1957df9f3550dd6c1d9e64b466fc2f452d8bc34bd4e45e1a1e2ca6055"
 NAMESPACE = "saf-test"
+ISTIO_PROXY_IMAGE = (
+    "docker.io/istio/proxyv2:1.32.0@sha256:"
+    "b8d47c6d8d6e4b3fee7ae1e6f44339ec13091c24dc07f113a35efb0141a688d0"
+)
+MESH_SERVICE = "saf-llama-mesh"
+MESH_CORRELATOR = "SAF1001-NATIVE-INFER-001"
+MESH_CLIENT_PROGRAM = r'''import json,sys,urllib.request
+host,correlator=sys.argv[1:3]
+opener=urllib.request.build_opener(urllib.request.ProxyHandler({}))
+payload={"prompt":"Once upon a time","n_predict":4,"temperature":0.0,
+         "seed":42,"ignore_eos":True,"return_tokens":True,"cache_prompt":False}
+req=urllib.request.Request("http://"+host+":8080/completion",
+    data=json.dumps(payload,separators=(",",":" )).encode(),
+    headers={"Content-Type":"application/json","X-SAF-Case":correlator},method="POST")
+with opener.open(req,timeout=25) as response:
+    status=response.status
+    raw=response.read(65536)
+    if len(raw)>=65536: raise RuntimeError("bounded fixture response exceeded limit")
+result=json.loads(raw)
+count=result.get("tokens_predicted")
+if status!=200 or count!=4 or result.get("stop_type")!="limit":
+    raise RuntimeError("bounded fixture completion accounting differed")
+print(json.dumps({"status":status,"tokens_predicted":count,
+    "stop_type":result.get("stop_type"),"request_bytes":len(req.data),"response_bytes":len(raw),
+    "correlation_id":correlator,"response_text_retained":False},sort_keys=True))
+'''
 
 
 def _load_module(path: Path, module_name: str):
@@ -52,6 +79,13 @@ def _pod_json(lab):
     return json.loads(result.stdout)
 
 
+def _named_pod_json(lab, name):
+    result = _kubectl(lab, "get", "pod", name, "-o", "json")
+    if result.returncode:
+        lab.block(f"The owned Pod {name} could not be read")
+    return json.loads(result.stdout)
+
+
 def _digest_ref(value):
     value = value.removeprefix("docker-pullable://")
     digest = value.rsplit("@", 1)[-1] if "@" in value else ""
@@ -61,6 +95,14 @@ def _digest_ref(value):
 def _container_status(pod):
     return next((item for item in pod.get("status", {}).get("containerStatuses", [])
                  if item.get("name") == "llama-server"), {})
+
+
+def _proxy_images(pod):
+    # Istio 1.32 injects its proxy as a restartable init container (native
+    # sidecar), so it is not necessarily in spec.containers.
+    spec = pod.get("spec", {})
+    containers = spec.get("containers", []) + spec.get("initContainers", [])
+    return [item.get("image") for item in containers if item.get("name") == "istio-proxy"]
 
 
 def _same_runtime_identity(before, after, expected_uid, expected_image_id):
@@ -74,6 +116,116 @@ def _same_runtime_identity(before, after, expected_uid, expected_image_id):
         and before_status.get("imageID") == expected_image_id
         and after_status.get("imageID") == expected_image_id
     )
+
+
+def _run_native_inference_mesh_correlation(
+        lab, runtime, server_pod_uid, expected_image_id, expected_container_id):
+    """Correlate one actual fixed model completion with metadata-only destination Envoy output."""
+    service = json.loads(_kubectl(lab, "get", "service", MESH_SERVICE, "-o", "json").stdout)
+    service_ip = service.get("spec", {}).get("clusterIP")
+    if (service.get("spec", {}).get("selector") != {"fixture": runtime.SERVER}
+            or len(service.get("spec", {}).get("ports", [])) != 1
+            or service.get("spec", {}).get("ports", [{}])[0].get("port") != 8080
+            or not service_ip or service_ip == "None"):
+        lab.block("The model Service is not bound to the exact one-Pod fixture selector")
+    endpoint_slices = []
+    deadline = time.monotonic() + 30
+    while time.monotonic() < deadline:
+        response = _kubectl(lab, "get", "endpointslices",
+            "-l", f"kubernetes.io/service-name={MESH_SERVICE}", "-o", "json")
+        if response.returncode:
+            lab.block("Could not read the case-owned model Service EndpointSlices")
+        endpoint_slices = json.loads(response.stdout).get("items", [])
+        all_ready = [ep for es in endpoint_slices for ep in es.get("endpoints", [])
+            if ep.get("conditions", {}).get("ready") is True]
+        exact = [ep for es in endpoint_slices for ep in es.get("endpoints", [])
+            if ep.get("targetRef", {}).get("kind") == "Pod"
+            and ep.get("targetRef", {}).get("uid") == server_pod_uid
+            and ep.get("conditions", {}).get("ready") is True]
+        # Bind the Service endpoint to the exact live model server Pod UID.
+        if len(exact) == 1 and len(all_ready) == 1:
+            break
+        time.sleep(0.5)
+    else:
+        lab.block("The model Service did not resolve to exactly one Ready endpoint for the exact server Pod UID")
+    client_pod = _named_pod_json(lab, runtime.CLIENT)
+    client_uid = client_pod.get("metadata", {}).get("uid")
+    proxy_images = _proxy_images(client_pod)
+    server_pod = _pod_json(lab)
+    server_proxy_images = _proxy_images(server_pod)
+    if (not client_uid or proxy_images != [ISTIO_PROXY_IMAGE]
+            or server_proxy_images != [ISTIO_PROXY_IMAGE]
+            or _container_status(server_pod).get("imageID") != expected_image_id
+            or _container_status(server_pod).get("containerID") != expected_container_id):
+        lab.block("The mesh client/server or pinned native container identity did not match the fixture")
+    execution = _kubectl(lab, "exec", "pod/" + runtime.CLIENT, "--", "python", "-B", "-c",
+        MESH_CLIENT_PROGRAM, f"{MESH_SERVICE}.{NAMESPACE}.svc.cluster.local", MESH_CORRELATOR,
+        timeout=45)
+    try:
+        client_record = json.loads(execution.stdout) if execution.returncode == 0 else {}
+    except json.JSONDecodeError:
+        client_record = {}
+    # Completion can reach the client before Envoy's access log is readable.
+    matching_lines = []
+    deadline = time.monotonic() + 15
+    while time.monotonic() < deadline:
+        log_result = _kubectl(lab, "logs", "pod/" + runtime.SERVER, "-c", "istio-proxy",
+                              "--since=2m", timeout=10)
+        if log_result.returncode:
+            lab.block("Could not inspect the bounded destination Envoy access log")
+        matching_lines = [line for line in log_result.stdout.splitlines()
+                          if line.startswith("SAF1001|") and MESH_CORRELATOR in line]
+        if matching_lines:
+            break
+        time.sleep(0.3)
+    fields = matching_lines[0].split("|") if len(matching_lines) == 1 else []
+    try:
+        received, sent = int(fields[4]), int(fields[5])
+        byte_fields_valid = (received > 0 and sent > 0
+                            and received == client_record.get("request_bytes")
+                            and sent == client_record.get("response_bytes"))
+    except (IndexError, ValueError):
+        received = sent = 0
+        byte_fields_valid = False
+    log_match = (len(fields) == 7 and fields[0] == "SAF1001" and fields[1] == "POST"
+        and fields[2] == "/completion" and fields[3] == "200"
+        and fields[6] == MESH_CORRELATOR and byte_fields_valid)
+    server_after = _pod_json(lab)
+    same_native_identity = (server_after.get("metadata", {}).get("uid") == server_pod_uid
+        and _container_status(server_after).get("imageID") == expected_image_id
+        and _container_status(server_after).get("containerID") == expected_container_id)
+    request_ok = (execution.returncode == 0 and client_record.get("status") == 200
+        and client_record.get("tokens_predicted") == 4 and client_record.get("stop_type") == "limit"
+        and client_record.get("correlation_id") == MESH_CORRELATOR
+        and client_record.get("response_text_retained") is False)
+    success = (request_ok and log_match and same_native_identity
+        and len(exact) == 1 and proxy_images == [ISTIO_PROXY_IMAGE]
+        and server_proxy_images == [ISTIO_PROXY_IMAGE])
+    evidence = {"scope": "one fixed CPU model completion routed through one case-owned Istio Service, with metadata-only destination access log",
+        "namespace": NAMESPACE, "service": {"name": MESH_SERVICE, "uid": service.get("metadata", {}).get("uid"),
+            "selector": service.get("spec", {}).get("selector"), "cluster_ip": service_ip},
+        "endpoint_slice_uids": [es.get("metadata", {}).get("uid") for es in endpoint_slices],
+        "ready_endpoints_matching_exact_server_pod": len(exact),
+        "ready_endpoint_count": len(all_ready),
+        "server_pod_uid": server_pod_uid, "server_image_id": expected_image_id,
+        "client_pod_uid": client_uid, "client_proxy_images": proxy_images,
+        "server_proxy_images": server_proxy_images, "client_record": client_record,
+        "correlator": MESH_CORRELATOR, "matching_destination_log_lines": matching_lines,
+        "request_bytes": received, "response_bytes": sent,
+        "native_server_uid_and_image_stable": same_native_identity,
+        "request_metadata_matches": log_match, "request_completion_matches": request_ok,
+        "prompt_or_completion_text_retained": False,
+        "access_log_body_directives_enabled": False,
+        "gpu_telemetry": False, "production_forwarding_or_retention": False}
+    (lab.evidence / "native-inference-mesh-correlation.json").write_text(
+        json.dumps(evidence, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    lab.check("positive", "One actual bounded CPU model completion is correlated with its metadata-only destination Envoy record",
+        success, {"native_completion_success_and_four_token_accounting": request_ok,
+            "one_exact_ready_service_endpoint_uses_model_pod_uid": len(exact) == 1,
+            "destination_envoy_record_matches_method_path_status_and_correlator": log_match,
+            "pinned_mesh_proxies_and_native_model_identity_match": same_native_identity
+                and proxy_images == [ISTIO_PROXY_IMAGE] and server_proxy_images == [ISTIO_PROXY_IMAGE],
+            "prompt_or_response_text_retained": False})
 
 
 def run_native_model_event(lab, case_dir: Path):
@@ -100,7 +252,12 @@ def run_native_model_event(lab, case_dir: Path):
                          payload=json.dumps(configmap), timeout=20)
     if cm_result.returncode:
         lab.block("Could not create the bounded client fixture ConfigMap")
+    # Istio is installed by the earlier mesh fixture. Label only this case
+    # namespace before creating the two exact native test Pods.
+    _kubectl(lab, "label", "namespace", NAMESPACE, "istio-injection=enabled", "--overwrite")
     server_pod = runtime._server_pod(image)
+    server_pod.setdefault("metadata", {}).setdefault("annotations", {})[
+        "sidecar.istio.io/proxyImage"] = ISTIO_PROXY_IMAGE
     model_args = server_pod["spec"]["containers"][0].get("args", [])
     if not ("--model" in model_args and model_args[model_args.index("--model") + 1] == MODEL_PATH):
         lab.block("The serving Pod does not use the pinned model path")
@@ -117,6 +274,16 @@ def run_native_model_event(lab, case_dir: Path):
                            if item.get("name") == "llama-server"), {})
     if not pod_uid or not pod_ip or not runtime_image_id:
         lab.block("The owned serving Pod lacks UID, Pod IP, or runtime image identity")
+    service = {"apiVersion": "v1", "kind": "Service",
+        "metadata": {"name": MESH_SERVICE, "namespace": NAMESPACE,
+                     "labels": {"saf-k8s.example/control": "SAF-K8S-1001-007",
+                                "saf-k8s.example/fixture": "native-inference-mesh"}},
+        "spec": {"type": "ClusterIP", "ports": [{"name": "http", "port": 8080,
+                    "protocol": "TCP", "targetPort": 8080}],
+                 "selector": {"fixture": runtime.SERVER}}}
+    service_result = _kubectl(lab, "create", "-f", "-", payload=json.dumps(service), timeout=20)
+    if service_result.returncode:
+        lab.block("Could not create the owned Service for the native inference correlation")
     initial_status = next((item for item in container_statuses if item.get("name") == "llama-server"), {})
     initial_container_id = initial_status.get("containerID")
     if not initial_container_id:
@@ -145,7 +312,10 @@ def run_native_model_event(lab, case_dir: Path):
     same_container_after_hash = _same_runtime_identity(
         observed_server, after_hash_server, pod_uid, runtime_image_id)
 
-    lab.create(runtime._client_pod())
+    client_pod = runtime._client_pod()
+    client_pod.setdefault("metadata", {}).setdefault("annotations", {})[
+        "sidecar.istio.io/proxyImage"] = ISTIO_PROXY_IMAGE
+    lab.create(client_pod)
     lab.kubectl("wait", "--for=condition=Ready", "pod/" + runtime.CLIENT,
                 "--timeout=60s", timeout=70)
     result = _kubectl(lab, "exec", "pod/" + runtime.CLIENT, "--", "python", "-B",
@@ -261,7 +431,7 @@ def run_native_model_event(lab, case_dir: Path):
             "generated_text_retained": False,
         },
         "server_spec_image_matches_loaded_reference": spec_container.get("image") == image,
-        "service_created": False,
+        "service_created": True,
         "service_account_token_mounted": observed_server.get("spec", {}).get("automountServiceAccountToken") is not False,
         "gpu_layers": 0,
         "native_startup_log_lines_retained": False,
@@ -287,3 +457,5 @@ def run_native_model_event(lab, case_dir: Path):
             "prompt_or_response_text_not_retained": True,
         },
     )
+    _run_native_inference_mesh_correlation(
+        lab, runtime, pod_uid, runtime_image_id, initial_container_id)

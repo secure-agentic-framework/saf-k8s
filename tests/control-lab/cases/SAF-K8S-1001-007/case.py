@@ -28,7 +28,9 @@ SCOPE = (
     "uses fictional model information, an inert prompt marker, and a pod-local collector. A separate "
     "harmless JSON artifact read is bound to a projected workload identity and an independent API receipt. "
     "The additive native fixture runs one pinned llama.cpp b9519 CPU model and observes its model-load "
-    "path, readiness, and one fixed bounded request. It does not establish GPU process accounting, "
+    "path, readiness, and one fixed bounded request. It also routes one fixed native inference "
+    "request through an owned mesh Service and correlates its destination metadata log by a fixed "
+    "case header. It does not establish GPU process accounting, "
     "production mesh rollout, forwarding, alerting, or retention."
 )
 
@@ -550,4 +552,4 @@ def _run_model_artifact_load(lab):
                "token_or_secret_emitted": False})
 
 
-SCOPE += " One additional Pod reads only a fictional metadata JSON descriptor and independently patches a named case receipt with a minimized event bound to its projected ServiceAccount identity. The native server supplement uses CPU only and does not provide GPU process telemetry."
+SCOPE += " One additional Pod reads only a fictional metadata JSON descriptor and independently patches a named case receipt with a minimized event bound to its projected ServiceAccount identity. The native server supplement uses CPU only; one fixed inference completion is also routed through the pinned Istio sidecars and correlated by a case-only request header. Neither witness provides GPU process telemetry or production forwarding/retention evidence."

@@ -46,7 +46,7 @@ The model-load check uses Kubernetes v1.36's [Downward API](https://v1-36.docs.k
 
 ## Inert model-artifact load attribution reference
 
-The ten-check case includes one separately observed model-load event. A
+The eleven-check case includes one separately observed model-load event. A
 case-owned Pod opens a small fictional JSON model descriptor mounted from an
 immutable ConfigMap, calculates its digest, and writes a minimized
 `model_artifact_loaded` event through the Kubernetes API using its projected
@@ -69,3 +69,30 @@ against supported device/runtime sources.
 ## Native CPU model serving
 
 The native check confirms a successful model-load event, the pinned model bytes read inside the running server container, and a bounded completion from the same Pod. Pod, container and image identities are checked around the hash and request. Run from the complete control-lab checkout with the adjacent SAF-K8S-0903-004 case. See [the native event evidence and scope](NATIVE-EVENT-SCOPE.md) for the Docker/CRI config-ID distinction.
+
+## Native inference metadata correlation
+
+After the published 11 checks, this candidate labels only `saf-test` for
+injection before it creates the native test server and client. It pins the
+Istio proxy image on both Pods and creates one case-owned ClusterIP Service
+whose selector matches the native server Pod. An EndpointSlice read must show
+exactly one Ready endpoint with that exact server Pod UID before the request.
+The existing tiny CPU model receives one additional fixed `/completion`
+request through that Service with `X-SAF-Case: SAF1001-NATIVE-INFER-001`.
+The client emits only HTTP status, native predicted-token count, stop reason,
+request and response byte counts, and the fixed correlator; it does not print or persist
+prompt or completion text.
+
+The destination `istio-proxy` log must contain exactly one seven-field,
+metadata-only record matching `POST /completion`, HTTP 200, positive byte
+counts and the same correlator. The normalized check also binds the record to
+the Ready Service endpoint, pinned proxy images, and the same native server
+Pod UID and image identity whose model digest the preceding check verified.
+Raw evidence is stored in `native-inference-mesh-correlation.json`. This adds
+one check (12 expected total); the published 11 checks remain intact. It is a
+local CPU-only request-path correlation, not proof of deployed mesh policy,
+GPU telemetry, sustained traffic, remote collector forwarding, retention or
+alerting.
+
+- [Istio access logging](https://istio.io/latest/docs/tasks/observability/logs/access-log/)
+- [Envoy v1.32 access log operators](https://www.envoyproxy.io/docs/envoy/v1.32.0/configuration/observability/access_log/usage)
