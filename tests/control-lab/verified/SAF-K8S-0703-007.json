@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0703-007",
-  "catalog_revision": "fedad873ceb9bc822e128c10626c3603b4151234",
+  "catalog_revision": "97cadc9d464ee73777692e5d9eb6e162fdc116b1",
   "catalog_sha256": "65f757846d484079842769b4cec9180fc3a96ab15a5106c821a08ca7293441b6",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "5de6399d8efc138f2a9f36c76a526537296fde2f9ea0d0aa4a4f1522a3dd98bc",
-  "scope": "Kueue v0.20.6 controller with Fair Sharing and two single-unit quotas, on disposable kind Kubernetes v1.36.1. Three owned Kubernetes Jobs request only an unallocated synthetic resource. Kueue admission and reclamation are inspected, including the recovered nominal unit and queued overage. An additive two-Pod Job compares suspended quota shortage with full quota admission and creation of both unassigned Pods. This covers quota-based all-or-nothing admission. A separate tiny CPU-only two-Pod Job passes through its exact Kueue queue, reaches both Pod Ready and Workload PodsReady, then completes. A separate same-cohort CPU and memory fixture captures exact cohort reclamation victim and preemptor UIDs and reasons, then verifies recovery of the same victim Job and Workload with a new Ready Pod after exact preemptor deletion. It observes the pinned controller reason InCohortReclamation. Weighted-share preemption, actual accelerator placement and gang recovery, sustained fairness, access control and production integrations require separate evidence.",
-  "cluster": "saf-lab-0b9b51e67f18",
+  "scope": "Kueue v0.20.6 controller with Fair Sharing and two single-unit quotas, on disposable kind Kubernetes v1.36.1. Three owned Kubernetes Jobs request only an unallocated synthetic resource. Kueue admission and reclamation are inspected, including the recovered nominal unit and queued overage. An additive two-Pod Job compares suspended quota shortage with full quota admission and creation of both unassigned Pods. This covers quota-based all-or-nothing admission. A separate tiny CPU-only two-Pod Job passes through its exact Kueue queue, reaches both Pod Ready and Workload PodsReady, then completes. A separate same-cohort CPU and memory fixture captures exact cohort reclamation victim and preemptor UIDs and reasons, then verifies recovery of the same victim Job and Workload with a new Ready Pod after exact preemptor deletion. It observes the pinned controller reason InCohortReclamation. A final additive three-ClusterQueue CPU fixture changes only the peer queue fair-sharing weight between pending control and an exact InCohortFairSharing preemption. It uses 100m/100m/300m nominal CPU quotas, 100m baseline and victim requests, and a 400m peer request; the donor quota and victim's 100m borrowing are checked before comparison. Weight is 1 in control and 10 in comparison. This bounded controller-path test is not sustained fairness, actual accelerator placement or gang recovery. Access control and production integrations require separate evidence.",
+  "cluster": "saf-lab-f62dd4672562",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -175,6 +175,57 @@
         "owned_namespaces_removed": true,
         "owned_clusterqueues_removed": true,
         "owned_priority_class_absent": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "At unchanged quota, the low-weight peer remains pending and cannot preempt the borrowed victim",
+      "matched": true,
+      "observed": {
+        "low_weight_pending": true,
+        "victim_unchanged": true,
+        "baseline_unchanged": true,
+        "team_a_borrowed_100m_cpu": true,
+        "declared_quota_retained": true,
+        "donor_nominal_cpu_300m": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Raising only peer fair-share weight admits it through exact InCohortFairSharing preemption",
+      "matched": true,
+      "observed": {
+        "weight_changed_from_1_to_10": true,
+        "quota_inputs_unchanged": true,
+        "same_cq_policy_except_weight": true,
+        "preemptor_borrows_300m_cpu": true,
+        "preemptor_weighted_share_recorded": true,
+        "victim_weighted_share_before_recorded": true,
+        "preemptor_weighted_share_below_victim_before": true,
+        "preemptor_memory_within_nominal": true,
+        "exact_fairsharing_reason": true,
+        "victim_and_preemptor_uids_match": true,
+        "baseline_pod_identity_unchanged": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Deleting the UID-pinned fair-share preemptor restores the same victim with a new Ready Pod",
+      "matched": true,
+      "observed": {
+        "preemptor_uids_absent": true,
+        "same_victim_identity_recovered": true,
+        "replacement_pod_ready": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The weighted fair-share cohort, namespaces and priority classes are removed",
+      "matched": true,
+      "observed": {
+        "owned_namespaces_removed": true,
+        "owned_clusterqueues_removed": true,
+        "priority_classes_removed": true
       }
     }
   ]

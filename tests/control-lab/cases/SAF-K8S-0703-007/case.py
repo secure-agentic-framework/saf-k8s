@@ -1,5 +1,6 @@
 """Run Kueue cohort admission and fair-sharing reclamation on synthetic jobs."""
 from hashlib import sha256
+from decimal import Decimal, InvalidOperation
 import json
 import re
 import time
@@ -30,8 +31,12 @@ SCOPE = (
     "A separate same-cohort CPU and memory fixture captures exact cohort reclamation victim and "
     "preemptor UIDs and reasons, then verifies recovery of the same victim Job and Workload "
     "with a new Ready Pod after exact preemptor deletion. It observes the pinned controller reason "
-    "InCohortReclamation. Weighted-share preemption, actual accelerator placement and gang recovery, "
-    "sustained fairness, access control and production integrations "
+    "InCohortReclamation. A final additive three-ClusterQueue CPU fixture changes only the peer "
+    "queue fair-sharing weight between pending control and an exact InCohortFairSharing preemption. "
+    "It uses 100m/100m/300m nominal CPU quotas, 100m baseline and victim requests, and a 400m peer "
+    "request; the donor quota and victim's 100m borrowing are checked before comparison. Weight is "
+    "1 in control and 10 in comparison. This bounded controller-path test is not sustained fairness, "
+    "actual accelerator placement or gang recovery. Access control and production integrations "
     "require separate evidence."
 )
 
@@ -788,3 +793,400 @@ def run(lab):
     run_gang_candidate(lab)
     run_cpu_readiness_candidate(lab)
     run_fairshare_preemption_recovery_candidate(lab)
+    run_weighted_fairsharing_discriminator(lab)
+
+
+WFS_COHORT = "weighted-recovery-cohort"
+WFS_TEAMS = ("weighted-team-a", "weighted-team-b", "weighted-donor")
+WFS_BASELINE = "weighted-baseline"
+WFS_VICTIM = "weighted-victim"
+WFS_PREEMPTOR = "weighted-preemptor"
+WFS_LOW_WEIGHT = "1"
+WFS_HIGH_WEIGHT = "10"
+WFS_CPU_BASE = "100m"
+WFS_CPU_PREEMPTOR = "400m"
+WFS_MEMORY = "32Mi"
+WFS_BASELINE_PRIORITY = "weighted-baseline-priority"
+WFS_PREEMPTOR_PRIORITY = "weighted-preemptor-priority"
+
+
+def _wfs_condition(workload, kind):
+    return next((item for item in (workload or {}).get("status", {}).get("conditions", [])
+                 if item.get("type") == kind), None)
+
+
+def _wfs_ready(pods):
+    return next((pod for pod in pods if pod.get("status", {}).get("phase") == "Running"
+                 and any(item.get("type") == "Ready" and item.get("status") == "True"
+                         for item in pod.get("status", {}).get("conditions", []))), None)
+
+
+def _wfs_admitted(workload, cq):
+    return bool(workload and workload.get("status", {}).get("admission", {}).get("clusterQueue") == cq
+                and (_wfs_condition(workload, "Admitted") or {}).get("status") == "True")
+
+
+def _wfs_job(lab, team, name, cpu, priority_class=None):
+    labels = {"kueue.x-k8s.io/queue-name": "work",
+              "saf-k8s.example/fixture": "0703-007-weighted-fairsharing"}
+    if priority_class:
+        labels["kueue.x-k8s.io/priority-class"] = priority_class
+    create(lab, {
+        "apiVersion": "batch/v1", "kind": "Job",
+        "metadata": {"name": name, "namespace": team, "labels": labels},
+        "spec": {"suspend": True, "parallelism": 1, "completions": 1,
+                 "backoffLimit": 0, "activeDeadlineSeconds": 240,
+                 "template": {"metadata": {"labels": {"saf-k8s.example/fixture": "0703-007-weighted-fairsharing"}},
+                              "spec": {"restartPolicy": "Never", "automountServiceAccountToken": False,
+                                       "terminationGracePeriodSeconds": 1,
+                                       "securityContext": {"runAsNonRoot": True, "runAsUser": 65534,
+                                                           "seccompProfile": {"type": "RuntimeDefault"}},
+                                       "containers": [{"name": "bounded", "image": BUSYBOX_IMAGE,
+                                                       "imagePullPolicy": "IfNotPresent",
+                                                       "command": ["sleep", "180"],
+                                                       "resources": {"requests": {"cpu": cpu,
+                                                                                  "memory": WFS_MEMORY},
+                                                                     "limits": {"cpu": cpu,
+                                                                                "memory": "64Mi"}},
+                                                       "securityContext": {"allowPrivilegeEscalation": False,
+                                                                           "readOnlyRootFilesystem": True,
+                                                                           "capabilities": {"drop": ["ALL"]}}}]}}},
+    })
+
+
+def _wfs_owned(lab, team, job_obj):
+    if not job_obj:
+        return None
+    uid = job_obj.get("metadata", {}).get("uid")
+    records = json.loads(lab.kubectl("get", "workloads", "-n", team, "-o", "json").stdout)["items"]
+    owned = [item for item in records if any(
+        owner.get("kind") == "Job" and owner.get("apiVersion") == "batch/v1"
+        and owner.get("controller") is True and owner.get("uid") == uid
+        for owner in item.get("metadata", {}).get("ownerReferences", []))]
+    return owned[0] if len(owned) == 1 else None
+
+
+def _wfs_workload_uid(lab, team, uid):
+    records = json.loads(lab.kubectl("get", "workloads", "-n", team, "-o", "json").stdout)["items"]
+    return next((item for item in records if item.get("metadata", {}).get("uid") == uid), None)
+
+
+def _wfs_snapshot(lab):
+    out = {}
+    for team, name in ((WFS_TEAMS[0], WFS_BASELINE), (WFS_TEAMS[0], WFS_VICTIM),
+                       (WFS_TEAMS[1], WFS_PREEMPTOR)):
+        job_obj = _fs_json_if_exists(lab, "get", "job", name, "-n", team)
+        workload = _wfs_owned(lab, team, job_obj) if job_obj else None
+        pods = _fs_owned_pods(lab, team, job_obj) if job_obj else []
+        out[name] = {"job": job_obj, "workload": workload, "pods": pods}
+    out["clusterqueues"] = {
+        "a": objects(lab, "get clusterqueue weighted-team-a-cq"),
+        "b": objects(lab, "get clusterqueue weighted-team-b-cq"),
+        "donor": objects(lab, "get clusterqueue weighted-donor-cq"),
+    }
+    return out
+
+
+def _wfs_wait(lab, predicate, description, seconds=100):
+    deadline = time.monotonic() + seconds
+    last = None
+    while time.monotonic() < deadline:
+        last = _wfs_snapshot(lab)
+        if predicate(last):
+            return last
+        time.sleep(0.75)
+    lab.block(f"Timed out waiting for {description}; last snapshot={last!r}")
+
+
+def _wfs_borrowed(cq):
+    resources = {resource.get("name"): resource
+                 for flavor in cq.get("status", {}).get("flavorsReservation", [])
+                 for resource in flavor.get("resources", [])}
+    return {name: resources.get(name, {}).get("borrowed") for name in ("cpu", "memory")}
+
+
+def _wfs_quota_shape(clusterqueues):
+    out = {}
+    for role in ("a", "b", "donor"):
+        values = {}
+        for group in clusterqueues[role].get("spec", {}).get("resourceGroups", []):
+            for flavor in group.get("flavors", []):
+                for resource in flavor.get("resources", []):
+                    values[resource.get("name")] = resource.get("nominalQuota")
+        out[role] = values
+    return out
+
+
+def _wfs_comparison_shape(clusterqueues):
+    shape = {}
+    for role, obj in clusterqueues.items():
+        spec = json.loads(json.dumps(obj.get("spec", {})))
+        if role == "b":
+            spec.get("fairSharing", {}).pop("weight", None)
+        shape[role] = spec
+    return shape
+
+
+def _wfs_request(job_obj):
+    spec = job_obj.get("spec", {})
+    containers = spec.get("template", {}).get("spec", {}).get("containers", [])
+    return {"parallelism": spec.get("parallelism"), "completions": spec.get("completions"),
+            "containers": [{"name": container.get("name"),
+                            "requests": container.get("resources", {}).get("requests", {})}
+                           for container in containers]}
+
+
+def _wfs_share(cq):
+    value = cq.get("status", {}).get("fairSharing", {}).get("weightedShare")
+    try:
+        share = Decimal(str(value))
+    except (InvalidOperation, TypeError, ValueError):
+        return None
+    return share if share.is_finite() else None
+
+
+def run_weighted_fairsharing_discriminator(lab):
+    """Change only a bounded peer CQ weight to distinguish fair-share preemption."""
+    raw = {"scope": {"cohort": WFS_COHORT, "cpu": {"a_nominal": WFS_CPU_BASE,
+             "b_nominal": WFS_CPU_BASE, "donor_nominal": "300m", "preemptor": WFS_CPU_PREEMPTOR},
+             "memory_nominal_each": "128Mi", "priority": {"victim": 0, "preemptor": 50,
+             "baseline": 100}}, "snapshots": []}
+
+    def retain(step, **values):
+        raw["snapshots"].append({"step": step, **values})
+        (lab.evidence / "weighted-fairsharing-discriminator-raw.json").write_text(
+            json.dumps(raw, indent=2, sort_keys=True) + "\n")
+
+    for team in WFS_TEAMS:
+        create(lab, {"apiVersion": "v1", "kind": "Namespace",
+                     "metadata": {"name": team,
+                                  "labels": {"saf-k8s.example/team": team,
+                                             "saf-k8s.example/fixture": "0703-007-weighted-fairsharing"}}})
+    quotas = {WFS_TEAMS[0]: WFS_CPU_BASE, WFS_TEAMS[1]: WFS_CPU_BASE, WFS_TEAMS[2]: "300m"}
+    for team in WFS_TEAMS:
+        queue = team.replace("weighted-", "")
+        cq_name = f"{team}-cq"
+        create(lab, {"apiVersion": API, "kind": "ClusterQueue", "metadata": {"name": cq_name},
+                     "spec": {"namespaceSelector": {"matchLabels": {"saf-k8s.example/team": team}},
+                              "cohortName": WFS_COHORT,
+                              "resourceGroups": [{"coveredResources": ["cpu", "memory"],
+                                  "flavors": [{"name": "virtual-capacity", "resources": [
+                                      {"name": "cpu", "nominalQuota": quotas[team]},
+                                      {"name": "memory", "nominalQuota": "128Mi" if team != WFS_TEAMS[2] else "256Mi"}]}]}],
+                              "preemption": {"reclaimWithinCohort": "Any" if team == WFS_TEAMS[1] else "Never",
+                                             "withinClusterQueue": "Never"},
+                              "fairSharing": {"weight": WFS_LOW_WEIGHT}}})
+        if team != WFS_TEAMS[2]:
+            create(lab, {"apiVersion": API, "kind": "LocalQueue",
+                         "metadata": {"name": "work", "namespace": team},
+                         "spec": {"clusterQueue": cq_name}})
+        lab.kubectl("wait", "--for=condition=Active", f"clusterqueue/{cq_name}",
+                    "--timeout=60s", timeout=65)
+        if team != WFS_TEAMS[2]:
+            lab.kubectl("wait", "--for=condition=Active", "localqueue/work", "-n", team,
+                        "--timeout=60s", timeout=65)
+
+    create(lab, {"apiVersion": API, "kind": "WorkloadPriorityClass",
+                 "metadata": {"name": WFS_BASELINE_PRIORITY}, "value": 100,
+                 "description": "Protected bounded baseline for weighted share comparison"})
+    create(lab, {"apiVersion": API, "kind": "WorkloadPriorityClass",
+                 "metadata": {"name": WFS_PREEMPTOR_PRIORITY}, "value": 50,
+                 "description": "Bounded fair-share preemptor above victim, below baseline"})
+    _wfs_job(lab, WFS_TEAMS[0], WFS_BASELINE, WFS_CPU_BASE, WFS_BASELINE_PRIORITY)
+    baseline = _wfs_wait(lab, lambda s: _wfs_admitted(s[WFS_BASELINE]["workload"], "weighted-team-a-cq")
+                         and _wfs_ready(s[WFS_BASELINE]["pods"]), "baseline to become Ready")
+    baseline_job = baseline[WFS_BASELINE]["job"]
+    baseline_workload = baseline[WFS_BASELINE]["workload"]
+    baseline_pod = _wfs_ready(baseline[WFS_BASELINE]["pods"])
+    if (baseline_workload.get("spec", {}).get("priority") != 100
+            or baseline_workload.get("spec", {}).get("priorityClassRef") != {
+                "group": "kueue.x-k8s.io", "kind": "WorkloadPriorityClass",
+                "name": WFS_BASELINE_PRIORITY}):
+        lab.block("The protected baseline did not record the exact WorkloadPriorityClass reference and value")
+    _wfs_job(lab, WFS_TEAMS[0], WFS_VICTIM, WFS_CPU_BASE)
+    victim_state = _wfs_wait(lab, lambda s: _wfs_admitted(s[WFS_VICTIM]["workload"], "weighted-team-a-cq")
+                             and _wfs_ready(s[WFS_VICTIM]["pods"]), "borrowed victim to become Ready")
+    victim_job = victim_state[WFS_VICTIM]["job"]
+    victim_workload = victim_state[WFS_VICTIM]["workload"]
+    victim_pod = _wfs_ready(victim_state[WFS_VICTIM]["pods"])
+    borrowed = _wfs_borrowed(victim_state["clusterqueues"]["a"])
+    if borrowed.get("cpu") != WFS_CPU_BASE or borrowed.get("memory") not in (None, "0", "0m", "0Mi"):
+        lab.block(f"Team A must borrow exactly 100m CPU and no memory before comparison: {borrowed!r}")
+    if (baseline_workload.get("spec", {}).get("priority") != 100
+            or victim_workload.get("spec", {}).get("priority", 0) != 0):
+        lab.block("The baseline/victim Workload priorities did not match the explicit protection boundary")
+    _wfs_job(lab, WFS_TEAMS[1], WFS_PREEMPTOR, WFS_CPU_PREEMPTOR, WFS_PREEMPTOR_PRIORITY)
+    low = _wfs_wait(lab, lambda s: (
+        s[WFS_PREEMPTOR]["workload"] is not None
+        and (_wfs_condition(s[WFS_PREEMPTOR]["workload"], "QuotaReserved") or {}).get("status") == "False"
+        and (_wfs_condition(s[WFS_PREEMPTOR]["workload"], "QuotaReserved") or {}).get("reason") == "WaitingForQuota"
+        and _wfs_admitted(s[WFS_VICTIM]["workload"], "weighted-team-a-cq")
+        and _wfs_ready(s[WFS_VICTIM]["pods"])
+        and _wfs_ready(s[WFS_BASELINE]["pods"])),
+        "low-weight preemptor to remain pending while the victim and baseline stay Ready")
+    donor_quota = low["clusterqueues"]["donor"].get("spec", {}).get("resourceGroups", [])
+    low_weight = low["clusterqueues"]["b"].get("spec", {}).get("fairSharing", {}).get("weight")
+    low_quota_shape = _wfs_quota_shape(low["clusterqueues"])
+    expected_quota_shape = {"a": {"cpu": "100m", "memory": "128Mi"},
+                            "b": {"cpu": "100m", "memory": "128Mi"},
+                            "donor": {"cpu": "300m", "memory": "256Mi"}}
+    if low_weight != WFS_LOW_WEIGHT:
+        lab.block(f"The fair-share control did not retain the declared low weight: {low_weight!r}")
+    if low_quota_shape != expected_quota_shape:
+        lab.block(f"The fair-share quota inputs differed from the exact declared shape: {low_quota_shape!r}")
+    low_requests = _wfs_request(low[WFS_PREEMPTOR]["job"])
+    expected_requests = {"parallelism": 1, "completions": 1,
+                         "containers": [{"name": "bounded", "requests": {"cpu": "400m", "memory": WFS_MEMORY}}]}
+    if low_requests != expected_requests:
+        lab.block(f"The low-weight preemptor request differed from the exact bounded workload: {low_requests!r}")
+    preemptor_job_uid = low[WFS_PREEMPTOR]["job"]["metadata"]["uid"]
+    preemptor_workload_uid = low[WFS_PREEMPTOR]["workload"]["metadata"]["uid"]
+    if (low[WFS_PREEMPTOR]["workload"].get("spec", {}).get("priority") != 50
+            or low[WFS_PREEMPTOR]["workload"].get("spec", {}).get("priorityClassRef") != {
+                "group": "kueue.x-k8s.io", "kind": "WorkloadPriorityClass",
+                "name": WFS_PREEMPTOR_PRIORITY}):
+        lab.block("The exact pending preemptor did not record its structured priority value and class")
+    retain("low_weight_pending", baseline_job=baseline_job, baseline_workload=baseline_workload,
+           baseline_pod=baseline_pod, victim_job=victim_job, victim_workload=victim_workload,
+           victim_ready_pod=victim_pod, preemptor_job=low[WFS_PREEMPTOR]["job"],
+           preemptor_workload=low[WFS_PREEMPTOR]["workload"],
+           clusterqueues=low["clusterqueues"], borrowed_resources=borrowed,
+           preemptor_request=low_requests,
+           team_a_weighted_share_before=str(_wfs_share(low["clusterqueues"]["a"])))
+    lab.check("red", "At unchanged quota, the low-weight peer remains pending and cannot preempt the borrowed victim",
+              low_weight == WFS_LOW_WEIGHT
+              and low_quota_shape == expected_quota_shape
+              and low[WFS_BASELINE]["job"]["metadata"]["uid"] == baseline_job["metadata"]["uid"]
+              and low[WFS_BASELINE]["workload"]["metadata"]["uid"] == baseline_workload["metadata"]["uid"]
+              and _wfs_admitted(low[WFS_VICTIM]["workload"], "weighted-team-a-cq")
+              and low[WFS_VICTIM]["job"]["metadata"]["uid"] == victim_job["metadata"]["uid"]
+              and low[WFS_VICTIM]["workload"]["metadata"]["uid"] == victim_workload["metadata"]["uid"]
+              and _wfs_ready(low[WFS_VICTIM]["pods"]) is not None
+              and _wfs_ready(low[WFS_VICTIM]["pods"])["metadata"]["uid"] == victim_pod["metadata"]["uid"]
+              and _wfs_ready(low[WFS_BASELINE]["pods"])["metadata"]["uid"] == baseline_pod["metadata"]["uid"]
+              and low[WFS_PREEMPTOR]["job"]["metadata"]["uid"] == preemptor_job_uid,
+              {"low_weight_pending": True, "victim_unchanged": True, "baseline_unchanged": True,
+               "team_a_borrowed_100m_cpu": True, "declared_quota_retained": low_quota_shape == expected_quota_shape,
+               "donor_nominal_cpu_300m": bool(donor_quota)})
+
+    lab.kubectl("patch", "clusterqueue", "weighted-team-b-cq", "--type=merge", "-p",
+                json.dumps({"spec": {"fairSharing": {"weight": WFS_HIGH_WEIGHT}}}))
+    fair = _wfs_wait(lab, lambda s: (
+        s[WFS_VICTIM]["workload"] is not None
+        and (_wfs_condition(s[WFS_VICTIM]["workload"], "Evicted") or {}).get("status") == "True"
+        and (_wfs_condition(s[WFS_VICTIM]["workload"], "Evicted") or {}).get("reason") == "Preempted"
+        and (_wfs_condition(s[WFS_VICTIM]["workload"], "Preempted") or {}).get("status") == "True"
+        and (_wfs_condition(s[WFS_VICTIM]["workload"], "Preempted") or {}).get("reason") == "InCohortFairSharing"
+        and not s[WFS_VICTIM]["pods"]
+        and s[WFS_PREEMPTOR]["job"] is not None
+        and s[WFS_PREEMPTOR]["workload"] is not None
+        and _wfs_admitted(s[WFS_PREEMPTOR]["workload"], "weighted-team-b-cq")
+        and _wfs_ready(s[WFS_PREEMPTOR]["pods"])
+        and _wfs_ready(s[WFS_BASELINE]["pods"])
+        and _wfs_ready(s[WFS_BASELINE]["pods"])["metadata"]["uid"] == baseline_pod["metadata"]["uid"]),
+        "high-weight exact fair-sharing preemption", seconds=120)
+    fw = _wfs_condition(fair[WFS_VICTIM]["workload"], "Preempted")
+    slots = re.search(r"\(UID: ([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}), "
+                      r"JobUID: ([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\)",
+                      (fw or {}).get("message", ""))
+    same_preemptor = bool(slots and slots.group(1) == preemptor_workload_uid
+                          and slots.group(2) == preemptor_job_uid)
+    hq = fair["clusterqueues"]["b"]
+    high_weight = hq.get("spec", {}).get("fairSharing", {}).get("weight")
+    high_quota_shape = _wfs_quota_shape(fair["clusterqueues"])
+    same_policy_except_weight = (_wfs_comparison_shape(fair["clusterqueues"])
+                                 == _wfs_comparison_shape(low["clusterqueues"]))
+    high_borrowed = _wfs_borrowed(hq)
+    team_a_share_before = _wfs_share(low["clusterqueues"]["a"])
+    team_b_share_after = _wfs_share(hq)
+    weighted_share_reduced = (team_a_share_before is not None and team_b_share_after is not None
+                               and team_a_share_before > 0 and team_b_share_after > 0
+                               and team_b_share_after < team_a_share_before)
+    retain("high_weight_fairshare_preemption", baseline_job=fair[WFS_BASELINE]["job"],
+           baseline_workload=fair[WFS_BASELINE]["workload"], baseline_pod=_wfs_ready(fair[WFS_BASELINE]["pods"]),
+           victim_job=fair[WFS_VICTIM]["job"], victim_workload=fair[WFS_VICTIM]["workload"],
+           victim_preempted_condition=fw, preemptor_job=fair[WFS_PREEMPTOR]["job"],
+           preemptor_workload=fair[WFS_PREEMPTOR]["workload"], preemptor_uid_slots=slots.groups() if slots else None,
+           exact_preemptor_identity=same_preemptor, clusterqueues=fair["clusterqueues"],
+           team_a_borrowed_before=borrowed,
+           team_a_weighted_share_before=str(team_a_share_before) if team_a_share_before is not None else None,
+           team_b_weighted_share_after=str(team_b_share_after) if team_b_share_after is not None else None,
+           preemptor_borrowed_after=high_borrowed,
+           preemptor_request_after=_wfs_request(fair[WFS_PREEMPTOR]["job"]))
+    lab.check("green", "Raising only peer fair-share weight admits it through exact InCohortFairSharing preemption",
+              high_weight == WFS_HIGH_WEIGHT
+              and high_quota_shape == low_quota_shape == expected_quota_shape
+              and fair[WFS_VICTIM]["job"]["metadata"]["uid"] == victim_job["metadata"]["uid"]
+              and fair[WFS_VICTIM]["workload"]["metadata"]["uid"] == victim_workload["metadata"]["uid"]
+              and (_wfs_condition(fair[WFS_VICTIM]["workload"], "Evicted") or {}).get("reason") == "Preempted"
+              and (_wfs_condition(fair[WFS_VICTIM]["workload"], "Preempted") or {}).get("reason") == "InCohortFairSharing"
+              and fair[WFS_PREEMPTOR]["job"]["metadata"]["uid"] == preemptor_job_uid
+              and fair[WFS_PREEMPTOR]["workload"]["metadata"]["uid"] == preemptor_workload_uid
+              and _wfs_request(fair[WFS_PREEMPTOR]["job"]) == low_requests
+              and same_preemptor
+              and _wfs_ready(fair[WFS_PREEMPTOR]["pods"]) is not None
+              and fair[WFS_BASELINE]["job"]["metadata"]["uid"] == baseline_job["metadata"]["uid"]
+              and fair[WFS_BASELINE]["workload"]["metadata"]["uid"] == baseline_workload["metadata"]["uid"]
+              and _wfs_ready(fair[WFS_BASELINE]["pods"])["metadata"]["uid"] == baseline_pod["metadata"]["uid"]
+              and same_policy_except_weight and high_borrowed.get("cpu") == "300m"
+              and high_borrowed.get("memory") in (None, "0", "0m", "0Mi")
+              and weighted_share_reduced,
+              {"weight_changed_from_1_to_10": high_weight == WFS_HIGH_WEIGHT,
+               "quota_inputs_unchanged": high_quota_shape == low_quota_shape == expected_quota_shape,
+               "same_cq_policy_except_weight": same_policy_except_weight,
+               "preemptor_borrows_300m_cpu": high_borrowed.get("cpu") == "300m",
+               "preemptor_weighted_share_recorded": team_b_share_after is not None,
+               "victim_weighted_share_before_recorded": team_a_share_before is not None,
+               "preemptor_weighted_share_below_victim_before": weighted_share_reduced,
+               "preemptor_memory_within_nominal": high_borrowed.get("memory") in (None, "0", "0m", "0Mi"),
+               "exact_fairsharing_reason": True,
+               "victim_and_preemptor_uids_match": same_preemptor,
+               "baseline_pod_identity_unchanged": True})
+
+    opts = {"apiVersion": "v1", "kind": "DeleteOptions", "propagationPolicy": "Foreground",
+            "preconditions": {"uid": preemptor_job_uid}}
+    uri = f"/apis/batch/v1/namespaces/{WFS_TEAMS[1]}/jobs/{WFS_PREEMPTOR}"
+    lab.kubectl("delete", "--raw", uri, "-f", "-", payload=json.dumps(opts))
+    gone = _wfs_wait(lab, lambda s: s[WFS_PREEMPTOR]["job"] is None
+                     and _wfs_workload_uid(lab, WFS_TEAMS[1], preemptor_workload_uid) is None,
+                     "the exact weighted preemptor to be removed")
+    recovered = _wfs_wait(lab, lambda s: (
+        s[WFS_VICTIM]["job"] is not None
+        and s[WFS_VICTIM]["job"].get("metadata", {}).get("uid") == victim_job["metadata"]["uid"]
+        and s[WFS_VICTIM]["workload"] is not None
+        and s[WFS_VICTIM]["workload"].get("metadata", {}).get("uid") == victim_workload["metadata"]["uid"]
+        and _wfs_admitted(s[WFS_VICTIM]["workload"], "weighted-team-a-cq")
+        and _wfs_ready(s[WFS_VICTIM]["pods"]) is not None
+        and _wfs_ready(s[WFS_VICTIM]["pods"])["metadata"]["uid"] != victim_pod["metadata"]["uid"]),
+        "same borrowed victim Workload to recover with a new Ready Pod", seconds=150)
+    new_pod = _wfs_ready(recovered[WFS_VICTIM]["pods"])
+    retain("recovered", preemptor_uid_deleted=gone[WFS_PREEMPTOR]["job"] is None,
+           preemptor_workload_uid_deleted=_wfs_workload_uid(lab, WFS_TEAMS[1], preemptor_workload_uid) is None,
+           victim_job=recovered[WFS_VICTIM]["job"], victim_workload=recovered[WFS_VICTIM]["workload"],
+           old_pod_uid=victim_pod["metadata"]["uid"], new_pod=new_pod)
+    lab.check("positive", "Deleting the UID-pinned fair-share preemptor restores the same victim with a new Ready Pod",
+              gone[WFS_PREEMPTOR]["job"] is None
+              and _wfs_workload_uid(lab, WFS_TEAMS[1], preemptor_workload_uid) is None
+              and recovered[WFS_VICTIM]["job"]["metadata"]["uid"] == victim_job["metadata"]["uid"]
+              and recovered[WFS_VICTIM]["workload"]["metadata"]["uid"] == victim_workload["metadata"]["uid"]
+              and new_pod["metadata"]["uid"] != victim_pod["metadata"]["uid"]
+              and _wfs_ready(recovered[WFS_VICTIM]["pods"]) is not None,
+              {"preemptor_uids_absent": True, "same_victim_identity_recovered": True,
+               "replacement_pod_ready": True})
+
+    for team in WFS_TEAMS:
+        lab.kubectl("delete", "namespace", team, "--wait=true", timeout=90)
+    for team in WFS_TEAMS:
+        lab.kubectl("delete", "clusterqueue", f"{team}-cq", "--wait=true", timeout=60)
+    for name in (WFS_BASELINE_PRIORITY, WFS_PREEMPTOR_PRIORITY):
+        lab.kubectl("delete", "workloadpriorityclass", name, "--wait=true", timeout=45)
+    namespaces_absent = all(_fs_json_if_exists(lab, "get", "namespace", team) is None for team in WFS_TEAMS)
+    queues_absent = all(_fs_json_if_exists(lab, "get", "clusterqueue", f"{team}-cq") is None for team in WFS_TEAMS)
+    priorities_absent = all(_fs_json_if_exists(lab, "get", "workloadpriorityclass", name) is None
+                            for name in (WFS_BASELINE_PRIORITY, WFS_PREEMPTOR_PRIORITY))
+    retain("cleanup", namespaces_absent=namespaces_absent, clusterqueues_absent=queues_absent,
+           priority_classes_absent=priorities_absent)
+    lab.check("positive", "The weighted fair-share cohort, namespaces and priority classes are removed",
+              namespaces_absent and queues_absent and priorities_absent,
+              {"owned_namespaces_removed": namespaces_absent,
+               "owned_clusterqueues_removed": queues_absent, "priority_classes_removed": priorities_absent})

@@ -64,3 +64,35 @@ The recovery phase covers CPU-backed nominal quota reclamation. Weighted-share
 preemption, sustained fairness, actual accelerator placement and gang recovery require
 separate evidence. See [Kueue v0.20 preemption](https://kueue.sigs.k8s.io/v0.20/docs/concepts/preemption/)
 and the [pinned Workload API](https://kueue.sigs.k8s.io/v0.20/docs/reference/kueue.v1beta2/).
+
+## Additive weighted fair-sharing preemption discriminator
+
+The weighted-share phase uses a distinct flat cohort with three ClusterQueues
+and one shared ResourceFlavor. Team A has 100m nominal CPU and runs a 100m
+baseline plus a 100m lower-priority victim, so its live reservation borrows
+100m. Team B has 100m nominal CPU, the idle donor queue has 300m, and the
+preemptor requests 400m CPU plus 32Mi memory. Each queue has a memory nominal
+quota (128Mi for A/B, 256Mi for donor), so the case exercises CPU borrowing
+only. The donor provides enough unused quota after the exact victim is removed;
+without removing that victim, the 400m preemptor is 100m beyond available
+cohort CPU quota.
+
+The preemptor has explicit Kueue WorkloadPriorityClass value 50; the victim
+uses default value 0 and the protected baseline value 100. With quota, priority,
+request, and policy inputs fixed, the case first observes the peer pending at
+fair-sharing weight 1 and the victim and baseline still Ready. It then changes
+only the peer ClusterQueue's `spec.fairSharing.weight` to 10. The expected
+witness is the exact victim's `Evicted=Preempted` and
+`Preempted=InCohortFairSharing` conditions, the exact preemptor Job and Workload
+UIDs in the message, the unchanged baseline Pod, and 300m CPU borrowing by the
+admitted preemptor. Raw evidence retains both queue weighted-share observations
+and both complete quota snapshots. After UID-precondition deletion of the
+preemptor, the case verifies recovery of the same victim Job and Workload with a
+new Ready Pod. The cohort is implicit from its name; the case creates no
+explicit Cohort object.
+
+This comparison exercises the pinned controller's fair-sharing preemption path.
+Long-run scheduling fairness and accelerator placement require separate evidence. Kueue documents the supported
+share strategies and the effect of `spec.fairSharing.weight` in its
+[v0.20 preemption guide](https://kueue.sigs.k8s.io/v0.20/docs/concepts/preemption/)
+and [v0.20 Fair Sharing guide](https://kueue.sigs.k8s.io/v0.20/docs/concepts/fair_sharing/).
