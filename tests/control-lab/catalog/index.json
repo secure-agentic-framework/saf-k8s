@@ -2709,8 +2709,8 @@
     "SAF-K8S-0905-042": {
       "catalog_status": "draft",
       "domain": "D09",
-      "sha256": "f1cd96057041cbed85d1b566e8e95bd793c7056297fa3ca41fd7865d3f50ac52",
-      "title": "CTA-2114 ML-BOM generation and lineage metadata capture"
+      "sha256": "2eb6e18b53e5152aedd1d75e61db08d6e6048fdb7121edbf542f8165fc1a69f9",
+      "title": "ML-BOM generation and training lineage metadata"
     },
     "SAF-K8S-0905-043": {
       "catalog_status": "draft",
@@ -3572,7 +3572,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "d76e6d79c412fd837bb2a39a424acdddc791d7a3",
-  "sha256": "2d91b1a9762c882f2d38e9ceaaaf7f3691b8b627f365243eed90b28bc3c008ea",
+  "revision": "30e107dfd48775123c0648b91a78ff530b601bae",
+  "sha256": "828e3e3c145cfe3018121cb3d9b8ed0f02b4b25d098f065e97ffb72fe1bff420",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

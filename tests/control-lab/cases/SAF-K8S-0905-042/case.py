@@ -21,9 +21,9 @@ SCOPE = (
     "single-completion Python Job trains a deterministic linear model from three fixed local "
     "synthetic records. The case captures dataset/config/model hashes, hyperparameters, "
     "trainer/runtime versions, and the actual Job/Pod/Node identity and selected Node runtime "
-    "fields, then emits a schema-validated CycloneDX 1.7 ML-BOM. CTA-2114 clause-level conformance, "
-    "production workflow coverage and durable "
-    "storage/attachment, which the catalog scope excludes."
+    "fields, then emits a schema-validated CycloneDX 1.7 ML-BOM. This fixture has no third-party ML framework; "
+    "CTA-2114 clause-level alignment remains pending authorized source review. It does not demonstrate production "
+    "workflow coverage or durable storage/attachment, which the catalog scope excludes."
 )
 
 TRAINER = r'''import hashlib, json, os, platform
@@ -240,7 +240,7 @@ def run(lab):
               not red and red_reason == "lineage_metadata_missing_or_mismatched",
               {"accepted": red, "reason": red_reason, "missing": "dataset_sha256"})
     green, green_reason = _validate_metadata(bom, actual)
-    lab.check("green", "Generated BOM records matching dataset/config/model hashes, hyperparameters, framework/runtime and infrastructure identity",
+    lab.check("green", "Generated BOM records matching dataset/config/model hashes, hyperparameters, trainer/runtime and infrastructure identity",
               green and green_reason == "bounded_lineage_metadata_matches_observations",
               {"accepted": green, "reason": green_reason,
                "dataset_sha256_matches_fixture": True, "config_sha256_matches_fixture": True,

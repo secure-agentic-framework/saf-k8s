@@ -1,5 +1,7 @@
 # SAF-K8S-0905-042 ML-BOM and lineage metadata
 
+The listed lineage fields are SAF requirements. The public CTA-2114 description does not expose clause-level field criteria; treat CTA alignment as pending an authorized full-text comparison. This fixture has no third-party ML framework, so it records the trainer and Python runtime rather than demonstrating a production framework version.
+
 Run from the framework checkout:
 
 ```sh

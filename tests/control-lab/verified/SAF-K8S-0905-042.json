@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0905-042",
-  "catalog_revision": "225734322f1bf8300464676b93d785368173cc01",
-  "catalog_sha256": "447cb12ccdce0e5a4bcc9ea89ab82e06538b99fb9190e6fcd45c22d2f8af8701",
+  "catalog_revision": "45db8854c47a877284c0172a1d759618f5b023b5",
+  "catalog_sha256": "828e3e3c145cfe3018121cb3d9b8ed0f02b4b25d098f065e97ffb72fe1bff420",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "f1cd96057041cbed85d1b566e8e95bd793c7056297fa3ca41fd7865d3f50ac52",
-  "scope": "One disposable Kind v1.36.1 cluster and namespace saf-test; one tokenless, restricted, single-completion Python Job trains a deterministic linear model from three fixed local synthetic records. The case captures dataset/config/model hashes, hyperparameters, trainer/runtime versions, and the actual Job/Pod/Node identity and selected Node runtime fields, then emits a schema-validated CycloneDX 1.7 ML-BOM. CTA-2114 clause-level conformance, production workflow coverage and durable storage/attachment, which the catalog scope excludes.",
-  "cluster": "saf-lab-c0477545bf6f",
+  "control_sha256": "2eb6e18b53e5152aedd1d75e61db08d6e6048fdb7121edbf542f8165fc1a69f9",
+  "scope": "One disposable Kind v1.36.1 cluster and namespace saf-test; one tokenless, restricted, single-completion Python Job trains a deterministic linear model from three fixed local synthetic records. The case captures dataset/config/model hashes, hyperparameters, trainer/runtime versions, and the actual Job/Pod/Node identity and selected Node runtime fields, then emits a schema-validated CycloneDX 1.7 ML-BOM. This fixture has no third-party ML framework; CTA-2114 clause-level alignment remains pending authorized source review. It does not demonstrate production workflow coverage or durable storage/attachment, which the catalog scope excludes.",
+  "cluster": "saf-lab-135a3321b70c",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -50,7 +50,7 @@
     },
     {
       "phase": "green",
-      "claim": "Generated BOM records matching dataset/config/model hashes, hyperparameters, framework/runtime and infrastructure identity",
+      "claim": "Generated BOM records matching dataset/config/model hashes, hyperparameters, trainer/runtime and infrastructure identity",
       "matched": true,
       "observed": {
         "accepted": true,
