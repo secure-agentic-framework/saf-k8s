@@ -69,7 +69,9 @@ SCOPE = (
     "while keeping the agent datapath pinned. A case-owned namespaced "
     "CiliumNetworkPolicy permits only ordinary marker-client ingress to the "
     "marker-server TCP port, remains realized through the tested Helm lifecycle, "
-    "and is removed afterward. Scope excludes failed agent datapath rollout, "
+    "and is removed afterward. A schema-valid, case-local option is rejected by "
+    "the pinned agent, then explicit rollback restores the Ready, pinned agent "
+    "and re-verifies the same realized policy and marker. Scope excludes "
     "production baseline, CVE status "
     "or patch timeliness, provider SLAs, RBAC "
     "process, PSA configuration, or production-scale availability."
@@ -710,6 +712,94 @@ def _patch_upgrade(lab, chart, values):
               replacements and datapath_retained and next_revision and after["marker"], evidence)
 
 
+def _observe_agent_start_failure(lab, option, known_good_uid):
+    deadline = time.monotonic() + 48
+    while time.monotonic() < deadline:
+        pods = _json(_kubectl(lab, "-n", "kube-system", "get", "pods",
+                               "-l", "k8s-app=cilium", "-o", "json"))
+        for pod in pods.get("items", []):
+            metadata = pod["metadata"]
+            if metadata.get("deletionTimestamp") or metadata["uid"] == known_good_uid:
+                continue
+            containers = [container for container in pod["spec"]["containers"]
+                          if container["name"] == "cilium-agent"]
+            if len(containers) != 1:
+                continue
+            container = containers[0]
+            if container["image"] != AGENT_IMAGE or option not in container.get("args", []):
+                continue
+            status = next((entry for entry in pod.get("status", {}).get("containerStatuses", [])
+                           if entry["name"] == "cilium-agent"), {})
+            failures = [status.get("state", {}).get("terminated", {}),
+                        status.get("lastState", {}).get("terminated", {})]
+            if status.get("ready") or not any(entry.get("exitCode", 0) != 0 for entry in failures):
+                continue
+            result = _kubectl(lab, "-n", "kube-system", "logs", "pod/" + metadata["name"],
+                              "-c", "cilium-agent", timeout=15, allow_failure=True)
+            if result.returncode or f"unknown flag: {option}" not in result.stdout + result.stderr:
+                result = _kubectl(lab, "-n", "kube-system", "logs", "pod/" + metadata["name"],
+                                  "-c", "cilium-agent", "--previous", timeout=15, allow_failure=True)
+            if result.returncode == 0 and f"unknown flag: {option}" in result.stdout + result.stderr:
+                return {"pod_uid": metadata["uid"], "pinned_image": True, "agent_unready": True,
+                        "process_rejected_option": True, "nonzero_exit_observed": True}
+        time.sleep(0.6)
+    return {}
+
+
+def _prove_agent_start_recovery(lab, chart):
+    option = "--saf-lab-unrecognized-agent-option"
+    before = _component_pod(lab, "k8s-app=cilium", "cilium-agent", AGENT_IMAGE)
+    previous_policy = _effective_agent_policy_state(lab)
+    history, good_values = _revision_and_values(lab)
+    good_revision = max(int(row["revision"]) for row in history)
+    observed_failure = {}
+    staged_statuses = []
+    stage = _helm(lab, "upgrade", RELEASE, str(chart), "-n", "kube-system",
+                  "--reuse-values", "--set-string", f"extraArgs[0]={option}",
+                  timeout=55, allow_failure=True)
+    try:
+        if stage.returncode == 0:
+            history, _ = _revision_and_values(lab)
+            staged_statuses = _new_revision_statuses(history, good_revision)
+            observed_failure = _observe_agent_start_failure(lab, option, before["pod_uid"])
+    finally:
+        rollback = _helm(lab, "rollback", RELEASE, str(good_revision), "-n", "kube-system",
+                         "--wait", "--timeout", "110s", timeout=125, allow_failure=True)
+    lab.check("red", "A schema-valid configuration reaches the pinned Cilium agent and the new process refuses it",
+              stage.returncode == 0 and staged_statuses == ["deployed"] and bool(observed_failure),
+              {"staged_as_helm_revision": staged_statuses == ["deployed"],
+               "replacement_pinned_agent_unready": observed_failure.get("agent_unready", False),
+               "exact_option_rejected_by_process": observed_failure.get("process_rejected_option", False),
+               "nonzero_agent_exit": observed_failure.get("nonzero_exit_observed", False)})
+
+    rollout = _kubectl(lab, "-n", "kube-system", "rollout", "status", "daemonset/cilium",
+                       "--timeout=110s", timeout=120, allow_failure=True)
+    if rollback.returncode != 0 or rollout.returncode != 0:
+        lab.block("Rollback did not restore the known-good Cilium agent rollout")
+    restored = _component_pod(lab, "k8s-app=cilium", "cilium-agent", AGENT_IMAGE)
+    restored_history, restored_values = _revision_and_values(lab)
+    _wait_endpoint_ready(lab)
+    restored_policy = _effective_agent_policy_state(lab)
+    marker_ok, _ = _wait_for_marker(lab)
+    observations = {
+        "rollback_deployed": _new_revision_statuses(restored_history, good_revision) ==
+            ["superseded", "deployed"],
+        "restored_exact_values": restored_values == good_values,
+        "new_ready_agent_on_approved_pin": restored["pod_uid"] not in
+            {before["pod_uid"], observed_failure.get("pod_uid")},
+        "same_workload_and_realized_ingress_policy": all(
+            previous_policy[key] == restored_policy[key]
+            for key in ("captured_pod_uid", "captured_policy_uid")),
+        "restored_approved_marker": marker_ok,
+    }
+    (lab.evidence / "cilium-agent-start-recovery.json").write_text(json.dumps(
+        {"known_good": before, "failed_candidate": observed_failure, "restored": restored,
+         "policy_before": previous_policy, "policy_after": restored_policy,
+         "observations": observations}, indent=2, sort_keys=True) + "\n")
+    lab.check("green", "Helm rollback restores the pinned Cilium agent, original realized policy and approved marker",
+              all(observations.values()), observations)
+
+
 def run(lab):
     kind_version = lab.command("kind", "version").stdout.strip()
     if not kind_version.startswith(KIND_VERSION):
@@ -783,6 +873,7 @@ def run(lab):
     lab.check("green", "Post-rollback marker service remains reachable",
               green_ok, green_result)
     _run_rollout_recovery(lab, chart)
+    _prove_agent_start_recovery(lab, chart)
     policy_after_rollback = _wait_endpoint_ready(lab)
     effective_policy_after_rollback = _effective_agent_policy_state(lab)
     stored_policy = _json(_kubectl(lab, "-n", NAMESPACE, "get", "ciliumnetworkpolicy", CNP_NAME, "-o", "json"))

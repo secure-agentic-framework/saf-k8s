@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0502-004",
-  "catalog_revision": "fd6a377ac191040163757174c26300e769c65219",
+  "catalog_revision": "9a4e0da1ba354e33d663b0dfb1b46b31ab0547c7",
   "catalog_sha256": "493dd2fccb76973d7c8b6f2f7c58473f4200b3a55539861126b63bcab5cbd2f6",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "2d90c7aef7f1c4fa957d3fe41fea2c7b99ce28444976946a7d5dba2af2a1463a",
-  "scope": "One fresh harness-owned Kind v0.32.0 / Kubernetes v1.36.1 cluster, with Kind's default CNI disabled. The case installs Cilium 1.20.4 and upgrades to 1.20.5 from checked OCI chart archives. Both pre- and post-upgrade agent/operator Pods are Ready on the expected pins. The same owned policy and server Pod UIDs are observed with the policy realized on both versions. One TCP marker request follows the approved path between two case-owned pods in the cluster. A deliberately invalid readiness-probe threshold is submitted through Helm with and without --atomic. The case requires API rejection for both attempts, a deployed rollback revision for the atomic trial, restored user values, and the same marker request afterward. An additive lifecycle branch rolls Cilium agents after a valid monitor-aggregation setting change, then observes a failed operator workload image rollout and explicit Helm rollback while keeping the agent datapath pinned. A case-owned namespaced CiliumNetworkPolicy permits only ordinary marker-client ingress to the marker-server TCP port, remains realized through the tested Helm lifecycle, and is removed afterward. Scope excludes failed agent datapath rollout, production baseline, CVE status or patch timeliness, provider SLAs, RBAC process, PSA configuration, or production-scale availability.",
-  "cluster": "saf-lab-0243d84f9dcc",
+  "scope": "One fresh harness-owned Kind v0.32.0 / Kubernetes v1.36.1 cluster, with Kind's default CNI disabled. The case installs Cilium 1.20.4 and upgrades to 1.20.5 from checked OCI chart archives. Both pre- and post-upgrade agent/operator Pods are Ready on the expected pins. The same owned policy and server Pod UIDs are observed with the policy realized on both versions. One TCP marker request follows the approved path between two case-owned pods in the cluster. A deliberately invalid readiness-probe threshold is submitted through Helm with and without --atomic. The case requires API rejection for both attempts, a deployed rollback revision for the atomic trial, restored user values, and the same marker request afterward. An additive lifecycle branch rolls Cilium agents after a valid monitor-aggregation setting change, then observes a failed operator workload image rollout and explicit Helm rollback while keeping the agent datapath pinned. A case-owned namespaced CiliumNetworkPolicy permits only ordinary marker-client ingress to the marker-server TCP port, remains realized through the tested Helm lifecycle, and is removed afterward. A schema-valid, case-local option is rejected by the pinned agent, then explicit rollback restores the Ready, pinned agent and re-verifies the same realized policy and marker. Scope excludes production baseline, CVE status or patch timeliness, provider SLAs, RBAC process, PSA configuration, or production-scale availability.",
+  "cluster": "saf-lab-43a9ecae9fbc",
   "kind_ready_wait": "0s",
   "kubernetes": {
     "clientVersion": {
@@ -212,6 +212,29 @@
       "observed": {
         "returncode": 0,
         "marker_received": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "A schema-valid configuration reaches the pinned Cilium agent and the new process refuses it",
+      "matched": true,
+      "observed": {
+        "staged_as_helm_revision": true,
+        "replacement_pinned_agent_unready": true,
+        "exact_option_rejected_by_process": true,
+        "nonzero_agent_exit": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Helm rollback restores the pinned Cilium agent, original realized policy and approved marker",
+      "matched": true,
+      "observed": {
+        "rollback_deployed": true,
+        "restored_exact_values": true,
+        "new_ready_agent_on_approved_pin": true,
+        "same_workload_and_realized_ingress_policy": true,
+        "restored_approved_marker": true
       }
     },
     {

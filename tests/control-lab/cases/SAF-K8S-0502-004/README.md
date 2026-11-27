@@ -60,3 +60,17 @@ handling, and the patch approval timeline under the deployed CNI profile.
 - [Cilium Helm upgrade guide](https://docs.cilium.io/en/stable/operations/upgrade/)
 - [Cilium 1.20.4 release pins](https://github.com/cilium/cilium/releases/tag/v1.20.4)
 - [Cilium 1.20.5 release pins](https://github.com/cilium/cilium/releases/tag/v1.20.5)
+
+
+## Agent start failure and recovery
+
+A same-version Helm upgrade introduces one invalid agent option in the
+disposable fixture. Kubernetes accepts the DaemonSet update. The case
+observes a replacement agent Pod with the same approved image, a nonzero
+process exit and a diagnostic naming the exact option. Helm rollback
+then restores the known-good values and a Ready pinned agent. The case
+matches the original server and policy UIDs, verifies the realized ingress
+rule and checks the same marker after recovery. The receipt covers
+one local agent start failure and post-recovery reachability. Sustained
+availability and failure recovery across nodes, agents and workload paths
+require the adopted topology and change procedure.
