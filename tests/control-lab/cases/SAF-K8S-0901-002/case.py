@@ -28,7 +28,9 @@ SCOPE = (
     "enforcement is enabled, then two assigned workers submit ordinary fixed vectors. An "
     "independent observer reads stable counters and the exact mock aggregate. No real model, "
     "training framework, external service, real identity, external credential, feed, or target is used. "
-    "A separate authenticated observer can read counters and is refused ordinary contribution access."
+    "A separate observer Pod has a projected synthetic identity, reads counters, and is refused contribution as unenrolled. "
+    "After those 14 checks, a paired fixture compares the same three fixed in-range synthetic values "
+    "with anomaly screening disabled and enabled while schema and assignment checks stay enabled."
 )
 
 
@@ -297,3 +299,198 @@ def run(lab):
         "external_targets_accessed": False, "secrets_collected": False,
         "real_model_or_training_used": False,
     })
+
+    # Paired synthetic policy variants follow the original 14 checks. The same
+    # authenticated worker Pod and Service submit the exact same fixed,
+    # schema-valid vectors in screening-off mode and then screening-on mode.
+    screening_keys = ("screen_benign_comparator", "screen_alert_quarantine", "screen_hard_deny")
+    kubectl(lab, "-n", NAMESPACE, "delete", "pod", "aggregation", "--wait=true", timeout=40)
+    apply(lab, pod_spec("aggregation", "aggregation", "screen-off"))
+    screen_off_pod = wait_ready(lab, "aggregation")
+    screen_off_service = json.loads(kubectl(lab, "-n", NAMESPACE, "get", "service", SERVICE,
+                                           "-o", "json").stdout)
+    screen_off_slices, screen_off_endpoints = wait_ready_endpoint(
+        lab, screen_off_pod.get("status", {}).get("podIP"))
+    screen_off_endpoint_ok = (screen_off_service.get("spec", {}).get("clusterIP") == service_ip
+                              and screen_off_endpoints == [screen_off_pod.get("status", {}).get("podIP")])
+    screen_off_results = {}
+    for key in screening_keys:
+        result = exec_client(lab, "worker-a", "submit", key)
+        screen_off_results[key] = result
+        raw_write(lab.evidence / f"screening-off-{key}.raw.json", result)
+    screen_off_status = read(lab, "status")
+    screen_off_result = read(lab, "result")
+    screen_off_log = kubectl(lab, "-n", NAMESPACE, "logs", "pod/aggregation").stdout
+    (lab.evidence / "screening-off-aggregator.raw.jsonl").write_text(
+        screen_off_log, encoding="utf-8")
+    screen_off_events = [json.loads(line) for line in screen_off_log.splitlines() if line.strip()]
+    raw_write(lab.evidence / "screening-off-independent-readback.raw.json", {
+        "status": screen_off_status, "aggregate": screen_off_result})
+
+    expected_screen_off_status = {
+        "received_count": 3, "accepted_count": 3, "rejected_count": 0,
+        "rejected_by_reason": {"schema": 0, "assignment": 0},
+    }
+    expected_screen_off_result = {"accepted_count": 3, "mean": [0.031667, -0.01, 0.0]}
+    screen_off_bodies = {
+        "screen_benign_comparator": {"request_id": "synthetic-screen-benign-01",
+            "worker_id": "worker-a", "round_id": "round-7", "schema_version": "v1",
+            "vector": [0.025, -0.01, 0.0]},
+        "screen_alert_quarantine": {"request_id": "synthetic-screen-alert-01",
+            "worker_id": "worker-a", "round_id": "round-7", "schema_version": "v1",
+            "vector": [0.03, -0.01, 0.0]},
+        "screen_hard_deny": {"request_id": "synthetic-screen-deny-01",
+            "worker_id": "worker-a", "round_id": "round-7", "schema_version": "v1",
+            "vector": [0.04, -0.01, 0.0]},
+    }
+    screen_off_events_by_id = {row.get("request", {}).get("request_id"): row
+                               for row in screen_off_events if isinstance(row.get("request"), dict)}
+    expected_screen_off_responses = {key: {"http_status": 200,
+        "response": {"status": "accepted"}} for key in screening_keys}
+    screen_off_outcomes_match = all(
+        screen_off_results[key].get("http_status") == expected["http_status"]
+        and screen_off_results[key].get("response") == expected["response"]
+        for key, expected in expected_screen_off_responses.items())
+    screen_off_inputs_match = (len(screen_off_events) == 3 and len(screen_off_events_by_id) == 3
+        and all(screen_off_events_by_id.get(body["request_id"], {}).get("request") == body
+                and screen_off_events_by_id.get(body["request_id"], {}).get("authenticated_identity") == "worker-a"
+                and screen_off_events_by_id.get(body["request_id"], {}).get("mode") == "screen-off"
+                and screen_off_events_by_id.get(body["request_id"], {}).get("outcome") == {"status": "accepted"}
+                for body in screen_off_bodies.values()))
+    screen_off_readback_match = (screen_off_status == expected_screen_off_status
+                                 and screen_off_result == expected_screen_off_result)
+    screen_off_raw = {
+        "scope": "Anomaly-screening-disabled counterfactual retaining schema and assignment enforcement, for the same three fixed vectors after the original 14 assertions.",
+        "screening_pod_uid": screen_off_pod.get("metadata", {}).get("uid"),
+        "screening_pod_ip": screen_off_pod.get("status", {}).get("podIP"),
+        "same_service_endpoint": screen_off_endpoint_ok,
+        "endpoint_slices": screen_off_slices,
+        "request_results": screen_off_results,
+        "authenticated_server_events": screen_off_events,
+        "expected_bodies": screen_off_bodies,
+        "exact_authenticated_inputs_match": screen_off_inputs_match,
+        "independent_status": screen_off_status,
+        "expected_status": expected_screen_off_status,
+        "independent_aggregate": screen_off_result,
+        "expected_aggregate": expected_screen_off_result,
+        "outcomes_match": screen_off_outcomes_match,
+        "readback_match": screen_off_readback_match,
+    }
+    raw_write(lab.evidence / "screening-off-policy.raw.json", screen_off_raw)
+
+    # Replace the screening-off Pod with the screening policy. Counter state is
+    # fresh while Service IP and authenticated client identities remain fixed.
+    kubectl(lab, "-n", NAMESPACE, "delete", "pod", "aggregation", "--wait=true", timeout=40)
+    apply(lab, pod_spec("aggregation", "aggregation", "screen"))
+    screening_pod = wait_ready(lab, "aggregation")
+    screen_service = json.loads(kubectl(lab, "-n", NAMESPACE, "get", "service", SERVICE,
+                                       "-o", "json").stdout)
+    screen_slices, screen_endpoints = wait_ready_endpoint(
+        lab, screening_pod.get("status", {}).get("podIP"))
+    endpoint_ok = (screen_service.get("spec", {}).get("clusterIP") == service_ip
+                   and screen_endpoints == [screening_pod.get("status", {}).get("podIP")])
+
+    screening_results = {}
+    for key in screening_keys:
+        result = exec_client(lab, "worker-a", "submit", key)
+        screening_results[key] = result
+        raw_write(lab.evidence / f"screening-{key}.raw.json", result)
+    screening_status = read(lab, "status")
+    screening_result = read(lab, "result")
+    screening_log = kubectl(lab, "-n", NAMESPACE, "logs", "pod/aggregation").stdout
+    (lab.evidence / "screening-aggregator.raw.jsonl").write_text(
+        screening_log, encoding="utf-8")
+    screening_events = [json.loads(line) for line in screening_log.splitlines() if line.strip()]
+    raw_write(lab.evidence / "screening-independent-readback.raw.json", {
+        "status": screening_status, "aggregate": screening_result})
+
+    expected_screening = {
+        "screen_benign_comparator": {"http_status": 200,
+            "response": {"status": "accepted", "score": 0.015}},
+        "screen_alert_quarantine": {"http_status": 202,
+            "response": {"status": "quarantined", "reason": "anomaly_alert", "score": 0.02}},
+        "screen_hard_deny": {"http_status": 422,
+            "response": {"status": "rejected", "reason": "anomaly_threshold", "score": 0.03}},
+    }
+    outcomes_match = all(
+        screening_results[key].get("http_status") == expected["http_status"]
+        and screening_results[key].get("response") == expected["response"]
+        for key, expected in expected_screening.items())
+    expected_bodies = {
+        "screen_benign_comparator": {"request_id": "synthetic-screen-benign-01",
+            "worker_id": "worker-a", "round_id": "round-7", "schema_version": "v1",
+            "vector": [0.025, -0.01, 0.0]},
+        "screen_alert_quarantine": {"request_id": "synthetic-screen-alert-01",
+            "worker_id": "worker-a", "round_id": "round-7", "schema_version": "v1",
+            "vector": [0.03, -0.01, 0.0]},
+        "screen_hard_deny": {"request_id": "synthetic-screen-deny-01",
+            "worker_id": "worker-a", "round_id": "round-7", "schema_version": "v1",
+            "vector": [0.04, -0.01, 0.0]},
+    }
+    events_by_id = {row.get("request", {}).get("request_id"): row
+                    for row in screening_events if isinstance(row.get("request"), dict)}
+    inputs_match = (len(screening_events) == 3 and len(events_by_id) == 3
+                    and all(events_by_id.get(body["request_id"], {}).get("request") == body
+                            and events_by_id.get(body["request_id"], {}).get("authenticated_identity") == "worker-a"
+                            and events_by_id.get(body["request_id"], {}).get("mode") == "screen"
+                            and events_by_id.get(body["request_id"], {}).get("outcome")
+                                == expected_screening[key]["response"]
+                            for key, body in expected_bodies.items())
+                    and all(all(abs(value) <= 0.05 for value in body["vector"])
+                            for body in expected_bodies.values()))
+    expected_screening_status = {
+        "received_count": 3, "accepted_count": 1, "rejected_count": 1,
+        "rejected_by_reason": {"schema": 0, "assignment": 0, "anomaly": 1},
+        "quarantined_count": 1, "alerted_count": 1,
+    }
+    expected_screening_result = {"accepted_count": 1, "mean": [0.025, -0.01, 0.0]}
+    readback_match = (screening_status == expected_screening_status
+                      and screening_result == expected_screening_result)
+    screening_raw = {
+        "scope": "Paired screening-disabled and screening-enabled variants after the original 14 assertions; schema and assignment enforcement stay enabled and the same three fixed values come from one authenticated synthetic worker.",
+        "screen_off_counterfactual": screen_off_raw,
+        "screen_off_endpoint_same_service": screen_off_endpoint_ok,
+        "screen_off_outcomes_match": screen_off_outcomes_match,
+        "screen_off_exact_authenticated_inputs_match": screen_off_inputs_match,
+        "screen_off_independent_status_and_aggregate_match": screen_off_readback_match,
+        "baseline": [0.01, -0.01, 0.0],
+        "score": "rounded maximum absolute coordinate deviation from the fixed baseline",
+        "policy": {"accept_at_or_below": 0.015, "quarantine_and_alert_above": 0.015,
+                   "deny_at_or_above": 0.03},
+        "screening_pod_uid": screening_pod.get("metadata", {}).get("uid"),
+        "screening_pod_ip": screening_pod.get("status", {}).get("podIP"),
+        "service_cluster_ip_unchanged": screen_service.get("spec", {}).get("clusterIP") == service_ip,
+        "one_ready_endpoint_is_screening_pod": screen_endpoints == [screening_pod.get("status", {}).get("podIP")],
+        "endpoint_slices": screen_slices,
+        "results": screening_results, "expected_results": expected_screening,
+        "authenticated_server_events": screening_events,
+        "expected_request_bodies": expected_bodies,
+        "exact_authenticated_inputs_match": inputs_match,
+        "independent_status": screening_status, "expected_status": expected_screening_status,
+        "independent_aggregate": screening_result, "expected_aggregate": expected_screening_result,
+        "status_and_aggregate_match": readback_match,
+        "vectors_are_fixed_and_in_range": True,
+        "external_targets_accessed": False,
+        "real_model_or_training_used": False,
+    }
+    raw_write(lab.evidence / "screening-policy.raw.json", screening_raw)
+    lab.check("positive",
+              "The screen_off and screening variants receive the same benign in-range vectors; screening accepts the boundary comparator, alerts and quarantines the middle score, denies the hard threshold, and exposes only the accepted vector to independent readback",
+              screen_off_endpoint_ok and screen_off_outcomes_match and screen_off_readback_match
+                  and screen_off_inputs_match and endpoint_ok and outcomes_match and readback_match and inputs_match
+                  and all(screen_off_bodies[key] == expected_bodies[key] for key in screening_keys),
+              {"same_service_reaches_screen_off_variant": screen_off_endpoint_ok,
+               "screen_off_counterfactual_accepts_all_three": screen_off_outcomes_match,
+               "screen_off_independent_status_and_aggregate_match": screen_off_readback_match,
+               "same_service_reaches_screening_variant": endpoint_ok,
+               "benign_comparator_accepted": screening_results["screen_benign_comparator"].get("response")
+                   == expected_screening["screen_benign_comparator"]["response"],
+               "middle_score_quarantined_and_alerted": screening_results["screen_alert_quarantine"].get("response")
+                   == expected_screening["screen_alert_quarantine"]["response"],
+               "hard_score_denied": screening_results["screen_hard_deny"].get("response")
+                   == expected_screening["screen_hard_deny"]["response"],
+               "same_exact_bodies_in_both_variants": all(
+                   screen_off_bodies[key] == expected_bodies[key] for key in screening_keys),
+               "screen_off_exact_authenticated_inputs_match": screen_off_inputs_match,
+               "exact_authenticated_inputs_match": inputs_match,
+               "independent_status_and_aggregate_match": readback_match})

@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0901-002",
-  "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
-  "catalog_sha256": "8b5d5d3953fe7609345314925fca4f692357e0cf1d451d66381b5845fc175186",
+  "catalog_revision": "3e045ee4a88eb2c8bd4a7cf8e5f8fddbc621b057",
+  "catalog_sha256": "abe40f941f7d427f9b0a6925bad25da44b0fb08979ab503301fb56399c7bf4b0",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "99fd8f8252893c374f47ba9d471938a06124fc31f6d216990beaf7547f310a1c",
-  "scope": "One disposable Kind cluster on Kubernetes v1.36.1 hosts two synthetic worker Pods, one observer Pod, and one case-owned ClusterIP aggregation mock. The mock has an Kubernetes TokenReview verification of audience-scoped Pod identities, an enrollment-to-round table, and accepts only a fixed v1 JSON schema with three finite numeric entries in [-0.05, 0.05] when enforcement is enabled. Red sends only harmless synthetic metadata and small numeric values: one enrolled worker on the wrong assigned round and one short numeric vector. Green repeats those requests after enforcement is enabled, then two assigned workers submit ordinary fixed vectors. An independent observer reads stable counters and the exact mock aggregate. No real model, training framework, external service, real identity, external credential, feed, or target is used. A separate authenticated observer can read counters and is refused ordinary contribution access.",
-  "cluster": "saf-lab-270403195ed6",
+  "control_sha256": "bb16ab04c16e700904d6a6d8fc30cd55202a0b441b55bfb7f7771f84a48596cc",
+  "scope": "One disposable Kind cluster on Kubernetes v1.36.1 hosts two synthetic worker Pods, one observer Pod, and one case-owned ClusterIP aggregation mock. The mock has an Kubernetes TokenReview verification of audience-scoped Pod identities, an enrollment-to-round table, and accepts only a fixed v1 JSON schema with three finite numeric entries in [-0.05, 0.05] when enforcement is enabled. Red sends only harmless synthetic metadata and small numeric values: one enrolled worker on the wrong assigned round and one short numeric vector. Green repeats those requests after enforcement is enabled, then two assigned workers submit ordinary fixed vectors. An independent observer reads stable counters and the exact mock aggregate. No real model, training framework, external service, real identity, external credential, feed, or target is used. A separate observer Pod has a projected synthetic identity, reads counters, and is refused contribution as unenrolled. After those 14 checks, a paired fixture compares the same three fixed in-range synthetic values with anomaly screening disabled and enabled while schema and assignment checks stay enabled.",
+  "cluster": "saf-lab-606e924e5eaf",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -283,6 +283,24 @@
             "outcome": "not_enrolled"
           }
         ]
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The screen_off and screening variants receive the same benign in-range vectors; screening accepts the boundary comparator, alerts and quarantines the middle score, denies the hard threshold, and exposes only the accepted vector to independent readback",
+      "matched": true,
+      "observed": {
+        "same_service_reaches_screen_off_variant": true,
+        "screen_off_counterfactual_accepts_all_three": true,
+        "screen_off_independent_status_and_aggregate_match": true,
+        "same_service_reaches_screening_variant": true,
+        "benign_comparator_accepted": true,
+        "middle_score_quarantined_and_alerted": true,
+        "hard_score_denied": true,
+        "same_exact_bodies_in_both_variants": true,
+        "screen_off_exact_authenticated_inputs_match": true,
+        "exact_authenticated_inputs_match": true,
+        "independent_status_and_aggregate_match": true
       }
     }
   ]

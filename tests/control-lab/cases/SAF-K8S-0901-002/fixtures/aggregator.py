@@ -19,6 +19,9 @@ accepted = []
 accepted_requests = 0
 received_requests = 0
 rejected = {"schema": 0, "assignment": 0}
+screen_quarantined = 0
+screen_alerted = 0
+screen_denied = 0
 
 
 def valid_schema(body):
@@ -89,16 +92,22 @@ class Handler(BaseHTTPRequestHandler):
         if self.path == "/healthz":
             return self.reply(200, {"ok": True, "fixture": "0901-002"})
         if self.path == "/v1/status":
-            return self.reply(200, {"received_count": received_requests,
-                                    "accepted_count": accepted_requests,
-                                    "rejected_count": sum(rejected.values()),
-                                    "rejected_by_reason": rejected.copy()})
+            status = {"received_count": received_requests,
+                      "accepted_count": accepted_requests,
+                      "rejected_count": sum(rejected.values()),
+                      "rejected_by_reason": rejected.copy()}
+            if MODE == "screen":
+                status.update(rejected_count=status["rejected_count"] + screen_denied,
+                              rejected_by_reason={**rejected, "anomaly": screen_denied},
+                              quarantined_count=screen_quarantined,
+                              alerted_count=screen_alerted)
+            return self.reply(200, status)
         if self.path == "/v1/mock-result":
             return self.reply(200, mock_result())
         return self.reply(404, {"error": "not_found"})
 
     def do_POST(self):
-        global accepted_requests, received_requests
+        global accepted_requests, received_requests, screen_quarantined, screen_alerted, screen_denied
         if self.path != "/v1/contribute":
             return self.reply(404, {"error": "not_found"})
         authorization = self.headers.get("Authorization", "")
@@ -126,7 +135,7 @@ class Handler(BaseHTTPRequestHandler):
         received_requests += 1
 
         reason = None
-        if MODE == "enforce":
+        if MODE in ("enforce", "screen", "screen-off"):
             if not valid_schema(body):
                 reason = "schema"
             elif body["worker_id"] != actor or not assignment_matches(body):
@@ -135,6 +144,28 @@ class Handler(BaseHTTPRequestHandler):
             rejected[reason] += 1
             outcome = {"status": "rejected", "reason": reason}
             code = 422
+        elif MODE == "screen":
+            # A bounded deterministic fixture policy, separate from the normal
+            # schema/assignment gate. It makes no learned-model claim.
+            baseline = (0.01, -0.01, 0.0)
+            score = round(max(abs(value - center)
+                              for value, center in zip(body["vector"], baseline)), 8)
+            if score >= 0.03:
+                screen_denied += 1
+                outcome = {"status": "rejected", "reason": "anomaly_threshold",
+                           "score": score}
+                code = 422
+            elif score > 0.015:
+                screen_quarantined += 1
+                screen_alerted += 1
+                outcome = {"status": "quarantined", "reason": "anomaly_alert",
+                           "score": score}
+                code = 202
+            else:
+                accepted_requests += 1
+                accepted.append({"vector": body["vector"]})
+                outcome = {"status": "accepted", "score": score}
+                code = 200
         else:
             accepted_requests += 1
             outcome = {"status": "accepted"}

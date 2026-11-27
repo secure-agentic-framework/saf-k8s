@@ -4,26 +4,26 @@
 
 This draft exercises a narrow request-validation slice of the pinned control in a disposable Kind v0.32.0 cluster running Kubernetes v1.36.1. The node and every fixture Pod use digest-pinned images. It creates one case-owned ClusterIP aggregation endpoint, two synthetic worker clients, and a distinct observer client in one namespace. The endpoint has a fixed in-memory assignment table (`worker-a` and `worker-b` assigned to `round-7`) and a case-defined JSON schema: request ID, worker ID, assigned round, schema version, and a three-element finite numeric vector whose components are within `[-0.05, 0.05]`.
 
-The red baseline starts the same mock with assignment and schema enforcement disabled. It receives only harmless, fixed small numbers: a correctly shaped request from an enrolled synthetic worker for the wrong round, and a short vector with two small numeric entries. Both are accepted by the mock, making the missing checks observable. The case captures these receipts and raw mock events, then replaces only the aggregator Pod with enforcement enabled. The Service address and client Pods remain the same. Green repeats the exact requests and expects one assignment rejection and one schema rejection. Positive checks send one ordinary assigned update from each worker. A separate observer Pod reads the exact mock output and accounting twice; the expected result is a mean vector of `[0.015, -0.01, 0.01]`, two accepted contributions, and stable counters of four requests, two accepts, and two rejects split by reason.
+The red baseline starts the same mock with assignment and schema enforcement disabled. It receives three harmless fixed requests: a correctly shaped request from an enrolled synthetic worker for the wrong round, a short vector, and an out-of-range vector. Each receives the permissive mock's accepted response; only safely shaped, in-range values enter its arithmetic. The case captures these receipts and raw mock events, then replaces only the aggregator Pod with enforcement enabled. The Service address and client Pods remain the same. Green repeats the requests and expects one assignment rejection and two schema/range rejections. The un-enrolled observer is rejected separately before contribution accounting. Positive checks send one ordinary assigned update from each worker. A separate observer Pod reads the exact mock output and accounting twice; the expected result is a mean vector of `[0.015, -0.01, 0.01]`, two accepted contributions, and stable counters of five enrolled-worker requests, two accepts, and three rejects split by reason.
 
-This is an authored toy protocol, not a training stack or a claim that this schema is a standard. The fixed output comes from accepted fixture vectors only. The endpoint does not use credentials, service account tokens, client certificates, real worker identity, a real model, or any training framework. The fixtures make no network calls except to the case-owned in-cluster Service. They do not log HTTP request lines, headers, credentials, or environment contents. Captured request/event evidence contains synthetic fixture IDs and the fixed numeric vectors only.
+This is an authored toy protocol, not a training stack or a claim that this schema is a standard. The fixed output comes from accepted fixture vectors only. The original case uses projected, audience-scoped Pod service-account tokens and Kubernetes TokenReview for synthetic workers, as described below; it does not use external credentials, real worker identity, a real model, or any training framework. The fixtures make no network calls except to the case-owned in-cluster Service and the Kubernetes API for the configured TokenReview operation. They do not log HTTP request lines, headers, tokens, credentials, or environment contents. Captured request/event evidence contains synthetic fixture IDs and fixed numeric vectors only.
 
 ## Control claim coverage
 
 | Pinned claim | Status in this case |
 |---|---|
 | Validate a contributed update's ordinary schema | **Demonstrated only for** the mock's fixed version, field set, vector length, numeric type, finiteness, and component range. Green rejects the two-element vector. |
-| Check worker assignment for an aggregation round | **Demonstrated only for** the mock's static worker-to-round table. Green rejects an enrolled worker's request for a different round. This is not worker authentication or impersonation testing. |
+| Check worker assignment for an aggregation round | **Demonstrated only for** the mock's static worker-to-round table. Green rejects an enrolled worker's request for a different round. This does not establish production assignment governance. |
 | Stable accounting of rejected schemas and accepted contributions | **Demonstrated only for** the mock's in-memory per-process counters and two observer reads in one run. It does not test durable, concurrent, distributed, or tamper-resistant accounting. |
 | Preserve aggregation output independent of worker receipts | **Demonstrated only for** an observer Pod's separate `GET /v1/mock-result`, exact expected arithmetic, and fixture-local accepted set. It is not a secure aggregation protocol or a production output-release boundary. |
 | Gradient poisoning, backdoors, Byzantine fault injection | **Not tested.** There are no adversarial vectors or attack procedures. Small fixed values stay within the configured range. |
-| Authenticated aggregation and worker impersonation prevention | **Not tested.** IDs are synthetic fields. No credentials, identity assertion, token, certificate, impersonation, or enrollment lifecycle is created. |
-| Anomaly detection on update statistics | **Not tested.** The mock checks schema and assignment only; it has no anomaly model or signal. |
+| Authenticated aggregation and worker impersonation prevention | **Demonstrated only for** synthetic Pod-bound audience-scoped service-account tokens checked by Kubernetes TokenReview, static fixture enrollment, and rejection of an authenticated but unenrolled observer. It does not establish production worker identity issuance, enrollment lifecycle, revocation, transport authentication, or impersonation defenses in an adopted training stack. |
+| Anomaly detection on update statistics | The original 14 checks do not cover it. The screening check compares one explicitly declared deterministic threshold policy against a screening-off counterfactual using the same three harmless in-range vectors; it is not an anomaly model or evidence of production thresholds. |
 | Parameter server and all-reduce architectures | **Not tested.** The HTTP mock is neither architecture and does not establish topology coverage. |
 
-The red result is the known permissive branch of this mock, not evidence that an external system is vulnerable. The green and positive outcomes establish only that the case-owned fixture rejects the specified two synthetic conditions and returns the expected arithmetic for its two accepted updates in this disposable cluster. Kubernetes scheduling, Service routing, and Pod readiness are setup evidence, not evidence for training-framework controls.
+The red result is the known permissive branch of this mock, not evidence that an external system is vulnerable. The green and positive outcomes establish only that the case-owned fixture rejects the specified synthetic conditions and returns the expected arithmetic for its accepted updates in this disposable cluster. The added screening-off/screening-on comparison establishes only its exact fixed fixture policy. Kubernetes scheduling, Service routing, and Pod readiness are setup evidence, not evidence for training-framework controls.
 
-The pinned `control.md` states the poisoning, impersonation, Byzantine fault, backdoor, and model-quality claims as rationale but provides no supporting citations or implementation-specific evidence in that record. This case treats those claims as unresolved source assertions; it neither validates nor refutes them.
+The control statement requires authenticated aggregation, gradient validation, and anomaly detection, while its rationale discusses poisoning, impersonation, Byzantine faults, backdoors, and model-quality effects. This fixture provides only synthetic identity, assignment/schema checks, and the separately scoped threshold-policy supplement below; it neither validates nor refutes the control's model-specific rationale.
 
 ## Separate evidence obligations
 
@@ -35,6 +35,37 @@ The control's remaining claims require separately reviewed, implementation-speci
 - Gradient validation and anomaly signals as implemented in the real data path, with thresholds, telemetry, rejection actions, and operational review evidence.
 - Model, training, backdoor, poisoning, and quality-impact claims. This case does not validate the control's source rationale about these effects.
 
+## Bounded synthetic in-range screening supplement
+
+The case preserves the 14 original assertions and compares the
+same three fixed, valid, in-range vectors under a `screen-off` variant and a
+separate `screen` policy variant. Schema and worker-round assignment checks
+remain enabled in both; only the anomaly screening policy changes. In the
+screen-off counterfactual, all three receive accepted responses and appear in
+its independently read aggregate, with three accepted and zero rejected. The
+existing projected audience-scoped worker identity and Service path remain
+in use in both variants. The vectors are evaluated against the declared synthetic baseline
+`[0.01, -0.01, 0.0]` using the maximum absolute coordinate
+deviation rounded to eight decimal places. Scores at or below `0.015` are
+accepted; scores above `0.015` and below `0.03` raise an alert and are
+quarantined from aggregation; scores at or above `0.03` are denied. The
+benign boundary comparator has score `0.015`, the alert fixture `0.02`, and the
+deny fixture `0.03`. In screening mode the expected counters are three received,
+one accepted, one quarantined/alerted, and one denied; the independent
+aggregate contains only the accepted comparator. The one added assertion
+requires the exact same observed request bodies in both modes and compares
+their independent status and aggregate readbacks.
+
+These fixed values are ordinary numeric examples, not generated malicious
+training inputs. The test checks only this authored deterministic fixture
+policy; it does not validate a learned anomaly detector, a statistical
+distribution, real model-specific thresholds, false-positive rates, poisoning
+or Byzantine resistance, or deployment response. The original 14 checks are
+unchanged; the case adds one composite assertion, for 15 total.
+Screening-off receipts are written as `screening-off-policy.raw.json` and
+related `screening-off-*` files; screening receipts use `screening-policy.raw.json`
+and related screening request/readback files under the evidence directory.
+
 No claim about any live framework, target, feed, training job, or production deployment is inferred from this mock. A passing supervisor run is not proof of complete control effectiveness.
 
 ## Running and evidence
@@ -45,7 +76,7 @@ From the control-lab root, the supervisor can run the case through the lab harne
 python3 lab.py test SAF-K8S-0901-002 --docker-context desktop-linux
 ```
 
-The draft author did not run Docker, Kind, kubectl, Beads, or publishing. The supervisor should execute and review both red and enforced phases. The case writes bounded phase receipts, baseline and enforced mock event logs, two accounting reads, the independent exact result, and raw Service/Pod/EndpointSlice objects under the run's evidence directory. None of those files should contain credentials or Secret data.
+Review the original red and enforced phases and the comparison with screening disabled and enabled. The case writes bounded phase receipts, original baseline and enforced mock event logs, paired screening event logs, independent accounting/aggregate reads, and raw Service/Pod/EndpointSlice objects under the run's evidence directory. No raw artifact should contain tokens, credentials, or Secret data.
 
 ## Official primary references
 
@@ -57,9 +88,10 @@ The draft author did not run Docker, Kind, kubectl, Beads, or publishing. The su
 
 Each contributor uses a Pod-bound, audience-scoped token checked by the live
 Kubernetes TokenReview API. The reviewer can only create TokenReview objects.
-The observer authenticates as itself and is denied contribution because it
-has no enrollment. Both cohorts send only fixed inert fixture data, and the
-transcript excludes tokens. The range boundary is tested using one ordinary
-value just outside the documented fixture limit.
+The observer uses its own projected identity for a contribution attempt and is
+denied because it has no enrollment; the fixture's status/result GET endpoints
+are readable without HTTP authentication. All Pods use synthetic service
+accounts, fixed inert values, and the transcript excludes tokens. The original
+range boundary is tested using one ordinary value just outside the fixture limit.
 
 - [Kubernetes ServiceAccount token projection and verification](https://v1-36.docs.kubernetes.io/docs/concepts/security/service-accounts/)

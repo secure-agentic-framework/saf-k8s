@@ -63,5 +63,26 @@
       0.02,
       -0.01
     ]
+  },
+  "screen_benign_comparator": {
+    "request_id": "synthetic-screen-benign-01",
+    "worker_id": "worker-a",
+    "round_id": "round-7",
+    "schema_version": "v1",
+    "vector": [0.025, -0.01, 0.0]
+  },
+  "screen_alert_quarantine": {
+    "request_id": "synthetic-screen-alert-01",
+    "worker_id": "worker-a",
+    "round_id": "round-7",
+    "schema_version": "v1",
+    "vector": [0.03, -0.01, 0.0]
+  },
+  "screen_hard_deny": {
+    "request_id": "synthetic-screen-deny-01",
+    "worker_id": "worker-a",
+    "round_id": "round-7",
+    "schema_version": "v1",
+    "vector": [0.04, -0.01, 0.0]
   }
 }

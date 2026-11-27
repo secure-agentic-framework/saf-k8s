@@ -2373,7 +2373,7 @@
     "SAF-K8S-0901-002": {
       "catalog_status": "draft",
       "domain": "D09",
-      "sha256": "99fd8f8252893c374f47ba9d471938a06124fc31f6d216990beaf7547f310a1c",
+      "sha256": "bb16ab04c16e700904d6a6d8fc30cd55202a0b441b55bfb7f7771f84a48596cc",
       "title": "Parameter server and all-reduce security"
     },
     "SAF-K8S-0901-003": {
@@ -3572,7 +3572,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "6029ab1fb12bb5cd1b7ec27d970e967b4a716b23",
-  "sha256": "1108801c4b8b9d8012e11cdb3cad1e76230f37db386f55f346a788ccd59d9875",
+  "revision": "3e9c4dea988c50b654ea2f061e1ad1fe0447696e",
+  "sha256": "abe40f941f7d427f9b0a6925bad25da44b0fb08979ab503301fb56399c7bf4b0",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
