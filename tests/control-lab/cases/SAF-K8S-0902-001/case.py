@@ -25,7 +25,8 @@ SCOPE = (
     "One disposable Kind v1.36.1 cluster runs the synthetic inference posture, egress selection, and liveness recovery fixtures. "
     "A separate nonroot and tokenless llama.cpp CPU Pod loads a digest-pinned tiny model from a read-only artifact volume. "
     "An independent probe verifies model bytes, fixed tokenization, bounded native inference, and reports actual root and model mount flags and token-path presence. "
-    "Deployed serving stacks, dependencies, production network boundaries, accelerator behavior, and patch cadence need separate evidence."
+    "A case-owned ClusterIP and local NetworkPolicy witness checks intended and unassigned peer access to the native Pod plus bounded Pod-network egress under this Kind CNI. "
+    "External exposure, deployed CNI and endpoint inventory, serving dependencies, accelerator behavior, vulnerability scanning, and patch cadence need separate evidence."
 )
 
 
@@ -393,6 +394,11 @@ def run(lab):
     spec.loader.exec_module(supplement)
     supplement.run_liveness(lab)
     run_actual_model_mount(lab)
+    network_spec = importlib.util.spec_from_file_location(
+        "saf_k8s_0902_001_native_serving_network", HERE / "serving_network.py")
+    network = importlib.util.module_from_spec(network_spec)
+    network_spec.loader.exec_module(network)
+    network.run_native_serving_network(lab)
 
 
 MODEL_RUNTIME_COMPANION = HERE.parent / "SAF-K8S-0903-004"

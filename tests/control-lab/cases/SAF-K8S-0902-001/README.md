@@ -75,3 +75,33 @@ ready when running ([Pod debugging](https://v1-36.docs.kubernetes.io/docs/tasks/
 The pinned model runtime references the [official b9519 CPU
 Dockerfile](https://github.com/ggml-org/llama.cpp/blob/b9519/.devops/cpu.Dockerfile)
 and [server API](https://github.com/ggml-org/llama.cpp/blob/b9519/tools/server/README.md).
+
+## Native serving network supplement
+
+The additive `serving_network.py` witness retains the preceding eleven checks.
+It creates one case-owned ClusterIP Service whose selector is copied from the
+live native serving Pod, then requires the Service's sole ready EndpointSlice
+target to carry that same Pod UID and IP. Two restricted, tokenless case-owned
+peer Pods send the same fixed `GET /health` request to the ClusterIP before and
+after an ingress policy is applied. Before policy both can reach the route;
+after policy only the peer labeled as intended can reach it. The unassigned
+peer's request must time out while the intended request still succeeds.
+
+The policy selects the exact native server fixture labels and includes a
+bounded egress allowlist. Before policy, the existing approved and unapproved
+local sink Pods are reachable from the native server Pod's network namespace.
+After policy, only the existing approved sink is reachable. The egress request
+is made by the existing restricted `verify` sidecar in the same Pod/network
+namespace, so this is Pod-level policy evidence, not a claim that llama.cpp
+itself initiates those requests. Raw evidence binds the service endpoint,
+policy-selected UID, peer UIDs, and per-direction outcomes; check observations
+remain stable booleans.
+
+This adds local Kind/CNI evidence for the native Pod's ClusterIP service path
+and Pod-scoped ingress/egress selection. It does not test an external load
+balancer, ingress controller, internet route, production service mesh, or a
+deployed CNI. Kubernetes requires a NetworkPolicy-capable networking solution
+for policy enforcement ([v1.36 NetworkPolicy documentation](https://v1-36.docs.kubernetes.io/docs/concepts/services-networking/network-policies/)).
+Adopters must still validate their real endpoint inventory, external exposure,
+network plugin, serving dependencies, vulnerability scanning, advisory
+handling, and patch cadence.

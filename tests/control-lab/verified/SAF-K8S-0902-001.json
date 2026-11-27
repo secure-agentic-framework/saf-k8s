@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0902-001",
-  "catalog_revision": "d1b8447a22de8db36ec31676b53c34496d4d3f59",
-  "catalog_sha256": "63ca25b48ffb8f35202c5c4db9c599eb98e12d31aa18f4d0d69d91a9e3ec5423",
+  "catalog_revision": "2b8602c39ffd1b31cfa18036b4366537ae17538d",
+  "catalog_sha256": "abe40f941f7d427f9b0a6925bad25da44b0fb08979ab503301fb56399c7bf4b0",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "66dcc21b763407314fd815b3b6394669f30cccb885aada0445060a39dd257234",
-  "scope": "One disposable Kind v1.36.1 cluster runs the synthetic inference posture, egress selection, and liveness recovery fixtures. A separate nonroot and tokenless llama.cpp CPU Pod loads a digest-pinned tiny model from a read-only artifact volume. An independent probe verifies model bytes, fixed tokenization, bounded native inference, and reports actual root and model mount flags and token-path presence. Deployed serving stacks, dependencies, production network boundaries, accelerator behavior, and patch cadence need separate evidence.",
-  "cluster": "saf-lab-391effeea8a4",
+  "scope": "One disposable Kind v1.36.1 cluster runs the synthetic inference posture, egress selection, and liveness recovery fixtures. A separate nonroot and tokenless llama.cpp CPU Pod loads a digest-pinned tiny model from a read-only artifact volume. An independent probe verifies model bytes, fixed tokenization, bounded native inference, and reports actual root and model mount flags and token-path presence. A case-owned ClusterIP and local NetworkPolicy witness checks intended and unassigned peer access to the native Pod plus bounded Pod-network egress under this Kind CNI. External exposure, deployed CNI and endpoint inventory, serving dependencies, accelerator behavior, vulnerability scanning, and patch cadence need separate evidence.",
+  "cluster": "saf-lab-55a3d7f66b19",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -186,6 +186,85 @@
         "exact_four_tokens_generated": true,
         "four_token_limit": true,
         "stopped_at_limit": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Case-owned ClusterIP Service selects the ready native server Pod UID and installed image identity",
+      "matched": true,
+      "observed": {
+        "cluster_ip_service_only": true,
+        "endpoint_ready_and_uid_bound": true,
+        "service_selector_matches_native_fixture": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Before native serving policy, intended and unassigned Pods reach the same Service health route",
+      "matched": true,
+      "observed": {
+        "both_owned_peers_reached_service": true,
+        "same_fixed_health_request": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Before native serving policy, the server Pod network namespace reaches both owned sink Pods",
+      "matched": true,
+      "observed": {
+        "both_owned_sinks_reachable_from_server_pod": true,
+        "probe_container_shares_server_pod_network_identity": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Native policy selects only the exact serving Pod and limits its ingress and egress peers",
+      "matched": true,
+      "observed": {
+        "exact_native_pod_selected": true,
+        "policy_spec_matches_reviewed_allowlist": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Native serving Service remains reachable from the intended case-owned Pod",
+      "matched": true,
+      "observed": {
+        "intended_peer_reaches_native_health": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The same native Service health route is denied to the unassigned case-owned Pod",
+      "matched": true,
+      "observed": {
+        "unassigned_peer_denied": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The native serving Pod network namespace retains only its approved local egress peer",
+      "matched": true,
+      "observed": {
+        "approved_sink_reachable_from_server_pod": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The native serving Pod network namespace cannot reach the unapproved local egress peer",
+      "matched": true,
+      "observed": {
+        "unapproved_sink_denied_from_server_pod": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Native Pod UID, container image identity, readiness, and Service endpoint remain stable through policy enforcement",
+      "matched": true,
+      "observed": {
+        "same_server_pod_container_and_image": true,
+        "server_and_verifier_ready": true,
+        "service_endpoint_still_targets_same_ready_pod_uid": true
       }
     }
   ]
