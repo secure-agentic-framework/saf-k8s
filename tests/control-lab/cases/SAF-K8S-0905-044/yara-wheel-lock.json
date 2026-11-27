@@ -1,0 +1,14 @@
+{
+  "amd64": {
+    "filename": "yara_x-1.24.0-cp39-abi3-manylinux_2_28_x86_64.whl",
+    "sha256": "47ebdf73da496f9140065f497e16cda1581773b27ea96406e213c1964094b398",
+    "size": 10226029,
+    "url": "https://files.pythonhosted.org/packages/b6/16/905b0aa40a6dc317ebec388899689025c29f22d2aa8eeeb5d0debfdb4002/yara_x-1.24.0-cp39-abi3-manylinux_2_28_x86_64.whl"
+  },
+  "arm64": {
+    "filename": "yara_x-1.24.0-cp39-abi3-manylinux_2_28_aarch64.whl",
+    "sha256": "3d1eb298806005652b979703e3da88f1acbb5e85136ebc32a6bb3dbadcfcb875",
+    "size": 10116784,
+    "url": "https://files.pythonhosted.org/packages/7e/e8/83bfd0fa80943e63a03fd7dba79aa8bd205abf0f535308a1ed8490f37be8/yara_x-1.24.0-cp39-abi3-manylinux_2_28_aarch64.whl"
+  }
+}

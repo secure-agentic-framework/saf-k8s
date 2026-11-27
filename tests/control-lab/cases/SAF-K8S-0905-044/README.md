@@ -29,9 +29,9 @@ release, how the scanner result is linked to that approval, and how both are
 retained for review. The HTTP endpoints in the reference case serve fixed
 markers, and the scan decisions are supplied by the fixture.
 
-## Scratch additive: release metadata update guard
+## Release metadata update guard
 
-The scratch candidate adds one case-owned ServiceAccount and a namespaced Role whose
+The case creates a ServiceAccount and a namespaced Role whose
 `patch` permission is limited by `resourceNames` to the single inert release Pod.
 It first adds an unrelated fixture annotation to that Pod and requires the update to
 succeed. It then attempts to replace the recorded scanned-artifact digest with a fixed
@@ -40,3 +40,20 @@ update. An independent API read checks the same Pod UID, original model and arti
 digests, clean/approved labels, and the accepted metadata annotation. This is an
 admission update-path check only; scanner effectiveness, approval provenance and
 production release workflow remain deployment evidence.
+
+## Offline YARA-X marker scan
+
+The restricted quarantine Job runs YARA-X 1.24.0. The host verifies the
+pinned wheel size and digest and builds the fixture image offline. An
+immutable ConfigMap supplies two inert JSON documents and the fixed test
+rule. The clean document produces no match. The second contains a harmless
+excluded marker and matches the rule. Kubernetes admission accepts the
+exact clean digest through the governed approval path and refuses the
+actual flagged digest in server dry-run. The evidence retains both artifact
+digests, the rule digest and match name, and the pinned scanner identity.
+
+For deployment, verify the approved scanner and signature sources, update
+process, supported formats, dangerous-content policy, scoped approvers,
+and representative coverage using approved test artifacts.
+
+[YARA-X Python API](https://virustotal.github.io/yara-x/docs/api/python/)

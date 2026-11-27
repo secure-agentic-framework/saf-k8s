@@ -2,8 +2,11 @@
 import base64
 import hashlib
 import json
+from pathlib import Path
+import shutil
 import ssl
 import subprocess
+import tempfile
 import time
 import urllib.error
 import urllib.request
@@ -47,7 +50,6 @@ MODEL_ARTIFACT_BYTES = json.dumps(
 ).encode("utf-8")
 MODEL_ARTIFACT_SHA256 = hashlib.sha256(MODEL_ARTIFACT_BYTES).hexdigest()
 ARTIFACT_DIGEST_ANNOTATION = "saf.example/scanned-artifact-sha256"
-SCANNER_CONFIGMAP = "saf-fixture-model-bytes"
 SCANNER_JOB = "saf-fixture-model-scanner"
 SCANNER_SOURCE = r'''import hashlib, json, math
 from pathlib import Path
@@ -84,9 +86,9 @@ print(json.dumps({"status": status,
 '''
 
 SCOPE = (
-    "A disposable Kubernetes v1.36.1 Kind cluster uses synthetic public-model metadata and a "
-    "separate fixed inert model-like JSON specimen; no real model bytes or scanner signatures "
-    "are downloaded or created. Bundled kindnet is checked "
+    "A disposable Kubernetes v1.36.1 Kind cluster uses synthetic public-model metadata and "
+    "fixed inert model-like JSON specimens. The pinned YARA-X engine evaluates a local "
+    "marker rule offline. Bundled kindnet is checked "
     "ready. The case applies a restricted quarantine namespace and default-deny ingress/egress "
     "NetworkPolicy, then proves its egress effect against two case-owned marker-only listeners "
     "with one exact allow exception and an unaffected comparator. It then uses the built-in "
@@ -99,9 +101,9 @@ SCOPE = (
     "Synthetic offline decision records exercise malware, "
     "unsafe-format, embedded-content, missing, and subject-mismatch decisions. This verifies the "
     "fixture policy, Kubernetes admission, API authorization, and exact metadata-digest readback. "
-    "It does not demonstrate malware detection or scanner/tool effectiveness, inspect real model content, prove a CNI other than this "
-    "pinned bundled kindnet fixture, or prove production scanner coverage, source authenticity, model "
-    "behavioral safety, promotion workflow adoption, or durable audit storage. A scoped update identity "
+    "The marker comparison establishes the YARA-X rule behavior for these inert JSON specimens. "
+    "Real model contents, scanner coverage, the adopted CNI, source authenticity, behavioral safety, "
+    "production promotion and durable audit storage need deployment evidence. A scoped update identity "
     "also verifies that native release admission preserves the exact scanned digest after creation."
 )
 
@@ -288,20 +290,21 @@ def create_in(lab, namespace, obj):
     return json.loads(result.stdout)
 
 
-def _run_fixture_scanner(lab):
-    """Read only the owned inert fixture and emit bounded predicate/digest output."""
+def _run_scanner_job(lab, job_name, image, image_pull_policy, data):
+    """Run a restricted scanner against immutable fixture data."""
+    config_name = job_name + "-inputs"
     config_created = False
     try:
         create_in(lab, QUARANTINE, {
             "apiVersion": "v1", "kind": "ConfigMap",
-            "metadata": {"name": SCANNER_CONFIGMAP, "labels": {"saf.example/fixture": "model-scan"}},
+            "metadata": {"name": config_name, "labels": {"saf.example/fixture": "model-scan"}},
             "immutable": True,
-            "data": {"model.json": MODEL_ARTIFACT_BYTES.decode("utf-8"), "scanner.py": SCANNER_SOURCE},
+            "data": data,
         })
         config_created = True
         create_in(lab, QUARANTINE, {
             "apiVersion": "batch/v1", "kind": "Job",
-            "metadata": {"name": SCANNER_JOB, "labels": {"saf.example/fixture": "model-scan"}},
+            "metadata": {"name": job_name, "labels": {"saf.example/fixture": "model-scan"}},
             "spec": {
                 "backoffLimit": 0,
                 "activeDeadlineSeconds": 45,
@@ -315,37 +318,99 @@ def _run_fixture_scanner(lab):
                                              "seccompProfile": {"type": "RuntimeDefault"}},
                         "containers": [{
                             "name": "fixture-inspector",
-                            "image": PYTHON_SCANNER_IMAGE,
-                            "imagePullPolicy": "IfNotPresent",
+                            "image": image,
+                            "imagePullPolicy": image_pull_policy,
                             "command": ["python", "-B", "/fixture/scanner.py"],
                             "volumeMounts": [{"name": "fixture", "mountPath": "/fixture", "readOnly": True}],
                             "resources": {"requests": {"cpu": "10m", "memory": "32Mi"},
-                                          "limits": {"cpu": "100m", "memory": "128Mi"}},
+                                          "limits": {"cpu": "250m", "memory": "192Mi"}},
                             "securityContext": {"allowPrivilegeEscalation": False,
                                                  "readOnlyRootFilesystem": True,
                                                  "capabilities": {"drop": ["ALL"]}},
                         }],
-                        "volumes": [{"name": "fixture", "configMap": {"name": SCANNER_CONFIGMAP}}],
+                        "volumes": [{"name": "fixture", "configMap": {"name": config_name}}],
                     },
                 },
             },
         })
-        lab.kubectl("-n", QUARANTINE, "wait", "--for=condition=complete", f"job/{SCANNER_JOB}",
+        lab.kubectl("-n", QUARANTINE, "wait", "--for=condition=complete", f"job/{job_name}",
                     "--timeout=50s", timeout=60)
-        output = lab.kubectl("-n", QUARANTINE, "logs", f"job/{SCANNER_JOB}").stdout.strip()
+        output = lab.kubectl("-n", QUARANTINE, "logs", f"job/{job_name}").stdout.strip()
         receipt = json.loads(output)
     except (ValueError, KeyError):
         lab.block("The bounded fixture scanner returned no stable JSON receipt")
     finally:
-        lab.kubectl("-n", QUARANTINE, "delete", "job", SCANNER_JOB,
+        lab.kubectl("-n", QUARANTINE, "delete", "job", job_name,
                     "--ignore-not-found=true", "--wait=true", allow_failure=True)
         if config_created:
-            lab.kubectl("-n", QUARANTINE, "delete", "configmap", SCANNER_CONFIGMAP,
+            lab.kubectl("-n", QUARANTINE, "delete", "configmap", config_name,
                         "--ignore-not-found=true", allow_failure=True)
+    return receipt
+
+
+def _run_fixture_scanner(lab):
+    receipt = _run_scanner_job(lab, SCANNER_JOB, PYTHON_SCANNER_IMAGE, "IfNotPresent", {
+        "model.json": MODEL_ARTIFACT_BYTES.decode(), "scanner.py": SCANNER_SOURCE,
+    })
     expected_fields = {"status", "artifact_sha256", "format_allowed",
                        "marker_policy_allowed", "within_size_limit"}
     return receipt if set(receipt) == expected_fields else {}
 
+
+def _run_yara_scan(lab):
+    """Run a verified pinned YARA-X wheel against two owned inert inputs."""
+    root = Path(__file__).resolve().parent
+    nodes = json.loads(lab.kubectl("get", "nodes", "-o", "json").stdout)["items"]
+    architectures = {node["status"]["nodeInfo"]["architecture"] for node in nodes}
+    wheels = json.loads((root / "yara-wheel-lock.json").read_text())
+    if len(architectures) != 1 or not architectures <= wheels.keys():
+        lab.block("No one shared Kind architecture has a pinned YARA-X wheel")
+    architecture = architectures.pop()
+    wheel = wheels[architecture]
+    image = f"saf-quarantine-yara:{lab.cluster}"
+    rule_name = "FixtureExcludedMarker"
+    rule = """rule FixtureExcludedMarker {
+    strings:
+        $marker = "disallowed-fixture-marker-v1"
+    condition:
+        $marker
+}
+"""
+    flagged = _canonical({**MODEL_ARTIFACT, "marker": "disallowed-fixture-marker-v1"})
+    try:
+        with tempfile.TemporaryDirectory(prefix="saf-yara-wheel-") as path:
+            build = Path(path)
+            artifact = build / wheel["filename"]
+            lab.command("curl", "-fsSL", "--proto", "=https", "--proto-redir", "=https",
+                        "--max-time", "45", "--max-filesize", str(wheel["size"]),
+                        "--output", str(artifact), wheel["url"], timeout=55)
+            wheel_hash = hashlib.sha256(artifact.read_bytes()).hexdigest()
+            if artifact.stat().st_size != wheel["size"] or wheel_hash != wheel["sha256"]:
+                lab.block("Pinned YARA-X wheel integrity did not verify")
+            shutil.copyfile(root / "Dockerfile.yara", build / "Dockerfile")
+            lab.command("docker", "build", "--network=none", "--platform", f"linux/{architecture}",
+                        "-t", image, str(build), timeout=120)
+            image_id = lab.command("docker", "image", "inspect", "--format={{.Id}}", image,
+                                   timeout=20).stdout.strip()
+            lab.command("kind", "load", "docker-image", image, "--name", lab.cluster, timeout=90)
+        observed = _run_scanner_job(lab, "saf-yara-model-marker", image, "Never", {
+            "model.json": MODEL_ARTIFACT_BYTES.decode(), "flagged.json": flagged.decode(),
+            "fixture.yar": rule, "scanner.py": (root / "yara_probe.py").read_text(),
+        })
+    finally:
+        lab.command("docker", "image", "rm", image, allow_failure=True, timeout=25)
+
+    expected = {
+        "scanner": "yara-x",
+        "version": "1.24.0",
+        "rule_sha256": hashlib.sha256(rule.encode()).hexdigest(),
+        "approved": {"sha256": MODEL_ARTIFACT_SHA256, "matching_rules": []},
+        "flagged": {"sha256": hashlib.sha256(flagged).hexdigest(), "matching_rules": [rule_name]},
+    }
+    if observed != expected:
+        lab.block("YARA-X marker names or artifact digests did not match the reviewed inputs")
+    provenance = {"wheel_sha256": wheel_hash, "architecture": architecture, "image_id": image_id}
+    return observed, provenance
 
 MARKER_NS = "saf-model-marker-fixture"
 CONTROL_NS = "saf-model-marker-control"
@@ -555,6 +620,7 @@ def run(lab):
     # A separate tokenless Job reads the fixed inert JSON bytes from its
     # read-only ConfigMap mount. No model payload is copied into evidence.
     scanner_receipt = _run_fixture_scanner(lab)
+    yara_receipt, yara_provenance = _run_yara_scan(lab)
     scanner_digest = scanner_receipt.get("artifact_sha256", "")
     scanner_match = (
         scanner_receipt.get("status") == "pass"
@@ -654,6 +720,9 @@ def run(lab):
     if (wrong_artifact_status != 422
             or "exact scanned artifact digest" not in wrong_artifact_body.get("message", "")):
         lab.block("Release policy did not reject the wrong observed-artifact digest")
+    flagged_pod = _pod("scanned-flagged-model-witness", MODEL_METADATA_SHA256,
+                       artifact_digest=yara_receipt["flagged"]["sha256"])
+    flagged_status, flagged_response = _api_post_pod(lab, RELEASE_SA, flagged_pod, dry_run=True)
     unauthorized_status, unauthorized_body = _api_post_pod(
         lab, UNAUTHORIZED_SA, _pod("unauthorized-release-witness", MODEL_METADATA_SHA256))
     clean_status, clean_body = _api_post_pod(
@@ -861,4 +930,28 @@ def run(lab):
          "ordinary_metadata_patch_allowed": allowed_update_preserved,
          "scanned_digest_patch_rejected_by_native_admission": rejected_update_policy,
          "independent_get_preserves_same_pod_uid_and_digest": update_readback_preserved},
+    )
+
+    yara_binding = (
+        flagged_status == 422
+        and "exact scanned artifact digest" in flagged_response.get("message", "")
+        and clean_readback.get("metadata", {}).get("annotations", {}).get(ARTIFACT_DIGEST_ANNOTATION)
+            == yara_receipt["approved"]["sha256"]
+    )
+    (lab.evidence / "offline-yara-marker.raw.json").write_text(json.dumps({
+        "scan": yara_receipt,
+        "tool_provenance": yara_provenance,
+        "flagged_dry_run_status": flagged_status,
+        "released_digest_bound_to_clean_scan": yara_binding,
+    }, indent=2, sort_keys=True) + "\n")
+    lab.check(
+        "positive",
+        "Pinned YARA-X matches the inert excluded marker and admission retains the scanned clean digest",
+        yara_binding,
+        {"engine": "YARA-X", "version": yara_receipt["version"],
+         "scope": "fixed inert fixture marker only",
+         "approved_rule_matches": yara_receipt["approved"]["matching_rules"],
+         "flagged_rule_matches": yara_receipt["flagged"]["matching_rules"],
+         "flagged_digest_rejected_before_release": flagged_status == 422,
+         "authorized_release_digest_matches_scanned_clean_fixture": yara_binding},
     )
