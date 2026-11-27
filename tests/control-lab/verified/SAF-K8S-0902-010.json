@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0902-010",
-  "catalog_revision": "8ca957210cb5ed5a74374a1779f0c03a4a7f65c8",
-  "catalog_sha256": "ee384744c842f8d644f583a5aaca5eaaa6b5317fc5eec912d037736ad0661d10",
+  "catalog_revision": "0c09c5e31164f97742c7cfeeb2ac76809ca39573",
+  "catalog_sha256": "423ed57b15b3c368ea55e02bdd8f5ba7bcf5e51eea4d44193ffe81d1df959035",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "d7401333ab41cf90b9a7495bfe000b5e54da079296daa31b180276eed56d926c",
+  "control_sha256": "4f6d21e6d2dabca0ce910222e4b3967f33a268a061ecd6b69fff493efd28926d",
   "scope": "One disposable Kind cluster runs one case-owned Python Pod behind a ClusterIP Service. The Pod contains a deterministic HTTP fixture and a local recording sink, with no model, external network call, classifier, or production component. Policy off accepts one fixed benign request with an extra metadata field and demonstrates that the field is ignored as data. Policy on permits only a public user role and content, constructs fixed trusted system/developer roles internally, rejects unknown roles and public developer/system fields, and proves rejected requests do not reach the recording sink. This is structured application-boundary evidence only; it does not test prompt classification, model behavior, prompt-injection detection/generalization, or production serving and gateway configuration. An additive stage validates a projected client ServiceAccount token with Kubernetes TokenReview over SAN-verified internal TLS, derives the fixed user role from the verified principal, and refuses a conflicting role before the same local dispatcher.",
-  "cluster": "saf-lab-24a005df21a9",
+  "cluster": "saf-lab-54b0b1998d96",
   "kubernetes": {
     "clientVersion": {
       "major": "1",

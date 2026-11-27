@@ -36,9 +36,9 @@ production middleware, API gateway policy, upgrade lifecycle, or generalization 
 content. Kubernetes supplies the Pod and Service runtime, while the application code owns
 request interpretation.
 
-## Additive authenticated role-source witness
+## Authenticated serving role
 
-This scratch delta preserves the three results above and adds one grouped result. A
+The fourth check verifies the authenticated role source. A
 case-owned client Pod receives a normal projected ServiceAccount token. The inference
 fixture sends that token to the same disposable cluster's Kubernetes API using the
 TokenReview v1 endpoint over TLS with the mounted API CA. Its narrowly bound reviewer
@@ -64,11 +64,14 @@ TLS private key, raw TokenReview object, or credential response.
 This shows one native ServiceAccount-to-role binding through TokenReview in the owned
 Kind fixture. It is not prompt-injection detection, classifier accuracy, model behavior,
 production identity governance, gateway enforcement, or evidence of an adopted deployment.
-The control's broader classifier and deployed serving claims remain outside this reference.
+The revised control requires serving-side enforcement of authenticated caller roles
+and observed message boundaries. Verification of actual model behavior, production
+message serialization, and any model-specific screening remains part of adoption.
 
 Primary references:
 
 - [Kubernetes v1.36 authentication](https://v1-36.docs.kubernetes.io/docs/reference/access-authn-authz/authentication/): ServiceAccount tokens authenticate as `system:serviceaccount:<namespace>:<name>`.
 - [Kubernetes TokenReview API](https://kubernetes.io/docs/reference/kubernetes-api/definitions/token-review-v1-authentication/): TokenReview authenticates a presented token and can constrain accepted audiences.
 - [Kubernetes ServiceAccount guidance](https://kubernetes.io/docs/concepts/security/service-accounts/): projected tokens are bound and rotated; TokenReview is recommended for validating them.
-- [JupyterHub 5.5.5 RBAC scopes](https://jupyterhub.readthedocs.io/en/5.5.5/rbac/scopes.html): default `self` scope is limited to the user's own resources.
+- [NIST AI 100-2e2025 taxonomy](https://csrc.nist.gov/pubs/ai/100/2/e2025/final)
+- [OWASP GenAI Project input and privilege controls](https://genai.owasp.org/llmrisk/llm01-prompt-injection/)

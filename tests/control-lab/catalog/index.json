@@ -2475,7 +2475,7 @@
     "SAF-K8S-0902-010": {
       "catalog_status": "draft",
       "domain": "D09",
-      "sha256": "d7401333ab41cf90b9a7495bfe000b5e54da079296daa31b180276eed56d926c",
+      "sha256": "4f6d21e6d2dabca0ce910222e4b3967f33a268a061ecd6b69fff493efd28926d",
       "title": "Infrastructure-layer prompt injection classification and instruction boundary enforcement"
     },
     "SAF-K8S-0902-011": {
@@ -3572,7 +3572,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "8d0c77e47918571739fe8af74460d8cdd747e5a0",
-  "sha256": "2a4f9e4bc3c869a7a1bdeff571919ff8fd3cbc0f2b1964ced26040db14837309",
+  "revision": "bcce8859fe9c840ae01b3ed1e28b49d912734cd0",
+  "sha256": "423ed57b15b3c368ea55e02bdd8f5ba7bcf5e51eea4d44193ffe81d1df959035",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }
