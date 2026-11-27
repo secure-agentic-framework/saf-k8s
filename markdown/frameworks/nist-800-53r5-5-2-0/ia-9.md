@@ -49,10 +49,10 @@ The actual API path verifies the expected certificate-backed identity of each se
 
 - Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
 - Knowledge Area: 9.10
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
+- Relation Type: supports
+- Strength: moderate
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-0910-016 - Cross-cluster orchestration identity federation and authorization](../../controls/SAF-K8S-0910-016.md)
 

@@ -12926,16 +12926,13 @@
   framework_version: 5.2.0
   framework_requirement_id: IA-9
   framework_requirement_title: Service Identification and Authentication
-  framework_mapping_notes: 'Core -- agent service-to-service authentication
-
-
-    5.4 - SPIFFE/SPIRE workload identity (service-to-service identification and authentication); 4.4 - mTLS'
+  framework_mapping_notes: The verified service authentication supports the identified federation services within the deployed boundary.
   control_id: SAF-K8S-0910-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The deployed federation uniquely identifies and authenticates the organization-defined services before communication and independently verifies the applicable issuer, enrollment, credential lifecycle and participant-to-cluster binding.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -19836,16 +19833,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SC-8
   framework_requirement_title: Transmission Confidentiality and Integrity
-  framework_mapping_notes: 'Agent communications must be protected for confidentiality and integrity in transit
-
-
-    5.2 - Pod-to-pod encryption; 5.4 - mTLS (transmission confidentiality and integrity)'
+  framework_mapping_notes: Verified channel protection contributes evidence for the designated transmissions and information.
   control_id: SAF-K8S-0910-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The deployed federation identifies participant, coordination or aggregation channels carrying information that requires confidentiality or integrity protection and verifies the corresponding protection over those paths.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -20879,16 +20873,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SI-19(6)
   framework_requirement_title: Differential Privacy
-  framework_mapping_notes: 'Differential privacy techniques protect individual data in agent analytics and model training
-
-
-    9.8 - Differential privacy and output perturbation controls; 9.1 - Federated learning differential privacy for gradient updates'
+  framework_mapping_notes: The verified cross-cluster release and accounting policy can contribute to the differential privacy enhancement when supported by the actual mechanism and applicable data.
   control_id: SAF-K8S-0910-004
-  relation_type: direct
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  relation_type: supports
+  strength_level: weak
+  applicability: conditional
+  applicability_condition: For applicable personally identifiable information, the deployed process applies an approved differential privacy mechanism and documents its parameters, protected releases and composition across the applicable privacy scope.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
@@ -21297,16 +21288,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SI-4
   framework_requirement_title: System Monitoring
-  framework_mapping_notes: 'System monitoring of agent behavior, resource usage, and communications detects anomalies
-
-
-    10.1 - Logging and Audit (comprehensive system monitoring); 2.4 - Runtime security tools'
+  framework_mapping_notes: Verified federation monitoring can contribute to the applicable objectives and reporting paths.
   control_id: SAF-K8S-0910-004
   relation_type: supports
-  strength_level: strong
-  applicability: required
-  applicability_condition: null
-  strength_reason_code: null
+  strength_level: weak
+  applicability: conditional
+  applicability_condition: The deployed federation defines monitoring objectives and verifies the relevant monitoring, event analysis and reporting for the covered participants, communications or rounds.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5

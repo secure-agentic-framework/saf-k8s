@@ -58,10 +58,10 @@ The CNI-selection procedure can support transmission confidentiality when it req
 
 - Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
 - Knowledge Area: 9.10
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
+- Relation Type: supports
+- Strength: moderate
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-0910-020 - Cross-cluster transport encryption for distributed AI traffic](../../controls/SAF-K8S-0910-020.md)
 
