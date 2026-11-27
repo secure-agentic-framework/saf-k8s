@@ -12,7 +12,7 @@ SCOPE = (
     "Disposable Kind Kubernetes v1.36.1 cluster. A tokenless, non-root Job reads only synthetic mapping metadata "
     "and runs a deterministic metadata reviewer. It compares a deliberately flawed draft with a reviewed fixture, "
     "using fictional, preapproved applicability inputs. It checks framework identifier/authority labels, evidence "
-    "references, explicit gaps, and safeguards. This is not a legal applicability assessment, control-effectiveness "
+    "references, explicit gaps, safeguards and named fixture source edition/revision metadata. This is not a legal applicability assessment, control-effectiveness "
     "test, attestation, or compliance conclusion."
 )
 
@@ -144,3 +144,30 @@ def run(lab):
     raw = json_result(kubectl(lab, "get", "configmaps", "mapping-inputs", "reviewer-code", "-o", "json"),
                       "synthetic ConfigMap")
     (lab.evidence / "input-configmaps.json").write_text(json.dumps(raw, indent=2) + "\n")
+
+    # Reuse the exact case's tokenless, non-root reviewer Job and ConfigMaps.
+    report, _ = run_review(lab, "source-review")
+    matrix = report.get("matrix", {})
+    counterfactuals = report.get("counterfactuals", {})
+    matched = (
+        report.get("review_integrity_pass") is True
+        and len(matrix) == 6
+        and set(matrix.values()) == {"current"}
+        and counterfactuals == {
+            "wrong_edition": "conflict",
+            "source_change_requires_review": "review-required",
+            "missing_source_identity": "unknown",
+        }
+        and report.get("legal_applicability_determined") is False
+        and report.get("compliance_conclusion_made") is False
+    )
+    lab.check("positive", "Versioned framework source identities are bound and source changes require renewed review",
+              matched,
+              {"six_fixture_sources_current": report.get("review_integrity_pass") is True
+               and len(matrix) == 6 and set(matrix.values()) == {"current"},
+               "wrong_edition_rejected": counterfactuals.get("wrong_edition") == "conflict",
+               "source_change_requires_review": counterfactuals.get("source_change_requires_review") == "review-required",
+               "missing_source_identity_unknown": counterfactuals.get("missing_source_identity") == "unknown",
+               "legal_applicability_determined": report.get("legal_applicability_determined"),
+               "compliance_conclusion_made": report.get("compliance_conclusion_made")})
+    (lab.evidence / "source-review.raw.json").write_text(json.dumps(report, indent=2, sort_keys=True) + "\n")

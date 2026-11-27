@@ -350,5 +350,59 @@
         "status": "open"
       }
     ]
+  },
+  "source_review": {
+    "control_id": "SAF-K8S-1006-001",
+    "notice": "Synthetic source ledger for deterministic metadata review only; no authority determines applicability or compliance.",
+    "records": [
+      {
+        "mapping_key": "eu-ai-act-crosswalk",
+        "source_id": "EU-AI-ACT",
+        "framework": "EU AI Act",
+        "edition": "Regulation (EU) 2024/1689",
+        "source_uri": "https://eur-lex.europa.eu/eli/reg/2024/1689/2026-07-27/eng",
+        "reviewed_revision": "Consolidated text current 2026-07-27"
+      },
+      {
+        "mapping_key": "nist-ai-rmf-crosswalk",
+        "source_id": "NIST-AI-RMF",
+        "framework": "NIST AI RMF",
+        "edition": "1.0",
+        "source_uri": "https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.100-1.pdf",
+        "reviewed_revision": "NIST AI 100-1, 2023-01"
+      },
+      {
+        "mapping_key": "aicpa-tsc-crosswalk",
+        "source_id": "AICPA-TSC",
+        "framework": "AICPA Trust Services Criteria",
+        "edition": "2017, revised points of focus 2022",
+        "source_uri": "https://www.aicpa-cima.com/resources/download/2017-trust-services-criteria-with-revised-points-of-focus-2022",
+        "reviewed_revision": "2017 TSC with revised points of focus 2022"
+      },
+      {
+        "mapping_key": "nist-800-53-crosswalk",
+        "source_id": "NIST-800-53",
+        "framework": "NIST SP 800-53 Revision 5",
+        "edition": "Release 5.2.0",
+        "source_uri": "https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final",
+        "reviewed_revision": "SP 800-53 Release 5.2.0, 2025-08-27"
+      },
+      {
+        "mapping_key": "nist-ssdf-crosswalk",
+        "source_id": "NIST-SSDF",
+        "framework": "NIST SP 800-218 SSDF",
+        "edition": "Version 1.1",
+        "source_uri": "https://csrc.nist.gov/pubs/sp/800/218/final",
+        "reviewed_revision": "SP 800-218 Final, 2022-02-03"
+      },
+      {
+        "mapping_key": "nist-ssdf-ai-profile",
+        "source_id": "NIST-SSDF-AI",
+        "framework": "NIST SP 800-218A",
+        "edition": "Final",
+        "source_uri": "https://csrc.nist.gov/pubs/sp/800/218/a/final",
+        "reviewed_revision": "SP 800-218A Final, 2024-07-26"
+      }
+    ]
   }
 }

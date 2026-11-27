@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-1006-001",
-  "catalog_revision": "20fb1ea73027f96f7dd170a4c6b198c1a6f4a7c1",
-  "catalog_sha256": "ed6243c33229f6466971a9ce3d0c83508509eff6f38c522843b0dd12fb917717",
+  "catalog_revision": "b65ab0a9ad590135f8ad220e4610431920514959",
+  "catalog_sha256": "f744308abbfe44deef8377df1955d70b543aa25dc3b0adca73d6d9ddf1792f64",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "e00de72113465b2de7b47addf8bc3422a9920c855a988276aa739f6763bf3383",
-  "scope": "Disposable Kind Kubernetes v1.36.1 cluster. A tokenless, non-root Job reads only synthetic mapping metadata and runs a deterministic metadata reviewer. It compares a deliberately flawed draft with a reviewed fixture, using fictional, preapproved applicability inputs. It checks framework identifier/authority labels, evidence references, explicit gaps, and safeguards. This is not a legal applicability assessment, control-effectiveness test, attestation, or compliance conclusion.",
-  "cluster": "saf-lab-6315269e2a3d",
+  "scope": "Disposable Kind Kubernetes v1.36.1 cluster. A tokenless, non-root Job reads only synthetic mapping metadata and runs a deterministic metadata reviewer. It compares a deliberately flawed draft with a reviewed fixture, using fictional, preapproved applicability inputs. It checks framework identifier/authority labels, evidence references, explicit gaps, safeguards and named fixture source edition/revision metadata. This is not a legal applicability assessment, control-effectiveness test, attestation, or compliance conclusion.",
+  "cluster": "saf-lab-67c5f4e19f8d",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -91,6 +91,19 @@
         ],
         "safeguards_present_for_open_gaps": true,
         "framework_coverage_complete": false
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Versioned framework source identities are bound and source changes require renewed review",
+      "matched": true,
+      "observed": {
+        "six_fixture_sources_current": true,
+        "wrong_edition_rejected": true,
+        "source_change_requires_review": true,
+        "missing_source_identity_unknown": true,
+        "legal_applicability_determined": false,
+        "compliance_conclusion_made": false
       }
     }
   ]
