@@ -8,6 +8,9 @@ REQUIRED_POLICY = {
     "kubelet_read_only_port": 0,
     "containerd_systemd_cgroup": True,
     "os_id": "debian",
+    # This pinned Kind example is measured as Debian 13. Production images need
+    # their own organization-approved release values.
+    "os_version_id": "13",
 }
 
 
@@ -147,7 +150,7 @@ def decide(measurement, expected_node_uid):
         return False
     fields = measurement.get("fields")
     allowed = set(REQUIRED_POLICY) | {
-        "os_version_id", "kubelet_read_only_listener_count",
+        "kubelet_read_only_listener_count",
         "kubelet_omitted_zero_defaults_normalized",
     }
     if not isinstance(fields, dict) or set(fields) != allowed or not fields.get("os_version_id"):

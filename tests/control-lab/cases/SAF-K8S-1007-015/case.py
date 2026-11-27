@@ -32,7 +32,7 @@ SCOPE = (
     "The case observes allowlisted Node status.nodeInfo fields, applies one case-scoped NoSchedule "
     "taint to the default node, and creates one benign digest-pinned pause scheduling probe. A local "
     "decision function combines those observed Kind system fields with separately named, synthetic "
-    "baseline evidence fixtures. The scratch supplement also measures five allowlisted effective kubelet, "
+    "baseline evidence fixtures. The case also measures five allowlisted effective kubelet, "
     "containerd and OS predicates on this exact node against disposable example values. This does not onboard "
     "a GPU node or validate a production pipeline, GPU/device readiness, immutable-root enforcement, or any "
     "production baseline attestation."
@@ -290,8 +290,42 @@ def run(lab):
          "case_hold_still_present": hold_before_release},
     )
 
-    if not live_gate or not rejection_preserved_hold:
-        lab.block("Both synthetic and live baseline gates must pass before removing the case hold")
+    wrong_os_version = {
+        **baseline_measurement,
+        "fields": {**baseline_measurement["fields"], "os_version_id": "12"},
+    }
+    missing_os_version = {
+        **baseline_measurement,
+        "fields": {key: value for key, value in baseline_measurement["fields"].items()
+                   if key != "os_version_id"},
+    }
+    wrong_os_version_rejected = not node_baseline.decide(wrong_os_version, observed["uid"])
+    missing_os_version_rejected = not node_baseline.decide(missing_os_version, observed["uid"])
+    after_wrong_os_version = held_probe_state(
+        lab, created_probe["metadata"]["uid"], observed["uid"], node_name)
+    after_missing_os_version = held_probe_state(
+        lab, created_probe["metadata"]["uid"], observed["uid"], node_name)
+    os_version_counterfactuals_pass = (
+        wrong_os_version_rejected and missing_os_version_rejected
+        and all(after_wrong_os_version.values()) and all(after_missing_os_version.values())
+        and baseline_pass is True and baseline_measurement["fields"].get("os_version_id") == "13"
+    )
+    lab.check(
+        "red",
+        "A wrong or missing Debian release ID is rejected while the measured Debian 13 node remains held",
+        os_version_counterfactuals_pass,
+        {"measured_debian_13_baseline_accepted": baseline_pass is True
+             and baseline_measurement["fields"].get("os_version_id") == "13",
+         "wrong_os_version_rejected": wrong_os_version_rejected,
+         "missing_os_version_rejected": missing_os_version_rejected,
+         "wrong_version_same_probe_and_hold_preserved": after_wrong_os_version,
+         "missing_version_same_probe_and_hold_preserved": after_missing_os_version,
+         "same_node_uid": after_wrong_os_version["same_node_uid"]
+             and after_missing_os_version["same_node_uid"]},
+    )
+
+    if not live_gate or not rejection_preserved_hold or not os_version_counterfactuals_pass:
+        lab.block("Synthetic approval, the live versioned baseline, and all fail-closed counterfactuals must pass before removing the case hold")
 
     lab.kubectl("taint", "nodes", node_name, f"{HOLD_KEY}-")
     updated_node = json.loads(lab.kubectl("get", "node", node_name, "-o", "json").stdout)
@@ -338,7 +372,10 @@ def run(lab):
         "invalid_decision_post_states": {
             "missing_fields": after_missing_rejection,
             "wrong_uid": after_wrong_uid_rejection,
+            "wrong_os_version": after_wrong_os_version,
+            "missing_os_version": after_missing_os_version,
         },
+        "os_version_counterfactuals_preserved_hold": os_version_counterfactuals_pass,
     }
     (lab.evidence / "node-onboarding.raw.json").write_text(
         json.dumps(evidence, indent=2, sort_keys=True) + "\n", encoding="utf-8",

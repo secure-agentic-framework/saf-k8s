@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-1007-015",
-  "catalog_revision": "4e4852e0f43d5133f2b1b2efe28021e5876ae8d5",
-  "catalog_sha256": "65f757846d484079842769b4cec9180fc3a96ab15a5106c821a08ca7293441b6",
+  "catalog_revision": "77591e6db8948d2a092c968b00b632997bf495c5",
+  "catalog_sha256": "1da56289e4f344f65fa946b0099b200d7a52a7c4bea62ee17a32261bedc18861",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "b38c694e797060370a72f8e46097a3f625728b936a95cb478682d58b753870c9",
-  "scope": "One disposable single-node Kind Kubernetes v1.36.1 cluster using the pinned Kind node image. The case observes allowlisted Node status.nodeInfo fields, applies one case-scoped NoSchedule taint to the default node, and creates one benign digest-pinned pause scheduling probe. A local decision function combines those observed Kind system fields with separately named, synthetic baseline evidence fixtures. The scratch supplement also measures five allowlisted effective kubelet, containerd and OS predicates on this exact node against disposable example values. This does not onboard a GPU node or validate a production pipeline, GPU/device readiness, immutable-root enforcement, or any production baseline attestation.",
-  "cluster": "saf-lab-7dfab115bdd6",
+  "scope": "One disposable single-node Kind Kubernetes v1.36.1 cluster using the pinned Kind node image. The case observes allowlisted Node status.nodeInfo fields, applies one case-scoped NoSchedule taint to the default node, and creates one benign digest-pinned pause scheduling probe. A local decision function combines those observed Kind system fields with separately named, synthetic baseline evidence fixtures. The case also measures five allowlisted effective kubelet, containerd and OS predicates on this exact node against disposable example values. This does not onboard a GPU node or validate a production pipeline, GPU/device readiness, immutable-root enforcement, or any production baseline attestation.",
+  "cluster": "saf-lab-f9ce7ef8ab82",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -127,6 +127,31 @@
         "live_example_baseline_passed": true,
         "same_node_uid": true,
         "case_hold_still_present": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "A wrong or missing Debian release ID is rejected while the measured Debian 13 node remains held",
+      "matched": true,
+      "observed": {
+        "measured_debian_13_baseline_accepted": true,
+        "wrong_os_version_rejected": true,
+        "missing_os_version_rejected": true,
+        "wrong_version_same_probe_and_hold_preserved": {
+          "same_probe_uid": true,
+          "probe_pending": true,
+          "probe_unassigned": true,
+          "hold_present": true,
+          "same_node_uid": true
+        },
+        "missing_version_same_probe_and_hold_preserved": {
+          "same_probe_uid": true,
+          "probe_pending": true,
+          "probe_unassigned": true,
+          "hold_present": true,
+          "same_node_uid": true
+        },
+        "same_node_uid": true
       }
     },
     {
