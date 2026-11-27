@@ -18329,14 +18329,13 @@
   framework_version: 5.2.0
   framework_requirement_id: SC-4
   framework_requirement_title: Information in Shared System Resources
-  framework_mapping_notes: >-
-    Placement based on documented hardware isolation can contribute to preventing unintended transfer through a shared accelerator. Verify the actual device, firmware, driver, resource release and other shared paths across trust domains.
+  framework_mapping_notes: Verify the exact shared-resource release, reassignment and transfer boundary under the adopted placement profile. Evaluate covert timing or storage channels and information remanence after nominal erasure under their separately applicable requirements.
   control_id: SAF-K8S-0805-004
-  relation_type: "supports"
-  strength_level: "moderate"
-  applicability: "conditional"
-  applicability_condition: "The approved profile provides verified controls for information transfer through the shared resource across applicable workload transitions."
-  strength_reason_code: "partial-control-coverage"
+  relation_type: supports
+  strength_level: moderate
+  applicability: conditional
+  applicability_condition: The adopted profile demonstrably prevents unauthorized or unintended information transfer to the next workload through a released shared accelerator resource at reuse.
+  strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
