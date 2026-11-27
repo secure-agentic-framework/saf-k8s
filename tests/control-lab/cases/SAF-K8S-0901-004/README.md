@@ -24,8 +24,9 @@ the lab's usual disposable-cluster runner and a valid local Docker context:
 python3 lab.py test SAF-K8S-0901-004 --docker-context desktop-linux
 ```
 
-The current public receipt records a passed run with five matched checks across
-red, positive, and green phases. The case also writes
+The current public receipt records six matched checks across red, positive, and
+green phases, including the PVC transfer and fresh-volume readback. This scratch
+candidate adds one bounded Job retry continuation check. The case also writes
 `recovery-integrity.raw.json` under the run evidence directory. It
 contains the fixture snapshot names and digests, sanitized Job status, Job
 logs, and the exact API-observed target fields; it does not collect Secrets,
@@ -81,17 +82,17 @@ workload verifier only parses the mounted JSON and compares SHA-256 values.
 - [Docker Official Python Image](https://hub.docker.com/_/python) — official image family used with a digest-pinned `3.13-slim` reference.
 - [kind Quick Start](https://kind.sigs.k8s.io/docs/user/quick-start) — Kind cluster usage and node image context.
 
-## File-backed PVC backup and fresh-volume restore supplement
+## File-backed PVC backup and fresh-volume restore
 
-The scratch candidate preserves the five existing ConfigMap/API and Job
-assertions, then creates a source and a separate backup PVC. A bounded
+After the five ConfigMap and verification Job checks, the case creates a source
+and a separate backup PVC. A bounded
 tokenless Job writes the exact inert checkpoint JSON from snapshot B to the
 source claim and copies it to the backup claim. After this Job completes, the
 case creates a third PVC for restore. A second Job copies backup bytes to that
 fresh volume, and an independent read-only Job verifies both backup and
 restored bytes against the fixture content and expected SHA-256. The check
 also requires three distinct PVC UIDs and bound PV names in the same Kind
-cluster. The supplement has not been run.
+cluster.
 
 This covers a local synthetic file transfer and restore on the selected
 cluster storage class. It does not prove storage-provider independence,
@@ -99,3 +100,23 @@ external backup durability, encryption, immutable retention, RPO/RTO, or
 training framework/operator integration. Adoption must test actual
 provider-specific failure domains, retention and restore against approved
 data, then validate the recovered model state in its training workflow.
+
+## Bounded Job retry and checkpoint continuation supplement
+
+After the PVC transfer check, the case creates one case-owned PVC and a
+single-completion Job with `restartPolicy: Never`, `backoffLimit: 1`, and a
+90-second active deadline. Its first Pod writes the exact synthetic checkpoint
+from snapshot B to the claim and exits with code 42. The retry Pod must have a new
+Pod UID, retain the same Job owner UID, read and verify those exact checkpoint
+bytes, and derive the next epoch from the stored checkpoint. A separate read-only Job then
+mounts that same claim and independently verifies the exact continued bytes
+and SHA-256. The Kubernetes PV's claim reference must match the PVC UID.
+`job-retry-continuation-raw.json` records Job and Pod UIDs, exit codes, bounded
+retry status, logs, claim and PV identities, digests, and the verifier result.
+
+This witness covers a native Kubernetes Job retry over one same-cluster PVC
+with inert synthetic data. Adoption evidence covers the selected training
+framework, distributed recovery, storage failure domains, backup durability,
+retry and recovery objectives, and model validation.
+
+[Kubernetes v1.36 Job retry and termination](https://v1-36.docs.kubernetes.io/docs/concepts/workloads/controllers/job/)

@@ -320,5 +320,12 @@ def run(lab):
     supplement = importlib.util.module_from_spec(supplement_spec)
     supplement_spec.loader.exec_module(supplement)
     evidence["pvc_backup_restore"] = supplement.run(lab, item)
+    retry_path = HERE / "job_retry.py"
+    retry_spec = importlib.util.spec_from_file_location("saf_0901_004_job_retry", retry_path)
+    if retry_spec is None or retry_spec.loader is None:
+        lab.block("Job retry continuation supplement is unavailable")
+    retry = importlib.util.module_from_spec(retry_spec)
+    retry_spec.loader.exec_module(retry)
+    evidence["job_retry_continuation"] = retry.run(lab, item, supplement)
     (lab.evidence / "recovery-integrity.raw.json").write_text(
         json.dumps(evidence, indent=2, sort_keys=True) + "\n", encoding="utf-8")
