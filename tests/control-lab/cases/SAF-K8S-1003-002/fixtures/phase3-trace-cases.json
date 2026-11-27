@@ -1,0 +1,32 @@
+{
+  "missing_evaluation": {
+    "asset": "model-core",
+    "mutation": "remove evaluation from first threat",
+    "expected_error": "phase3-risk-criterion-unresolved:model-core"
+  },
+  "orphan_criterion": {
+    "asset": "model-core",
+    "mutation": "set first threat criterion_ref to criterion-not-declared",
+    "expected_error": "phase3-risk-criterion-unresolved:model-core"
+  },
+  "missing_outcome": {
+    "asset": "model-core",
+    "mutation": "remove first threat outcome",
+    "expected_error": "phase3-risk-outcome-invalid:model-core"
+  },
+  "wrong_threat_reference": {
+    "asset": "model-core",
+    "mutation": "set treatment threat_ref to a scenario absent from this asset profile",
+    "expected_error": "phase3-treatment-threat-link-invalid:model-core"
+  },
+  "misbound_priority": {
+    "asset": "model-core",
+    "mutation": "change priority outcome so it no longer matches the exact selected threat evaluation",
+    "expected_error": "phase3-priority-trace-invalid:model-core"
+  },
+  "duplicate_scenario": {
+    "asset": "model-core",
+    "mutation": "add a second threat with the same scenario label in this asset profile",
+    "expected_error": "phase3-risk-scenario-ambiguous:model-core"
+  }
+}

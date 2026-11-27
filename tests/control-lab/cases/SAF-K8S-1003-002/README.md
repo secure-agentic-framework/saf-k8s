@@ -42,4 +42,23 @@ calendar policy: a February 29 review is due February 28 in a non-leap year. The
 check the due date itself, the following overdue day, and rejection of dates later
 than the one-year anniversary. This tests worksheet freshness mechanics only; the
 organization still chooses its approved cadence and must redo its actual assessment
-after major changes. This scratch candidate has not been run in Kind.
+after major changes.
+
+## Phase 3 evaluation and treatment traceability
+
+The Phase 3 case runs seven native Jobs over immutable synthetic worksheets.
+The valid worksheet records a declared criterion and outcome for each threat
+and links treatment priority and rationale to that same evaluation. The other
+Jobs compare missing evaluations, dangling criteria, missing outcomes,
+cross-asset treatment links, misbound priorities, and duplicate scenarios in
+one asset. Raw evidence ties the worksheets to their ConfigMap digests and
+the exact Job-owned Pods.
+
+Use organization-approved criteria and outcomes in `template.json`. Record
+each critical asset and its security requirements, business impact, threat
+evaluation, and supporting infrastructure. Link treatments and priority
+rationales to the evaluated threats and the authorized tolerance source. Retain
+the analysis team's results and management's decisions. Repeat the review when
+governed major changes occur or the annual review is due. The organization owns
+the ratings, treatment priorities, and approval records.
+[SEI OCTAVE Method Implementation Guide, Phase 3](https://www.sei.cmu.edu/documents/18/2001_012_001_51572.pdf)

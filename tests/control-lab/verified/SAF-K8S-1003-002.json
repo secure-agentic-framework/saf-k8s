@@ -6,12 +6,12 @@
   "control_sha256": "d1428699ad58e30a60a8161ec17d64cc03f788c49304c790fc2335423d0353af",
   "scope": "Kubernetes v1.36.1 Kind runs independent native review Jobs over synthetic OCTAVE worksheets. The gate checks Phase 1 asset/impact/threat profiles, Phase 2 supporting infrastructure and vulnerability evidence, and Phase 3 tolerance-linked treatment and review cadence. It proves record completeness and stable decisions only. The scratch extension also binds a review to a case-owned ConfigMap topology snapshot and tests an annual due-date boundary with a documented Feb-29-to-Feb-28 policy. Organizational risk scoring, stakeholder judgment, evidence truth, implementation, cadence approval, and actual risk reduction require separate evidence.",
   "review_timing": {
-    "queued_at": "2026-11-27T00:03:49.112278+00:00",
-    "cluster_ready_at": "2026-11-27T00:04:17.883558+00:00",
-    "approval_at": "2026-11-27T00:05:49.696790+00:00",
-    "case_loaded_at": "2026-11-27T00:05:49.722622+00:00"
+    "queued_at": "2026-11-27T00:10:20.483219+00:00",
+    "cluster_ready_at": "2026-11-27T00:10:47.439266+00:00",
+    "approval_at": "2026-11-27T00:12:56.442986+00:00",
+    "case_loaded_at": "2026-11-27T00:12:56.631377+00:00"
   },
-  "cluster": "saf-lab-beb1851599b3",
+  "cluster": "saf-lab-82ca0ae3fa91",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -41,7 +41,7 @@
       "platform": "linux/arm64"
     }
   },
-  "approved_case_sha256": "e7658b76a740398467bab4e174c388975c6b082f876e342989eccfec9460f7aa",
+  "approved_case_sha256": "46d866e3f6f24baf696c87cddc8b7f588a2612d36cc813a13a6f9adf44b53cd2",
   "status": "passed",
   "cleanup": "deleted",
   "checks": [
@@ -152,6 +152,89 @@
         "leap_review_due_too_distant": [
           "annual-due-after-anniversary"
         ]
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Synthetic Phase 3 evaluation resolves declared criterion, exact threat and treatment",
+      "matched": true,
+      "observed": {
+        "status": "pass",
+        "assets": 4,
+        "pod_owner_uid_matches_job": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Phase 3 rejects missing evaluation in a synthetic worksheet",
+      "matched": true,
+      "observed": {
+        "errors": [
+          "phase3-priority-trace-invalid:model-core",
+          "phase3-risk-criterion-unresolved:model-core",
+          "phase3-treatment-threat-link-invalid:model-core"
+        ],
+        "pod_owner_uid_matches_job": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Phase 3 rejects orphan criterion in a synthetic worksheet",
+      "matched": true,
+      "observed": {
+        "errors": [
+          "phase3-priority-trace-invalid:model-core",
+          "phase3-risk-criterion-unresolved:model-core",
+          "phase3-treatment-threat-link-invalid:model-core"
+        ],
+        "pod_owner_uid_matches_job": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Phase 3 rejects missing outcome in a synthetic worksheet",
+      "matched": true,
+      "observed": {
+        "errors": [
+          "phase3-priority-trace-invalid:model-core",
+          "phase3-risk-outcome-invalid:model-core",
+          "phase3-treatment-threat-link-invalid:model-core"
+        ],
+        "pod_owner_uid_matches_job": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Phase 3 rejects wrong threat reference in a synthetic worksheet",
+      "matched": true,
+      "observed": {
+        "errors": [
+          "phase3-priority-trace-invalid:model-core",
+          "phase3-treatment-threat-link-invalid:model-core"
+        ],
+        "pod_owner_uid_matches_job": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Phase 3 rejects misbound priority in a synthetic worksheet",
+      "matched": true,
+      "observed": {
+        "errors": [
+          "phase3-priority-trace-invalid:model-core"
+        ],
+        "pod_owner_uid_matches_job": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "Phase 3 rejects duplicate scenario in a synthetic worksheet",
+      "matched": true,
+      "observed": {
+        "errors": [
+          "phase3-risk-scenario-ambiguous:model-core"
+        ],
+        "pod_owner_uid_matches_job": true
       }
     }
   ]

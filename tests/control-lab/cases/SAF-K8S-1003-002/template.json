@@ -29,7 +29,11 @@
       "threats": [
         {
           "scenario": "asset-specific threat scenario",
-          "impact_ref": "business impact statement"
+          "impact_ref": "business impact statement",
+          "evaluation": {
+            "criterion_ref": "organization-defined-criterion",
+            "outcome": "organization-defined value"
+          }
         }
       ],
       "infrastructure": [
@@ -50,7 +54,14 @@
         "business_justification": "reasoned treatment",
         "owner": "role",
         "residual_risk_ref": "evidence/residual-risk.md",
-        "impact_refs": []
+        "impact_refs": [],
+        "prioritization": {
+          "threat_ref": "exact threat scenario",
+          "criterion_ref": "declared organization-approved criterion id",
+          "outcome": "exact recorded evaluation outcome",
+          "priority": "organization-defined priority",
+          "rationale": "organization-approved prioritization rationale"
+        }
       }
     }
   ],
@@ -68,5 +79,14 @@
   "stakeholder_outcomes": {
     "status": "separate stakeholder decision record",
     "record_ref": "evidence/stakeholder-outcomes.md"
-  }
+  },
+  "risk_evaluation_criteria": [
+    {
+      "id": "organization-defined-criterion",
+      "description": "organization-approved evaluation criterion",
+      "outcomes": [
+        "organization-defined values"
+      ]
+    }
+  ]
 }

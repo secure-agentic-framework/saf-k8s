@@ -223,3 +223,100 @@ def run_change_review(lab):
         {"ordinary_one_day_overdue": cadence_observed.get("ordinary_one_day_overdue", {}).get("errors"),
          "ordinary_due_too_distant": cadence_observed.get("ordinary_due_too_distant", {}).get("errors"),
          "leap_review_due_too_distant": cadence_observed.get("leap_review_due_too_distant", {}).get("errors")})
+    run_phase3_traceability(lab)
+
+
+def phase3_trace_job(lab, name, worksheet):
+    """Run one immutable synthetic Phase 3 traceability counterfactual."""
+    import hashlib
+
+    config_name = f"{name}-input"
+    evidence = HERE / "fixtures" / "evidence"
+    payload = {
+        "phase3_trace_gate.py": (HERE / "phase3_trace_gate.py").read_text(),
+        "review_gate.py": (HERE / "review_gate.py").read_text(),
+        "worksheet.json": json.dumps(worksheet, sort_keys=True),
+    }
+    payload.update({f"evidence/{p.name}": p.read_text() for p in sorted(evidence.glob("*.md"))})
+    data = {key.replace("evidence/", "evidence_"): value for key, value in payload.items()}
+    items = [{"key": key.replace("evidence/", "evidence_"), "path": key} for key in payload]
+    submitted = lab.create({"apiVersion": "v1", "kind": "ConfigMap", "metadata": {"name": config_name},
+                            "immutable": True, "data": data})
+    config_uid = submitted.get("metadata", {}).get("uid")
+    if not config_uid or submitted.get("immutable") is not True or submitted.get("data") != data:
+        lab.block("The Phase 3 worksheet was not preserved in its exact immutable API input")
+    command = ["python", "/fixture/phase3_trace_gate.py", "/fixture/worksheet.json",
+               "--evidence-root", "/fixture", "--as-of", AS_OF]
+    lab.create({"apiVersion": "batch/v1", "kind": "Job", "metadata": {"name": name},
+        "spec": {"backoffLimit": 0, "activeDeadlineSeconds": 65,
+          "template": {"metadata": {"labels": {"saf.review": name}}, "spec": {
+            "restartPolicy": "Never", "automountServiceAccountToken": False,
+            "containers": [container("review", image=PYTHON, command=command,
+              volumeMounts=[{"name": "fixture", "mountPath": "/fixture", "readOnly": True}])],
+            "volumes": [{"name": "fixture", "configMap": {"name": config_name, "items": items}}]}}}})
+    result = collect_job(lab, name)
+    result["input_configmap_uid"] = config_uid
+    result["input_sha256"] = hashlib.sha256(submitted["data"]["worksheet.json"].encode()).hexdigest()
+    return result
+
+
+def run_phase3_traceability(lab):
+    import copy
+
+    complete = json.loads((HERE / "fixtures" / "complete.json").read_text())
+    cases = json.loads((HERE / "fixtures" / "phase3-trace-cases.json").read_text())
+    documents = {"positive": copy.deepcopy(complete)}
+    for name, case in cases.items():
+        doc = copy.deepcopy(complete)
+        asset = next(asset for asset in doc["assets"] if asset["id"] == case["asset"])
+        threat = asset["threats"][0]
+        if name == "missing_evaluation":
+            threat.pop("evaluation", None)
+        elif name == "orphan_criterion":
+            threat["evaluation"]["criterion_ref"] = "criterion-not-declared"
+        elif name == "missing_outcome":
+            threat["evaluation"].pop("outcome", None)
+        elif name == "wrong_threat_reference":
+            other_asset = next(item for item in doc["assets"] if item["id"] != case["asset"])
+            asset["risk_treatment"]["threat_ref"] = other_asset["threats"][0]["scenario"]
+        elif name == "misbound_priority":
+            asset["risk_treatment"]["prioritization"]["outcome"] = "outcome-not-from-selected-evaluation"
+        elif name == "duplicate_scenario":
+            asset["threats"].append(copy.deepcopy(threat))
+        documents[name] = doc
+
+    observed = {name: phase3_trace_job(lab, f"octave-phase3-{name.replace('_', '-')}", doc)
+                for name, doc in documents.items()}
+    normalized = {name: {"controller": value["controller"], "exit_code": value["exit_code"],
+                         "status": value["review"]["status"], "errors": value["review"].get("errors", [])}
+                  for name, value in observed.items()}
+    raw = {"observations": observed, "normalized": normalized, "counterfactual_definitions": cases,
+           "synthetic_worksheets": documents}
+    (lab.evidence / "octave-phase3-trace-observations.json").write_text(json.dumps(raw, indent=2, sort_keys=True) + "\n")
+    positive = observed["positive"]
+    lab.check("positive", "Synthetic Phase 3 evaluation resolves declared criterion, exact threat and treatment",
+        positive["controller"] == "Complete" and positive["exit_code"] == 0 and
+        positive["review"] == {"status": "pass", "errors": []},
+        {"status": positive["review"]["status"], "assets": 4,
+         "pod_owner_uid_matches_job": positive["pod_owner_uid_matches_job"]})
+    expected = {
+        "missing_evaluation": ["phase3-priority-trace-invalid:model-core",
+                               "phase3-risk-criterion-unresolved:model-core",
+                               "phase3-treatment-threat-link-invalid:model-core"],
+        "orphan_criterion": ["phase3-priority-trace-invalid:model-core",
+                              "phase3-risk-criterion-unresolved:model-core",
+                              "phase3-treatment-threat-link-invalid:model-core"],
+        "missing_outcome": ["phase3-priority-trace-invalid:model-core",
+                             "phase3-risk-outcome-invalid:model-core",
+                             "phase3-treatment-threat-link-invalid:model-core"],
+        "wrong_threat_reference": ["phase3-priority-trace-invalid:model-core",
+                                   "phase3-treatment-threat-link-invalid:model-core"],
+        "misbound_priority": ["phase3-priority-trace-invalid:model-core"],
+        "duplicate_scenario": ["phase3-risk-scenario-ambiguous:model-core"],
+    }
+    for name, errors in expected.items():
+        result = observed[name]
+        lab.check("red", f"Phase 3 rejects {name.replace('_', ' ')} in a synthetic worksheet",
+            result["controller"] == "Failed" and result["exit_code"] == 1 and
+            result["review"] == {"status": "fail", "errors": errors},
+            {"errors": result["review"].get("errors", []), "pod_owner_uid_matches_job": result["pod_owner_uid_matches_job"]})

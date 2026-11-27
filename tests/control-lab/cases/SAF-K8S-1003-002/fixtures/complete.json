@@ -30,7 +30,11 @@
       "threats": [
         {
           "scenario": "unauthorized registry access permits model extraction",
-          "impact_ref": "model extraction exposes proprietary capability"
+          "impact_ref": "model extraction exposes proprietary capability",
+          "evaluation": {
+            "criterion_ref": "synthetic-impact-bands",
+            "outcome": "high"
+          }
         }
       ],
       "infrastructure": [
@@ -53,7 +57,14 @@
         "residual_risk_ref": "evidence/residual-model.md",
         "impact_refs": [
           "model extraction exposes proprietary capability"
-        ]
+        ],
+        "prioritization": {
+          "threat_ref": "unauthorized registry access permits model extraction",
+          "criterion_ref": "synthetic-impact-bands",
+          "outcome": "high",
+          "priority": "synthetic-priority-band-1",
+          "rationale": "fixture-only rationale records why this scenario is ordered for review; it asserts no real risk judgment"
+        }
       }
     },
     {
@@ -72,7 +83,11 @@
       "threats": [
         {
           "scenario": "unauthorized training-set modification",
-          "impact_ref": "poisoned training set degrades service"
+          "impact_ref": "poisoned training set degrades service",
+          "evaluation": {
+            "criterion_ref": "synthetic-impact-bands",
+            "outcome": "high"
+          }
         }
       ],
       "infrastructure": [
@@ -95,7 +110,14 @@
         "residual_risk_ref": "evidence/residual-data.md",
         "impact_refs": [
           "poisoned training set degrades service"
-        ]
+        ],
+        "prioritization": {
+          "threat_ref": "unauthorized training-set modification",
+          "criterion_ref": "synthetic-impact-bands",
+          "outcome": "high",
+          "priority": "synthetic-priority-band-1",
+          "rationale": "fixture-only rationale records why this scenario is ordered for review; it asserts no real risk judgment"
+        }
       }
     },
     {
@@ -114,7 +136,11 @@
       "threats": [
         {
           "scenario": "cross-tenant GPU allocation",
-          "impact_ref": "training interruption delays release"
+          "impact_ref": "training interruption delays release",
+          "evaluation": {
+            "criterion_ref": "synthetic-impact-bands",
+            "outcome": "moderate"
+          }
         }
       ],
       "infrastructure": [
@@ -137,7 +163,14 @@
         "residual_risk_ref": "evidence/residual-gpu.md",
         "impact_refs": [
           "training interruption delays release"
-        ]
+        ],
+        "prioritization": {
+          "threat_ref": "cross-tenant GPU allocation",
+          "criterion_ref": "synthetic-impact-bands",
+          "outcome": "moderate",
+          "priority": "synthetic-priority-band-1",
+          "rationale": "fixture-only rationale records why this scenario is ordered for review; it asserts no real risk judgment"
+        }
       }
     },
     {
@@ -157,7 +190,11 @@
       "threats": [
         {
           "scenario": "resource exhaustion at endpoint",
-          "impact_ref": "unavailable predictions disrupt workflow"
+          "impact_ref": "unavailable predictions disrupt workflow",
+          "evaluation": {
+            "criterion_ref": "synthetic-impact-bands",
+            "outcome": "high"
+          }
         }
       ],
       "infrastructure": [
@@ -180,7 +217,14 @@
         "residual_risk_ref": "evidence/residual-inference.md",
         "impact_refs": [
           "unavailable predictions disrupt workflow"
-        ]
+        ],
+        "prioritization": {
+          "threat_ref": "resource exhaustion at endpoint",
+          "criterion_ref": "synthetic-impact-bands",
+          "outcome": "high",
+          "priority": "synthetic-priority-band-1",
+          "rationale": "fixture-only rationale records why this scenario is ordered for review; it asserts no real risk judgment"
+        }
       }
     }
   ],
@@ -198,5 +242,16 @@
   "stakeholder_outcomes": {
     "status": "separate stakeholder decision required",
     "record_ref": "evidence/stakeholder-outcomes.md"
-  }
+  },
+  "risk_evaluation_criteria": [
+    {
+      "id": "synthetic-impact-bands",
+      "description": "fixture-only ordinal impact bands; no organizational scale asserted",
+      "outcomes": [
+        "low",
+        "moderate",
+        "high"
+      ]
+    }
+  ]
 }
