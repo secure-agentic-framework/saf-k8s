@@ -8828,7 +8828,7 @@
   control_title: CUDA and GPU accelerator dependency vulnerability management
   control_statement: Organizations must perform vulnerability triage and remediation tracking for CUDA toolkits and GPU accelerator libraries used in training and inference environments.
   objective: Reduce exploitability of vulnerable accelerator software components by continuously identifying, prioritizing, and remediating defects in CUDA and related GPU libraries.
-  rationale: CUDA, cuDNN, NCCL, and related accelerator libraries are high-privilege, performance-critical dependencies in ML workloads. If their vulnerabilities are not managed separately, exploitable defects can persist across GPU-backed training and inference environments.
+  rationale: "CUDA, cuDNN, NCCL and related user-space libraries are performance-critical dependencies loaded by AI workloads. The installed accelerator stack can span workload image libraries, injected driver libraries and host kernel drivers. Track each component by its installation source, effective version and affected workload or node. This identifies the correct owner and update path when an advisory affects only part of the stack."
   scope: Applies to CUDA toolkits and GPU accelerator libraries used in Kubernetes-based training and inference environments. Covers CUDA, cuDNN, NCCL, and similar accelerator dependencies. Excludes framework and Python package vulnerability management, which is covered by SAF-K8S-0905-028.
   primary_enforcement_point: GPU image and accelerator library dependency review workflow.
   implementation_surface: Vulnerability scanning, advisory review, remediation tracking, and update records for CUDA toolkits, cuDNN, NCCL, and related accelerator libraries in training and inference images.
