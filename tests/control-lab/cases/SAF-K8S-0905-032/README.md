@@ -2,7 +2,7 @@
 
 Run `python3 tests/control-lab/lab.py test SAF-K8S-0905-032 --docker-context desktop-linux` from the framework checkout.
 
-A restricted Job runs seven checks. An inert legacy input reaches only a counted stub under permissive policy and is blocked before loading under the allowlist. A narrow fixture parser accepts known SafeTensors-framed values and reads zero values from the mislabeled inert input. A separate path uses the standard Python JSON loader. The exact approved digest and format reach the parser and return the expected weights. A wrong format label and other benign bytes with an unapproved digest each produce zero logical loader calls.
+The case runs nine checks. An inert legacy input reaches only a counted stub under permissive policy and is blocked before loading under the allowlist. A narrow fixture parser accepts known SafeTensors-framed values and reads zero values from the mislabeled inert input. A separate path uses the standard Python JSON loader. The exact approved digest and format reach the parser and return the expected weights. A wrong format label and other benign bytes with an unapproved digest each produce zero logical loader calls.
 
 ## Verify an adopted model loader
 
@@ -35,3 +35,16 @@ PyPI marks these individual wheels as lacking provenance attestations. The fixtu
 ### Parser scope
 
 This is an approved-format/runtime reference over one tiny inert tensor and three fixed denials. It does not test production models, arbitrary SafeTensors files, PyTorch, GPU use, hostile payloads, production dispatch configuration, or security of the format for every consumer. It does not replace the separate 0905-033 preflight/structure fixture.
+
+
+## Primitive pickle representation denial
+
+The format gate mounts `fixtures/primitive-only.pickle` from an
+immutable case-owned ConfigMap. Its pinned bytes encode only a dictionary containing
+a list of two floats. `pickletools` passively verifies an exact opcode list with no
+callable/global/reduction operations; the bytes are never passed to an unpickler.
+The fixture labels the artifact `pickle` and requires the exact digest to be denied
+before the loader-dispatch point with zero dispatch-attempt, loader-call and value-read
+counters. The fixture records an attempted dispatch as a failure. Its observation ends at the
+allowlist decision. Verify adopted loader wiring and runtime configuration for each
+protected model-loading path.

@@ -3,6 +3,7 @@ import hashlib
 import importlib.metadata
 import json
 import os
+import pickletools
 import platform
 import struct
 import sys
@@ -11,6 +12,10 @@ from zipfile import ZipFile
 
 MAX_FILE = 2048
 MAX_HEADER = 512
+PRIMITIVE_PICKLE_SHA256 = "06d302a110b5a89f9282c390a7c6256905840c30d98534642377242191a79a6e"
+PRIMITIVE_PICKLE_OPCODES = ["PROTO", "FRAME", "EMPTY_DICT", "MEMOIZE", "SHORT_BINUNICODE",
+                            "MEMOIZE", "EMPTY_LIST", "MEMOIZE", "MARK", "BINFLOAT",
+                            "BINFLOAT", "APPENDS", "SETITEM", "STOP"]
 LEGACY_INERT = b"SAF-LEGACY-INERT-V1\x00fixed-bytes-only"
 # Ordinary declarative data only; never interpreted as executable serialization.
 DECLARATIVE_JSON = b'{"schema":"saf-safe-data-v1","weights":[1.25,-2.5]}'
@@ -145,6 +150,31 @@ def native_safetensors_witness():
             "expected_machine": expected_machine, "outcomes": outcomes}
 
 
+def primitive_pickle_rejection(path):
+    """Passively inspect fixed primitive bytes, then deny before any loader dispatch."""
+    data = Path(path).read_bytes()
+    digest = hashlib.sha256(data).hexdigest()
+    if len(data) > MAX_FILE or digest != PRIMITIVE_PICKLE_SHA256:
+        raise RuntimeError("primitive-only pickle fixture did not match its bounded identity")
+    opcodes = [opcode.name for opcode, _, _ in pickletools.genops(data)]
+    if opcodes != PRIMITIVE_PICKLE_OPCODES:
+        raise RuntimeError("primitive-only pickle fixture opcode allowlist mismatch")
+    counters = {"deny_count": 0, "loader_dispatch_attempts": 0,
+                "loader_calls": 0, "values_read": 0}
+    admitted, observed_digest = _format_digest_gate(
+        "pickle", data, {"safetensors": {hashlib.sha256(safetensors_fixture()).hexdigest()},
+                         "json-data": {hashlib.sha256(DECLARATIVE_JSON).hexdigest()}})
+    if admitted:
+        counters["loader_dispatch_attempts"] += 1
+        return {"format": "pickle", "sha256": observed_digest,
+                "status": "UNEXPECTED_ADMIT_NO_LOADER_EXECUTED",
+                "opcodes": opcodes, "counters": counters}
+    counters["deny_count"] += 1
+    return {"format": "pickle", "sha256": observed_digest,
+            "status": "DENY_BEFORE_LOADER", "opcodes": opcodes,
+            "counters": counters}
+
+
 def try_load(declared_format, data, approved_formats):
     counters = {"deny_count": 0, "stub_calls": 0, "loader_calls": 0, "values_read": 0}
     observed = {"declared_format": declared_format, "sha256": hashlib.sha256(data).hexdigest(),
@@ -180,4 +210,5 @@ if __name__ == "__main__":
                                                     {approved_json_digest}),
     }
     result["native_safetensors"] = native_safetensors_witness()
+    result["primitive_pickle"] = primitive_pickle_rejection("/fixture/primitive-only.pickle")
     print(json.dumps(result, sort_keys=True))

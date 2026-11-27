@@ -1,6 +1,7 @@
 """SAF-K8S-0905-032: inert model-format allowlist lab case."""
 import json
 import hashlib
+import base64
 import time
 from pathlib import Path
 
@@ -20,6 +21,7 @@ SAFE_TENSORS_WHEELS = {
     ),
 }
 EXPECTED_SAFETENSORS_DIGEST = "1fa6bcfde3b5c5b07623e9b282bc92f89dc8ae9e2ebfd9d2097b1d6e1aa76548"
+EXPECTED_PRIMITIVE_PICKLE_SHA256 = "06d302a110b5a89f9282c390a7c6256905840c30d98534642377242191a79a6e"
 
 SCOPE = (
     "Runs one fixture-owned Kubernetes Job in the precreated saf-test namespace. "
@@ -31,6 +33,8 @@ SCOPE = (
     "The worker is tokenless, has read-only code/package mounts, and extracts only to a bounded "
     "memory-backed volume. This does not test production model loading, PyTorch, GPU, hostile "
     "payloads, general format compatibility, other architectures, or 0905-033 structure/metadata checks."
+    " One immutable fixture contains only primitive serialized data. The explicit pickle format is "
+    "denied before dispatch. The Job reports its exact artifact digest, passive inspection and zero loader calls."
 )
 
 
@@ -40,6 +44,12 @@ def _job(lab):
               "metadata": {"name": "model-format-worker"},
               "immutable": True, "data": {"worker.py": (HERE / "worker.py").read_text()}}
     lab.create(worker)
+    pickle_bytes = (HERE / "fixtures" / "primitive-only.pickle").read_bytes()
+    if hashlib.sha256(pickle_bytes).hexdigest() != EXPECTED_PRIMITIVE_PICKLE_SHA256:
+        lab.block("Primitive-only pickle fixture does not match its pinned digest")
+    lab.create({"apiVersion": "v1", "kind": "ConfigMap",
+                "metadata": {"name": "model-format-primitive-pickle"}, "immutable": True,
+                "binaryData": {"primitive-only.pickle": base64.b64encode(pickle_bytes).decode("ascii")}})
     arch = lab.kubectl("get", "nodes", "-o",
                        "jsonpath={.items[0].status.nodeInfo.architecture}").stdout.strip()
     if arch not in SAFE_TENSORS_WHEELS:
@@ -80,13 +90,16 @@ def _job(lab):
                                                        "readOnly": True},
                                                       {"name": "wheel", "mountPath": "/wheel",
                                                        "readOnly": True},
-                                                      {"name": "runtime", "mountPath": "/runtime"}]}],
+                                                      {"name": "runtime", "mountPath": "/runtime"},
+                                                      {"name": "pickle", "mountPath": "/fixture", "readOnly": True}]}],
                      "volumes": [{"name": "worker", "configMap": {
                          "name": "model-format-worker", "defaultMode": 292}},
                          {"name": "wheel", "configMap": {
                              "name": "model-format-native-wheel", "defaultMode": 292}},
                          {"name": "runtime", "emptyDir": {
-                             "medium": "Memory", "sizeLimit": "12Mi"}}]}}}})
+                             "medium": "Memory", "sizeLimit": "12Mi"}},
+                         {"name": "pickle", "configMap": {
+                             "name": "model-format-primitive-pickle", "defaultMode": 292}}]}}}})
     deadline = time.monotonic() + 75
     while time.monotonic() < deadline:
         job = json.loads(lab.kubectl("get", "job", name, "-o", "json").stdout)
@@ -177,6 +190,18 @@ def check_observations(lab, observations):
                       and actual[name]["native_call_delta"] == 0
                       for name in ("wrong_format", "unapproved_digest", "mislabeled_inert")),
               native)
+
+    primitive = observations["primitive_pickle"]
+    lab.check("green", "Primitive-only pickle representation is denied before loader dispatch",
+              primitive == {
+                  "format": "pickle", "sha256": EXPECTED_PRIMITIVE_PICKLE_SHA256,
+                  "status": "DENY_BEFORE_LOADER",
+                  "opcodes": ["PROTO", "FRAME", "EMPTY_DICT", "MEMOIZE", "SHORT_BINUNICODE",
+                              "MEMOIZE", "EMPTY_LIST", "MEMOIZE", "MARK", "BINFLOAT", "BINFLOAT",
+                              "APPENDS", "SETITEM", "STOP"],
+                  "counters": {"deny_count": 1, "loader_dispatch_attempts": 0,
+                               "loader_calls": 0, "values_read": 0}},
+              primitive)
 
 
 def run(lab):
