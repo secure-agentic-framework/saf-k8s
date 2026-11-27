@@ -119,3 +119,27 @@ attribution, denial instrumentation, durability, integrity and retention in
 the adopted logging pipeline.
 
 [Jupyter Server 2.21.1 ContentsManager](https://github.com/jupyter-server/jupyter_server/blob/v2.21.1/jupyter_server/services/contents/filemanager.py) · [Jupyter Events handlers](https://jupyter-events.readthedocs.io/en/latest/user_guide/configure.html)
+
+## Listener-side egress arrival evidence
+
+The two fixed dataset listeners retain a bounded in-memory aggregate of
+successful GET / arrivals: canonical source Pod IP, request count, HTTP 200
+count and bytes written for the fixed marker response. The listeners do not
+read request bodies, capture headers, retain paths with queries, or emit
+request logs. Counts are capped at 256 requests and 16 distinct peers per
+listener. On overflow, the listener keeps serving the same fixed response but
+marks its evidence incomplete; the added check fails closed.
+
+After the existing egress policy matrix, the case samples each listener
+through a /__audit route that only answers loopback callers from a
+kubectl exec inside that listener Pod. It brackets one additional own-route
+request and the two blocked cross-user requests with snapshots. Kubernetes
+readbacks bind both source and destination UIDs and Pod IPs before and after
+the probes. The check expects one own-user arrival with the exact fixed
+response byte count at each destination and no added arrival from the
+cross-user source.
+
+This proves the observed peer IP matched the exact source Pod IP for these
+controlled Kind requests. It depends on this cluster network path preserving
+the source Pod IP; a translated address fails the exact comparison. It does
+not establish external route attribution, production logging or durable audit.

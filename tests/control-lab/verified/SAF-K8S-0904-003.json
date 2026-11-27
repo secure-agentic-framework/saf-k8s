@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0904-003",
-  "catalog_revision": "596bc0d3b5d1da1084da698be61f57a73caa7d0b",
+  "catalog_revision": "b7a7a50196561281df30eb015333100f80476e36",
   "catalog_sha256": "1da56289e4f344f65fa946b0099b200d7a52a7c4bea62ee17a32261bedc18861",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "d0b57a1ca68aec60e4ca9d14eb14c94e299fe8f5eee724abc6465e94f7cbbbdd",
   "scope": "One fresh Kind v1.36.1 cluster, two pinned upstream Jupyter base-notebook Pods, and two case-owned benign dataset endpoints. The notebook Pods have distinct non-root UIDs and tokenless service accounts, configured CPU/RAM bounds and restrictive security contexts. Native NetworkPolicy limits each to its labeled endpoint, and native admission enforces the approved image reference. Each real Jupyter kernel executes a fixed harmless cell after policy is active. The pinned synthetic Hub also authenticates two fixture users, spawns their actual KubeSpawner Pods, and applies per-user egress policy to those Pods. Production identity/session lifecycle, extension governance, full image provenance, durable storage, real dataset authorization/audit, and deployed controls require separate evidence. An additional check reads the mounted terminal-interface setting and exact runtime package version, then compares authenticated status and terminal collection GET responses from both synthetic users. Another additive check compares two inert server extensions under baseline and restricted mounted configuration; review approval, provenance, user-installed code restrictions, and durable audit remain adopter evidence.",
-  "cluster": "saf-lab-37b5af39cac0",
+  "cluster": "saf-lab-3e3ea0b5a92b",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -218,6 +218,19 @@
         "own_routes_allowed_cross_routes_blocked_twice": true,
         "same_user_and_endpoint_uids_observed": true,
         "authenticated_hub_routes_remain_ready": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Listener-side bounded counters bind each allowed own-route arrival and fixed response size to its exact source Pod while blocked cross-routes add no arrivals",
+      "matched": true,
+      "observed": {
+        "both_own_routes_return_expected_fixed_marker": true,
+        "each_listener_observes_exact_own_pod_ip_delta": true,
+        "blocked_cross_routes_add_no_listener_arrival": true,
+        "source_and_destination_uids_and_ips_stable": true,
+        "listener_counter_overflow": false,
+        "request_bodies_or_headers_collected": false
       }
     }
   ]

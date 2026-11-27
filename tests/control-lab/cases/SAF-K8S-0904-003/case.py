@@ -1,6 +1,7 @@
 """Exercise workspace isolation and bounded Kubernetes workspace identities."""
 import json
 import hashlib
+import ipaddress
 import http.cookiejar
 import os
 import re
@@ -106,6 +107,8 @@ HUB_IMAGE = "quay.io/jupyterhub/k8s-hub:4.4.5@sha256:6ce210488f5598e2dd5130d82e8
 PROXY_IMAGE = "quay.io/jupyterhub/configurable-http-proxy:5.4.0@sha256:7977d796d372642aa9eb962ff36590b3019f8f24493fcf9f1d07d2c81e8e6080"
 SINGLEUSER_IMAGE = "quay.io/jupyterhub/k8s-singleuser-sample:4.4.5@sha256:2a05d2f69486f5087b75168da60946891490c788626141b39334d67cae5f97aa"
 HUB_SERVICE = f"proxy-public.{NAMESPACE}.svc.cluster.local"
+DATASET_MARKERS = {"alice": b"benign-dataset-alice", "bob": b"benign-dataset-bob"}
+DATASET_AUDIT_CAP = 256
 
 
 def pod_json(lab, name):
@@ -1032,6 +1035,63 @@ def _dataset_identity(lab, name, expected_owner):
     return {"pod": name, "uid": uid, "pod_ip": address, "owner": expected_owner}
 
 
+def _dataset_audit_snapshot(lab, identity):
+    pod = pod_json(lab, identity["pod"])
+    if (pod.get("metadata", {}).get("uid") != identity["uid"]
+            or pod.get("status", {}).get("podIP") != identity["pod_ip"]
+            or pod.get("metadata", {}).get("labels", {}).get("saf.example/dataset-owner") != identity["owner"]):
+        lab.block("Dataset audit reader lost the exact endpoint Pod identity")
+    script = (
+        "import http.client,json; c=http.client.HTTPConnection('127.0.0.1',8080,timeout=2); "
+        "c.request('GET','/__audit'); r=c.getresponse(); data=r.read(); c.close(); "
+        "assert r.status == 200; print(data.decode('ascii'))"
+    )
+    result = lab.kubectl("exec", identity["pod"], "-c", "endpoint", "--",
+                         "python", "-B", "-c", script, timeout=8)
+    try:
+        snapshot = json.loads(result.stdout.strip())
+    except json.JSONDecodeError:
+        lab.block("Loopback dataset audit readback was not JSON")
+    if (snapshot.get("cap") != DATASET_AUDIT_CAP
+            or not isinstance(snapshot.get("total"), int)
+            or not isinstance(snapshot.get("overflow"), bool)
+            or not isinstance(snapshot.get("clients"), dict)):
+        lab.block("Loopback dataset audit readback did not match its bounded schema")
+    for peer, metrics in snapshot["clients"].items():
+        try:
+            ipaddress.ip_address(peer)
+        except ValueError:
+            lab.block("Dataset audit included a non-IP client key")
+        if (set(metrics) != {"gets", "status_200", "response_bytes"}
+                or any(not isinstance(value, int) or value < 0 for value in metrics.values())):
+            lab.block("Dataset audit included unexpected fields or invalid counters")
+    return snapshot
+
+
+def _dataset_audit_probe(lab, source_pod, destination, expected_body):
+    containers = [item for item in source_pod.get("spec", {}).get("containers", [])
+                  if item.get("image") == SINGLEUSER_IMAGE]
+    if len(containers) != 1 or not source_pod.get("status", {}).get("podIP"):
+        lab.block("Dataset audit probe source Pod was not uniquely bound to the pinned user image")
+    script = r'''import http.client,json,socket,sys
+c=http.client.HTTPConnection(sys.argv[1],8080,timeout=1.5)
+try:
+    c.request("GET","/")
+    r=c.getresponse(); b=r.read()
+    print(json.dumps({"blocked":False,"status":r.status,"bytes_received":len(b),"marker_matches":b==sys.argv[2].encode("ascii")},sort_keys=True))
+except (TimeoutError,socket.timeout):
+    print(json.dumps({"blocked":True},sort_keys=True))
+finally: c.close()'''
+    raw = lab.kubectl("exec", source_pod["metadata"]["name"], "-c", containers[0]["name"], "--",
+                      "python", "-B", "-c", script, destination["pod_ip"],
+                      expected_body.decode("ascii"), timeout=8).stdout.strip()
+    try:
+        result = json.loads(raw)
+    except json.JSONDecodeError:
+        lab.block("Dataset audit route probe did not return fixed summary JSON")
+    return result
+
+
 def _policy_exact(lab, policy_name, username, owner):
     policy = json.loads(lab.kubectl("get", "networkpolicy", policy_name,
                                     "-o", "json").stdout)
@@ -1219,6 +1279,102 @@ def _exercise_hub_spawned_egress(lab):
                "own_routes_allowed_cross_routes_blocked_twice": consecutive == 2,
                "same_user_and_endpoint_uids_observed": stable_pods and stable_endpoints,
                "authenticated_hub_routes_remain_ready": route_ready})
+
+    source_ips = {user: pods_before[user].get("status", {}).get("podIP") for user in users}
+    source_ips_valid = all(source_ips[user] for user in users) and source_ips[HUB_ALICE] != source_ips[HUB_BOB]
+    endpoint_by_owner = {users[user]: endpoints_before[user] for user in users}
+    audit_before = {owner: _dataset_audit_snapshot(lab, endpoint_by_owner[owner])
+                    for owner in ("alice", "bob")}
+    sample_results = {}
+    for user, owner in users.items():
+        sample_results[user + "_to_own"] = _dataset_audit_probe(
+            lab, pods_before[user], endpoint_by_owner[owner], DATASET_MARKERS[owner])
+        other = "bob" if owner == "alice" else "alice"
+        sample_results[user + "_to_cross"] = _dataset_audit_probe(
+            lab, pods_before[user], endpoint_by_owner[other], DATASET_MARKERS[other])
+    audit_after = {owner: _dataset_audit_snapshot(lab, endpoint_by_owner[owner])
+                   for owner in ("alice", "bob")}
+    audit_pods_after = _owned_hub_user_pods(lab)
+    audit_endpoints_after = {user: _dataset_identity(lab, "dataset-" + owner, owner)
+                             for user, owner in users.items()}
+
+    expected_sample_routes = all(
+        sample_results[user + "_to_own"] == {
+            "blocked": False, "status": 200, "bytes_received": len(DATASET_MARKERS[owner]),
+            "marker_matches": True}
+        and sample_results[user + "_to_cross"] == {"blocked": True}
+        for user, owner in users.items())
+
+    arrival_deltas = {}
+    for owner in ("alice", "bob"):
+        before, after = audit_before[owner], audit_after[owner]
+        source_user = HUB_ALICE if owner == "alice" else HUB_BOB
+        source_ip = source_ips[source_user]
+        peers = set(before["clients"]) | set(after["clients"])
+        changed = {}
+        for peer in peers:
+            old = before["clients"].get(peer, {"gets": 0, "status_200": 0, "response_bytes": 0})
+            new = after["clients"].get(peer, {"gets": 0, "status_200": 0, "response_bytes": 0})
+            delta = {key: new[key] - old[key] for key in ("gets", "status_200", "response_bytes")}
+            if any(delta.values()):
+                changed[peer] = delta
+        arrival_deltas[owner] = {
+            "total_requests": after["total"] - before["total"],
+            "clients": changed,
+            "expected_client_ip": source_ip,
+            "expected_delta": {"gets": 1, "status_200": 1,
+                               "response_bytes": len(DATASET_MARKERS[owner])},
+            "exact": (after["total"] - before["total"] == 1
+                      and changed == {source_ip: {"gets": 1, "status_200": 1,
+                                                   "response_bytes": len(DATASET_MARKERS[owner])}}),
+            "overflow": before["overflow"] or after["overflow"],
+        }
+    listener_identity_stable = all(
+        endpoints_before[user]["uid"] == audit_endpoints_after[user]["uid"]
+        and endpoints_before[user]["pod_ip"] == audit_endpoints_after[user]["pod_ip"]
+        for user in users)
+    source_identity_stable = all(
+        pods_before[user]["metadata"].get("uid") == audit_pods_after[user]["metadata"].get("uid")
+        and pods_before[user].get("status", {}).get("podIP")
+            == audit_pods_after[user].get("status", {}).get("podIP")
+        for user in users)
+    arrival_audit_passed = (source_ips_valid and listener_identity_stable and source_identity_stable
+                            and expected_sample_routes
+                            and all(arrival_deltas[owner]["exact"] and not arrival_deltas[owner]["overflow"]
+                                    for owner in ("alice", "bob")))
+    (lab.evidence / "hub-dataset-arrival-audit.raw.json").write_text(json.dumps({
+        "scope": "two case-owned listeners and the exact two Ready Hub-spawned user Pods",
+        "sources": {user: {"uid": pods_before[user]["metadata"].get("uid"),
+                           "pod_ip": source_ips[user], "username": user}
+                    for user in users},
+        "destinations": endpoints_before,
+        "sources_after": {user: {"uid": audit_pods_after[user]["metadata"].get("uid"),
+                                 "pod_ip": audit_pods_after[user].get("status", {}).get("podIP")}
+                          for user in users},
+        "destinations_after": audit_endpoints_after,
+        "cap_per_listener": DATASET_AUDIT_CAP,
+        "before": audit_before,
+        "sample_results": sample_results,
+        "after": audit_after,
+        "arrival_deltas": arrival_deltas,
+        "retained_fields": ["client Pod IP", "GET count", "200 count", "fixed response bytes"],
+        "excluded_fields": ["request body", "headers", "query", "cookies", "credentials", "timestamps"],
+    }, indent=2, sort_keys=True) + "\n")
+    lab.check("positive", "Listener-side bounded counters bind each allowed own-route arrival and fixed response size to its exact source Pod while blocked cross-routes add no arrivals",
+              arrival_audit_passed,
+              {"both_own_routes_return_expected_fixed_marker": expected_sample_routes,
+               "each_listener_observes_exact_own_pod_ip_delta": all(arrival_deltas[owner]["exact"]
+                                                                     for owner in ("alice", "bob")),
+               "blocked_cross_routes_add_no_listener_arrival": all(
+                   len(arrival_deltas[owner]["clients"]) == 1
+                   and next(iter(arrival_deltas[owner]["clients"].values())) == arrival_deltas[owner]["expected_delta"]
+                   for owner in ("alice", "bob")),
+               "source_and_destination_uids_and_ips_stable": listener_identity_stable and source_identity_stable,
+               "listener_counter_overflow": any(arrival_deltas[owner]["overflow"]
+                                                  for owner in ("alice", "bob")),
+               "request_bodies_or_headers_collected": False})
+    (lab.evidence / "hub-dataset-arrival-audit-summary.json").write_text(
+        json.dumps(lab.checks[-1], indent=2) + "\n")
 
 
 def _hub_user_pods(lab, user=HUB_USER):
