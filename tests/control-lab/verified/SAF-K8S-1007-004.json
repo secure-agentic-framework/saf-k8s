@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-1007-004",
-  "catalog_revision": "44fb82eb9a2aec194e6fb8a25f05314d771ddbd8",
+  "catalog_revision": "480335ba0a96d5de7f4045f6141741d3191db90d",
   "catalog_sha256": "65f757846d484079842769b4cec9180fc3a96ab15a5106c821a08ca7293441b6",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "3851049878e612a02b34e15f8233da5a5349117f1b032d4fbb0615edc9ac2cb9",
   "scope": "Disposable Kind v1.36.1 cluster. Creates an owned namespace, one digest-pinned synthetic mock workload, a default-deny NetworkPolicy, and a named-object read-only Role. Captures API-visible posture, detects controlled changes to Pod Security Admission labels, NetworkPolicy rules and Role verbs, reapplies the desired manifests, and verifies recovery from live API reads. Joins an offline fictional advisory fixture to a synthetic component observation. Pinned offline OSV-Scanner reads the inert package metadata in a case-built runnable image, and the posture result binds to the exact image observed in Kind. Benchmark coverage, actual advisory feeds, managed and accelerator settings, and deployed monitoring and alerting have separate evidence requirements. A scoped authenticated Role stream compares fixture metadata updates, rule widening and restoration with exact API event revisions. A separately authorized NetworkPolicy watcher matches metadata, ingress widening and restoration to the selected object's UID and API resource versions. The NetworkPolicy comparison uses API observations only; CNI enforcement and ongoing monitoring require separate evidence.",
-  "cluster": "saf-lab-0997d367c543",
+  "cluster": "saf-lab-3affd41999f3",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -176,6 +176,18 @@
           "drift",
           "recovered"
         ]
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "NetworkPolicy watch resumes from the last received revision and observes drift missed while disconnected",
+      "matched": true,
+      "observed": {
+        "exact_checkpoint_used": true,
+        "writes_while_stream_closed": true,
+        "independent_read_shows_restored_spec": true,
+        "resumed_events_match_exact_missed_writes": true,
+        "job_pod_identity_bound": true
       }
     }
   ]

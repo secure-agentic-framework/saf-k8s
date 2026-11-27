@@ -75,6 +75,15 @@ require separate evidence. [Kubernetes API watch](https://v1-36.docs.kubernetes.
 The additive check opens one authenticated, name-scoped watch for the existing
 case-owned `owned-default-deny` policy. Its observer can list/watch only that
 named NetworkPolicy; unfiltered and different-name watches must receive 403.
+
+After the first stream closes, the observer holds its last received resource
+version while the case records two more API writes. Those writes widen and
+restore the same fixture policy. An independent GET sees the restored policy
+before the observer resumes. The second stream starts from the saved resource
+version and must report both intervening revisions in order, including the
+transient drift the GET cannot show. The case records both streams, the exact
+API writes and the resume-gate timing. This uses retained watch history and
+does not exercise recovery from expired versions or policy packet enforcement.
 Three independent API writes apply a metadata-only change, a controlled ingress
 widening, and exact spec restoration. The receipt retains each write response,
 UID, resourceVersion, generation, managed-field timestamps where present, and

@@ -4,10 +4,10 @@ import json
 import os
 from pathlib import Path
 import ssl
+import time
 import urllib.error
 import urllib.parse
 import urllib.request
-import time
 
 
 def utc_now():
@@ -54,38 +54,53 @@ def watch():
     item, = listing["items"]
     assert item["metadata"]["uid"] == uid and item["spec"] == baseline
     list_revision = listing["metadata"]["resourceVersion"]
-    query = {**selector, "watch": "true", "resourceVersion": list_revision,
-             "timeoutSeconds": 50}
-    with read(query) as response:
-        emit("armed", http_status=response.status, unfiltered_status=unfiltered,
-             excluded_status=outside_name, list_resource_version=list_revision,
-             baseline_uid=uid, baseline_spec=item["spec"], armed_at=utc_now())
+    def observe(revision, count, resumed):
+        query = {**selector, "watch": "true", "resourceVersion": revision,
+                 "timeoutSeconds": 50}
         prior_matches = True
         events = []
-        for line in response:
-            notification = json.loads(line)
-            if notification.get("type") == "BOOKMARK":
-                continue
-            obj = notification["object"]
-            assert notification["type"] == "MODIFIED" and obj["kind"] == "NetworkPolicy"
-            observed = obj["metadata"]
-            assert (observed["namespace"], observed["name"], observed["uid"]) == (namespace, name, uid)
-            matches = obj["spec"] == baseline
-            if matches == prior_matches:
-                decision = "unchanged"
-            elif matches:
-                decision = "recovered"
+        with read(query) as response:
+            if resumed:
+                emit("resumed", http_status=response.status, resource_version=revision,
+                     resumed_at=utc_now())
             else:
-                decision = "drift"
-            events.append({"uid": uid, "resource_version": observed["resourceVersion"],
-                           "generation": observed.get("generation"), "decision": decision,
-                           "spec": obj["spec"], "event_received_at_utc": utc_now(),
-                           "event_received_monotonic_ns": time.monotonic_ns()})
-            prior_matches = matches
-            if len(events) == 3:
-                emit("complete", events=events, complete_at=utc_now())
-                return
-    raise RuntimeError("NetworkPolicy watch closed before the controlled event sequence completed")
+                emit("armed", http_status=response.status, unfiltered_status=unfiltered,
+                     excluded_status=outside_name, list_resource_version=list_revision,
+                     baseline_uid=uid, baseline_spec=item["spec"], armed_at=utc_now())
+            for line in response:
+                notification = json.loads(line)
+                if notification["type"] == "BOOKMARK":
+                    continue
+                obj = notification["object"]
+                assert notification["type"] == "MODIFIED" and obj["kind"] == "NetworkPolicy"
+                observed = obj["metadata"]
+                assert (observed["namespace"], observed["name"], observed["uid"]) == (namespace, name, uid)
+                matches = obj["spec"] == baseline
+                if matches == prior_matches:
+                    decision = "unchanged"
+                elif matches:
+                    decision = "recovered"
+                else:
+                    decision = "drift"
+                events.append({"uid": uid, "resource_version": observed["resourceVersion"],
+                               "generation": observed.get("generation"), "decision": decision,
+                               "spec": obj["spec"], "event_received_at_utc": utc_now(),
+                               "event_received_monotonic_ns": time.monotonic_ns()})
+                prior_matches = matches
+                if len(events) == count:
+                    return events
+        raise RuntimeError("NetworkPolicy watch closed before the controlled event sequence completed")
+
+    events = observe(list_revision, 3, resumed=False)
+    checkpoint = events[-1]["resource_version"]
+    emit("complete", events=events, complete_at=utc_now(), checkpoint=checkpoint)
+    deadline = time.monotonic() + 45
+    while not Path("/gate/resume").exists():
+        if time.monotonic() >= deadline:
+            raise RuntimeError("The case did not release the watch resume gate")
+        time.sleep(0.2)
+    recovered = observe(checkpoint, 2, resumed=True)
+    emit("recovery_complete", events=recovered)
 
 
 if __name__ == "__main__":

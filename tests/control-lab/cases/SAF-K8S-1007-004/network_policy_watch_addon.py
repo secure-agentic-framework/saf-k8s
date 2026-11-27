@@ -47,11 +47,11 @@ def run(lab, case_dir, namespace, name, baseline):
            "EXCLUDED_POLICY": EXCLUDED, "EXPECTED_SPEC": json.dumps(baseline)}
     job = json.loads(lab.kubectl("-n", namespace, "create", "-f", "-", "-o", "json", payload=json.dumps({
         "apiVersion": "batch/v1", "kind": "Job", "metadata": {"name": OBSERVER, "namespace": namespace},
-        "spec": {"backoffLimit": 0, "activeDeadlineSeconds": 100,
+        "spec": {"backoffLimit": 0, "activeDeadlineSeconds": 120,
                  "template": {"spec": {
                      "restartPolicy": "Never", "serviceAccountName": OBSERVER,
                      "automountServiceAccountToken": False,
-                     "securityContext": {"runAsNonRoot": True, "runAsUser": 65534,
+                     "securityContext": {"runAsNonRoot": True, "runAsUser": 65534, "fsGroup": 65534,
                                          "seccompProfile": {"type": "RuntimeDefault"}},
                      "containers": [{
                          "name": "watch", "image": IMAGE, "imagePullPolicy": "IfNotPresent",
@@ -62,9 +62,11 @@ def run(lab, case_dir, namespace, name, baseline):
                          "securityContext": {"readOnlyRootFilesystem": True, "allowPrivilegeEscalation": False,
                                              "capabilities": {"drop": ["ALL"]}},
                          "volumeMounts": [{"name": "fixture", "mountPath": "/fixture", "readOnly": True},
+                                          {"name": "gate", "mountPath": "/gate"},
                                           {"name": "identity", "mountPath": "/var/run/saf-watch", "readOnly": True}],
                      }],
                      "volumes": [
+                         {"name": "gate", "emptyDir": {"medium": "Memory", "sizeLimit": "1Mi"}},
                          {"name": "fixture", "configMap": {"name": OBSERVER}},
                          {"name": "identity", "projected": {"sources": [
                              {"serviceAccountToken": {"path": "token", "expirationSeconds": 600}},
@@ -106,9 +108,20 @@ def run(lab, case_dir, namespace, name, baseline):
     widened_spec = {**baseline, "ingress": [{}]}
     drifted = patch({"spec": widened_spec})
     restored = patch({"spec": {**baseline, "ingress": None}})
-    lab.kubectl("-n", namespace, "wait", "--for=condition=Complete", f"job/{OBSERVER}", "--timeout=45s", timeout=50)
-    final_records = records()
-    armed, complete = final_records
+
+    deadline = time.monotonic() + 30
+    while time.monotonic() < deadline:
+        current = records()
+        if [record.get("phase") for record in current] == ["armed", "complete"]:
+            break
+        time.sleep(0.25)
+    else:
+        lab.block("The initial NetworkPolicy watch did not complete and close")
+    gap_drift = patch({"spec": widened_spec})
+    gap_restore = patch({"spec": {**baseline, "ingress": None}})
+    live = json.loads(lab.kubectl("-n", namespace, "get", "networkpolicy", name, "-o", "json").stdout)
+    pre_resume = {"uid": live["metadata"]["uid"], "resource_version": live["metadata"]["resourceVersion"],
+                  "spec": live["spec"], "read_at_utc": utc_now()}
     pods = json.loads(lab.kubectl("-n", namespace, "get", "pods", "-l",
                                   "batch.kubernetes.io/job-name=" + OBSERVER, "-o", "json").stdout)
     pod, = pods["items"]
@@ -117,6 +130,11 @@ def run(lab, case_dir, namespace, name, baseline):
                     and pod["spec"].get("automountServiceAccountToken") is False
                     and any(owner.get("kind") == "Job" and owner.get("uid") == job_uid
                             and owner.get("controller") is True for owner in pod["metadata"].get("ownerReferences", [])))
+    gate_released = utc_now()
+    lab.kubectl("-n", namespace, "exec", pod["metadata"]["name"], "-c", "watch", "--",
+                "python", "-B", "-c", "from pathlib import Path; Path('/gate/resume').touch(exist_ok=False)")
+    lab.kubectl("-n", namespace, "wait", "--for=condition=Complete", f"job/{OBSERVER}", "--timeout=30s", timeout=35)
+    armed, complete, resumed, recovery = records()
 
     events = complete["events"]
     writes = [metadata, drifted, restored]
@@ -170,3 +188,41 @@ def run(lab, case_dir, namespace, name, baseline):
                "event_receipt_times_bounded_to_independent_writes": timestamps_match,
                "event_receipt_times_ordered": ordered_times,
                "comparison": ["unchanged", "drift", "recovered"]})
+
+    gap_writes = [gap_drift, gap_restore]
+    gap_events = recovery["events"]
+    gap_spec_matches = (pre_resume["uid"] == uid and pre_resume["spec"] == baseline
+                        and pre_resume["resource_version"] == gap_restore["resource_version"])
+    checkpoint_matches = (resumed["phase"] == "resumed" and resumed["http_status"] == 200
+                          and resumed["resource_version"] == complete["checkpoint"]
+                          == restored["resource_version"])
+    gap_trace_matches = (recovery["phase"] == "recovery_complete" and len(gap_events) == 2
+                         and len({w["resource_version"] for w in [*writes, *gap_writes]}) == 5
+                         and [event["decision"] for event in gap_events] == ["drift", "recovered"]
+                         and [event["spec"] for event in gap_events] == [widened_spec, baseline]
+                         and all(event["uid"] == write["uid"] == uid
+                                 and event["resource_version"] == write["resource_version"]
+                                 and event["generation"] == write["generation"]
+                                 and event["spec"] == write["spec"]
+                                 for event, write in zip(gap_events, gap_writes)))
+    gap_boundaries = (parse_time(complete["complete_at"]) <= parse_time(gap_drift["request_started_at_utc"])
+                      <= parse_time(gap_drift["response_received_at_utc"])
+                      <= parse_time(gap_restore["request_started_at_utc"])
+                      <= parse_time(gap_restore["response_received_at_utc"])
+                      <= parse_time(pre_resume["read_at_utc"]) <= parse_time(gate_released)
+                      <= parse_time(resumed["resumed_at"])
+                      and all(parse_time(event["event_received_at_utc"]) >= parse_time(resumed["resumed_at"])
+                              for event in gap_events))
+    (lab.evidence / "posture-network-policy-watch-resume.raw.json").write_text(json.dumps({
+        "fixture_only": True, "closed_at": complete["complete_at"],
+        "checkpoint": complete["checkpoint"], "checkpoint_write": restored,
+        "gap_writes": gap_writes, "get_before_resume": pre_resume, "gate_released_at": gate_released,
+        "resumed": resumed, "resumed_events": gap_events, "job_uid": job_uid,
+        "pod_uid": pod["metadata"]["uid"], "pod_owner_and_service_account_bound": pod_identity,
+    }, indent=2, sort_keys=True) + "\n")
+    lab.check("green", "NetworkPolicy watch resumes from the last received revision and observes drift missed while disconnected",
+              pod_identity and gap_spec_matches and checkpoint_matches and gap_trace_matches and gap_boundaries,
+              {"exact_checkpoint_used": checkpoint_matches, "writes_while_stream_closed": gap_boundaries,
+               "independent_read_shows_restored_spec": gap_spec_matches,
+               "resumed_events_match_exact_missed_writes": gap_trace_matches,
+               "job_pod_identity_bound": pod_identity})
