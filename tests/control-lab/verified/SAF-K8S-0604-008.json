@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0604-008",
-  "catalog_revision": "be51e36d445e3477ca7c4fbb30df96c0ea5716e9",
-  "catalog_sha256": "ab598c8d529e8c408b30d9da739ef2238baa30596e3a773e3ee16b614b6995c0",
+  "catalog_revision": "f3f9f4cd817e3fb9ca9344268d8a2804cc6eacb8",
+  "catalog_sha256": "96ad50c08e7c7fcb717b830fb2376a887ae787e5a40dc3e0d17ed414187197a4",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "f3e8340df07ef7f266fa1058320eb5d37e50a46d970b1b93436cfa9e87639e97",
-  "scope": "A live Job, Deployment, Pods, Node and EndpointSlice are correlated with a reviewed fixture purpose record and fictional node and container inventories. A private in-cluster request reaches the actual inference fixture. GPU/driver presence and public reachability require separate evidence.",
-  "cluster": "saf-lab-f93aa0da6991",
+  "scope": "A live Job, Deployment, Pods, Node and EndpointSlice are correlated with a reviewed fixture purpose record and fictional node and container inventories. A private in-cluster request reaches the actual inference fixture. GPU/driver presence and public reachability require separate evidence. A scoped immutable synthetic purpose record binds exact workload, Pod, image and owner identities. Missing, expired and mismatched records receive unknown or conflict outcomes. Live organizational authorization and real inventory are separate assessment responsibilities.",
+  "cluster": "saf-lab-7ebbd0ec666a",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -86,16 +86,32 @@
     },
     {
       "phase": "positive",
-      "claim": "Observed benign image component and pinned exact-release advisory stay bound to the live image",
+      "claim": "Pinned BusyBox version is outside this fixture's exact CPE-version comparator",
       "matched": true,
       "observed": {
         "runtime_component_version": "1.37.0",
         "inventory_image_bound": true,
         "advisory_source_and_digest_verified": true,
-        "installed_release_not_listed_affected": true,
+        "installed_release_not_exact_fixture_version": true,
         "synthetic_exact_affected_version_comparator": true,
         "missing_inventory_unknown": true,
         "image_mismatch_unknown": true
+      }
+    },
+    {
+      "phase": "supplement",
+      "claim": "Immutable reviewed purpose record binds exact workload, owner and image identities",
+      "matched": true,
+      "observed": {
+        "record_named_and_immutable": true,
+        "record_readback_hash_matches": true,
+        "valid_training_record": "training",
+        "valid_inference_record": "inference",
+        "missing_or_expired_record_unknown": true,
+        "unknown_source_revision_unknown": true,
+        "misbound_owner_or_image_conflict": true,
+        "duplicate_subject_conflict": true,
+        "tampered_record_unknown": true
       }
     }
   ]

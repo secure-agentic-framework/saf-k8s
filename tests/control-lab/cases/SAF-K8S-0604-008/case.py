@@ -1,235 +1,222 @@
-"""Classify fictional component findings with observed workload and service context."""
+"""Bind workload purpose to a fixed synthetic reviewed record."""
 from copy import deepcopy
+from datetime import datetime, timezone
 import hashlib
+import importlib.util
 import json
 from pathlib import Path
-import re
 
-from fixtures import BUSYBOX_IMAGE, container
+from fixtures import BUSYBOX_IMAGE
 
-TRAIN = "saf-training-marker"
-SERVE = "saf-inference-marker"
-CASE_NS = "saf-test"
-PURPOSE = "saf.example/purpose"
-SCOPE = (
-    "A live Job, Deployment, Pods, Node and EndpointSlice are correlated with a reviewed "
-    "fixture purpose record and fictional node and container inventories. A private in-cluster "
-    "request reaches the actual inference fixture. GPU/driver presence and public "
-    "reachability require separate evidence."
-)
-ADVISORY_FILE = Path(__file__).with_name("busybox-advisory.json")
-ADVISORY_SOURCE = "https://osv.dev/vulnerability/CVE-2023-42365"
-ADVISORY_SHA256 = "3ada5189e30cbcaeb96569b25a2cbf021b8995e4cef684d28ee5e35f7afc6cd4"
+SCOPE = 'A live Job, Deployment, Pods, Node and EndpointSlice are correlated with a reviewed fixture purpose record and fictional node and container inventories. A private in-cluster request reaches the actual inference fixture. GPU/driver presence and public reachability require separate evidence. A scoped immutable synthetic purpose record binds exact workload, Pod, image and owner identities. Missing, expired and mismatched records receive unknown or conflict outcomes. Live organizational authorization and real inventory are separate assessment responsibilities.'
+HERE = Path(__file__).resolve().parent
+BASE_CASE = HERE / "base_case.py"
+RECORD_NAME = "saf-0604-008-reviewed-purpose-record"
+SOURCE_URI = "fixture://saf-k8s/SAF-K8S-0604-008/purpose-ledger"
+SOURCE_REVISION = "fixture-purpose-ledger-v1"
+AS_OF = "2026-11-26T00:00:00Z"
+REVIEWED_AT = "2026-11-25T00:00:00Z"
+VALID_UNTIL = "2026-12-02T00:00:00Z"
+ALLOWED_PURPOSES = {"training", "inference"}
 
 
-def metadata(name, purpose=None):
-    fields = {"name": name}
-    if purpose:
-        fields["labels"] = {"app": name, PURPOSE: purpose}
-    return fields
+def load_base():
+    spec = importlib.util.spec_from_file_location("saf_0604_008_published_base", BASE_CASE)
+    if spec is None or spec.loader is None:
+        raise RuntimeError("Published 0604-008 case snapshot could not be loaded")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
 
 
-PROFILE = {(kind, name): purpose for kind, name, purpose in (
-    ("Job", TRAIN, "training"), ("Deployment", SERVE, "inference")
-)}
+def canonical_bytes(value):
+    return json.dumps(value, sort_keys=True, separators=(",", ":")).encode("utf-8")
 
 
-def load(lab, *resource):
-    return json.loads(lab.kubectl("get", *resource, "-o", "json").stdout)
+def iso(value):
+    return datetime.fromisoformat(value.replace("Z", "+00:00"))
 
 
-def launch(lab):
-    lab.create({
-        "apiVersion": "batch/v1", "kind": "Job", "metadata": metadata(TRAIN, "training"),
-        "spec": {"backoffLimit": 0, "template": {"metadata": {"labels": {"app": TRAIN}}, "spec": {
-            "restartPolicy": "Never", "automountServiceAccountToken": False,
-            "containers": [container("task", command=["sh", "-c", "echo synthetic-training-complete"])],
-        }}},
-    })
-    sel = {"app": SERVE}
-    server = ("mkdir -p /tmp/www && printf 'saf-inference-marker\\n' > /tmp/www/health && "
-              "httpd -f -p 8080 -h /tmp/www")
-    lab.create({
-        "apiVersion": "apps/v1", "kind": "Deployment", "metadata": metadata(SERVE, "inference"),
-        "spec": {"replicas": 1, "selector": {"matchLabels": sel}, "template": {
-            "metadata": {"labels": sel}, "spec": {"automountServiceAccountToken": False, "containers": [
-                container("marker", command=["sh", "-c", server], readinessProbe={"httpGet": {
-                    "path": "/health", "port": 8080
-                }, "periodSeconds": 1, "failureThreshold": 10}),
-            ]},
-        }},
-    })
-    lab.create({"apiVersion": "v1", "kind": "Service", "metadata": metadata(SERVE), "spec": {
-        "type": "ClusterIP", "selector": sel, "ports": [{"port": 8080, "targetPort": 8080}],
-    }})
-    lab.kubectl("wait", "--for=condition=complete", f"job/{TRAIN}", "--timeout=60s", timeout=70)
-    lab.kubectl("wait", "--for=condition=Available", f"deployment/{SERVE}", "--timeout=65s", timeout=75)
+def controller_refs(obj):
+    return [{"api_version": row.get("apiVersion"), "kind": row.get("kind"),
+             "name": row.get("name"), "uid": row.get("uid")}
+            for row in obj.get("metadata", {}).get("ownerReferences", [])
+            if row.get("controller") is True]
 
 
-def owner_is(obj, parent):
-    return any(link.get("controller") and link.get("uid") == parent["metadata"]["uid"]
-               for link in obj["metadata"].get("ownerReferences", []))
-
-
-def context(lab, workload, pod, owned):
-    node = load(lab, "node", pod["spec"]["nodeName"])
-    name, kind = workload["metadata"]["name"], workload["kind"]
-    policy = PROFILE.get((kind, name))
-    label = workload["metadata"].get("labels", {}).get(PURPOSE)
+def live_subject(workload, pod, owner_chain):
+    container_spec = workload["spec"].get("template", {}).get("spec", {}).get("containers", [])
     statuses = pod.get("status", {}).get("containerStatuses", [])
-    digest_ref = statuses[0].get("imageID") if statuses else None
-    image = pod["spec"]["containers"][0]["image"]
-    # A valid approved fixture entry corroborates purpose and expected declared image.
-    phase = policy if owned and policy == label and image == BUSYBOX_IMAGE else "unknown"
-    return {"workload_name": name, "workload_kind": kind, "workload_uid": workload["metadata"]["uid"],
-            "node_uid": node["metadata"]["uid"], "node_kubelet": node["status"]["nodeInfo"]["kubeletVersion"],
-            "pod_uid": pod["metadata"]["uid"], "container_image": image, "observed_image_id": digest_ref,
-            "phase": phase, "owner_observed": owned}
+    image_ref = container_spec[0].get("image") if len(container_spec) == 1 else None
+    image_id = statuses[0].get("imageID") if len(statuses) == 1 else None
+    return {
+        "kind": workload["kind"],
+        "name": workload["metadata"].get("name"),
+        "workload_uid": workload["metadata"].get("uid"),
+        "pod_uid": pod["metadata"].get("uid"),
+        "image_ref": image_ref,
+        "image_id": image_id,
+        "owner_chain": owner_chain,
+    }
 
 
-def classify(workload, finding, records):
-    matches = [row for row in records if row["component"] == finding["component"]]
-    if workload is None or not matches:
+def classify_record(raw_bytes, expected_sha256, live, as_of=AS_OF):
+    if not raw_bytes or not expected_sha256:
         return "unknown"
-    if len(matches) != 1:
+    if hashlib.sha256(raw_bytes).hexdigest() != expected_sha256:
+        return "unknown"
+    try:
+        record = json.loads(raw_bytes)
+        decision_time = iso(as_of)
+        reviewed_at = iso(record["reviewed_at"])
+        valid_until = iso(record["valid_until"])
+    except (KeyError, TypeError, ValueError, json.JSONDecodeError):
+        return "unknown"
+    if (record.get("schema_version") != 1
+            or record.get("source_uri") != SOURCE_URI
+            or record.get("source_revision") != SOURCE_REVISION
+            or reviewed_at > decision_time or decision_time >= valid_until):
+        return "unknown"
+    entries = [row for row in record.get("entries", [])
+               if row.get("kind") == live.get("kind") and row.get("name") == live.get("name")]
+    if not entries:
+        return "unknown"
+    if len(entries) != 1:
         return "conflict"
-    row, = matches
-    locus = row.get("locus")
-    subject = {"node": workload["node_uid"], "container": workload["observed_image_id"]}.get(locus)
-    if subject is None or not row.get("subject"):
+    entry, = entries
+    exact_fields = ("workload_uid", "pod_uid", "image_ref", "image_id", "owner_chain")
+    if any(not live.get(field) for field in exact_fields):
         return "unknown"
-    if row["subject"] != subject:
+    if any(entry.get(field) != live.get(field) for field in exact_fields):
         return "conflict"
-    return {"node": "node-driver", "container": "container-library"}[locus]
+    purpose = entry.get("purpose")
+    return purpose if purpose in ALLOWED_PURPOSES else "unknown"
 
 
-def private_request(lab):
-    script = (f"i=0; while [ $i -lt 12 ]; do "
-              f"wget -qO- -T 2 http://{SERVE}.{CASE_NS}.svc.cluster.local:8080/health && exit 0; "
-              "i=$((i+1)); sleep 1; done; exit 1")
-    lab.create({"apiVersion": "v1", "kind": "Pod", "metadata": metadata("saf-private-client"),
-                "spec": {"restartPolicy": "Never", "automountServiceAccountToken": False,
-                         "containers": [container("client", command=["sh", "-c", script])]}})
-    lab.kubectl("wait", "--for=jsonpath={.status.phase}=Succeeded",
-                "pod/saf-private-client", "--timeout=35s", timeout=45)
-    return lab.kubectl("logs", "saf-private-client").stdout.strip()
+def make_entry(purpose, subject):
+    return {"kind": subject["kind"], "name": subject["name"], "purpose": purpose,
+            **{field: subject[field] for field in (
+                "workload_uid", "pod_uid", "image_ref", "image_id", "owner_chain")}}
 
 
-def installed_busybox_version(lab, pod):
-    """Read the actual running image's BusyBox self-reported build version."""
-    result = lab.kubectl("exec", pod["metadata"]["name"], "-c", "marker", "--",
-                         "sh", "-c", "busybox 2>&1 | head -n 1", allow_failure=True)
-    if result.returncode != 0:
-        return None
-    match = re.search(r"\bBusyBox v([0-9]+(?:\.[0-9]+){2})\b", result.stdout)
-    return match.group(1) if match else None
-
-
-def advisory_classification(version, image_ref, observed_image_id, advisory, fixture_digest):
-    if (not version or image_ref != BUSYBOX_IMAGE or not observed_image_id
-            or not fixture_digest):
-        return "unknown"
-    affected = advisory.get("affected", {})
-    if (affected.get("ecosystem") != "CPE"
-            or affected.get("name") != "busybox"
-            or not isinstance(affected.get("exact_versions"), list)):
-        return "unknown"
-    # The reviewed source fixture records a single exact affected release, not a
-    # general semantic-version range. Do not infer range semantics it lacks.
-    return "listed-affected-version" if version in affected["exact_versions"] else "not-listed-as-affected"
+def expected_matrix(record_bytes, record_sha, training, inference):
+    record = json.loads(record_bytes)
+    expired = deepcopy(record)
+    expired["valid_until"] = "2026-11-25T23:59:59Z"
+    wrong_revision = deepcopy(record)
+    wrong_revision["source_revision"] = "fixture-purpose-ledger-old"
+    wrong_image = deepcopy(record)
+    next(row for row in wrong_image["entries"] if row["name"] == inference["name"])["image_ref"] = (
+        "docker.io/library/busybox:wrong@sha256:" + "0" * 64)
+    wrong_owner = deepcopy(record)
+    next(row for row in wrong_owner["entries"] if row["name"] == training["name"])["owner_chain"][0]["uid"] = (
+        "00000000-0000-0000-0000-000000000000")
+    duplicate = deepcopy(record)
+    duplicate["entries"].append(deepcopy(duplicate["entries"][0]))
+    tampered_bytes = record_bytes.replace(b"fixture-purpose-ledger-v1", b"fixture-purpose-ledger-v2")
+    return {
+        "valid_training": classify_record(record_bytes, record_sha, training),
+        "valid_inference": classify_record(record_bytes, record_sha, inference),
+        "missing_record": classify_record(None, None, inference),
+        "expired_record": classify_record(canonical_bytes(expired),
+                                          hashlib.sha256(canonical_bytes(expired)).hexdigest(), inference),
+        "unknown_revision": classify_record(canonical_bytes(wrong_revision),
+                                             hashlib.sha256(canonical_bytes(wrong_revision)).hexdigest(), inference),
+        "misbound_image": classify_record(canonical_bytes(wrong_image),
+                                           hashlib.sha256(canonical_bytes(wrong_image)).hexdigest(), inference),
+        "misbound_owner": classify_record(canonical_bytes(wrong_owner),
+                                           hashlib.sha256(canonical_bytes(wrong_owner)).hexdigest(), training),
+        "duplicate_subject": classify_record(canonical_bytes(duplicate),
+                                              hashlib.sha256(canonical_bytes(duplicate)).hexdigest(), training),
+        "tampered_record_bytes": classify_record(tampered_bytes, record_sha, inference),
+        "wrong_exact_image_pin": classify_record(record_bytes, record_sha,
+                                                   {**inference, "image_ref": BUSYBOX_IMAGE + "-other"}),
+    }
 
 
 def run(lab):
-    driver = {"advisory": "SYNTH-NODE-DRIVER", "component": "pkg:generic/saf-test-driver@1.0"}
-    library = {"advisory": "SYNTH-IMAGE-LIBRARY", "component": "pkg:generic/saf-test-library@1.0"}
-    baseline = [classify(None, row, []) for row in (driver, library)]
-    lab.check("red", "Findings alone leave component locus and workload exposure unclassified",
-              baseline == ["unknown", "unknown"], {"before_context": baseline})
-    launch(lab)
-    job, dep = load(lab, "job", TRAIN), load(lab, "deployment", SERVE)
-    training_pod, = load(lab, "pods", "-l", f"app={TRAIN}")["items"]
-    inference_pod, = load(lab, "pods", "-l", f"app={SERVE}")["items"]
-    replica_set, = load(lab, "rs", "-l", f"app={SERVE}")["items"]
-    training = context(lab, job, training_pod, owner_is(training_pod, job))
-    inference = context(lab, dep, inference_pod, owner_is(inference_pod, replica_set) and owner_is(replica_set, dep))
-    unknown_workload = deepcopy(dep)
-    del unknown_workload["metadata"]["labels"][PURPOSE]
-    without_hint = context(lab, unknown_workload, inference_pod, True)["phase"]
-    phases = [training["phase"], inference["phase"], without_hint]
-    topology_valid = all(row["owner_observed"] and row["observed_image_id"] for row in (training, inference))
-    lab.check("green", "Observed owner chains and reviewed fixture metadata distinguish the two workload contexts",
-              phases == ["training", "inference", "unknown"] and topology_valid,
-              {"phases": phases, "owner_and_runtime_observed": topology_valid})
+    base = load_base()
+    base.run(lab)
+    training_job = base.load(lab, "job", base.TRAIN)
+    inference_deployment = base.load(lab, "deployment", base.SERVE)
+    training_pod, = base.load(lab, "pods", "-l", f"app={base.TRAIN}")["items"]
+    inference_pod, = base.load(lab, "pods", "-l", f"app={base.SERVE}")["items"]
+    inference_rs, = base.load(lab, "rs", "-l", f"app={base.SERVE}")["items"]
 
-    node_fact = {"component": driver["component"], "locus": "node", "subject": training["node_uid"]}
-    image_fact = {"component": library["component"], "locus": "container", "subject": inference["observed_image_id"]}
-    wrong_node = {**node_fact, "subject": "unmatched-fixture-node"}
-    wrong_image = {**image_fact, "subject": "unmatched-fixture-manifest"}
-    decisions = {"correlated_node_record": classify(training, driver, [node_fact]),
-                 "correlated_container_record": classify(inference, library, [image_fact]),
-                 "missing_record": classify(inference, library, []),
-                 "disagreeing_sources": classify(training, driver, [node_fact, wrong_node]),
-                 "wrong_image_record": classify(inference, library, [wrong_image])}
-    wanted = {"correlated_node_record": "node-driver", "correlated_container_record": "container-library",
-              "missing_record": "unknown", "disagreeing_sources": "conflict", "wrong_image_record": "conflict"}
-    lab.check("green", "Exact node and runtime image identities govern fictional component classification",
-              decisions == wanted, decisions)
+    training_owner_chain = controller_refs(training_pod)
+    inference_owner_chain = controller_refs(inference_pod) + controller_refs(inference_rs)
+    if (not base.owner_is(training_pod, training_job)
+            or not base.owner_is(inference_pod, inference_rs)
+            or not base.owner_is(inference_rs, inference_deployment)
+            or not training_owner_chain or len(inference_owner_chain) != 2):
+        lab.block("The case-owned owner chains cannot be bound into the synthetic purpose record")
 
-    body = private_request(lab)
-    service = load(lab, "service", SERVE)
-    slices = load(lab, "endpointslice", "-l", f"kubernetes.io/service-name={SERVE}")["items"]
-    ready_endpoint = any(endpoint.get("conditions", {}).get("ready")
-                         and endpoint.get("targetRef", {}).get("uid") == inference["pod_uid"]
-                         for row in slices for endpoint in row["endpoints"])
-    lab.check("positive", "The exact inference fixture answers privately and public reachability remains unknown",
-              body == SERVE and ready_endpoint and service["spec"]["type"] == "ClusterIP",
-              {"private_marker": body == SERVE, "correct_ready_backend": ready_endpoint,
-               "public_reachability": "unknown"})
+    training = live_subject(training_job, training_pod, training_owner_chain)
+    inference = live_subject(inference_deployment, inference_pod, inference_owner_chain)
+    if (training["image_ref"] != BUSYBOX_IMAGE or inference["image_ref"] != BUSYBOX_IMAGE
+            or not training["image_id"] or not inference["image_id"]):
+        lab.block("Purpose record requires the exact pinned fixture image and observed runtime IDs")
 
-    advisory_bytes = ADVISORY_FILE.read_bytes()
-    advisory = json.loads(advisory_bytes)
-    advisory_digest = hashlib.sha256(advisory_bytes).hexdigest()
-    version = installed_busybox_version(lab, inference_pod)
-    source_ok = advisory.get("id") == "CVE-2023-42365" and advisory.get("source") == ADVISORY_SOURCE
-    source_sha_ok = advisory_digest == ADVISORY_SHA256
-    installed_decision = advisory_classification(
-        version, inference["container_image"], inference["observed_image_id"],
-        advisory, advisory_digest if source_ok and source_sha_ok else None)
-    synthetic_affected = advisory_classification(
-        "1.36.1", BUSYBOX_IMAGE, inference["observed_image_id"], advisory,
-        advisory_digest if source_ok and source_sha_ok else None)
-    missing_unknown = advisory_classification(
-        None, inference["container_image"], inference["observed_image_id"], advisory,
-        advisory_digest if source_ok and source_sha_ok else None) == "unknown"
-    mismatch_unknown = advisory_classification(
-        version, "docker.io/library/busybox:wrong@sha256:" + "0" * 64,
-        inference["observed_image_id"], advisory,
-        advisory_digest if source_ok and source_sha_ok else None) == "unknown"
-    bound = (version == "1.37.0" and inference["container_image"] == BUSYBOX_IMAGE
-             and bool(inference["observed_image_id"]) and source_ok and source_sha_ok)
-    lab.check("positive", "Observed benign image component and pinned exact-release advisory stay bound to the live image",
-              bound and installed_decision == "not-listed-as-affected"
-              and synthetic_affected == "listed-affected-version" and missing_unknown and mismatch_unknown,
-              {"runtime_component_version": version, "inventory_image_bound": bound,
-               "advisory_source_and_digest_verified": source_ok and source_sha_ok,
-               "installed_release_not_listed_affected": installed_decision == "not-listed-as-affected",
-               "synthetic_exact_affected_version_comparator": synthetic_affected == "listed-affected-version",
-               "missing_inventory_unknown": missing_unknown, "image_mismatch_unknown": mismatch_unknown})
-    (lab.evidence / "exposure-context.json").write_text(json.dumps({
-        "training": training, "inference": inference, "classification": decisions,
-        "service_type": service["spec"]["type"], "private_marker": body,
-        "fictional_inventory": [node_fact, image_fact], "public_reachability": "unknown",
-    }, indent=2, sort_keys=True) + "\n")
-    (lab.evidence / "package-advisory-observations.json").write_text(json.dumps({
-        "pod_uid": inference_pod["metadata"]["uid"],
-        "image_ref": inference["container_image"],
-        "image_id": inference["observed_image_id"],
-        "observed_component": "busybox",
-        "observed_version": version,
-        "advisory_id": advisory.get("id"),
-        "advisory_source": advisory.get("source"),
-        "advisory_fixture_sha256": advisory_digest,
-        "classification": installed_decision,
-        "synthetic_exact_affected_version_comparator": synthetic_affected,
-        "host_and_injected_inventory": "not-observed",
-    }, indent=2, sort_keys=True) + "\n")
+    record = {
+        "schema_version": 1,
+        "source_uri": SOURCE_URI,
+        "source_revision": SOURCE_REVISION,
+        "reviewed_at": REVIEWED_AT,
+        "valid_until": VALID_UNTIL,
+        "evaluation_time": AS_OF,
+        "entries": [make_entry("training", training), make_entry("inference", inference)],
+    }
+    record_bytes = canonical_bytes(record)
+    record_sha = hashlib.sha256(record_bytes).hexdigest()
+    created = lab.create({"apiVersion": "v1", "kind": "ConfigMap",
+                          "metadata": {"name": RECORD_NAME}, "immutable": True,
+                          "data": {"record.json": record_bytes.decode("utf-8")}})
+    persisted = base.load(lab, "configmap", RECORD_NAME)
+    persisted_bytes = persisted.get("data", {}).get("record.json", "").encode("utf-8")
+    readback_exact = (persisted_bytes == record_bytes
+                      and hashlib.sha256(persisted_bytes).hexdigest() == record_sha)
+    immutable_named = (persisted.get("immutable") is True
+                       and persisted.get("metadata", {}).get("name") == RECORD_NAME
+                       and persisted.get("metadata", {}).get("uid") ==
+                       created.get("metadata", {}).get("uid"))
+
+    matrix = expected_matrix(persisted_bytes, record_sha, training, inference)
+    expected = {
+        "valid_training": "training",
+        "valid_inference": "inference",
+        "missing_record": "unknown",
+        "expired_record": "unknown",
+        "unknown_revision": "unknown",
+        "misbound_image": "conflict",
+        "misbound_owner": "conflict",
+        "duplicate_subject": "conflict",
+        "tampered_record_bytes": "unknown",
+        "wrong_exact_image_pin": "conflict",
+    }
+    matched = immutable_named and readback_exact and matrix == expected
+    lab.check("supplement", "Immutable reviewed purpose record binds exact workload, owner and image identities",
+              matched,
+              {"record_named_and_immutable": immutable_named,
+               "record_readback_hash_matches": readback_exact,
+               "valid_training_record": matrix["valid_training"],
+               "valid_inference_record": matrix["valid_inference"],
+               "missing_or_expired_record_unknown": matrix["missing_record"] == "unknown"
+               and matrix["expired_record"] == "unknown",
+               "unknown_source_revision_unknown": matrix["unknown_revision"] == "unknown",
+               "misbound_owner_or_image_conflict": matrix["misbound_image"] == "conflict"
+               and matrix["misbound_owner"] == "conflict"
+               and matrix["wrong_exact_image_pin"] == "conflict",
+               "duplicate_subject_conflict": matrix["duplicate_subject"] == "conflict",
+               "tampered_record_unknown": matrix["tampered_record_bytes"] == "unknown"})
+
+    (lab.evidence / "purpose-provenance.raw.json").write_text(json.dumps({
+        "configmap_uid": persisted.get("metadata", {}).get("uid"),
+        "configmap_resource_version": persisted.get("metadata", {}).get("resourceVersion"),
+        "record_sha256": record_sha,
+        "record_persisted_exact": readback_exact,
+        "record_immutable": immutable_named,
+        "record": record,
+        "live_training_subject": training,
+        "live_inference_subject": inference,
+        "counterfactual_matrix": matrix,
+    }, sort_keys=True, indent=2) + "\n")
