@@ -45,15 +45,6 @@ Governed workload identifier assignment and approved provider identity binding a
 - Applicability: required
 - Strength Reason Code: n/a
 
-### [SAF-K8S-0901-004 - Training fault tolerance and security](../../controls/SAF-K8S-0901-004.md)
-
-- Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
-- Knowledge Area: 9.1
-- Relation Type: supports
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
-
 ### [SAF-K8S-0901-005 - Federated learning security on Kubernetes](../../controls/SAF-K8S-0901-005.md)
 
 - Domain: D09 - AI Workload Security: Training, Serving, and Pipelines

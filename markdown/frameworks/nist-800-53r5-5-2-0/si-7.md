@@ -9,7 +9,7 @@ The actual deployment uses integrity checks and verifies the required response f
 
 ## SAF-K8S Controls
 
-### [SAF-K8S-0906-002 - Large-scale data integrity verification](../../controls/SAF-K8S-0906-002.md)
+### [SAF-K8S-0906-002 - Segmented dataset integrity verification](../../controls/SAF-K8S-0906-002.md)
 
 - Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
 - Knowledge Area: 9.6
@@ -104,6 +104,15 @@ The actual deployment uses integrity checks and verifies the required response f
 - Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
 - Knowledge Area: 9.5
 - Relation Type: supports
+- Strength: moderate
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
+
+### [SAF-K8S-0901-004 - Training fault tolerance and security](../../controls/SAF-K8S-0901-004.md)
+
+- Domain: D09 - AI Workload Security: Training, Serving, and Pipelines
+- Knowledge Area: 9.1
+- Relation Type: partial
 - Strength: moderate
 - Applicability: conditional
 - Strength Reason Code: partial-control-coverage
