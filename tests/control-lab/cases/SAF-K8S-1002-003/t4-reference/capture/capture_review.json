@@ -1,0 +1,57 @@
+{
+  "schema": "saf-k8s-t4-capture-review-v1",
+  "capture_id": "saf-gpu-t4-native-reference",
+  "hardware_category": "datacenter",
+  "classification_basis": "NVIDIA T4 data-center product; review the cited NVIDIA platform sources",
+  "expected_stack": {
+    "driver": "580.178.04",
+    "kubernetes": "v1.36.6+k3s1",
+    "kubelet": "v1.36.6+k3s1",
+    "dcgm": "4.6.1",
+    "exporter_version": "4.8.4",
+    "exporter_image_digest": "sha256:804c17f67ab63e8a4dd5301546beefaa104129f833dae4a68f5ff7c4819f471b",
+    "device_plugin_version": "v0.20.2"
+  },
+  "compatibility_assessment": {
+    "status": "supported",
+    "driver": "580.178.04",
+    "dcgm": "4.6.1",
+    "exporter_version": "4.8.4",
+    "official_sources": [
+      "https://docs.nvidia.com/datacenter/dcgm/latest/user-guide/getting-started.html",
+      "https://docs.nvidia.com/datacenter/dcgm/latest/installation/install-dcgm-exporter.html",
+      "https://docs.nvidia.com/datacenter/dcgm/latest/reference/dcgm-exporter-metrics.html"
+    ],
+    "reviewed_at_utc": "2026-11-27T22:18:15Z"
+  },
+  "selected_fields": [
+    {
+      "metric": "DCGM_FI_DEV_GPU_UTIL",
+      "support": {
+        "status": "supported",
+        "device_model": "Tesla T4",
+        "dcgm": "4.6.1",
+        "exporter_version": "4.8.4",
+        "official_sources": [
+          "https://docs.nvidia.com/datacenter/dcgm/latest/reference/dcgm-exporter-metrics.html"
+        ],
+        "unit": "percent"
+      }
+    },
+    {
+      "metric": "DCGM_FI_DEV_FB_USED",
+      "support": {
+        "status": "supported",
+        "device_model": "Tesla T4",
+        "dcgm": "4.6.1",
+        "exporter_version": "4.8.4",
+        "official_sources": [
+          "https://docs.nvidia.com/datacenter/dcgm/latest/reference/dcgm-exporter-metrics.html"
+        ],
+        "unit": "MiB"
+      }
+    }
+  ],
+  "max_sample_skew_seconds": 10,
+  "max_observation_seconds": 120
+}

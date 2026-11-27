@@ -63,3 +63,7 @@ requirements.
 
 - [Prometheus v3.5.0 query request options](https://github.com/prometheus/prometheus/blob/v3.5.0/web/api/v1/api.go)
 - [Prometheus v3.5.0 staleness](https://github.com/prometheus/prometheus/blob/v3.5.0/docs/querying/basics.md#staleness)
+
+## Tesla T4 hardware reference
+
+The [T4 reference](t4-reference/README.md) provisions native GPU telemetry on a dedicated Linux host. It checks kubelet allocation and independently observed exporter and Prometheus fields, and verifies a real framebuffer allocation in two fresh Kubernetes clusters on the same passthrough device.

@@ -1,0 +1,51 @@
+# NVIDIA dcgm-exporter chart 4.8.4; tested image pair DCGM 4.6.1 / exporter 4.8.4.
+image:
+  repository: nvcr.io/nvidia/k8s/dcgm-exporter
+  tag: 4.6.1-4.8.4
+  digest: sha256:804c17f67ab63e8a4dd5301546beefaa104129f833dae4a68f5ff7c4819f471b
+  pullPolicy: IfNotPresent
+
+runtimeClassName: nvidia
+kubeletPath: /var/lib/kubelet/pod-resources
+arguments: []
+
+# Chart sets DCGM_EXPORTER_KUBERNETES=true and reads this optional UID setting.
+kubernetes:
+  enablePodUID: true
+  enablePodLabels: false
+  rbac:
+    create: true
+
+podLabels:
+  saf-k8s.example/scrape: dcgm-t4
+
+service:
+  enable: true
+  type: ClusterIP
+  port: 9400
+  address: ":9400"
+
+serviceMonitor:
+  enabled: false
+
+# Profiling metrics are not selected; NVIDIA documents SYS_ADMIN only for
+# DCGM_FI_PROF_* fields.
+securityContext:
+  runAsNonRoot: false
+  runAsUser: 0
+  allowPrivilegeEscalation: false
+  capabilities:
+    add: []
+    drop: ["ALL"]
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 200m
+    memory: 512Mi
+
+customMetrics: |
+  DCGM_FI_DEV_GPU_UTIL, gauge, GPU utilization percent.
+  DCGM_FI_DEV_FB_USED, gauge, Framebuffer memory used in MiB.
