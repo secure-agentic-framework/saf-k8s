@@ -275,6 +275,9 @@ def run(lab):
     refreshed_capture, refreshed_raw, refreshed_run = run_collector(
         lab, primary, profiles["positive"]["name"], "primary-refresh")
     refreshed_state, refreshed_age = freshness(refreshed_capture, max_age=fixture["freshness_limit_seconds"])
+    primary_fresh_state = state
+    primary_capture_uid = primary_capture["provenance"]["collector_pod_uid"]
+    refreshed_capture_uid = refreshed_capture["provenance"]["collector_pod_uid"]
     refreshed_ok = (expected_capture(refreshed_capture, primary)
                     and verified_source(lab, refreshed_capture, primary, refreshed_run))
     refreshed_after_stale = (refreshed_capture["provenance"]["captured_at"]
@@ -309,3 +312,39 @@ def run(lab):
     # Synthetic crosswalk import/report oracle only; it asserts no real framework coverage.
     runpy.run_path(str(HERE / "crosswalk_oracle.py"))["run"](lab)
     runpy.run_path(str(HERE / "crosswalk_oracle.py"))["run_canonical"](lab)
+
+    # Join the real capture lifecycle states to the existing fixture-only valid
+    # crosswalk projection. This is a local readiness input, not a GRC consumer.
+    crosswalk_raw = json.loads((lab.evidence / "crosswalk-readiness.raw.json").read_text(encoding="utf-8"))
+    valid_crosswalk = crosswalk_raw["valid"]
+    lifecycle = [
+        {"capture_id": primary_capture_uid, "state": primary_fresh_state},
+        {"capture_id": primary_capture_uid, "state": stale_state},
+        {"capture_id": refreshed_capture_uid, "state": refreshed_state},
+    ]
+
+    def project_readiness(crosswalk, capture):
+        gap_codes = [gap["code"] for gap in crosswalk.get("gaps", [])]
+        if capture["state"] != "fresh":
+            gap_codes.append("evidence_" + capture["state"])
+        return {"capture_id": capture["capture_id"], "evidence_state": capture["state"],
+                "gap_codes": sorted(set(gap_codes)),
+                "dashboard_status": "ready" if crosswalk.get("dashboard_status") == "ready"
+                and not gap_codes else "attention"}
+
+    projected = [project_readiness(valid_crosswalk, capture) for capture in lifecycle]
+    (lab.evidence / "freshness-dashboard-projection.raw.json").write_text(
+        json.dumps({"fixture_only": True, "source_crosswalk_status": valid_crosswalk["dashboard_status"],
+                    "capture_lifecycle": lifecycle, "projection": projected},
+                   indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    lab.check("positive", "Fixture readiness follows the fresh, stale, and recaptured native evidence IDs",
+              [row["dashboard_status"] for row in projected] == ["ready", "attention", "ready"]
+              and projected[0]["gap_codes"] == []
+              and projected[1]["gap_codes"] == ["evidence_stale"]
+              and projected[2]["gap_codes"] == []
+              and primary_capture_uid == lifecycle[1]["capture_id"]
+              and refreshed_capture_uid != primary_capture_uid,
+              {"states_projected_as_expected": [row["dashboard_status"] for row in projected]
+               == ["ready", "attention", "ready"],
+               "stale_reason_is_exact": projected[1]["gap_codes"] == ["evidence_stale"],
+               "recovery_uses_new_capture": refreshed_capture_uid != primary_capture_uid})

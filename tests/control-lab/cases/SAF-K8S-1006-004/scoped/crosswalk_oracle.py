@@ -133,14 +133,15 @@ def run(lab):
 
 # Frozen canonical crosswalk counterfactual. The repo source files are not read at runtime;
 # their revision and fingerprints were checked when this allowlisted fixture was staged.
-CANONICAL_FIXTURE_SHA256 = "3a8904bbe813bf7005700d3bfd07b95e51da275602a68149472024078d169c83"
+CANONICAL_FIXTURE_SHA256 = "1da8cbf84f3689b4cb1176fc181e9074b9591f046bf8b436bc9f9dec0a8af539"
 CANONICAL_ROWS_SHA256 = "53d7ed041a831c2ec6e0dec15cb55396a2fa8adc4dc1b5fa7d77b9dfd0e776be"
-CANONICAL_REVERSE_LINKS_SHA256 = "92930c8fb9b05a560de03ea1f4bde4547db05be7f2480d2a9e8fe383e6e1cbe8"
+CANONICAL_REVERSE_LINKS_SHA256 = "93f4a4cd231cc86215435e628f03e9ad42505754d71f274b4316254aec78a026"
 CANONICAL_EXPECTED_ROWS = 16
-CANONICAL_REPOSITORY_REVISION = "2673765fb440949d181085671aacec31fb29ca79"
-CANONICAL_CROSSWALK_SHA256 = "a69e0430703c928fd5179c6c5d1e0be62137d02ee715b742fa70dd76cce51441"
-CANONICAL_CONTROL_ROW_SHA256 = "8877e0aea2bbffdc28a808535c9c9920647990571e0060d3e184ab6fc9fdf3a2"
-CANONICAL_CONTROL_MARKDOWN_SHA256 = "29d24690010bf23296a72b715da2d7cfb9c3284468e7232979dde467b4642d77"
+CANONICAL_REPOSITORY_REVISION = "a2196389b59c1b1bffd768fb3372178c2716eb89"
+CANONICAL_CATALOG_REVISION = "a2196389b59c1b1bffd768fb3372178c2716eb89"
+CANONICAL_CROSSWALK_SHA256 = "3d686b0c376626bcc7b77545bb3e369cdef71380f2ad3f3e3664002f39ebbd69"
+CANONICAL_CONTROL_ROW_SHA256 = "883b21287df6954a989b7ababc832df4e883b021a45a60ac28a7fcbc55a1e752"
+CANONICAL_CONTROL_MARKDOWN_SHA256 = "94b7d2fbeb63fa300dc9152487888e7f3c3053424b1744cb79bdeb916bbd0ea4"
 
 
 def _row_key(row):
@@ -158,7 +159,7 @@ def _canonical_projection(candidate, reference):
         and source.get("control_row_sha256") == CANONICAL_CONTROL_ROW_SHA256
         and source.get("control_markdown_sha256") == CANONICAL_CONTROL_MARKDOWN_SHA256
         and source.get("control_id") == CONTROL_ID
-        and source.get("catalog_revision") == CATALOG_REVISION
+        and source.get("catalog_revision") == CANONICAL_CATALOG_REVISION
     )
     if not source_pins_valid:
         gaps.append("crosswalk_source_reference_stale")

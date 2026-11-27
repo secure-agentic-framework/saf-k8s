@@ -3459,7 +3459,7 @@
     "SAF-K8S-1006-004": {
       "catalog_status": "draft",
       "domain": "D10",
-      "sha256": "8877e0aea2bbffdc28a808535c9c9920647990571e0060d3e184ab6fc9fdf3a2",
+      "sha256": "883b21287df6954a989b7ababc832df4e883b021a45a60ac28a7fcbc55a1e752",
       "title": "Automated audit readiness for Kubernetes AI platforms"
     },
     "SAF-K8S-1006-005": {
@@ -3572,7 +3572,7 @@
     }
   },
   "path": "saf_k8s_controls.yaml",
-  "revision": "de970734f6ee12251e87c7312400b425a7649ccc",
-  "sha256": "caa76efc6fa0d98e355098428f9ca91dbd8f04df3ace9709aaa0b9f814dc2f6b",
+  "revision": "6029ab1fb12bb5cd1b7ec27d970e967b4a716b23",
+  "sha256": "1108801c4b8b9d8012e11cdb3cad1e76230f37db386f55f346a788ccd59d9875",
   "source": "https://github.com/secure-agentic-framework/saf-k8s"
 }

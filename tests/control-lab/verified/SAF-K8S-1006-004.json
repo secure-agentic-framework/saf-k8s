@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-1006-004",
-  "catalog_revision": "4e4852e0f43d5133f2b1b2efe28021e5876ae8d5",
-  "catalog_sha256": "65f757846d484079842769b4cec9180fc3a96ab15a5106c821a08ca7293441b6",
+  "catalog_revision": "a2196389b59c1b1bffd768fb3372178c2716eb89",
+  "catalog_sha256": "1108801c4b8b9d8012e11cdb3cad1e76230f37db386f55f346a788ccd59d9875",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
-  "control_sha256": "8877e0aea2bbffdc28a808535c9c9920647990571e0060d3e184ab6fc9fdf3a2",
+  "control_sha256": "883b21287df6954a989b7ababc832df4e883b021a45a60ac28a7fcbc55a1e752",
   "scope": "Disposable Kind cluster. A Kubernetes CronJob uses its own read-only, named-object identity to collect inert catalog and crosswalk records and live Pod Security Admission labels twice. It writes both snapshots to a PVC where a separate Pod reads them. The lab demonstrates missing, fresh, stale, and recovered states under a fixture timing threshold. The scoped follow-on checks live RoleBindings, NetworkPolicies, Namespace labels, object provenance, and cross-namespace denial. A separate source-pinned synthetic fixture checks crosswalk import and readiness-gap projection; it does not assert any actual NIST, EU, or other framework coverage. The additive canonical-row counterfactual pins the published 16 conditional mappings and reverse-page fingerprints but does not decide applicability. Production retention, evidence scope, authorization, and framework coverage remain unverified. Scope remains capture and freshness for the native inputs.",
-  "cluster": "saf-lab-63644c308749",
+  "cluster": "saf-lab-a8128fff8800",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -311,6 +311,16 @@
         "source_pins_valid": true,
         "candidate_row_count": 16,
         "candidate_reverse_link_count": 16
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Fixture readiness follows the fresh, stale, and recaptured native evidence IDs",
+      "matched": true,
+      "observed": {
+        "states_projected_as_expected": true,
+        "stale_reason_is_exact": true,
+        "recovery_uses_new_capture": true
       }
     }
   ]

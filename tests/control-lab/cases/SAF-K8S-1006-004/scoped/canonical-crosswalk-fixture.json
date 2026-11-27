@@ -34,84 +34,84 @@
       "framework_version": "1.0",
       "requirement_id": "MAP 4.2",
       "reverse_page": "markdown/frameworks/nist-ai-rmf-1-0/map-4-2.md",
-      "reverse_page_sha256": "2ab79c37957d7af24a3f660f3260ab80f0b4dd51aaa83b1d19b0cdaa14fc22f9"
+      "reverse_page_sha256": "8aa843ec6d5a2362a86aaa58db6d9a73b4275aae2ef82fba913121b740c35c43"
     },
     {
       "framework_code": "NIST-800-53R5",
       "framework_version": "5.2.0",
       "requirement_id": "AU-11",
       "reverse_page": "markdown/frameworks/nist-800-53r5-5-2-0/au-11.md",
-      "reverse_page_sha256": "2a70cca63e64e92ae39776663424fba0a09fcc09fbe3db5c7f54fb84be5750b6"
+      "reverse_page_sha256": "d9b95837fc984b99588575f8fe2cac8f1eccb16ae5bfa29fad2e8b8a6e920258"
     },
     {
       "framework_code": "NIST-800-53R5",
       "framework_version": "5.2.0",
       "requirement_id": "CA-2",
       "reverse_page": "markdown/frameworks/nist-800-53r5-5-2-0/ca-2.md",
-      "reverse_page_sha256": "a1b9204c864ed5993316a10905a9af2013bca78d4257b27c1d38f54453fe40de"
+      "reverse_page_sha256": "b1caff8a7bef50b410a63a480d8dad0337f27d3a7fb97795878b51aba7a959a2"
     },
     {
       "framework_code": "NIST-800-53R5",
       "framework_version": "5.2.0",
       "requirement_id": "CA-5",
       "reverse_page": "markdown/frameworks/nist-800-53r5-5-2-0/ca-5.md",
-      "reverse_page_sha256": "651f879c28947cf62984390085ec894881ef8c3b26acbd07405024ec95328225"
+      "reverse_page_sha256": "cd2e17a573b3b2883599ccdbd9ffdab987f762737c975bedcb64ff7fb79ecd25"
     },
     {
       "framework_code": "NIST-800-53R5",
       "framework_version": "5.2.0",
       "requirement_id": "CA-5(1)",
       "reverse_page": "markdown/frameworks/nist-800-53r5-5-2-0/ca-5-1.md",
-      "reverse_page_sha256": "f80a560c49088da31491d2c702fa01bc3499522b9aac5a4ce1d779797ad0324f"
+      "reverse_page_sha256": "e890459a6bcc54143cb360067c2f4c034e13d8ef799afefd1542231df49760a4"
     },
     {
       "framework_code": "NIST-800-53R5",
       "framework_version": "5.2.0",
       "requirement_id": "CA-7",
       "reverse_page": "markdown/frameworks/nist-800-53r5-5-2-0/ca-7.md",
-      "reverse_page_sha256": "3565b6a1a7bd2fa293446b4f1b81dede8efe3ae31522c8feb09dd4158ef41f34"
+      "reverse_page_sha256": "31f8bc8d8d64ee6b31406bb057a8f4b920b8f8b9f2b19c54213ee30de54f0d83"
     },
     {
       "framework_code": "NIST-800-53R5",
       "framework_version": "5.2.0",
       "requirement_id": "CA-7(6)",
       "reverse_page": "markdown/frameworks/nist-800-53r5-5-2-0/ca-7-6.md",
-      "reverse_page_sha256": "ac04450ab8bf40db15c6e1b893abaacaaa2caea5adbaefaf5a1ef65f58fdcf2e"
+      "reverse_page_sha256": "5ba0eaed29b85d7ba5b2550151d057aecd5df93b8c23abf62c1650fc128c26d5"
     },
     {
       "framework_code": "NIST-800-53R5",
       "framework_version": "5.2.0",
       "requirement_id": "CM-4(2)",
       "reverse_page": "markdown/frameworks/nist-800-53r5-5-2-0/cm-4-2.md",
-      "reverse_page_sha256": "7b5bfa4784a37cd1f9791270fb1b9936f7d35c535c07d4b1b9988c11eff2935f"
+      "reverse_page_sha256": "ccc94cc473c3df016a7e71b07b3924f2e74b577054abf9e054662e91c97ebccf"
     },
     {
       "framework_code": "NIST-800-53R5",
       "framework_version": "5.2.0",
       "requirement_id": "PL-2",
       "reverse_page": "markdown/frameworks/nist-800-53r5-5-2-0/pl-2.md",
-      "reverse_page_sha256": "298c8783dfdec67b51ca93e5be8a30ac47aee23b2df4fc5f8ad0481e6a27f66e"
+      "reverse_page_sha256": "f2d32d382805112d293dfb5c6a0be06bae37fe8471841e7cbb8d7a61fed6d771"
     },
     {
       "framework_code": "NIST-800-53R5",
       "framework_version": "5.2.0",
       "requirement_id": "PM-14",
       "reverse_page": "markdown/frameworks/nist-800-53r5-5-2-0/pm-14.md",
-      "reverse_page_sha256": "5234ce0de4b4bdbca53980051f2e7cb98b6accfd7f0ce730c40577c73a852bbf"
+      "reverse_page_sha256": "123ec4be24e87208c663ba81ea4d9737e13b228febd1b3efa451eafa82a43bd1"
     },
     {
       "framework_code": "NIST-800-53R5",
       "framework_version": "5.2.0",
       "requirement_id": "SA-8(32)",
       "reverse_page": "markdown/frameworks/nist-800-53r5-5-2-0/sa-8-32.md",
-      "reverse_page_sha256": "27a789f6ad18d17b71139f8c93fae5ecdecc2258d7966fa269fb7e01f5cf140a"
+      "reverse_page_sha256": "f3d4ef272142c9be30aa95d5dee7072c4d4a1520dd347465780c82882f84d637"
     },
     {
       "framework_code": "NIST-800-53R5",
       "framework_version": "5.2.0",
       "requirement_id": "SI-6(3)",
       "reverse_page": "markdown/frameworks/nist-800-53r5-5-2-0/si-6-3.md",
-      "reverse_page_sha256": "4f018c8c17984f5df1161bdb1ad3b406bc86824c5eb9ab59c3e280f7a0032a11"
+      "reverse_page_sha256": "b65ccd38870e344653d5020588df6149552d3c492b9957289969dc4a7f26dca0"
     }
   ],
   "rows": [
@@ -359,14 +359,14 @@
     }
   ],
   "source": {
-    "catalog_revision": "4e518d3bd0aab7847f62755ce1c7076d7478b3fb",
+    "catalog_revision": "a2196389b59c1b1bffd768fb3372178c2716eb89",
     "control_id": "SAF-K8S-1006-004",
-    "control_markdown_sha256": "29d24690010bf23296a72b715da2d7cfb9c3284468e7232979dde467b4642d77",
+    "control_markdown_sha256": "94b7d2fbeb63fa300dc9152487888e7f3c3053424b1744cb79bdeb916bbd0ea4",
     "control_path": "markdown/controls/SAF-K8S-1006-004.md",
     "control_row_path": "saf_k8s_controls.yaml#SAF-K8S-1006-004",
-    "control_row_sha256": "8877e0aea2bbffdc28a808535c9c9920647990571e0060d3e184ab6fc9fdf3a2",
+    "control_row_sha256": "883b21287df6954a989b7ababc832df4e883b021a45a60ac28a7fcbc55a1e752",
     "crosswalk_path": "saf_k8s_crosswalks.yaml",
-    "crosswalk_sha256": "a69e0430703c928fd5179c6c5d1e0be62137d02ee715b742fa70dd76cce51441",
-    "repository_revision": "2673765fb440949d181085671aacec31fb29ca79"
+    "crosswalk_sha256": "3d686b0c376626bcc7b77545bb3e369cdef71380f2ad3f3e3664002f39ebbd69",
+    "repository_revision": "a2196389b59c1b1bffd768fb3372178c2716eb89"
   }
 }

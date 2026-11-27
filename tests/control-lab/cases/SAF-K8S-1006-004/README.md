@@ -64,3 +64,22 @@ unresolved.
 This does not establish production retention, evidence scope, authorization, actual
 framework applicability or coverage, dashboard integration, or compliance. The 16
 existing checks and three existing synthetic crosswalk checks are preserved.
+
+## Bounded freshness and dashboard projection
+
+Kubernetes v1.36 documents CronJob scheduling as approximate: some circumstances
+can create two Jobs or no Job, and missed starts can be skipped under a deadline.
+Accordingly, an adopter should set a collection interval and maximum evidence age
+that match its system's needs instead of assuming an exact real-time schedule.
+The fixture's minute CronJob schedule and short freshness threshold are local test
+parameters, not a production latency guarantee.
+
+One additive fixture check feeds the actual primary capture ID through its observed
+fresh, stale and recaptured states and joins those states to the existing valid
+synthetic crosswalk projection. It expects `ready`, `attention` with
+`evidence_stale`, then `ready` after a distinct recapture ID. This is a bounded
+local readiness input; it does not test a deployed dashboard, alert delivery, GRC
+integration, or real framework applicability. All previous 20 runtime assertions
+remain intact.
+
+- [Kubernetes v1.36 CronJob scheduling](https://v1-36.docs.kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/)
