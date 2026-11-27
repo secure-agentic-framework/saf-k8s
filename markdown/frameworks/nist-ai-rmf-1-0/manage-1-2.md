@@ -5,7 +5,7 @@
 
 ## Mapping Notes
 
-This four-check fixture supplies limited context for a separate AI risk-treatment decision: it observes Job/Deployment ownership and node/runtime-image identities, resolves fictional component inventory matches and conflicts, and verifies a private inference service path. The paired run does not perform or evidence prioritization. Use the relation only when those facts are incorporated into the organization’s documented AI risk assessment and treatment process.
+This six-check reference supplies workload and component context for a separate AI risk-treatment decision. It binds synthetic purpose records to live Job/Deployment ownership and exact Pod and image identities, compares scoped fixture component inventory with the running BusyBox version and one exact-version advisory record, and verifies a private inference Service/EndpointSlice path. Public reachability remains unknown. The adopter independently verifies actual ownership, fleet and driver inventory, advisory applicability and measured exposure, and uses the applicable context to support documented risk-treatment priorities.
 
 ## SAF-K8S Controls
 
