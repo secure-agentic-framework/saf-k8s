@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0805-002",
-  "catalog_revision": "b90e62e06b9b9dd9148714e037b67eafddc74a92",
-  "catalog_sha256": "1c78a76489ca604a14fdf3824565e4bcb568f55832e793e78fa752772ba60eab",
+  "catalog_revision": "282bd11749f5ae808ed43f65a712b328540f1ab5",
+  "catalog_sha256": "1da56289e4f344f65fa946b0099b200d7a52a7c4bea62ee17a32261bedc18861",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "9e98f83a2ba43dedc57714b725665594d98c56df8c910c4549e102eb489fa76e",
-  "scope": "Live Kubernetes scheduler and Pod creation audit events correlated with inert synthetic allocation records.",
-  "cluster": "saf-lab-6eb37b5d6ee3",
+  "scope": "Live Kubernetes Pod audit, DRA allocation and reservation lifecycle, and inert comparison records without physical device delivery.",
+  "cluster": "saf-lab-fd1503e181e3",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -65,6 +65,19 @@
         "wrong_node": "missing",
         "conflict": "ambiguous",
         "exact_duration": null
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "Native DRA shares one API allocation, then clears it when the last Pod is removed",
+      "matched": true,
+      "observed": {
+        "same_live_claim_in_all_observations": true,
+        "distinct_claim_snapshots": true,
+        "peer_scheduled_to_same_node": true,
+        "one_then_two_then_one_reservations": true,
+        "same_api_allocation_while_reserved": true,
+        "final_pod_reservation_and_api_allocation_cleared": true
       }
     },
     {

@@ -1,9 +1,11 @@
 """Verify live Pod lifecycle audit evidence and explicitly modeled allocation correlation."""
 
+from datetime import datetime, timezone
 import json
 import time
 
-SCOPE = "Live Kubernetes scheduler and Pod creation audit events correlated with inert synthetic allocation records."
+SCOPE = ("Live Kubernetes Pod audit, DRA allocation and reservation lifecycle, "
+         "and inert comparison records without physical device delivery.")
 NODE_IMAGE = "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5"
 NS = "saf-test"
 POD = "fixture-allocation"
@@ -18,6 +20,7 @@ DRA_CLASS = "fixture-accelerator-class"
 DRA_SLICE = "fixture-accelerator-slice"
 DRA_CLAIM = "fixture-accelerator-claim"
 DRA_POD = "fixture-dra-workload"
+DRA_PEER = "fixture-dra-shared-consumer"
 
 
 def prepare_kind(_lab, temporary):
@@ -181,14 +184,14 @@ def _dra_objects(node):
     return device_class, resource_slice, claim, pod
 
 
-def _wait_dra_allocation(lab, pod_uid):
+def _wait_dra_allocation(lab, pod_uid, pod_name=DRA_POD):
     deadline = time.monotonic() + 50
     last_claim = {}
     last_pod = {}
     while time.monotonic() < deadline:
         last_claim = json.loads(lab.kubectl("-n", NS, "get", "resourceclaim", DRA_CLAIM,
                                            "-o", "json").stdout)
-        last_pod = json.loads(lab.kubectl("-n", NS, "get", "pod", DRA_POD, "-o", "json").stdout)
+        last_pod = json.loads(lab.kubectl("-n", NS, "get", "pod", pod_name, "-o", "json").stdout)
         results = (last_claim.get("status", {}).get("allocation", {})
                    .get("devices", {}).get("results", []))
         reserved = last_claim.get("status", {}).get("reservedFor", [])
@@ -209,14 +212,80 @@ def _delete_and_wait_absent(lab, kind, name, namespace=None):
     lab.kubectl(*args, timeout=45, allow_failure=True)
     deadline = time.monotonic() + 20
     while time.monotonic() < deadline:
-        get_args = ["get", kind, name, "-o", "json"]
+        get_args = ["get", kind, name, "--ignore-not-found", "-o", "json"]
         if namespace:
             get_args[0:0] = ["-n", namespace]
         result = lab.kubectl(*get_args, allow_failure=True)
-        if result.returncode != 0:
+        if result.returncode == 0 and not result.stdout.strip():
             return
         time.sleep(0.5)
     lab.block(f"Owned DRA object did not disappear after deletion: {kind}/{name}")
+
+
+def read_claim_reservations(lab, expected_uids=()):
+    """Observe exact Pod reservations and the associated scheduler state."""
+    deadline = time.monotonic() + 35
+    while time.monotonic() < deadline:
+        claim = json.loads(lab.kubectl("-n", NS, "get", "resourceclaim", DRA_CLAIM,
+                                       "-o", "json", timeout=8).stdout)
+        status = claim.get("status", {})
+        consumers = status.get("reservedFor", [])
+        if (all(item.get("resource") == "pods" for item in consumers)
+                and sorted(item.get("uid", "") for item in consumers) == sorted(expected_uids)
+                and bool(status.get("allocation")) == bool(expected_uids)):
+            return {
+                "claim_uid": claim["metadata"]["uid"],
+                "resource_version": claim["metadata"]["resourceVersion"],
+                "claim_live": "deletionTimestamp" not in claim["metadata"],
+                "harness_observed_at": datetime.now(timezone.utc).isoformat(),
+                "consumers": consumers,
+                "allocation": status.get("allocation"),
+            }
+        time.sleep(0.5)
+    lab.block("Expected exact Pod reservations and API allocation state were not observed")
+
+
+def observe_dra_reservation_release(lab, prior_claim, first_pod, pod):
+    """Follow a single DRA API allocation through one, two and zero consumers."""
+    first_uid = first_pod["metadata"]["uid"]
+    initial = read_claim_reservations(lab, [first_uid])
+    peer = lab.create({**pod, "metadata": {**pod["metadata"], "name": DRA_PEER}})
+    peer_uid = peer["metadata"]["uid"]
+    lab.kubectl("wait", "--for=condition=PodScheduled", f"pod/{DRA_PEER}",
+                "--timeout=55s", timeout=64)
+    _, peer_scheduled, _ = _wait_dra_allocation(lab, peer_uid, DRA_PEER)
+    shared = read_claim_reservations(lab, [first_uid, peer_uid])
+    _delete_and_wait_absent(lab, "pods", DRA_POD, NS)
+    one_remaining = read_claim_reservations(lab, [peer_uid])
+    _delete_and_wait_absent(lab, "pods", DRA_PEER, NS)
+    released = read_claim_reservations(lab)
+    snapshots = (initial, shared, one_remaining, released)
+    claim_uid = prior_claim["metadata"]["uid"]
+    allocation = prior_claim["status"]["allocation"]
+    observed = {
+        "same_live_claim_in_all_observations": all(
+            row["claim_uid"] == claim_uid and row["claim_live"] for row in snapshots),
+        "distinct_claim_snapshots": len({row["resource_version"] for row in snapshots}) == 4,
+        "peer_scheduled_to_same_node": (
+            peer_scheduled["spec"]["nodeName"] == first_pod["spec"]["nodeName"]),
+        "one_then_two_then_one_reservations": [
+            len(row["consumers"]) for row in snapshots[:3]] == [1, 2, 1],
+        "same_api_allocation_while_reserved": all(
+            row["allocation"] == allocation for row in snapshots[:3]),
+        "final_pod_reservation_and_api_allocation_cleared": (
+            not released["consumers"] and released["allocation"] is None),
+    }
+    (lab.evidence / "native-dra-reservation-release.raw.json").write_text(json.dumps({
+        "classification": "DRA allocation and reservation API metadata for an inert device",
+        "claim_uid": claim_uid,
+        "consumer_pod_uids": [first_uid, peer_uid],
+        "clock": "harness UTC observations",
+        "snapshots": dict(zip(("initial", "shared", "one_remaining", "released"), snapshots)),
+        "physical_release_time": None,
+        "assertions": observed,
+    }, indent=2, sort_keys=True) + "\n")
+    lab.check("positive", "Native DRA shares one API allocation, then clears it when the last Pod is removed",
+              all(observed.values()), observed)
 
 
 def native_dra_recreation_comparison(lab, node):
@@ -240,7 +309,7 @@ def native_dra_recreation_comparison(lab, node):
             "created_pod_uid": first_pod["metadata"]["uid"],
         })
 
-        _delete_and_wait_absent(lab, "pods", DRA_POD, NS)
+        observe_dra_reservation_release(lab, claim_one, pod_one, pod)
         _delete_and_wait_absent(lab, "resourceclaims", DRA_CLAIM, NS)
 
         second_claim = lab.create(claim)
@@ -321,6 +390,7 @@ def native_dra_recreation_comparison(lab, node):
         lab.check("positive", "Native DRA allocation and reservation bind each recreated Pod UID to its claim",
                   passed, observed)
     finally:
+        _delete_and_wait_absent(lab, "pods", DRA_PEER, NS)
         _delete_and_wait_absent(lab, "pods", DRA_POD, NS)
         _delete_and_wait_absent(lab, "resourceclaims", DRA_CLAIM, NS)
         _delete_and_wait_absent(lab, "resourceslices", DRA_SLICE)
