@@ -29,15 +29,6 @@ Verification of agent security functions ensures controls operate as intended
 - Applicability: required
 - Strength Reason Code: exact-text-match
 
-### [SAF-K8S-1007-004 - Continuous security posture management for AI clusters](../../controls/SAF-K8S-1007-004.md)
-
-- Domain: D10 - Observability, Incident Response, and Governance
-- Knowledge Area: 10.7
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
-
 ### [SAF-K8S-1007-006 - Secure AI workload decommissioning](../../controls/SAF-K8S-1007-006.md)
 
 - Domain: D10 - Observability, Incident Response, and Governance

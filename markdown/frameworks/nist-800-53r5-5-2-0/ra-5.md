@@ -46,3 +46,12 @@ Vulnerability scanning of agentic AI components, dependencies, and models is ess
 - Strength: moderate
 - Applicability: conditional
 - Strength Reason Code: partial-control-coverage
+
+### [SAF-K8S-1007-004 - Continuous security posture management for AI clusters](../../controls/SAF-K8S-1007-004.md)
+
+- Domain: D10 - Observability, Incident Response, and Governance
+- Knowledge Area: 10.7
+- Relation Type: partial
+- Strength: moderate
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage

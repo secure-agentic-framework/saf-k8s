@@ -22,10 +22,10 @@ Can contribute origin, immutable digest, internalization event and registry-loca
 
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.7
-- Relation Type: direct
-- Strength: strong
-- Applicability: required
-- Strength Reason Code: n/a
+- Relation Type: partial
+- Strength: weak
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
 
 ### [SAF-K8S-1007-006 - Secure AI workload decommissioning](../../controls/SAF-K8S-1007-006.md)
 

@@ -23,6 +23,6 @@ Comparable Kubernetes benchmark trends can inform periodic infrastructure-risk r
 - Domain: D10 - Observability, Incident Response, and Governance
 - Knowledge Area: 10.7
 - Relation Type: partial
-- Strength: moderate
-- Applicability: required
-- Strength Reason Code: n/a
+- Strength: weak
+- Applicability: conditional
+- Strength Reason Code: partial-control-coverage
