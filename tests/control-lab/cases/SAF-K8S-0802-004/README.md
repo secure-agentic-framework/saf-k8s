@@ -32,3 +32,24 @@ requirements.
 
 - [NVIDIA SDK release containing the sample](https://github.com/NVIDIA/attestation-sdk/releases/tag/2026.11.23)
 - [NVIDIA local verifier workflow and RIM format](https://docs.nvidia.com/attestation/attestation-client-tools-sdk/latest/local-verifier/introduction.html)
+
+## Archive monitoring and alert delivery
+
+The case passes the normalized, verified Job receipt to a case-owned exporter.
+The pinned archived transcript and measurement digest stay identical through
+all comparisons. A separate fixture approval selects the expected measurement,
+and the runner changes only that approval to exercise the mismatch. Prometheus
+observes a healthy, authenticated scrape and Alertmanager delivers a firing
+notification to the archive review receiver. The live operations receiver
+receives only its synthetic route comparator, which confirms that receiver
+is reachable independently. The archived receipt is always ineligible for
+the live firmware rule.
+
+Restoring the approved digest resolves the mismatch notification. An invalid
+approval record then makes the exporter return an unavailable scrape and
+triggers a distinct archive availability notification. Restoring the valid
+record resolves it and restores collection. The runner retains both route
+lifecycles in `hopper-archive-alerts.json` with the exact archived transcript
+and measurement digests. The approval records and both receivers are local
+fixtures. Fresh physical evidence, live responder routing and production
+review decisions remain separate requirements.

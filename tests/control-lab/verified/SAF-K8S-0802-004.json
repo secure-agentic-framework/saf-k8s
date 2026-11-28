@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0802-004",
-  "catalog_revision": "ce8204c8b386a0862ad04b914886b94dd655d952",
+  "catalog_revision": "3aed23497f7b6e025464323cb2cd82396582d44f",
   "catalog_sha256": "b2fb73602bb10c41e8c4e0650d71e296b3b60b644d16ce55ac63c343f30b05bc",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "164326c412a3c45dbe76e73c0e18317110ec9677d93376fff67090a91d7b8f1c",
-  "scope": "A live read-only Kubernetes Job comparing synthetic firmware and change-window records, plus a separate Job verifying detached fixture signatures. An archived Hopper check verifies the device chain, signed SPDM and two signed reference manifests without current-device or revocation evidence.",
-  "cluster": "saf-lab-f4645537206f",
+  "scope": "A live read-only Kubernetes Job comparing synthetic firmware and change-window records, plus a separate Job verifying detached fixture signatures. An archived Hopper check verifies the device chain, signed SPDM, and two signed reference manifests. Prometheus and Alertmanager exercise archive-only mismatch and availability routing to local fixtures. Current-device evidence and deployment monitoring remain separate.",
+  "cluster": "saf-lab-c0ad5aff0eb8",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -163,6 +163,29 @@
         "altered_driver_rim_denied": true,
         "altered_vbios_rim_denied": true,
         "altered_measurement_values_fail_reference_comparison": true
+      }
+    },
+    {
+      "phase": "archive-firmware-alert",
+      "claim": "An approval mismatch on a verified Hopper archive reaches only the fixture reviewer",
+      "matched": true,
+      "observed": {
+        "matching_archive_quiet_with_live_receiver_proven": true,
+        "authenticated_measurement_and_transcript_unchanged": true,
+        "mismatched_baseline_observed_on_healthy_scrape": true,
+        "archive_mismatch_delivered_to_review_only": true
+      }
+    },
+    {
+      "phase": "archive-firmware-recovery",
+      "claim": "Comparison recovery and evidence availability are distinct archive outcomes",
+      "matched": true,
+      "observed": {
+        "restored_baseline_resolved_the_mismatch_notification": true,
+        "failed_collection_not_classified_as_firmware_mismatch": true,
+        "archive_availability_failure_reached_review_only": true,
+        "restored_collection_resolved_the_availability_notification": true,
+        "live_receiver_recorded_only_its_synthetic_comparator": true
       }
     }
   ]

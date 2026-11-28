@@ -10,7 +10,9 @@ import subprocess
 import tempfile
 
 SCOPE = ("A live read-only Kubernetes Job comparing synthetic firmware and change-window records, plus a separate "
-         "Job verifying detached fixture signatures. An archived Hopper check verifies the device chain, signed SPDM and two signed reference manifests without current-device or revocation evidence.")
+         "Job verifying detached fixture signatures. An archived Hopper check verifies the device chain, signed SPDM, "
+         "and two signed reference manifests. Prometheus and Alertmanager exercise archive-only mismatch and "
+         "availability routing to local fixtures. Current-device evidence and deployment monitoring remain separate.")
 IMAGE = "docker.io/library/python:3.13-slim@sha256:e48f59cdba69a3cbd9ed2cf0f348d90d45a8d350d98134cf1070bc106ee9ed90"
 JOB = "fixture-firmware-inventory"
 CONFIG = "fixture-firmware-inventory"
@@ -100,7 +102,9 @@ def run(lab):
                and observed["verification_tool_version"].startswith("OpenSSL ")), observed)
 
     archived = runpy.run_path(str(Path(__file__).with_name("hopper_reference.py")))
-    archived["run"](lab)
+    verified = archived["run"](lab)
+    routing = runpy.run_path(str(Path(__file__).with_name("hopper_alerts.py")))
+    routing["run"](lab, verified, archived["IDENTITY"]["measurement_record_sha256"])
 
 
 def _signed_observation_inputs(lab):

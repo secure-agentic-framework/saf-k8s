@@ -145,6 +145,8 @@ def run(lab):
         output = lab.kubectl("logs", f"job/{JOB}", allow_failure=bool(result.returncode)).stdout
         if result.returncode or len(output) > 8192 or len(output.splitlines()) != 1:
             lab.block("The archived Hopper verifier did not complete with one normalized receipt")
-        checked_receipt(lab, json.loads(output))
+        document = json.loads(output)
+        checked_receipt(lab, document)
+        return document
     finally:
         lab.command("docker", "image", "rm", image, timeout=30, allow_failure=True)
