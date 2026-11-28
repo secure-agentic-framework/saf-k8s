@@ -144,4 +144,9 @@ def run(lab):
     module = module_from_spec(spec)
     spec.loader.exec_module(module)
     module.run(lab)
+    visibility_spec = spec_from_file_location("saf_0805_001_visibility_failure",
+                                               Path(__file__).with_name("visibility_failure.py"))
+    visibility_module = module_from_spec(visibility_spec)
+    visibility_spec.loader.exec_module(visibility_module)
+    visibility_module.run(lab)
     module.run_t4_historical(lab)

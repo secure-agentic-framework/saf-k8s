@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0805-001",
-  "catalog_revision": "bd8f108ab01aed3dc7ff82df285de5d6355ae830",
+  "catalog_revision": "f8fe03eaeda497bb1133fe25120dd25799a5c9e2",
   "catalog_sha256": "b2fb73602bb10c41e8c4e0650d71e296b3b60b644d16ce55ac63c343f30b05bc",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "d9fe935772818b512ae5513582dab136d11750e8acf73053abd6a8ce135e0c97",
   "scope": "Three checks evaluate synthetic in-cluster telemetry. Additive checks exercise a case-owned Prometheus/Alertmanager route, then replay two hash-pinned historical Tesla T4 framebuffer observations as explicitly historical fixture series. The replay proves rule and delivery behavior for those retained values; it does not establish live GPU collection, freshness, coverage, misuse, or production incident detection.",
-  "cluster": "saf-lab-257d0567bc73",
+  "cluster": "saf-lab-789f1f59c24a",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -95,6 +95,19 @@
         "no_unexpected_alert_identity": true,
         "exactly_once_claimed": false,
         "raw_evidence": "alert-route-delivery.raw.json"
+      }
+    },
+    {
+      "phase": "visibility-route",
+      "claim": "A failed scrape (up=0) and absent target (no up series) produce distinct routed alerts while a peer source remains observable",
+      "matched": true,
+      "observed": {
+        "failed_scrape_up_zero": true,
+        "absent_target_series_distinct": true,
+        "healthy_peer_reports_real_zero": true,
+        "expected_alerts_fired": true,
+        "expected_route_receipt_observed": true,
+        "raw_evidence": "source-visibility-route.raw.json"
       }
     },
     {

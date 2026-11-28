@@ -30,3 +30,28 @@ The runner records five checks. The historical route artifact is
 
 The [live A100 telemetry reference](../SAF-K8S-1002-003/a100-reference/README.md)
 records a real allocation and a fresh, workload-attributed DCGM threshold.
+
+The scratch candidate also adds `visibility_failure.py`, an isolated synthetic
+route proof. It first records the `vanished` scrape job at `up=1` with its
+metric, then removes only that job from the Prometheus scrape configuration and
+reloads it. The proof requires a separate failed scrape to retain an
+`up{job="failed"}` sample of zero, the removed target to have no `up` series
+while `absent(up{job="vanished"})` returns one, and a healthy peer source to
+retain `up=1` plus its metric. It waits for both firing alerts and their exact
+case-local webhook receipts before recording the check. The target loss is
+induced through a synthetic config reload; this does not prove GPU telemetry
+or production service-discovery behavior.
+
+A separate visibility route replays two collection failures. A synthetic HTTP
+503 produces a failed scrape with `up=0` and an absent device metric. Removing
+a previously observed job leaves no fresh `up` series in a six-second query
+lookback and exercises `absent_over_time(up[6s])`. The receipt compares the
+five-minute instant query separately.
+A separate healthy scrape path on the same fixture exporter reports a
+measured zero throughout, and each failure creates its own exact case-local
+Alertmanager delivery. The runner waits for the new
+projected config before reloading Prometheus and retains
+`source-visibility-route.raw.json`. This check uses an HTTP fixture on Kind.
+The A100 device and its visibility loss require a separate hardware run.
+
+[Prometheus lookback and staleness](https://prometheus.io/docs/prometheus/latest/querying/basics/#staleness).
