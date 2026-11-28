@@ -6,5 +6,11 @@ The additive fourth check binds a named fixture submitter to `get` on only the e
 
 This requires OpenSSL on the lab runner. It does not access host credentials, boot firmware, GPU hardware, kernel modules, or platform keyrings. Actual Secure Boot and module admission remain separate evidence obligations.
 
+The boot-reference check keeps the same workload and digest while the fixture
+operator supplies a stale boot reference, omits it, and then supplies the
+expected current reference. Kubernetes denies the first two and admits the
+third. These are inert review records. Replaying the live A100 host and
+provider evidence requires a separate hardware run.
+
 The [A100 reference](a100-reference/README.md) preserves evidence of two
 loaded Canonical-signed NVIDIA modules and one verified Shielded VM boot.

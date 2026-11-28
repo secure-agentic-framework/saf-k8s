@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0802-008",
-  "catalog_revision": "cd6f6d6d5a5066b658147171209b0e44ff35355c",
-  "catalog_sha256": "1da56289e4f344f65fa946b0099b200d7a52a7c4bea62ee17a32261bedc18861",
+  "catalog_revision": "030cfbf009bf6d1902dc8c4a30f8272818494633",
+  "catalog_sha256": "b2fb73602bb10c41e8c4e0650d71e296b3b60b644d16ce55ac63c343f30b05bc",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "309c13de6f2d2b4c81fec387f66acbf4997c1c654c720028016f875467c446b6",
-  "scope": "Real signature checks over inert fixture bytes and Kubernetes admission over modeled kernel and boot evidence.",
-  "cluster": "saf-lab-a59fea362a76",
+  "scope": "Real signature checks over inert fixture bytes and Kubernetes admission over modeled kernel and boot evidence, including exact boot-reference matching.",
+  "cluster": "saf-lab-81d91120acf0",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -57,6 +57,16 @@
         "missing_boot_evidence_denied": true,
         "alternate_signer_rejected": true,
         "changed_bytes_rejected": true
+      }
+    },
+    {
+      "phase": "boot_reference",
+      "claim": "Only the current exact fixture boot reference permits the same workload",
+      "matched": true,
+      "observed": {
+        "stale_boot_ref_denied": true,
+        "missing_boot_ref_denied": true,
+        "current_boot_ref_admitted": true
       }
     },
     {

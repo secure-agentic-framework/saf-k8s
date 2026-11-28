@@ -5,7 +5,7 @@ import json
 from pathlib import Path
 import time
 
-SCOPE = "Real signature checks over inert fixture bytes and Kubernetes admission over modeled kernel and boot evidence."
+SCOPE = "Real signature checks over inert fixture bytes and Kubernetes admission over modeled kernel and boot evidence, including exact boot-reference matching."
 ROOT = Path(__file__).parent
 CONFIG = "fixture-module-review"
 POLICY = "fixture-approved-module-review"
@@ -16,6 +16,9 @@ SUBMITTER_READ_BINDING = "fixture-module-review-submit-read"
 SIGNER_DENIAL = "Fixture signature is unapproved"
 MODE_DENIAL = "Fixture module enforcement is unverified"
 BOOT_DENIAL = "Fixture boot evidence is unverified"
+BOOT_REF_DENIAL = "Fixture boot reference is missing or stale"
+ACTIVE_BOOT_REF = hashlib.sha256(b"fixture current reviewed boot").hexdigest()
+STALE_BOOT_REF = hashlib.sha256(b"fixture previous reviewed boot").hexdigest()
 DIGEST_DENIAL = "Fixture digest does not match the review"
 IMAGE = "docker.io/library/python:3.13-slim@sha256:e48f59cdba69a3cbd9ed2cf0f348d90d45a8d350d98134cf1070bc106ee9ed90"
 
@@ -44,6 +47,8 @@ def install(lab):
         SIGNER_DENIAL: "params != null && params.data['signature'] == 'trusted'",
         MODE_DENIAL: "params != null && params.data['module-policy'] == 'enforced'",
         BOOT_DENIAL: "params != null && params.data['boot-review'] == 'verified'",
+        BOOT_REF_DENIAL: "params != null && 'boot-ref' in params.data && "
+                         f"params.data['boot-ref'] == '{ACTIVE_BOOT_REF}'",
         DIGEST_DENIAL: "params != null && has(object.metadata.annotations) && "
                        "object.metadata.annotations['fixture.example/reviewed-digest'] == params.data['digest']",
     }
@@ -86,7 +91,8 @@ def run(lab):
     changed_not_trusted = not signature(lab, "approved", "approved", modified_marker)
     lab.kubectl("label", "namespace", "saf-test", "pod-security.kubernetes.io/enforce=restricted",
                 "fixture.example/module-policy=true")
-    fields = {"signature": "unapproved", "module-policy": "enforced", "boot-review": "verified", "digest": digest}
+    fields = {"signature": "unapproved", "module-policy": "enforced",
+              "boot-review": "verified", "boot-ref": ACTIVE_BOOT_REF, "digest": digest}
     lab.create({"apiVersion": "v1", "kind": "ConfigMap", "metadata": {"name": CONFIG}, "data": fields})
     lab.create({"apiVersion": "rbac.authorization.k8s.io/v1", "kind": "Role",
                 "metadata": {"name": SUBMITTER_READ_ROLE},
@@ -115,7 +121,18 @@ def run(lab):
                "missing_boot_evidence_denied": boot_unknown, "alternate_signer_rejected": alternate_not_trusted,
                "changed_bytes_rejected": changed_not_trusted})
 
+    update(lab, {**enforced, "boot-ref": STALE_BOOT_REF})
+    stale_boot_denied = observe(lab, pod, denial=BOOT_REF_DENIAL)
+    without_reference = {key: value for key, value in enforced.items() if key != "boot-ref"}
+    update(lab, without_reference)
+    missing_boot_ref_denied = observe(lab, pod, denial=BOOT_REF_DENIAL)
     update(lab, enforced)
+    current_boot_admitted = observe(lab, pod)
+    lab.check("boot_reference", "Only the current exact fixture boot reference permits the same workload",
+              stale_boot_denied and missing_boot_ref_denied and current_boot_admitted,
+              {"stale_boot_ref_denied": stale_boot_denied, "missing_boot_ref_denied": missing_boot_ref_denied,
+               "current_boot_ref_admitted": current_boot_admitted})
+
     before_parameter = json.loads(lab.kubectl("get", "configmap", CONFIG, "-o", "json").stdout)
     before_uid = before_parameter["metadata"]["uid"]
     before_data = before_parameter["data"]
@@ -152,6 +169,8 @@ def run(lab):
         "fixture_signature_verified": trusted, "unapproved_signature_denied": unapproved,
         "permissive_policy_denied": permissive, "missing_boot_evidence_denied": boot_unknown,
         "mismatched_digest_denied": wrong_digest, "fixture_ready": True,
+        "stale_boot_ref_denied": stale_boot_denied, "missing_boot_ref_denied": missing_boot_ref_denied,
+        "current_boot_ref_admitted": current_boot_admitted,
         "submitter_get_allowed": can_read_parameter, "submitter_patch_denied": status_denied_patch,
         "parameter_uid_and_data_unchanged": unchanged_parameter,
         "parameter_readback": {"uid_before": before_uid, "uid_after": after_parameter["metadata"]["uid"],
