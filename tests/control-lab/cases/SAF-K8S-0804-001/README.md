@@ -32,3 +32,10 @@ no live verifier or vendor service.
 - [Published Azure capture and its limitations](https://untrustsecurity.com/evidence/#azure-ncc-h100-v5--sev-snp-hcl-report-vtpm-quote-and-nvidia-h100-attestation)
 - [Microsoft guest attestation report format](https://learn.microsoft.com/en-us/azure/confidential-computing/guest-attestation-confidential-virtual-machines-design)
 - [AMD VCEK trust and KDS specification](https://www.amd.com/content/dam/amd/en/documents/epyc-technical-docs/specifications/57230.pdf)
+
+
+## Live Confidential Space reference
+
+An approved CPU-only workload ran on Google Confidential Space with AMD SEV. Google Cloud Attestation and STS accepted the workload and its fresh challenge, and the workload decrypted the fixture through Cloud KMS. The same policy rejected an unapproved image digest. This reference exercises the CPU profile.
+
+[Shared reproducer and evidence](../../references/gcp-confidential/README.md)
