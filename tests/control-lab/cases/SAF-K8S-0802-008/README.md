@@ -14,3 +14,16 @@ provider evidence requires a separate hardware run.
 
 The [A100 reference](a100-reference/README.md) preserves evidence of two
 loaded Canonical-signed NVIDIA modules and one verified Shielded VM boot.
+
+## Live A100 signed-module admission reference
+
+Two boots of the same A100 VM passed Google's early and late integrity
+evaluations. On each boot, the loaded NVIDIA modules matched the approved
+Ubuntu package signatures and the kernel reported active lockdown. The
+Kubernetes case first admitted the wrong-signature-digest request with
+policy absent. It then denied the wrong digest and an unreviewed node,
+ran the approved witness on the reviewed node, and confirmed that the
+submitter could not change the reviewed evidence.
+
+[Reviewed live receipt](a100-reference/signed-admission-reference.json) ·
+[Case-by-ID hardware replay](../../references/gcp-a100/campaign/README.md)

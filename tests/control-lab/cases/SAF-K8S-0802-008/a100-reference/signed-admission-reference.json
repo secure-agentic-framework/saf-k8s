@@ -1,0 +1,89 @@
+{
+  "boots": [
+    {
+      "boot_review_sha256": "4d7db8e36b5273dbb1bc03c2630e2c1922ebde06f2cee3633335a655adb9372c",
+      "guest_boot_utc": "2026-11-28T12:16:35+00:00",
+      "loaded_module_receipt_sha256": "eee7d2731ec19a94fc87185515a9e0695a5c48f529ef3bc05616f0f26618adeb",
+      "provider_boot_counter": 1,
+      "provider_integrity_results": {
+        "earlyBootReportEvent": {
+          "observed_utc": "2026-11-28T12:16:29.383313+00:00",
+          "policy_passed": true
+        },
+        "lateBootReportEvent": {
+          "observed_utc": "2026-11-28T12:16:36.497662+00:00",
+          "policy_passed": true
+        }
+      },
+      "verified_modules": [
+        {
+          "distribution_signature_sha256": "2830bbf6a6dc58000a9f400b45117b54181769d80a3037de86416d9c1350d1fd",
+          "module": "nvidia",
+          "module_sha256": "19cc994564ae60dd06c6d3a025e1f2db21c465588e4035387c4853ae159aa83e",
+          "signer": "Canonical Ltd. Kernel Module Signing",
+          "signing_key_id": "E9:DF:13:0F:92:92:A9:B7"
+        },
+        {
+          "distribution_signature_sha256": "3e652cbea81df2bd16bcbb5b8f148fd069b965a3b218124147a6b0da34440d44",
+          "module": "nvidia_uvm",
+          "module_sha256": "a59d86a236dfd972e16644b7227106175ee1165cfa839ebc32a7bce3bb5fd10e",
+          "signer": "Canonical Ltd. Kernel Module Signing",
+          "signing_key_id": "E9:DF:13:0F:92:92:A9:B7"
+        }
+      ]
+    },
+    {
+      "boot_review_sha256": "10c6080aec23eaa192a501f31ee1d8e373e76642a17428b41f7a6f11c6cec7e6",
+      "guest_boot_utc": "2026-11-28T12:29:22+00:00",
+      "loaded_module_receipt_sha256": "23cb2d757c90d79b16839aab82218e015321a00bb56b8164aa9e753f7488dfc6",
+      "provider_boot_counter": 2,
+      "provider_integrity_results": {
+        "earlyBootReportEvent": {
+          "observed_utc": "2026-11-28T12:29:16.446134+00:00",
+          "policy_passed": true
+        },
+        "lateBootReportEvent": {
+          "observed_utc": "2026-11-28T12:29:23.800349+00:00",
+          "policy_passed": true
+        }
+      },
+      "verified_modules": [
+        {
+          "distribution_signature_sha256": "2830bbf6a6dc58000a9f400b45117b54181769d80a3037de86416d9c1350d1fd",
+          "module": "nvidia",
+          "module_sha256": "19cc994564ae60dd06c6d3a025e1f2db21c465588e4035387c4853ae159aa83e",
+          "signer": "Canonical Ltd. Kernel Module Signing",
+          "signing_key_id": "E9:DF:13:0F:92:92:A9:B7"
+        },
+        {
+          "distribution_signature_sha256": "3e652cbea81df2bd16bcbb5b8f148fd069b965a3b218124147a6b0da34440d44",
+          "module": "nvidia_uvm",
+          "module_sha256": "a59d86a236dfd972e16644b7227106175ee1165cfa839ebc32a7bce3bb5fd10e",
+          "signer": "Canonical Ltd. Kernel Module Signing",
+          "signing_key_id": "E9:DF:13:0F:92:92:A9:B7"
+        }
+      ]
+    }
+  ],
+  "bundle_manifest_sha256": "c81f3d9c977617f7f9d6e55ed20cf1b5b8706af4a93a385d3520b48859a06b50",
+  "captured_at_utc": "2026-11-28T12:31:12.750754+00:00",
+  "checks": {
+    "admitted_wrong_digest_before_policy": true,
+    "cel_type_check_passed": true,
+    "independent_boot_verified": true,
+    "review_parameter_unchanged": true,
+    "reviewed_pod_running_on_reviewed_node": true,
+    "same_provider_instance": true,
+    "submitter_evidence_write_forbidden": true,
+    "unreviewed_node_denied": true,
+    "wrong_digest_denied": true
+  },
+  "control_id": "SAF-K8S-0802-008",
+  "driver_version": "580.178.04",
+  "hardware_model": "NVIDIA A100-SXM4-40GB",
+  "kubernetes_version": "v1.36.6+k3s1",
+  "schema": "saf-a100-kubernetes-reference-v1",
+  "scope": "Two independently correlated Secure Boots on one A100 host, approved loaded module provenance, and binding of the permitted and denied Kubernetes workload checks. Distribution key revocation was not exercised.",
+  "source_receipt_sha256": "b9c5f5cd1ff3e915ced3d7afc95fbc5c415f5b4649d57d558cf0862e8c543490",
+  "status": "passed"
+}
