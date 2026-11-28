@@ -5,11 +5,12 @@ import base64
 import hashlib
 from pathlib import Path
 import shutil
+import runpy
 import subprocess
 import tempfile
 
 SCOPE = ("A live read-only Kubernetes Job comparing synthetic firmware and change-window records, plus a separate "
-         "Job verifying detached signatures over exact inert observations with an ephemeral fixture signer.")
+         "Job verifying detached fixture signatures. An archived Hopper check verifies the device chain, signed SPDM and two signed reference manifests without current-device or revocation evidence.")
 IMAGE = "docker.io/library/python:3.13-slim@sha256:e48f59cdba69a3cbd9ed2cf0f348d90d45a8d350d98134cf1070bc106ee9ed90"
 JOB = "fixture-firmware-inventory"
 CONFIG = "fixture-firmware-inventory"
@@ -97,6 +98,9 @@ def run(lab):
     lab.check("signed_observation_window", "Only exact signature-valid observations are trusted before window classification",
               (signed_result == expected_signed and isinstance(observed["verification_tool_version"], str)
                and observed["verification_tool_version"].startswith("OpenSSL ")), observed)
+
+    archived = runpy.run_path(str(Path(__file__).with_name("hopper_reference.py")))
+    archived["run"](lab)
 
 
 def _signed_observation_inputs(lab):
