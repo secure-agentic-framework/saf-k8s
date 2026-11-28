@@ -112,3 +112,10 @@ build fetches the pinned public capture, Intel root and Go modules.
 
 - [TDX capture and experiment provenance](https://untrustsecurity.com/evidence/#gcp-c3-standard-4-intel-tdx-quote)
 - [Intel provisioning and collateral recovery](https://www.intel.com/content/www/us/en/developer/topic-technology/software-security-guidance/trusted-computing-base-recovery-attestation.html)
+
+
+## Live Confidential Space reference
+
+Google Cloud Attestation issued the workload token using a custom challenge. STS accepted the expected challenge and denied a different one. In a separate paired check, STS accepted the original token, rejected the same token with only its signature changed, then accepted the original again.
+
+[Shared reproducer and evidence](../../references/gcp-confidential/README.md)
