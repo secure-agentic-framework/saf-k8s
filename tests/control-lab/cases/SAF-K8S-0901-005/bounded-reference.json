@@ -1,0 +1,52 @@
+{
+  "bounded_threat_model": {
+    "maximum_byzantine_parties": 1,
+    "other_required_evidence": "For a production profile, evaluate transcript aborts, retries, the data and training model, enrollment trust, and actual adoption.",
+    "parties": 3,
+    "privacy": "Participant replacement with likelihood ratio 6561, epsilon=8*ln(3), delta=0, for the completed one-shot release.",
+    "private_aggregation": "MP-SPDZ malicious-replicated protocol",
+    "release": "one finite eight-bit transcript across two fixed rounds and two coordinates",
+    "robustness": "The coordinate median is inside the two honest values before independent randomized response.",
+    "trusted_boundary": "Fixture Kubernetes, node runtimes, enrolled participants' identities, pinned artifacts, and network policy enforcement."
+  },
+  "control_id": "SAF-K8S-0901-005",
+  "flower_transport": "An independent cross-cluster route exercised authentication, retirement, and two secured aggregation rounds.",
+  "framework_native_run": {
+    "catalog_revision": "e4269b9042fb3a2ec11eb5ff171a1c53d5a829ff",
+    "control_source_sha256": "9eae08ccebd9ee81a587df972fae52d74f5ccd35fb4ef2be78ac06afc7353529",
+    "kubernetes_version": "v1.36.1",
+    "native_check_count": 21,
+    "primary_and_secondary_deleted": true,
+    "run_evidence_sha256": "95f2e55dd0a9c2b9b455fe21178351fa822beec6a2f05546b80a5bd2609c7845"
+  },
+  "lab_native_run": {
+    "catalog_revision": "133a8698a45e2b335b51728bf4c62f7bda98d15f",
+    "control_source_sha256": "d899e712944ba3cc198d1a7e140416ffe34b3a90be72972132cae0641d09d5c5",
+    "kubernetes_version": "v1.36.1",
+    "native_check_count": 21,
+    "primary_and_secondary_deleted": true,
+    "run_evidence_sha256": "53a7192d465cb0f0b366342de0be0b1a88a142cdf2c824cae5396c46417837ec"
+  },
+  "quantized_reference": {
+    "backend": "malicious-rep-bin-party.x",
+    "bits_per_participant": 8,
+    "calibration_rows_per_party": 1024,
+    "delta": 0,
+    "directed_scalar_adjacency_outcome_checks": 2304,
+    "distinct_honest_interval_checks_per_scalar": 72,
+    "fixed_coordinates": 2,
+    "fixed_input_examples": 18,
+    "fixed_rounds": 2,
+    "maximum_participant_transcript_likelihood_ratio": 6561,
+    "maximum_scalar_likelihood_ratio": 9,
+    "mpc_release": "MP-SPDZ v0.4.4",
+    "namespace_scoped_transport": true,
+    "participant_level_epsilon": "8*ln(3)",
+    "production_enforcement_claimed": false,
+    "release_reservation": "immutable-case-owned-record",
+    "scope": "finite quantized update vector; no record-level or production dataset claim",
+    "vector_transcripts_observed": 1
+  },
+  "schema": "saf-federated-learning-composed-reference-v1",
+  "status": "passed"
+}

@@ -86,6 +86,33 @@ observations.
 
 ## CPU reference for private aggregation
 
+### Composed finite reference and threat model
+
+The quantized MP-SPDZ route uses three enrolled parties with four fixed
+quantized scalar inputs per party, arranged as two rounds by two coordinates.
+At most one participant is Byzantine. The fixture trusts the Kubernetes
+control plane, node runtimes, pinned images and compiler, network policy
+enforcement, and participant enrollment. MP-SPDZ's malicious-replicated
+three-party protocol keeps individual inputs private during aggregation.
+
+For each scalar, the circuit privately computes the numeric median of the
+three two-bit inputs, then applies independent two-coin randomized response to
+each output bit. It reveals the resulting eight-bit vector once to the three
+participants. For any one participant's replacement of its complete four-cell
+input vector, the exact finite mechanism has likelihood-ratio bound
+`9^4 = 6561`, or participant-level `epsilon = 8*ln(3), delta = 0`, for the
+completed vector release. Before randomization, each median stays between
+the two honest values even if the third value is arbitrary. The added noise
+can move the released value outside that interval. These results describe
+two stages of the same circuit.
+
+The accounting covers one completed transcript of synthetic quantized
+updates. The fixture reserves one vector release and runs without retries.
+An observable input-dependent abort, selective retry, or per-input status
+needs its own privacy analysis. Production enrollment, real-data privacy,
+training convergence, and budget enforcement need deployment evidence.
+Flower SecAgg+ exercises an independent transport and workflow.
+
 The standard control test also runs a bounded binary composition using
 the pinned MP-SPDZ v0.4.4 malicious honest-majority backend. Three
 enrolled Pods use separate certificates. Each computes the sign of one
@@ -170,3 +197,15 @@ material or participant data.
 
 - [Kubernetes ConfigMap volume updates](https://kubernetes.io/docs/concepts/configuration/configmap/#mounted-configmaps-are-updated-automatically)
 - [Flower 1.29 SuperNode authentication](https://flower.ai/docs/framework/1.29/en/how-to-authenticate-supernodes.html)
+
+## Reproduce the bounded reference
+
+```bash
+python3 tests/control-lab/lab.py test SAF-K8S-0901-005 --docker-context desktop-linux
+```
+
+The lab run and independent framework replay each matched 21 checks, including
+the quantified MPC release and the separate Flower cross-cluster route. Each
+run deleted its two disposable Kind clusters.
+
+[Reviewed replay receipt](bounded-reference.json)

@@ -45,5 +45,5 @@ output. The transcript is released to the participants and is present in Pod
 stdout while the disposable cluster exists. The route retrieves bounded logs
 directly into memory rather than placing their contents in `commands.log`; the
 normalized receipt omits the random vector. This does not claim that the vector
-is never persisted. Runtime execution in Kind remains a required next-stage
-check; no Docker or cluster run is claimed here.
+is never persisted. The native Kind replay verified that three enrolled Pods completed, agreed
+on one transcript, and passed the public calibration and reservation checks.

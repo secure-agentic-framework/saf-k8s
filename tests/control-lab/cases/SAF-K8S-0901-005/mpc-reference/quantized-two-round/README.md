@@ -46,6 +46,26 @@ production enrollment, or complete abort/output guarantees. The immutable
 case-owned reservation binds the fixture to two logical rounds and one vector
 transcript; it is not production release-budget enforcement.
 
+## Joint threat model and claim
+
+This route composes those three properties in one computation. It assumes
+three enrolled participants, at most one Byzantine participant, and two honest
+participants. The Kubernetes control plane, nodes, pinned runtime and compiler
+artifacts, enforcing network plugin, and fixture enrollment are trusted. The
+malicious-replicated MP-SPDZ protocol privately computes each two-bit numeric
+median, then independently randomizes each output bit, and releases one vector
+to the participants. The median provides the coordinate-wise honest interval guarantee before
+noise. The finite randomized mechanism provides an exact
+participant-level replacement bound of `9^4 = 6561`, or `epsilon = 8*ln(3)`,
+`delta = 0`, for that completed vector release.
+
+The bound does not cover an externally observable input-dependent abort,
+selective retry, or per-input status channel. The fixture permits no retry and
+does not establish complete abort/output guarantees. The claim is limited to
+this finite quantized vector and does not cover real datasets, record-level
+privacy, training convergence, compromised cluster authority, production
+enrollment, or broader Byzantine behavior.
+
 ## Host-only checks
 
 ```sh
@@ -57,8 +77,8 @@ The verifier's native log path requires exactly 1,024 distinct public
 calibration rows, one eight-bit private transcript per participant, and byte
 for byte agreement of that transcript across all three logs. It rejects
 unknown program output and never includes the random vector in the normalized
-summary. A separate native run is needed before calling the circuit
-demonstrated.
+summary. The native Kind result records three completed Pods and the shared
+transcript agreement.
 
 `entrypoint.sh` gives the static container-side run shape: it performs the
 public calibration, then one private protocol command, and accepts exactly
