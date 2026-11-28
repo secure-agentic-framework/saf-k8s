@@ -29,8 +29,8 @@ The original and historical scenarios account for five checks. The historical tr
 The A100 replay submits the same inert escalation before and after binding.
 It waits for the named policy and binding to reject that request, then retains
 and reads back the exact immutable hold. The reviewer cannot create or patch
-the separate approval. A distinct identity creates and reads back the
-immutable approval used by the binding. The exact comparison record is
+the separate approval. A distinct identity creates the immutable approval
+used by the binding. The lab independently reads back the exact record. The exact comparison record is
 allowed only in server dry-run. Self-asserted corroboration and changes to
 the run, hold, workload, device or source digest are denied by the same
 named policy. The comparison record remains absent and the hold survives
