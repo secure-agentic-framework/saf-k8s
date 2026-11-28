@@ -1,0 +1,22 @@
+{
+  "bundle_manifest_sha256": "c81f3d9c977617f7f9d6e55ed20cf1b5b8706af4a93a385d3520b48859a06b50",
+  "captured_at_utc": "2026-11-28T12:27:39.166758+00:00",
+  "case_namespace_deleted": true,
+  "control_id": "SAF-K8S-0805-001",
+  "direct_healthy_framebuffer_mib": 0,
+  "driver": "580.178.04",
+  "failed_target_http_status": 404,
+  "firing_alerts_received": [
+    "FixtureSourceScrapeFailed",
+    "FixtureSourceTargetAbsent"
+  ],
+  "hardware_model": "NVIDIA A100-SXM4-40GB",
+  "healthy_prometheus_framebuffer_mib": 0.0,
+  "kubernetes": "v1.36.6+k3s1",
+  "removed_target_absent": true,
+  "schema": "saf-a100-kubernetes-reference-v1",
+  "scope": "One A100, one attributed CUDA workload and DCGM exporter, with failed scrape and target removal distinguished from a healthy measured zero.",
+  "source": "live_a100_dcgm_exporter",
+  "source_receipt_sha256": "3bda9ccdd6591e342fe9077288c6fcb38d0f93bab5d08fbc169445bd81f12ef3",
+  "status": "passed"
+}

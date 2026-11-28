@@ -66,3 +66,14 @@ healthy job must retain a fresh measured zero and both receiver records must
 match the expected route and source. The case writes
 `same-target-visibility.json`. This replay does not require GPU hardware.
 [NVIDIA exporter endpoints](https://docs.nvidia.com/datacenter/dcgm/latest/reference/command-line-reference/dcgm-exporter.html)
+
+## Live A100 reference
+
+Three Prometheus jobs initially scraped the same DCGM exporter on an A100.
+A wrong metrics path returned HTTP 404 and removing a second job made its
+target absent. Alertmanager delivered separate alerts for those two failures.
+The healthy route continued to observe a current 0 MiB framebuffer reading
+that agreed with the direct measurement. The run removed its test namespace.
+
+[Reviewed live receipt](a100-visibility-reference.json) ·
+[Case-by-ID hardware replay](../../references/gcp-a100/campaign/README.md)
