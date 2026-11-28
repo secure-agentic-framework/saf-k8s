@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0901-005",
-  "catalog_revision": "bd8f108ab01aed3dc7ff82df285de5d6355ae830",
+  "catalog_revision": "82980f222ed62cb703f7ed716ab04c25772969fe",
   "catalog_sha256": "b2fb73602bb10c41e8c4e0650d71e296b3b60b644d16ce55ac63c343f30b05bc",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "9eae08ccebd9ee81a587df972fae52d74f5ccd35fb4ef2be78ac06afc7353529",
-  "scope": "One disposable Kind cluster on Kubernetes v1.36.1 with two synthetic participant namespaces and one case-owned local aggregation namespace. Two participant mock HTTP responders first exchange only fixed /healthz markers before NetworkPolicy, then the same ordinary health path is checked after namespace policies isolate participants and permit the approved aggregation Service. Both participants independently contact the identical aggregation ClusterIP and port. The namespace probe uses only fixed health markers. The same disposable cluster also runs the pinned Flower SecAgg+ workflow with an exact participant egress allowlist. Two directed owned peer marker routes are checked before and after policy, and the actual authorized Flower workflow completes one equal-weight and one fixed 1-2-3-weight round in the same four Flower Pods. A separately scoped Kubernetes workload checks the exact approved receipt digest for each aggregate. The fixture uses fixed inert vectors. A distinct MP-SPDZ reference runs one bounded binary release with three enrolled Pods, an immutable reservation, and a public calibration oracle. Full gradient privacy, wider Byzantine resilience, and deployment protocol security require further evidence.",
-  "cluster": "saf-lab-68432bca3811",
+  "scope": "One disposable Kind cluster on Kubernetes v1.36.1 with two synthetic participant namespaces and one case-owned local aggregation namespace. Two participant mock HTTP responders first exchange only fixed /healthz markers before NetworkPolicy, then the same ordinary health path is checked after namespace policies isolate participants and permit the approved aggregation Service. Both participants independently contact the identical aggregation ClusterIP and port. The namespace probe uses only fixed health markers. The same disposable cluster also runs the pinned Flower SecAgg+ workflow with an exact participant egress allowlist. Two directed owned peer marker routes are checked before and after policy, and the actual authorized Flower workflow completes one equal-weight and one fixed 1-2-3-weight round in the same four Flower Pods. A separately scoped Kubernetes workload checks the exact approved receipt digest for each aggregate. The fixture uses fixed inert vectors. A distinct MP-SPDZ reference runs one bounded binary release with three enrolled Pods, an immutable reservation, and a public calibration oracle. A separate finite quantized route checks one transcript over two fixed rounds. Full gradient privacy, wider Byzantine resilience, and deployment protocol security require further evidence.",
+  "cluster": "saf-lab-c51cf5807911",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -228,6 +228,50 @@
         "epsilon_per_release": "ln(3)",
         "delta": 0,
         "honest_pair_agreement_checks": 6
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The quantized route reserves two fixed rounds and one vector transcript",
+      "matched": true,
+      "observed": {
+        "reservation_exact": true,
+        "duplicate_denied": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Three separately enrolled Pods complete one quantized two-round MPC transcript",
+      "matched": true,
+      "observed": {
+        "distinct_pods": 3,
+        "all_completed": true,
+        "no_restarts_or_retries": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The quantized calibration, budget oracle and one-vector MPC logs match",
+      "matched": true,
+      "observed": {
+        "calibration_rows_per_party": 1024,
+        "directed_scalar_adjacency_outcome_checks": 2304,
+        "maximum_scalar_likelihood_ratio": 9,
+        "distinct_honest_interval_checks_per_scalar": 72,
+        "fixed_input_examples": 18,
+        "fixed_rounds": 2,
+        "fixed_coordinates": 2,
+        "bits_per_participant": 8,
+        "vector_transcripts_observed": 1,
+        "maximum_participant_transcript_likelihood_ratio": 6561,
+        "participant_level_epsilon": "8*ln(3)",
+        "delta": 0,
+        "scope": "finite quantized update vector; no record-level or production dataset claim",
+        "release_reservation": "immutable-case-owned-record",
+        "production_enforcement_claimed": false,
+        "mpc_release": "MP-SPDZ v0.4.4",
+        "backend": "malicious-rep-bin-party.x",
+        "namespace_scoped_transport": true
       }
     }
   ]

@@ -1,0 +1,21 @@
+{
+  "profile": "finite-quantized-mpc-reference-v1",
+  "mp_spdz_release": "0.4.4",
+  "backend": "malicious-rep-bin-party.x",
+  "participant_count": 3,
+  "coordinates": 2,
+  "fixed_nonadaptive_rounds": 2,
+  "quantized_domain": [0, 1, 2, 3],
+  "bits_per_scalar_value": 2,
+  "input_bits_per_participant": 8,
+  "logical_rounds_reserved": 2,
+  "vector_transcripts_reserved": 1,
+  "maximum_participant_transcript_likelihood_ratio": 6561,
+  "epsilon": "8*ln(3)",
+  "delta": 0,
+  "adjacency": "one participant's complete eight-bit two-round update vector",
+  "production_dataset_dp_claimed": false,
+  "record_level_dp_claimed": false,
+  "actual_adversarial_execution_claimed": false,
+  "case_owned_reservation_is_production_enforcement": false
+}

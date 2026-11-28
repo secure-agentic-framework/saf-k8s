@@ -1,0 +1,19 @@
+"""Public exhaustive calibration of one scalar two-bit mechanism."""
+
+from itertools import product
+from Compiler.GC.types import sbit
+from Compiler.library import print_ln
+from release_bits import median3_u2, randomized_response_with_coins
+
+
+for first, second, third in product(range(4), repeat=3):
+    updates = [
+        (sbit(value & 1), sbit((value >> 1) & 1))
+        for value in (first, second, third)
+    ]
+    median = median3_u2(*updates)
+    for coins in product((0, 1), repeat=4):
+        low = randomized_response_with_coins(median[0], sbit(coins[0]), sbit(coins[1]))
+        high = randomized_response_with_coins(median[1], sbit(coins[2]), sbit(coins[3]))
+        key = f"{first}{second}{third} {''.join(map(str, coins))}"
+        print_ln("saf-quantized-calibration " + key + " %s%s", high.reveal(), low.reveal())

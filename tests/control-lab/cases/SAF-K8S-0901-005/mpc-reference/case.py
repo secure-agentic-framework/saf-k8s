@@ -1,4 +1,4 @@
-"""Scratch reference for a bounded private aggregation round on Kubernetes."""
+"""Run the preserved one-bit and additive finite two-round MPC references."""
 from base64 import b64encode
 from importlib.util import module_from_spec, spec_from_file_location
 import json
@@ -12,11 +12,11 @@ FIXTURE_LABEL = "saf-k8s.example/fl-reference"
 PARTICIPANTS = tuple(f"saf-fl-party-{number}" for number in range(3))
 PORTS = (16000, 16100)
 SCOPE = (
-    "Three distinct enrolled participant Pods in a disposable Kind cluster run the official "
-    "MP-SPDZ v0.4.4 malicious honest-majority binary MPC backend. The one-bit median fixture "
-    "opens only a randomized-response output. An independently labeled public calibration "
-    "uses no private inputs. This fixed equal-participant profile assumes at most one corrupted "
-    "peer, a trusted cluster and enrollment authority, and no round retry."
+    "A disposable Kind run preserves the published one-bit MP-SPDZ reference, then adds a "
+    "separately labeled three-Pod finite two-round, two-coordinate quantized median route. Each "
+    "suite has its own reservation, namespaces, image, calibration, and stable receipt. The new "
+    "route releases one eight-bit randomized transcript under the reviewed finite input adjacency. "
+    "Both are synthetic CPU references, not production training or dataset privacy claims."
 )
 ENTRYPOINT = r"""
 set -eu
@@ -181,6 +181,14 @@ def run(lab):
         exercise(lab, image)
     finally:
         lab.command("docker", "image", "rm", image, allow_failure=True, timeout=30)
+
+    # Additive suite: keep the verified one-bit run above intact, then run the
+    # separately named two-round route in its own namespaces and image.
+    route_path = HERE / "quantized-two-round" / "case.py"
+    spec = spec_from_file_location("saf_0901_005_quantized_two_round", route_path)
+    route = module_from_spec(spec)
+    spec.loader.exec_module(route)
+    route.run(lab)
 
 
 def exercise(lab, image):

@@ -111,3 +111,8 @@ and a pinned Debian runtime. On ARM64, the container host needs x86-64
 emulation. The normalized receipt is `bounded-private-aggregation.json`.
 [MP-SPDZ v0.4.4](https://github.com/data61/MP-SPDZ/releases/tag/v0.4.4) ·
 [NIST differential privacy guidance](https://csrc.nist.gov/pubs/sp/800/226/final)
+
+The case also runs a separate two-round, two-coordinate
+quantized route after the preserved one-bit checks. Its exact finite claim and
+evidence limits are documented in
+`mpc-reference/quantized-two-round/INTEGRATION.md`.

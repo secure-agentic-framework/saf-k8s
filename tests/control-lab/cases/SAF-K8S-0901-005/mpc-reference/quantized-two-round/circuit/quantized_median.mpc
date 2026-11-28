@@ -1,0 +1,24 @@
+"""Two-round, two-coordinate finite quantized median with one vector release."""
+
+from Compiler.GC.types import sbit
+from Compiler.library import print_ln
+from release_bits import median3_u2, randomized_response_bit
+
+
+def input_u2(party):
+    # Input order is low bit, then high bit; every two-bit string is in [0, 3].
+    return (sbit.get_input_from(party), sbit.get_input_from(party))
+
+
+private_output = []
+for _round in range(2):
+    for _coordinate in range(2):
+        updates = [input_u2(party) for party in range(3)]
+        median = median3_u2(*updates)
+        # Each released bit receives two fresh independent secret coins.
+        private_output.append(randomized_response_bit(median[0]))
+        private_output.append(randomized_response_bit(median[1]))
+
+# The only private reveal is one eight-bit transcript after both rounds.
+print_ln("saf-quantized-vector " + "%s" * 8,
+         *[bit.reveal() for bit in private_output])
