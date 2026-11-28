@@ -6,7 +6,11 @@ An additive in-cluster reference release agent validates an immutable synthetic 
 
 This is software relying-party behavior using a test public key. It does not demonstrate TEE measurement, signed attestation authenticity, hardware isolation, cloud KMS policy, provider key custody, production recipient identity, key lifecycle, or external broker behavior. The in-cluster service account can create ConfigMaps in this isolated fixture namespace; the example does not claim an admission-enforced production release policy. Those provider and deployment facts remain adoption evidence.
 
-The published four-check recipient-binding reference has paired successful receipts. This additive signer-result check is a separate scratch candidate and requires its own review and paired replay before publication. It uses the same digest-pinned Python image and synthetic-only assets. The signed result is created with an ephemeral fixture verifier key and checked against a separate immutable public trust-root ConfigMap. No hardware evidence is generated.
+Two independent Kind v1.36.1 runs passed all five checks, including the
+signed recipient check. The fixture uses the pinned Python image and an
+ephemeral verifier key. It checks the signed synthetic result against a
+separate immutable ConfigMap containing the public trust root. Hardware
+evidence remains outside this fixture. [Published replay](https://github.com/secure-agentic-framework/saf-k8s/commit/3e64e729dec0a385e12fa738f4fb055a6ccfce6f).
 
 
 ## Signed verifier-result supplement
