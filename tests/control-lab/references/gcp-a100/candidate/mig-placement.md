@@ -3,7 +3,7 @@
 Google documents a 1g.5gb partition for A100 40 GB in its A2 managed GKE
 path. NVIDIA documents MIG in supported Linux passthrough guests and
 explains why an A100 may need an ordinary guest reboot for pending mode.
-The guest K3s demonstration below remains unverified.
+The guest K3s demonstration below was verified with NVIDIA driver 580 and K3s v1.36.6.
 [Google A2 GPU partition example](https://docs.cloud.google.com/kubernetes-engine/docs/how-to/gpus-multi)
 and [NVIDIA MIG setup](https://docs.nvidia.com/datacenter/tesla/mig-user-guide/620/getting-started-with-mig.html).
 
@@ -42,3 +42,14 @@ check for clients that still have GPU device handles.
 This verifies placement and a CUDA witness on two actual partitions when
 the full guest test passes. It leaves remanence, broader physical isolation,
 and side channels outside the demonstrated scope.
+
+## Live A100 result
+
+The production driver reported a compute placement column. The checked
+parser accepts the complete one-slice row and rejects malformed rows. The
+device plugin uses NVIDIA Container Toolkit's MIG monitoring device
+injection. The pinned plugin receives the required capability while the
+Config device and privileged mode remain unavailable to it.
+
+[Live placement receipt](../../../cases/SAF-K8S-0805-004/a100-mig-reference.json) ·
+[NVIDIA Container Toolkit MIG management devices](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/docker-specialized.html#mig-management-devices)

@@ -25,7 +25,10 @@ SHA = sha256(SOURCE).hexdigest()
 PROFILE = "NVIDIA A100-SXM4-40GB, 580.178.04, Enabled, Enabled"
 PLUGIN = {"kind": "DaemonSet", "apiVersion": "apps/v1",
           "metadata": {"name": setup.PLUGIN, "namespace": setup.NAMESPACE},
-          "spec": {"template": {"spec": {"runtimeClassName": "nvidia"}}}}
+          "spec": {"template": {"spec": {"runtimeClassName": "nvidia", "containers": [{
+              "name": "nvidia-device-plugin-ctr",
+              "securityContext": {"allowPrivilegeEscalation": False, "capabilities": {"drop": ["ALL"]}},
+          }]}}}}
 
 
 class Fixture:

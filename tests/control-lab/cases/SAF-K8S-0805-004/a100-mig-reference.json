@@ -1,0 +1,47 @@
+{
+  "captured_at_utc": "2026-11-28T12:45:26.141931+00:00",
+  "checks": {
+    "fixture_resources_removed": true,
+    "whole_gpu_baseline_admitted_dry_run": true,
+    "whole_gpu_denied_request_absent": true,
+    "whole_gpu_request_denied_by_policy": true
+  },
+  "control_id": "SAF-K8S-0805-004",
+  "distinct_live_mig_assignments": 2,
+  "driver_version": "580.178.04",
+  "evidence_sha256": {
+    "placement_bundle": "e5dc55b02fc7672f63eaa9c3abf794d29df01d2a3eb58382c03db3fc13511e66",
+    "placement_receipt": "3d2e318de518b1e461ecc1f37a8b1f20db8b707997708b9e7a02a148713e8178",
+    "setup_bundle": "c3c5e18b18a64f80f97ed23156766006ffe44277cbf441b915ab9d84073d9acf",
+    "setup_receipt": "388dfe1d2ae40c28d5a88c5d036ee754728cfd47a2d7e6f6f92745692f4e6771"
+  },
+  "hardware_model": "NVIDIA A100-SXM4-40GB",
+  "kubelet_resource": "nvidia.com/mig-1g.5gb",
+  "mig_profile": "1g.5gb",
+  "permission_scope": "The device plugin received the vendor-required MIG monitoring capability. Neither configuration access nor additional capabilities were granted to CUDA Pods.",
+  "resource_claims": [
+    {
+      "cuda_confirmed": true,
+      "device_ref_sha256": "123b6518f2dc28770b043570d37b769fb0336636950c709959b532b97eb371eb",
+      "resource": "nvidia.com/mig-1g.5gb",
+      "workload_uid_sha256": "066d95a44a77d825c6b957b593999b6bb22e382537ca5466cc2971b30eaf6932"
+    },
+    {
+      "cuda_confirmed": true,
+      "device_ref_sha256": "73ac0cc9652da1f0ab85a43f26043d17b771edd69b7a74f08dcf66e0fa8bd39d",
+      "resource": "nvidia.com/mig-1g.5gb",
+      "workload_uid_sha256": "82d5fd43c83e0eee0c5ab6606ae209baad81fee2034cb32d3e0a04b8f6cf92a7"
+    }
+  ],
+  "runtime_kubernetes": "v1.36.6+k3s1",
+  "schema": "saf-a100-kubernetes-reference-v1",
+  "scope": "One A100 with two 1g.5gb allocations. The case checks resource eligibility, assignment, and successful CUDA. It does not measure remanence or side-channel resistance.",
+  "source": "live_a100_mig",
+  "status": "passed",
+  "tested_fixture_sha256": {
+    "mig_admission.py": "215a1478cf620fa22f6ca42f5443c35bcef221ebe64df0a94c30ac247df01f02",
+    "mig_inventory.py": "562984ac3efc6031fb54b6795a2ed40ad619ed972c33d568014b37317aed19af",
+    "mig_setup.py": "ff3e3979233730ea5f5ca9cc20f6324d0438a90ddf88fdb58ec95184cc09f275",
+    "prove-mig.py": "e54f94f059b2afa96b04a7c418d9d7325023065054fd64801fe4e5af1781fffa"
+  }
+}

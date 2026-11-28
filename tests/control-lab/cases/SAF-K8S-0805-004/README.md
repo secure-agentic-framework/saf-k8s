@@ -29,3 +29,19 @@ decision for that exact request. The approved MIG limit and an unmarked
 whole-GPU request pass server dry-run. The probe also confirms the workloads
 were never persisted. `mig-profile-admission.json` records the observed
 results. This check exercises Kubernetes admission without allocating devices.
+
+## Live A100 MIG reference
+
+The physical reference created two 1g.5gb slices on one A100. Before the
+policy was active, Kubernetes accepted the whole-GPU request in server
+dry-run. The active policy denied that request, and the API confirmed it
+had not persisted. Kubelet PodResources showed distinct assignments for
+two eligible Pods. Both completed their CUDA vector-add witness and the
+case removed the test Pods and admission resources.
+
+The device plugin needed MIG monitoring access. The reproducer grants
+the monitoring device and its required capability to that pinned plugin.
+The application Pods retain their original restricted security context.
+
+[Reviewed live receipt](a100-mig-reference.json) ·
+[Case-by-ID hardware replay](../../references/gcp-a100/campaign/README.md)

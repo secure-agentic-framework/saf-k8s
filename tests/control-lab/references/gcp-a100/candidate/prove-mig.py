@@ -23,7 +23,7 @@ NS = "saf-gpu-a100"
 RESOURCE = "nvidia.com/mig-1g.5gb"
 PODS = ("a100-mig-a", "a100-mig-b")
 IMAGE = ("nvcr.io/nvidia/k8s/cuda-sample:vectoradd-cuda12.5.0-ubuntu22.04@"
-         "sha256:86c8ab90b657bc74098f068e670d2635795a0dd55fd696d8f9e3d64b")
+         "sha256:86c8ab90b657bc74098f068e670d2635799f1fd3695a0dd55fd696d8f9e3d64b")
 
 
 def command(*args, data=None, check=True, timeout=90):

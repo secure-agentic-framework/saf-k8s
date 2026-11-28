@@ -57,6 +57,18 @@ def candidate(source, owner):
     metadata = manifest["metadata"]
     require(manifest["kind"] == "DaemonSet" and (metadata["namespace"], metadata["name"]) == (NAMESPACE, PLUGIN),
             "Unexpected rendered device-plugin target")
+    containers = manifest["spec"]["template"]["spec"]["containers"]
+    require(len(containers) == 1 and containers[0]["name"] == "nvidia-device-plugin-ctr",
+            "Unexpected container in the reserved device plugin")
+    plugin = containers[0]
+    security = plugin["securityContext"]
+    require(security["allowPrivilegeEscalation"] is False
+            and security["capabilities"] == {"drop": ["ALL"]}
+            and not security.get("privileged"), "Unexpected upstream device-plugin privilege")
+    # Toolkit 1.20.2 requires SYS_ADMIN for its MIG monitoring device injection.
+    # Keep the configuration device out of the container and the CUDA Pods.
+    plugin.setdefault("env", []).append({"name": "NVIDIA_MIG_MONITOR_DEVICES", "value": "all"})
+    security["capabilities"]["add"] = ["SYS_ADMIN"]
     metadata.setdefault("annotations", {})[OWNER_KEY] = owner
     return manifest
 

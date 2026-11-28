@@ -11,7 +11,8 @@ UUID = r"[0-9A-Fa-f]{8}(?:-[0-9A-Fa-f]{4}){3}-[0-9A-Fa-f]{12}"
 GPU = re.compile(rf"GPU 0: (?:NVIDIA )?A100-SXM4-40GB \(UUID: (GPU-{UUID})\)")
 DEVICE = re.compile(rf"MIG\s+1g\.5gb\s+Device\s+(\d+):\s+\(UUID: (MIG-{UUID})\)")
 GPU_INSTANCE = re.compile(r"0\s+MIG\s+1g\.5gb\s+19\s+(\d+)\s+(\d+)\s*:\s*1")
-COMPUTE_INSTANCE = re.compile(r"0\s+(\d+)\s+MIG\s+(?:1c\.)?1g\.5gb\s+0\s+(\d+)")
+# NVIDIA driver 580 also exposes the compute placement as Start:Size.
+COMPUTE_INSTANCE = re.compile(r"0\s+(\d+)\s+MIG\s+(?:1c\.)?1g\.5gb\s+0\s+(\d+)(?:\s+0\s*:\s*1)?")
 PROFILE_CAPACITY = re.compile(r"0\s+MIG\s+1g\.5gb\s+19\s+(\d+)\s*/\s*7\s+.+")
 EMPTY = ("No GPU instances found", "No GPU instances found: Not Found")
 
