@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0804-002",
-  "catalog_revision": "88da468f56b5f88821614207a3c1f16866cbac07",
+  "catalog_revision": "aec54c6b1413ffd348868adf4e363dc745714875",
   "catalog_sha256": "b2fb73602bb10c41e8c4e0650d71e296b3b60b644d16ce55ac63c343f30b05bc",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "af70822e079a17aa12b52bfa153c927ead164076fbe8becfc2edb92f9d89d95f",
-  "scope": "Actual OpenSSL signature checking and Kubernetes Jobs applying fixture binding, freshness, and reuse rules, plus a synthetic role-separated verifier-result and relying-party gate. A separate Kind Job verifies a signed historical Intel TDX quote and expected denials; live freshness remains outside this reference.",
-  "cluster": "saf-lab-7c2c197cc5d8",
+  "scope": "Actual OpenSSL signature checking and Kubernetes Jobs applying fixture binding, freshness, and reuse rules, plus a synthetic role-separated verifier-result and relying-party gate. A separate Kind Job verifies two signed historical Intel TDX quotes, including Intel-signed collateral and revocation validation at a fixed capture time. Live freshness remains outside this reference.",
+  "cluster": "saf-lab-25a31b40bdbf",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -131,6 +131,24 @@
       "matched": true,
       "observed": {
         "strict_archived_collateral_tcb_denied": true
+      }
+    },
+    {
+      "phase": "tdx-archived-collateral",
+      "claim": "A production-rooted archived TDX quote matches Intel's signed TCB, QE identity and revocation data at capture time",
+      "matched": true,
+      "observed": {
+        "strict_collateral_and_revocations_verified": true,
+        "archived_report_data_and_mrtd_match": true
+      }
+    },
+    {
+      "phase": "tdx-collateral-fail-closed",
+      "claim": "The same archived TDX quote is rejected when collateral is expired or the platform CRL is unavailable",
+      "matched": true,
+      "observed": {
+        "expired_collateral_rejected": true,
+        "missing_platform_crl_rejected": true
       }
     }
   ]

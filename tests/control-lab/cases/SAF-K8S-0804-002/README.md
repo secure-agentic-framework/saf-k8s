@@ -84,3 +84,31 @@ workload and relying-party policy require separate evidence.
 
 - [Pinned Go TDX release](https://github.com/google/go-tdx-guest/releases/tag/v0.3.1)
 - [Upstream fixture and collateral checks](https://github.com/google/go-tdx-guest/blob/v0.3.1/verify/verify_test.go)
+
+## Archived Intel collateral and revocation verification
+
+The same Kind Job also appraises a public TDX quote captured on October 6,
+2026. The host verifies the published archive digest and downloads Intel's
+root certificate separately. The Job pins the root certificate's SHA-256
+fingerprint and checks the exact quote and expected REPORT_DATA and MR_TD.
+It evaluates the quote at 04:00 UTC on the capture date. An offline getter
+supplies the Intel-signed TCB information and QE identity with their issuer
+chains, the platform CRL with its issuer chain, and the root CRL. The
+verifier performs signature, status and revocation checks. The fixture
+checks that each archived collateral validity interval includes the pinned
+time and that all four collateral objects were consumed.
+
+The same quote is rejected when the evaluation time is after the archived
+TCB information expires, and again when the platform CRL is withheld at
+the capture time. `tdx-signed-collateral.json` retains the source and quote
+digests, trust anchor fingerprint, evaluation times and minimized outcomes.
+The capture and certificates stay in the disposable image. This exercise
+covers historical collateral. Current collateral, an independently issued
+live challenge, verifier outage policy and actual workload use require
+their own evidence.
+
+Run the standard control-ID test with Go and curl installed. The initial
+build fetches the pinned public capture, Intel root and Go modules.
+
+- [TDX capture and experiment provenance](https://untrustsecurity.com/evidence/#gcp-c3-standard-4-intel-tdx-quote)
+- [Intel provisioning and collateral recovery](https://www.intel.com/content/www/us/en/developer/topic-technology/software-security-guidance/trusted-computing-base-recovery-attestation.html)

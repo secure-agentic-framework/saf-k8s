@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 
 SCOPE = "Actual OpenSSL signature checking and Kubernetes Jobs applying fixture binding, freshness, and reuse rules, plus a synthetic role-separated verifier-result and relying-party gate."
-SCOPE += " A separate Kind Job verifies a signed historical Intel TDX quote and expected denials; live freshness remains outside this reference."
+SCOPE += " A separate Kind Job verifies two signed historical Intel TDX quotes, including Intel-signed collateral and revocation validation at a fixed capture time. Live freshness remains outside this reference."
 IMAGE = "docker.io/library/python:3.13-slim@sha256:e48f59cdba69a3cbd9ed2cf0f348d90d45a8d350d98134cf1070bc106ee9ed90"
 JOB = "fixture-attestation-appraisal"
 CONFIG = "fixture-attestation-appraisal"

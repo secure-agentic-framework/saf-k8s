@@ -76,7 +76,14 @@ func main() {
 	require(err != nil && err.Error() == tcbDenial, "historical signed collateral TCB denial")
 	require(digest(raw) == quoteDigest, "exact same quote was used for every probe")
 
+	require(len(os.Args) == 3, "signed collateral fixture arguments")
+	collateral, err := signedCollateral(os.Args[1], os.Args[2])
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "TDX signed collateral reference failed:", err)
+		os.Exit(1)
+	}
 	row := map[string]any{
+		"signed_collateral":              collateral,
 		"schema":                         "saf-intel-tdx-historical-reference-v1",
 		"verifier":                       "google/go-tdx-guest@v0.3.1",
 		"quote_sha256":                   quoteDigest,
