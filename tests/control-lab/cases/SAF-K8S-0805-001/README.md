@@ -55,3 +55,14 @@ projected config before reloading Prometheus and retains
 The A100 device and its visibility loss require a separate hardware run.
 
 [Prometheus lookback and staleness](https://prometheus.io/docs/prometheus/latest/querying/basics/#staleness).
+
+The same-target transition checks start three jobs against one owned synthetic
+exporter. First, all three jobs must report the exact workload and source while
+the receiver is empty. Changing only the failed job's metrics path must
+produce HTTP 404, an `up=0` sample, and exactly one alert while the soon-to-be
+removed job still scrapes successfully. Removing that job from the
+case-owned configuration must then produce a separate absence alert. The
+healthy job must retain a fresh measured zero and both receiver records must
+match the expected route and source. The case writes
+`same-target-visibility.json`. This replay does not require GPU hardware.
+[NVIDIA exporter endpoints](https://docs.nvidia.com/datacenter/dcgm/latest/reference/command-line-reference/dcgm-exporter.html)

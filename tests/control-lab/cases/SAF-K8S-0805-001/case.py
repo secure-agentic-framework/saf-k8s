@@ -150,3 +150,8 @@ def run(lab):
     visibility_spec.loader.exec_module(visibility_module)
     visibility_module.run(lab)
     module.run_t4_historical(lab)
+    same_target_spec = spec_from_file_location("saf_0805_001_same_target_case",
+                                               Path(__file__).with_name("same_target_case.py"))
+    same_target = module_from_spec(same_target_spec)
+    same_target_spec.loader.exec_module(same_target)
+    same_target.run(lab)

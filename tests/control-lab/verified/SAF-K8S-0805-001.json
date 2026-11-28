@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0805-001",
-  "catalog_revision": "f8fe03eaeda497bb1133fe25120dd25799a5c9e2",
+  "catalog_revision": "88da468f56b5f88821614207a3c1f16866cbac07",
   "catalog_sha256": "b2fb73602bb10c41e8c4e0650d71e296b3b60b644d16ce55ac63c343f30b05bc",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "d9fe935772818b512ae5513582dab136d11750e8acf73053abd6a8ce135e0c97",
   "scope": "Three checks evaluate synthetic in-cluster telemetry. Additive checks exercise a case-owned Prometheus/Alertmanager route, then replay two hash-pinned historical Tesla T4 framebuffer observations as explicitly historical fixture series. The replay proves rule and delivery behavior for those retained values; it does not establish live GPU collection, freshness, coverage, misuse, or production incident detection.",
-  "cluster": "saf-lab-789f1f59c24a",
+  "cluster": "saf-lab-5c33bc84e712",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -72,13 +72,13 @@
       "matched": true,
       "observed": {
         "up": {
-          "high": 1.0,
           "normal": 1.0,
-          "missing": 1.0
+          "missing": 1.0,
+          "high": 1.0
         },
         "utilization": {
-          "high": 0.95,
-          "normal": 0.2
+          "normal": 0.2,
+          "high": 0.95
         },
         "normal_target_quiet": true
       }
@@ -124,6 +124,20 @@
         "misuse_or_incident_claimed": false,
         "exactly_once_claimed": false,
         "raw_evidence": "t4-historical-alert-route.raw.json"
+      }
+    },
+    {
+      "phase": "same-target-visibility",
+      "claim": "An exact source in a case-owned monitor fails the scrape and becomes absent in separate jobs while the healthy job retains measured zero and both alerts route",
+      "matched": true,
+      "observed": {
+        "failed_and_absent_jobs_were_previously_healthy_for_the_exact_same_target": true,
+        "failed_job_returns_404_and_keeps_up_zero": true,
+        "absent_job_has_no_up_or_metric_series": true,
+        "healthy_job_retains_a_fresh_measured_zero_with_same_source_identity": true,
+        "two_exact_alerts_reached_case_receiver": true,
+        "telemetry_fixture_is_synthetic": true,
+        "evidence": "same-target-visibility.json"
       }
     }
   ]
