@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0805-003",
-  "catalog_revision": "bd8f108ab01aed3dc7ff82df285de5d6355ae830",
+  "catalog_revision": "030cfbf009bf6d1902dc8c4a30f8272818494633",
   "catalog_sha256": "b2fb73602bb10c41e8c4e0650d71e296b3b60b644d16ce55ac63c343f30b05bc",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "d0d9d217733713c850abb096d70282959a995fb33dcd3d7ebcfae1c42871c158",
-  "scope": "Four checks exercise native authorization and an inert response over synthetic records. An additive fifth check binds two retained historical T4 framebuffer observations to an immutable hold and confirms the case reviewer cannot escalate an approved known-good workload without corroboration. No GPU, node, or production workload action is performed; historical freshness and incident attribution are not claimed.",
-  "cluster": "saf-lab-6920857eaac5",
+  "scope": "Four checks exercise native authorization and an inert response over synthetic records. An additive fifth check binds two retained historical T4 framebuffer observations to an immutable hold and confirms the case reviewer cannot escalate an approved known-good workload without corroboration. No GPU, node, or production workload action is performed; historical freshness and incident attribution are not claimed. The two added A100 admission checks use inert records on Kind.",
+  "cluster": "saf-lab-57cb3d4809f6",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -96,6 +96,26 @@
         "disruptive_action_requested": false,
         "incident_or_misuse_claimed": false,
         "raw_evidence": "historical-t4-triage-hold.raw.json"
+      }
+    },
+    {
+      "phase": "a100-admission-baseline",
+      "claim": "The same synthetic escalation is admitted in dry-run before the binding",
+      "matched": true,
+      "observed": {
+        "identical_dry_run_admitted_without_binding": true
+      }
+    },
+    {
+      "phase": "a100-admission-enforced",
+      "claim": "The effective A100 fixture binding retains the exact hold and denies escalation",
+      "matched": true,
+      "observed": {
+        "hold_immutable_and_receipt_bound": true,
+        "escalation_denied_by_policy": true,
+        "escalation_not_persisted": true,
+        "corroborated_comparator_dry_run_admitted": true,
+        "effective_binding_proved_before_hold": true
       }
     }
   ]

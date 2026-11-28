@@ -6,7 +6,7 @@ import time
 SCOPE = ("Four checks exercise native authorization and an inert response over synthetic records. An additive fifth "
          "check binds two retained historical T4 framebuffer observations to an immutable hold and confirms the "
          "case reviewer cannot escalate an approved known-good workload without corroboration. No GPU, node, "
-         "or production workload action is performed; historical freshness and incident attribution are not claimed.")
+         "or production workload action is performed; historical freshness and incident attribution are not claimed. The two added A100 admission checks use inert records on Kind.")
 API = "admissionregistration.k8s.io/v1"
 RBAC = "rbac.authorization.k8s.io"
 NAME = "fixture-incident-review"
@@ -111,3 +111,9 @@ def run(lab):
     _historical_hold = _importlib_util.module_from_spec(_history_spec)
     _history_spec.loader.exec_module(_historical_hold)
     _historical_hold.run(lab)
+
+    _a100_spec = _importlib_util.spec_from_file_location(
+        "a100_admission_replay", _Path(__file__).with_name("a100_admission_replay.py"))
+    _a100_admission = _importlib_util.module_from_spec(_a100_spec)
+    _a100_spec.loader.exec_module(_a100_admission)
+    _a100_admission.run(lab)
