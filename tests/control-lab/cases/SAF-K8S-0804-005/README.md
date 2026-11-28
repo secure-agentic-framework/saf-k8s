@@ -62,3 +62,10 @@ release, and deployed key lifecycle require separate evidence.
 - [AWS-published sample revision](https://github.com/aws-samples/aws-iot-validate-enclave-attestation/tree/14e13acb5d896a897e11c5b3e71caf01412611c8)
 - [AWS Nitro format and root verification](https://docs.aws.amazon.com/enclaves/latest/user/verify-root.html)
 - [AWS KMS attested calls](https://docs.aws.amazon.com/kms/latest/developerguide/attested-calls.html)
+
+
+## Live Confidential Space reference
+
+The approved WIF identity invoked Cloud KMS Decrypt and matched the fixture digest. After removing its KMS role, one fresh request still succeeded while IAM propagated. A later fresh request still passed STS and Cloud KMS returned HTTP 403.
+
+[Shared reproducer and evidence](../../references/gcp-confidential/README.md)
