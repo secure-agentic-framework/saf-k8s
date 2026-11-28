@@ -5,3 +5,6 @@ A real read-only Kubernetes Job checks an immutable synthetic inventory against 
 The [A100 inventory](../SAF-K8S-0802-008/a100-reference/firmware-inventory.json)
 records the observed VBIOS and InfoROM versions and a valid InfoROM checksum
 on one passthrough device.
+
+The [A100 firmware evidence review](a100-firmware-scope.md) identifies the
+device, observed health evidence, and prerequisites for firmware attestation.
