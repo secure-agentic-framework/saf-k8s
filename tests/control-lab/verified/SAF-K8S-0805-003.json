@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0805-003",
-  "catalog_revision": "030cfbf009bf6d1902dc8c4a30f8272818494633",
+  "catalog_revision": "aca448b3aa788b9a6331248217675f6111c3799e",
   "catalog_sha256": "b2fb73602bb10c41e8c4e0650d71e296b3b60b644d16ce55ac63c343f30b05bc",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "d0d9d217733713c850abb096d70282959a995fb33dcd3d7ebcfae1c42871c158",
   "scope": "Four checks exercise native authorization and an inert response over synthetic records. An additive fifth check binds two retained historical T4 framebuffer observations to an immutable hold and confirms the case reviewer cannot escalate an approved known-good workload without corroboration. No GPU, node, or production workload action is performed; historical freshness and incident attribution are not claimed. The two added A100 admission checks use inert records on Kind.",
-  "cluster": "saf-lab-57cb3d4809f6",
+  "cluster": "saf-lab-4caa43df8c29",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -114,8 +114,21 @@
         "hold_immutable_and_receipt_bound": true,
         "escalation_denied_by_policy": true,
         "escalation_not_persisted": true,
-        "corroborated_comparator_dry_run_admitted": true,
         "effective_binding_proved_before_hold": true
+      }
+    },
+    {
+      "phase": "a100-independent-approval",
+      "claim": "Separate immutable approval permits only its bound comparator and the reviewer cannot create or change that approval",
+      "matched": true,
+      "observed": {
+        "self_asserted_corroboration_denied": true,
+        "all_wrong_approval_bindings_denied": true,
+        "corroborated_comparator_admitted_in_dry_run": true,
+        "comparator_remained_absent": true,
+        "independent_approver_record_verified": true,
+        "held_evidence_survived_fixture_cleanup": true,
+        "fixture_cleanup_verified": true
       }
     }
   ]

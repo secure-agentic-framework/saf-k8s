@@ -26,13 +26,21 @@ incident attribution, and production response require further evidence.
 The original and historical scenarios account for five checks. The historical triage artifact is
 `historical-t4-triage-hold.raw.json`. [T4 reference summary](https://github.com/secure-agentic-framework/saf-k8s/blob/23a8b7a4be1fec186b4138fc30e12ab0964e33b9/tests/control-lab/cases/SAF-K8S-1002-003/t4-reference/reference-result.json)
 
-The A100 admission replay submits the same inert escalation before and after
-binding. After installation, it waits for the named policy and binding to
-actually reject that request, confirms a valid hold is admitted, then retains
-and independently reads back the immutable hold. A second escalation denial,
-an exact NotFound read, and an accepted corroborated dry-run comparator finish
-the replay. The two added checks use synthetic input and do not use GPU hardware
-or perform workload actions. See `a100-admission-replay.json`.
+The A100 replay submits the same inert escalation before and after binding.
+It waits for the named policy and binding to reject that request, then retains
+and reads back the exact immutable hold. The reviewer cannot create or patch
+the separate approval. A distinct identity creates and reads back the
+immutable approval used by the binding. The exact comparison record is
+allowed only in server dry-run. Self-asserted corroboration and changes to
+the run, hold, workload, device or source digest are denied by the same
+named policy. The comparison record remains absent and the hold survives
+fixture cleanup.
+
+The A100 admission replay uses synthetic ConfigMaps. It covers that policy
+and identity boundary without allocating GPU memory or performing a workload
+action. The approval is scoped to this run. Wall-clock expiration and
+production approval provenance are outside the test's evidence.
+See `a100-admission-replay.json`.
 
 The [live A100 telemetry reference](../SAF-K8S-1002-003/a100-reference/README.md)
 records the source signal for the observed hold. The repeat test of the live
