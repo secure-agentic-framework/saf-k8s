@@ -1,3 +1,23 @@
 # SAF-K8S-0805-004 Accelerator placement eligibility
 
-Kind runs two nodes with synthetic shared and dedicated profiles. The API rejects a sensitive workload's shared profile and unknown or unapproved profiles after policy is enabled. The scheduler assigns each approved workload to its intended node. The exact fixtures exercise placement policy and synthetic inventory. Real accelerator isolation, protected production inventory and exception lifecycle require deployed evidence.
+Run from the SAF-K8S checkout with Docker, Kind, kubectl, Python, and Helm.
+
+```sh
+python3 tests/control-lab/lab.py test SAF-K8S-0805-004 --docker-context desktop-linux
+```
+
+Kind runs two nodes with distinct modeled accelerator profiles. Native
+admission denies unapproved placement, and the scheduler binds eligible
+Pods to their approved nodes.
+
+The exception check uses the pinned Kyverno admission consumer and its live
+clock. The fixture requires an immutable approval from the named approver and
+binds it to the exact requester, Pod, and sharing profile. It submits the
+same server-side dry-run request before and after expiry. The consumer
+admits the request inside the approved window and denies it after the window
+while the stored approval stays the same. An ordinary eligible placement
+remains admissible. The lab receipts include the API-server clock
+observations and both policy diagnostics.
+
+The four checks cover admission, scheduling, and expiry for modeled profiles.
+Actual GPU isolation and protected inventory require hardware evidence.

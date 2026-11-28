@@ -1,9 +1,11 @@
 """Verify evidence-based scheduling eligibility for two inert accelerator profiles."""
 
 import json
+from pathlib import Path
+import runpy
 import time
 
-SCOPE = "Real Kubernetes admission and scheduler placement against modeled dedicated and shared accelerator profiles."
+SCOPE = "Real Kubernetes admission and scheduler placement against modeled dedicated and shared accelerator profiles, plus a live expiration check for an exact immutable exception."
 NODE_IMAGE = "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5"
 IMAGE = "docker.io/library/python:3.13-slim@sha256:e48f59cdba69a3cbd9ed2cf0f348d90d45a8d350d98134cf1070bc106ee9ed90"
 API = "admissionregistration.k8s.io/v1"
@@ -70,11 +72,26 @@ def submit(lab, subject, manifest, *, dry_run=True):
                        payload=json.dumps(manifest), allow_failure=True)
 
 
+def eligibility_expression(exception=None):
+    cases = [
+        f"request.userInfo.username == '{SENSITIVE}' && object.spec.nodeSelector['{PROFILE}'] == 'dedicated'",
+        f"request.userInfo.username == '{ROUTINE}' && object.spec.nodeSelector['{PROFILE}'] == 'shared'",
+    ]
+    if exception:
+        cases.append(exception)
+    approved = " || ".join(f"({item})" for item in cases)
+    return ("(!has(object.spec.nodeName) || object.spec.nodeName == '') && "
+            f"has(object.spec.nodeSelector) && '{PROFILE}' in object.spec.nodeSelector && ({approved})")
+
+
+def activate_exception(lab, requirement):
+    patch = [{"op": "replace", "path": "/spec/validations/0/expression",
+              "value": eligibility_expression(requirement)}]
+    lab.kubectl("patch", "validatingadmissionpolicy", POLICY, "--type=json", "-p", json.dumps(patch))
+
+
 def enforce(lab):
-    predicate = ("(!has(object.spec.nodeName) || object.spec.nodeName == '') && "
-                 f"has(object.spec.nodeSelector) && '{PROFILE}' in object.spec.nodeSelector && "
-                 f"((request.userInfo.username == '{SENSITIVE}' && object.spec.nodeSelector['{PROFILE}'] == 'dedicated') || "
-                 f"(request.userInfo.username == '{ROUTINE}' && object.spec.nodeSelector['{PROFILE}'] == 'shared'))")
+    predicate = eligibility_expression()
     lab.create({"apiVersion": API, "kind": "ValidatingAdmissionPolicy", "metadata": {"name": POLICY},
                 "spec": {"failurePolicy": "Fail", "matchConstraints": {"resourceRules": [{
                     "apiGroups": [""], "apiVersions": ["v1"], "operations": ["CREATE"], "resources": ["pods"],
@@ -127,3 +144,6 @@ def run(lab):
     (lab.evidence / "accelerator-placement-observations.json").write_text(json.dumps({
         "profiles": sorted(actual), "distinct_nodes": len(set(actual.values())) == 2, "hardware_isolation_tested": False,
     }, indent=2) + "\n")
+
+    expiry = runpy.run_path(str(Path(__file__).with_name("exception_expiry.py")))
+    expiry["run"](lab, pod, submit, activate_exception)

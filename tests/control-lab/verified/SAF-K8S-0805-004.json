@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0805-004",
-  "catalog_revision": "43ac87951fc44ec43912a98a6dbca02ea94e760d",
-  "catalog_sha256": "1da56289e4f344f65fa946b0099b200d7a52a7c4bea62ee17a32261bedc18861",
+  "catalog_revision": "ac23f08518176628fcbf82ea92e54df1b3a42dae",
+  "catalog_sha256": "b2fb73602bb10c41e8c4e0650d71e296b3b60b644d16ce55ac63c343f30b05bc",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "4c62a2a6ad6efce51d02f4ee5d7cff36297948fb9d66f256ec3cf592dfbc9716",
-  "scope": "Real Kubernetes admission and scheduler placement against modeled dedicated and shared accelerator profiles.",
-  "cluster": "saf-lab-491f2a7fa596",
+  "scope": "Real Kubernetes admission and scheduler placement against modeled dedicated and shared accelerator profiles, plus a live expiration check for an exact immutable exception.",
+  "cluster": "saf-lab-bacdd3be9f62",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -63,6 +63,19 @@
       "observed": {
         "dedicated_node_match": true,
         "shared_node_match": true
+      }
+    },
+    {
+      "phase": "expiry",
+      "claim": "The same modeled sharing request is admitted only inside its attributed approval window",
+      "matched": true,
+      "observed": {
+        "missing_approval_denied": true,
+        "requester_cannot_create_approval": true,
+        "admitted_before_expiry": true,
+        "exact_expiry_denial": true,
+        "unchanged_approved_record": true,
+        "ordinary_placement_preserved": true
       }
     }
   ]
