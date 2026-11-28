@@ -19,5 +19,13 @@ while the stored approval stays the same. An ordinary eligible placement
 remains admissible. The lab receipts include the API-server clock
 observations and both policy diagnostics.
 
-The four checks cover admission, scheduling, and expiry for modeled profiles.
+The modeled-profile checks cover admission, scheduling, and expiry.
 Actual GPU isolation and protected inventory require hardware evidence.
+
+A separate namespace exercises the admission logic used by the physical MIG
+runner. Before policy installation, a server dry-run of the marked whole-GPU
+request succeeds. The installed binding must then return the named Forbidden
+decision for that exact request. The approved MIG limit and an unmarked
+whole-GPU request pass server dry-run. The probe also confirms the workloads
+were never persisted. `mig-profile-admission.json` records the observed
+results. This check exercises Kubernetes admission without allocating devices.

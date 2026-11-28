@@ -145,5 +145,8 @@ def run(lab):
         "profiles": sorted(actual), "distinct_nodes": len(set(actual.values())) == 2, "hardware_isolation_tested": False,
     }, indent=2) + "\n")
 
+    mig_profile = runpy.run_path(str(Path(__file__).with_name("mig_profile_case.py")))
+    mig_profile["run"](lab)
+
     expiry = runpy.run_path(str(Path(__file__).with_name("exception_expiry.py")))
     expiry["run"](lab, pod, submit, activate_exception)

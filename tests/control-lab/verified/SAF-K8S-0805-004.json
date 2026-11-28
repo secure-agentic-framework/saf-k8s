@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0805-004",
-  "catalog_revision": "ac23f08518176628fcbf82ea92e54df1b3a42dae",
+  "catalog_revision": "99f39d9a5e8cb7fa11e3802b75b2e83e342fc4e9",
   "catalog_sha256": "b2fb73602bb10c41e8c4e0650d71e296b3b60b644d16ce55ac63c343f30b05bc",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "4c62a2a6ad6efce51d02f4ee5d7cff36297948fb9d66f256ec3cf592dfbc9716",
   "scope": "Real Kubernetes admission and scheduler placement against modeled dedicated and shared accelerator profiles, plus a live expiration check for an exact immutable exception.",
-  "cluster": "saf-lab-bacdd3be9f62",
+  "cluster": "saf-lab-20be4e1efbee",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -63,6 +63,18 @@
       "observed": {
         "dedicated_node_match": true,
         "shared_node_match": true
+      }
+    },
+    {
+      "phase": "mig-profile-admission",
+      "claim": "The exact whole-GPU request is denied by the bound MIG fixture policy while the approved and unmarked dry-runs pass",
+      "matched": true,
+      "observed": {
+        "whole_gpu_dry_run_passed_before_policy": true,
+        "exact_foreign_resource_denial": true,
+        "approved_mig_profile_accepted_as_dry_run": true,
+        "unmarked_fixture_accepted_as_dry_run": true,
+        "all_probe_workloads_absent": true
       }
     },
     {
