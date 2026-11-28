@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0801-006",
-  "catalog_revision": "e190242e13b7a77d5f645bb27dd84f2b3e00ebf3",
-  "catalog_sha256": "1da56289e4f344f65fa946b0099b200d7a52a7c4bea62ee17a32261bedc18861",
+  "catalog_revision": "f955ba1d6dd4ed3ab977598b457e5d7e40335de1",
+  "catalog_sha256": "b2fb73602bb10c41e8c4e0650d71e296b3b60b644d16ce55ac63c343f30b05bc",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "6d2f8c9fd07dd3ef280fc027f1df1f24b00bcbf0c01d191434417a6de312cc26",
-  "scope": "Live reassignment admission based on an inert transition record; no physical device, memory or reset involved.",
-  "cluster": "saf-lab-2e5aee426076",
+  "scope": "Live admission against a synthetic GPU transition record. A scoped HTTPS admission webhook reads that record and enforces the actual validity window during a Pod admission request. Device or provider sanitization and the deployed allocation boundary require separate evidence.",
+  "cluster": "saf-lab-680652ba80ed",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -76,6 +76,21 @@
         "missing_parameter_denied_by_policy": true,
         "approved_parameter_recreated_with_distinct_uid": true,
         "approved_request_admitted_after_recovery": true
+      }
+    },
+    {
+      "phase": "evidence-expiry",
+      "claim": "Unchanged approved evidence expires in the live Pod admission path",
+      "matched": true,
+      "observed": {
+        "missing_validity_denied_by_named_webhook": true,
+        "future_dated_record_denied_by_named_webhook": true,
+        "exact_request_admitted_before_expiry": true,
+        "same_dry_run_denied_by_named_webhook_after_expiry": true,
+        "live_create_denied_by_named_webhook_after_expiry": true,
+        "no_pod_persisted_after_denial": true,
+        "same_uid_resource_version_and_data_across_expiry": true,
+        "exact_request_admitted_after_approval_renewal": true
       }
     }
   ]

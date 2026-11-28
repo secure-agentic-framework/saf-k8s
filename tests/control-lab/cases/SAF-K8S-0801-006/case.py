@@ -1,6 +1,8 @@
 """Run a live admission check against an operator-owned, synthetic evidence record."""
 
 import json
+from pathlib import Path
+import runpy
 import time
 
 NAMESPACE = "saf-test"
@@ -11,8 +13,9 @@ WORKLOAD = "guarded-approved"
 SUBMITTER = "fixture-workload-submitter"
 ANNOTATION = "fixture.example/"
 IMAGE = "docker.io/library/python:3.13-slim@sha256:e48f59cdba69a3cbd9ed2cf0f348d90d45a8d350d98134cf1070bc106ee9ed90"
-SCOPE = ('Live reassignment admission based on an inert transition record; no physical device, '
- 'memory or reset involved.')
+SCOPE = ("Live admission against a synthetic GPU transition record. A scoped HTTPS admission webhook "
+         "reads that record and enforces the actual validity window during a Pod admission request. "
+         "Device or provider sanitization and the deployed allocation boundary require separate evidence.")
 MATCHED = ('allocation', 'transition', 'target-trust')
 RECORD_RULES = ["params.data['evidence-kind'] == 'reviewed-device-attestation'",
  "params.data['evidence-id'] != ''"]
@@ -211,3 +214,6 @@ def run(lab):
         json.dumps(observed, indent=2, sort_keys=True) + "\n")
     lab.check("green", "Cross-trust release requires the exact allocation and target trust, and fails closed while the approval record is missing",
               all(observed.values()), observed)
+
+    helper = Path(__file__).with_name("freshness.py")
+    runpy.run_path(str(helper))["run"](lab, manifest, submit, IMAGE, PARAMETER)
