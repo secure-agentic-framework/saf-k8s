@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0804-005",
-  "catalog_revision": "36422572536970115a393ffab4cde03c4bcba218",
-  "catalog_sha256": "05bad5b212e22ea094491dca60d5d4cc21ff6c4cddb0c432dfc5da909786bc07",
+  "catalog_revision": "fcfc446080c403822685f0b0b20bbdb148e003e6",
+  "catalog_sha256": "b2fb73602bb10c41e8c4e0650d71e296b3b60b644d16ce55ac63c343f30b05bc",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "dcb8e2dddfa3b419b5f58d19d29e9ad4b1bc1d44a108dfa81b2be365e488c613",
-  "scope": "Actual Kubernetes RBAC release and revocation for an inert public marker, plus software-only signed synthetic verifier-result checks and recipient-bound ciphertext release; no TEE, provider KMS, or production key-release claim.",
-  "cluster": "saf-lab-2e6e19d36a54",
+  "scope": "Actual Kubernetes marker access and revocation, signed synthetic result checks and recipient-bound ciphertext release, plus two AWS Nitro documents authenticated at their archived issuance times. The current fixture grant requires fresh evidence and denies both archived documents. Live enclave and KMS evidence remain open.",
+  "cluster": "saf-lab-b7edaf871621",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -90,6 +90,28 @@
         "untrusted_signer_denied_without_record": true,
         "authorized_recipient_recovers_exact_inert_marker": true,
         "all_claims_and_artifact_digests_match": true
+      }
+    },
+    {
+      "phase": "nitro-historical-attestation",
+      "claim": "Two archived Nitro documents verify at issuance against the pinned AWS root",
+      "matched": true,
+      "observed": {
+        "both_documents_authentic_at_issuance": true,
+        "zero_pcrs_distinguished_from_pinned_measurements": true,
+        "changed_signature_and_changed_payload_rejected": true
+      }
+    },
+    {
+      "phase": "nitro-current-release-denial",
+      "claim": "Historic Nitro authenticity alone cannot authorize the current fixture read",
+      "matched": true,
+      "observed": {
+        "authentication_only_counterfactual_exposed_owned_marker": true,
+        "both_sample_decisions_denied_current_grant": true,
+        "grant_absent": true,
+        "actual_marker_read_forbidden": true,
+        "expired_chain_and_missing_challenge_and_recipient_observed_for_both": true
       }
     }
   ]

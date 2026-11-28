@@ -3,7 +3,9 @@
 import json
 import time
 
-SCOPE = "Actual Kubernetes RBAC release and revocation for an inert public marker, plus software-only signed synthetic verifier-result checks and recipient-bound ciphertext release; no TEE, provider KMS, or production key-release claim."
+SCOPE = ("Actual Kubernetes marker access and revocation, signed synthetic result checks and recipient-bound ciphertext "
+         "release, plus two AWS Nitro documents authenticated at their archived issuance times. The current fixture "
+         "grant requires fresh evidence and denies both archived documents. Live enclave and KMS evidence remain open.")
 NS = "saf-test"
 RBAC = "rbac.authorization.k8s.io"
 TARGET = "fixture-release-marker"
@@ -107,3 +109,10 @@ def run(lab):
     _signed_release = _importlib_util.module_from_spec(_signed_spec)
     _signed_spec.loader.exec_module(_signed_release)
     _signed_release.run(lab)
+
+
+    _nitro_spec = _importlib_util.spec_from_file_location(
+        "saf_0804_005_nitro_archive", _Path(__file__).with_name("nitro_archive.py"))
+    _nitro_archive = _importlib_util.module_from_spec(_nitro_spec)
+    _nitro_spec.loader.exec_module(_nitro_archive)
+    _nitro_archive.run(lab, grant, see_decision, principal, WORKLOAD, TARGET, ROLE)
