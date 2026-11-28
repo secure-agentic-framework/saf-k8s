@@ -67,3 +67,8 @@ requirements.
 ## Tesla T4 hardware reference
 
 The [T4 reference](t4-reference/README.md) provisions native GPU telemetry on a dedicated Linux host. It checks kubelet allocation and independently observed exporter and Prometheus fields, and verifies a real framebuffer allocation in two fresh Kubernetes clusters on the same passthrough device.
+
+## A100 hardware reference
+
+The [A100 reference](a100-reference/README.md) records a CUDA workload's live
+framebuffer usage, joined to its exact workload and accelerator allocation.

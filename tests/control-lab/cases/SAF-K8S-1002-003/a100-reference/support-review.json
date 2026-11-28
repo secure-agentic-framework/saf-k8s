@@ -1,0 +1,16 @@
+{
+  "schema": "saf-a100-metric-support-review-v1",
+  "status": "reviewed-supported",
+  "metric": "DCGM_FI_DEV_FB_USED",
+  "device_model": "NVIDIA A100-SXM4-40GB",
+  "driver": "580.178.04",
+  "exporter_image_digest": "804c17f67ab63e8a4dd5301546beefaa104129f833dae4a68f5ff7c4819f471b",
+  "dcgm_version": "4.6.1",
+  "exporter_version": "4.8.4",
+  "basis": "The exact pinned exporter reported version 4.8.4 and contained libdcgm.so.4.6.1. A ready exporter and active Prometheus target returned matching live MiB values for the same fixture Pod UID and A100 UUID.",
+  "official_sources": [
+    "https://docs.nvidia.com/datacenter/dcgm/latest/reference/dcgm-exporter-metrics.html",
+    "https://docs.nvidia.com/datacenter/cloud-native/gpu-telemetry/latest/dcgm-exporter.html",
+    "https://github.com/NVIDIA/dcgm-exporter/releases/tag/4.8.4"
+  ]
+}

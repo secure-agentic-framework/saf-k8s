@@ -1,0 +1,74 @@
+{
+  "captured_at_utc": "2026-11-28T00:36:39.160Z",
+  "device_plugin": {
+    "image": "nvcr.io/nvidia/k8s-device-plugin:v0.20.2",
+    "image_id": "nvcr.io/nvidia/k8s-device-plugin@sha256:7673383d44a84bece724d9ca8feeadf4eee69cd46475fdff614cbbca6732d463",
+    "namespace": "kube-system",
+    "node_match": true,
+    "pod_uid_sha256": "c4e5cec9e837ab536fc9a0933fadefd5cc9130f909c849821975d0b3b9306c7d"
+  },
+  "exporter": {
+    "image": "nvcr.io/nvidia/k8s/dcgm-exporter@sha256:804c17f67ab63e8a4dd5301546beefaa104129f833dae4a68f5ff7c4819f471b",
+    "image_id": "nvcr.io/nvidia/k8s/dcgm-exporter@sha256:804c17f67ab63e8a4dd5301546beefaa104129f833dae4a68f5ff7c4819f471b",
+    "job": "saf-a100-dcgm",
+    "namespace": "saf-gpu-observe",
+    "node_match": true,
+    "pod_uid_sha256": "124f2a11ebc291af7f25a03d582faf0ada6ab6a170c982cee34d6a76029e98c4",
+    "port": 9400,
+    "target_health": "up"
+  },
+  "field_support_reviewed": false,
+  "framebuffer_helper": {
+    "allocated_bytes": 134217728,
+    "sha256": "68820dd2b481cf7440c62991d1ecb71af2887f63bfbeb594150ca9c92a640db7"
+  },
+  "hardware": {
+    "allocated_device_count": 1,
+    "driver": "580.178.04",
+    "gpu_uuid_sha256": "66023b84ba7644925593a0c8bd0f36d87bfcf3843b4174c4436991fb521dab7a",
+    "model": "NVIDIA A100-SXM4-40GB",
+    "resource_name": "nvidia.com/gpu"
+  },
+  "historical_reference_summary_sha256": "907e0801f74229eb074bb04c8fc70681ab181cd908281076b5f123af436f0b68",
+  "host": {
+    "architecture": "amd64",
+    "hostname_sha256": "1e216749b9f2e9b721f07629f1425963f1c440a51343ad2a0e6736ada2821107",
+    "os": "linux"
+  },
+  "kubernetes": {
+    "container_runtime": "containerd://2.3.7-k3s1.36",
+    "gpu_allocatable": "1",
+    "kubelet": "v1.36.6+k3s1",
+    "node_uid_sha256": "87463b1b0b5b0ca1d558f476330d3d06735fc735934f2d69976bfd51a9a46ff1",
+    "server": "v1.36.6+k3s1"
+  },
+  "limitations": [
+    "read-only readiness capture; no alert rule or response was run",
+    "live DCGM support and version compatibility require explicit review",
+    "no incident, misuse, production authorization, or freshness guarantee"
+  ],
+  "schema": "saf-a100-live-readiness-v1",
+  "selected_metric": {
+    "absolute_delta": 0.0,
+    "device_uuid_label_matches": true,
+    "direct_value": 0.0,
+    "name": "DCGM_FI_DEV_FB_USED",
+    "prometheus_value": 0.0,
+    "support_reviewed": false,
+    "unit": "MiB",
+    "workload_uid_label_matches": true
+  },
+  "source_commit": "23a8b7a4be1fec186b4138fc30e12ab0964e33b9",
+  "status": "profile_observed_review_required",
+  "workload": {
+    "container": "vector",
+    "container_image": "nvcr.io/nvidia/k8s/cuda-sample:vectoradd-cuda12.5.0-ubuntu22.04@sha256:86c8ab90b657bc74098f068e670d2635799f1fd3695a0dd55fd696d8f9e3d64b",
+    "fixture_spec_sha256": "1c37078c8c806dbe37c60947f0ce3ee1c5d8ded2117e15f354a44c3a9b3b8372",
+    "gpu_request": "1",
+    "image_id": "nvcr.io/nvidia/k8s/cuda-sample@sha256:86c8ab90b657bc74098f068e670d2635799f1fd3695a0dd55fd696d8f9e3d64b",
+    "name": "a100-vector-witness",
+    "namespace": "saf-gpu-a100",
+    "runtime_class": "nvidia",
+    "uid_sha256": "67ba610c152616a43cac0c91d13778270b9519e4bb1d847e036d8037fc63db37"
+  }
+}

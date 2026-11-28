@@ -1,0 +1,67 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: saf-gpu-a100
+  labels:
+    app.kubernetes.io/part-of: saf-gpu-a100-fixture
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: a100-vector-witness
+  namespace: saf-gpu-a100
+  labels:
+    app.kubernetes.io/name: a100-vector-witness
+    saf-k8s.example/purpose: bounded-gpu-telemetry
+spec:
+  restartPolicy: Never
+  automountServiceAccountToken: false
+  runtimeClassName: nvidia
+  terminationGracePeriodSeconds: 10
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 10001
+    runAsGroup: 10001
+    seccompProfile:
+      type: RuntimeDefault
+  volumes:
+    - name: temporary
+      emptyDir:
+        sizeLimit: 32Mi
+  containers:
+    - name: vector
+      image: nvcr.io/nvidia/k8s/cuda-sample:vectoradd-cuda12.5.0-ubuntu22.04@sha256:86c8ab90b657bc74098f068e670d2635799f1fd3695a0dd55fd696d8f9e3d64b
+      imagePullPolicy: IfNotPresent
+      securityContext:
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+        capabilities:
+          drop: [ALL]
+      volumeMounts:
+        - name: temporary
+          mountPath: /tmp
+      command: ["/bin/sh", "-c"]
+      args:
+        - |
+          set -eu
+          # NVIDIA's bounded vectorAdd sample performs ordinary CUDA vector
+          # addition. Repeat a finite number of times, then keep the allocated
+          # Pod present for the remainder of the 4-hour evidence window.
+          for i in $(seq 1 360); do
+            output="$(/cuda-samples/vectorAdd 2>&1)" || { printf 'vectorAdd_failed_iteration=%s\n' "$i"; exit 1; }
+            case "$output" in
+              *"Test PASSED"*) printf 'vectorAdd_test_passed_iteration=%s\n' "$i" ;;
+              *) printf 'vectorAdd_missing_pass_marker_iteration=%s\n' "$i"; exit 1 ;;
+            esac
+            sleep 30
+          done
+          sleep 3600
+      resources:
+        requests:
+          cpu: 100m
+          memory: 1Gi
+          nvidia.com/gpu: 1
+        limits:
+          cpu: "1"
+          memory: 2Gi
+          nvidia.com/gpu: 1

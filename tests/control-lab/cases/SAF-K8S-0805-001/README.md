@@ -27,3 +27,6 @@ incident determination require further evidence.
 
 The runner records five checks. The historical route artifact is
 `t4-historical-alert-route.raw.json`. [T4 reference summary](https://github.com/secure-agentic-framework/saf-k8s/blob/23a8b7a4be1fec186b4138fc30e12ab0964e33b9/tests/control-lab/cases/SAF-K8S-1002-003/t4-reference/reference-result.json)
+
+The [live A100 telemetry reference](../SAF-K8S-1002-003/a100-reference/README.md)
+records a real allocation and a fresh, workload-attributed DCGM threshold.

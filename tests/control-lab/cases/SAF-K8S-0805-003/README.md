@@ -25,3 +25,7 @@ incident attribution, and production response require further evidence.
 
 The runner records five checks. The historical triage artifact is
 `historical-t4-triage-hold.raw.json`. [T4 reference summary](https://github.com/secure-agentic-framework/saf-k8s/blob/23a8b7a4be1fec186b4138fc30e12ab0964e33b9/tests/control-lab/cases/SAF-K8S-1002-003/t4-reference/reference-result.json)
+
+The [live A100 telemetry reference](../SAF-K8S-1002-003/a100-reference/README.md)
+records the source signal for the observed hold. The repeat test of the
+escalation decision remained open after Spot preemption.
