@@ -5,3 +5,6 @@ OpenSSL checks inert marker signatures against two public fixture keys. A real K
 The additive fourth check binds a named fixture submitter to `get` on only the exact synthetic parameter ConfigMap so kubectl can perform its client preflight. An actual attempted patch must receive the Kubernetes `Forbidden` status for `patch` on that ConfigMap; an independent API readback must retain the same UID and data. Authorized test-harness updates and the three original checks remain. This is a fixture trust-record authorization check only.
 
 This requires OpenSSL on the lab runner. It does not access host credentials, boot firmware, GPU hardware, kernel modules, or platform keyrings. Actual Secure Boot and module admission remain separate evidence obligations.
+
+The [A100 reference](a100-reference/README.md) preserves evidence of two
+loaded Canonical-signed NVIDIA modules and one verified Shielded VM boot.

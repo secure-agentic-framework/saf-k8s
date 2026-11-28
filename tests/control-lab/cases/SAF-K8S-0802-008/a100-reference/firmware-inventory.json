@@ -1,0 +1,10 @@
+{
+  "driver_version": "580.178.04",
+  "firmware_authentication_tested": false,
+  "gpu_model": "NVIDIA A100-SXM4-40GB",
+  "inforom_checksum_validation": "valid",
+  "inforom_image_version": "G506.0200.00.04",
+  "schema": "saf-a100-firmware-inventory-v1",
+  "status": "inventory_observed",
+  "vbios_version": "92.00.45.00.03"
+}
