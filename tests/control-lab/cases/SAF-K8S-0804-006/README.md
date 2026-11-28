@@ -32,3 +32,10 @@ The broker demonstrates a one-use release in one process and uses a synthetic
 measurement. An adopted platform is required to verify hardware sealing or
 measured attestation, production trust roots and key custody, and behavior
 during migration, revocation, failover, and recovery.
+
+
+## Live Confidential Space reference
+
+The approved image decrypted the encrypted fixture. STS rejected the replacement image until the relying-party policy and key grant approved it, after which the replacement decrypted the same ciphertext. An independent call through the same key rejected tampered ciphertext.
+
+[Shared reproducer and evidence](../../references/gcp-confidential/README.md)
