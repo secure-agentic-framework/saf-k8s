@@ -12,9 +12,9 @@ def objects(namespace, name, run):
     check = ("object.spec.runtimeClassName == 'nvidia' && "
              "(!has(object.spec.nodeName) || object.spec.nodeName == '') && "
              "object.spec.containers.size() == 1 && object.spec.containers.all(c, "
-             "has(c.resources) && has(c.resources.limits) && "
-             f"'{RESOURCE}' in c.resources.limits && !('nvidia.com/gpu' in c.resources.limits) && "
-             "(!has(c.resources.requests) || !('nvidia.com/gpu' in c.resources.requests)))")
+             "has(c.resources) && has(dyn(c.resources).limits) && "
+             f"'{RESOURCE}' in dyn(c.resources).limits && !('nvidia.com/gpu' in dyn(c.resources).limits) && "
+             "(!has(dyn(c.resources).requests) || !('nvidia.com/gpu' in dyn(c.resources).requests)))")
     common = {"apiVersion": api, "metadata": {"name": name, "labels": {RUN_LABEL: run}}}
     return (
         {**common, "kind": "ValidatingAdmissionPolicy",
