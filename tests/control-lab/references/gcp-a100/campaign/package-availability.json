@@ -1,0 +1,112 @@
+{
+  "apt_resolution": {
+    "architecture": "amd64",
+    "container_image": "ubuntu@sha256:b000e69a50ff940390233025e7a337fb8469b509e2334fa4d018ac30f3e18cdb",
+    "exit_code": 0,
+    "mode": "apt-get -s install --no-install-recommends",
+    "nvidia_repository_key_fingerprint": "C95B321B61E88C1809C4F759DDCAE044F796ECB0",
+    "planned_package_versions": {
+      "libnvidia-container-tools": "1.20.2-1",
+      "libnvidia-container1": "1.20.2-1",
+      "linux-modules-nvidia-580-server-6.8.0-1074-gcp": "6.8.0-1074.82~22.04.1",
+      "linux-objects-nvidia-580-server-6.8.0-1074-gcp": "6.8.0-1074.82~22.04.1",
+      "linux-signatures-nvidia-6.8.0-1074-gcp": "6.8.0-1074.82~22.04.1",
+      "nvidia-container-toolkit": "1.20.2-1",
+      "nvidia-container-toolkit-base": "1.20.2-1",
+      "nvidia-driver-580-server": "580.178.04-0ubuntu0.22.04.1"
+    },
+    "signed_index_update_succeeded": true
+  },
+  "observed_utc": "2026-11-28T05:03:22.584733+00:00",
+  "package_install_or_hardware_test_observed": false,
+  "packages": {
+    "libnvidia-container-tools": {
+      "architecture": "amd64",
+      "artifact": "https://nvidia.github.io/libnvidia-container/stable/deb/amd64/libnvidia-container-tools_1.20.2-1_amd64.deb",
+      "artifact_head_status": 200,
+      "index_sha256_for_artifact": "a0ded4571083019155661eb53b5fd967d9b83bf7c68516d7e6f489c80caf6946",
+      "indexes": {
+        "https://nvidia.github.io/libnvidia-container/stable/deb/amd64/Packages": "bbba1136f67578a088d7bb532f2154a10d2dc6e5c2b085c2768dc04d62f374ac"
+      },
+      "version": "1.20.2-1"
+    },
+    "libnvidia-container1": {
+      "architecture": "amd64",
+      "artifact": "https://nvidia.github.io/libnvidia-container/stable/deb/amd64/libnvidia-container1_1.20.2-1_amd64.deb",
+      "artifact_head_status": 200,
+      "index_sha256_for_artifact": "466e48e38325bd72ebda9d91653c36f44e71ef9bc261f949689132c892835a4b",
+      "indexes": {
+        "https://nvidia.github.io/libnvidia-container/stable/deb/amd64/Packages": "bbba1136f67578a088d7bb532f2154a10d2dc6e5c2b085c2768dc04d62f374ac"
+      },
+      "version": "1.20.2-1"
+    },
+    "linux-modules-nvidia-580-server-6.8.0-1074-gcp": {
+      "architecture": "amd64",
+      "artifact": "https://archive.ubuntu.com/ubuntu/pool/restricted/l/linux-restricted-modules-gcp-6.8/linux-modules-nvidia-580-server-6.8.0-1074-gcp_6.8.0-1074.82~22.04.1_amd64.deb",
+      "artifact_head_status": 200,
+      "index_sha256_for_artifact": "1cc3707ad0e4fcab19744be66fe1774c4c639e7a86f2f00298d30e3ab7f81736",
+      "indexes": {
+        "https://archive.ubuntu.com/ubuntu/dists/jammy-security/restricted/binary-amd64/Packages.xz": "c885126b11f3fdf397576c749c58f5c77d25890e25fba9d1824a795fff1cc53a",
+        "https://archive.ubuntu.com/ubuntu/dists/jammy-updates/restricted/binary-amd64/Packages.xz": "4f4d298e00dba14efbcbe6e50162165ee0095ee6ac785ed915fa5cd3eb6caf3b"
+      },
+      "version": "6.8.0-1074.82~22.04.1"
+    },
+    "linux-objects-nvidia-580-server-6.8.0-1074-gcp": {
+      "architecture": "amd64",
+      "artifact": "https://archive.ubuntu.com/ubuntu/pool/restricted/l/linux-restricted-modules-gcp-6.8/linux-objects-nvidia-580-server-6.8.0-1074-gcp_6.8.0-1074.82~22.04.1_amd64.deb",
+      "artifact_head_status": 200,
+      "index_sha256_for_artifact": "78108bf7b22c8d6d7290a069b6aa14316356a76595f342fbaa0f690dbfb43d83",
+      "indexes": {
+        "https://archive.ubuntu.com/ubuntu/dists/jammy-security/restricted/binary-amd64/Packages.xz": "c885126b11f3fdf397576c749c58f5c77d25890e25fba9d1824a795fff1cc53a",
+        "https://archive.ubuntu.com/ubuntu/dists/jammy-updates/restricted/binary-amd64/Packages.xz": "4f4d298e00dba14efbcbe6e50162165ee0095ee6ac785ed915fa5cd3eb6caf3b"
+      },
+      "version": "6.8.0-1074.82~22.04.1"
+    },
+    "linux-signatures-nvidia-6.8.0-1074-gcp": {
+      "architecture": "amd64",
+      "artifact": "https://archive.ubuntu.com/ubuntu/pool/restricted/l/linux-restricted-signatures-gcp-6.8/linux-signatures-nvidia-6.8.0-1074-gcp_6.8.0-1074.82~22.04.1_amd64.deb",
+      "artifact_head_status": 200,
+      "index_sha256_for_artifact": "5e7291e89a2d6086c7a96275a3d53f4cd3234b8d6b0e89260f85529569b63e33",
+      "indexes": {
+        "https://archive.ubuntu.com/ubuntu/dists/jammy-security/restricted/binary-amd64/Packages.xz": "c885126b11f3fdf397576c749c58f5c77d25890e25fba9d1824a795fff1cc53a",
+        "https://archive.ubuntu.com/ubuntu/dists/jammy-updates/restricted/binary-amd64/Packages.xz": "4f4d298e00dba14efbcbe6e50162165ee0095ee6ac785ed915fa5cd3eb6caf3b"
+      },
+      "version": "6.8.0-1074.82~22.04.1"
+    },
+    "nvidia-container-toolkit": {
+      "architecture": "amd64",
+      "artifact": "https://nvidia.github.io/libnvidia-container/stable/deb/amd64/nvidia-container-toolkit_1.20.2-1_amd64.deb",
+      "artifact_head_status": 200,
+      "index_sha256_for_artifact": "3ea74794dc7fd88526da6fece9fb142e976efac232892fa4c870a96a9708316b",
+      "indexes": {
+        "https://nvidia.github.io/libnvidia-container/stable/deb/amd64/Packages": "bbba1136f67578a088d7bb532f2154a10d2dc6e5c2b085c2768dc04d62f374ac"
+      },
+      "version": "1.20.2-1"
+    },
+    "nvidia-container-toolkit-base": {
+      "architecture": "amd64",
+      "artifact": "https://nvidia.github.io/libnvidia-container/stable/deb/amd64/nvidia-container-toolkit-base_1.20.2-1_amd64.deb",
+      "artifact_head_status": 200,
+      "index_sha256_for_artifact": "a6bd7f3a94b0b53b9748872709e70e810473081de0e836a59405073012c49368",
+      "indexes": {
+        "https://nvidia.github.io/libnvidia-container/stable/deb/amd64/Packages": "bbba1136f67578a088d7bb532f2154a10d2dc6e5c2b085c2768dc04d62f374ac"
+      },
+      "version": "1.20.2-1"
+    },
+    "nvidia-driver-580-server": {
+      "architecture": "amd64",
+      "artifact": "https://archive.ubuntu.com/ubuntu/pool/restricted/n/nvidia-graphics-drivers-580-server/nvidia-driver-580-server_580.178.04-0ubuntu0.22.04.1_amd64.deb",
+      "artifact_head_status": 200,
+      "index_sha256_for_artifact": "3507ff6a21bbff633c40abcd61d406f0243a54926a02439e0fc9250e452a90ad",
+      "indexes": {
+        "https://archive.ubuntu.com/ubuntu/dists/jammy-security/restricted/binary-amd64/Packages.xz": "c885126b11f3fdf397576c749c58f5c77d25890e25fba9d1824a795fff1cc53a",
+        "https://archive.ubuntu.com/ubuntu/dists/jammy-updates/restricted/binary-amd64/Packages.xz": "4f4d298e00dba14efbcbe6e50162165ee0095ee6ac785ed915fa5cd3eb6caf3b"
+      },
+      "version": "580.178.04-0ubuntu0.22.04.1"
+    }
+  },
+  "schema": "saf-a100-package-availability-v1",
+  "scope": "Public package indexes and HTTP HEAD checks for the retained Jammy kernel and staged driver and toolkit pins.",
+  "staged_bundle_manifest_sha256": "c81f3d9c977617f7f9d6e55ed20cf1b5b8706af4a93a385d3520b48859a06b50",
+  "visibility_dispatch": "The real staged child CLI accepted the dispatch arguments and reached input validation."
+}

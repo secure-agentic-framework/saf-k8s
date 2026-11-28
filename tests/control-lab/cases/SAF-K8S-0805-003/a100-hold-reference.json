@@ -1,0 +1,77 @@
+{
+  "case_id": "SAF-K8S-0805-003",
+  "evidence_sha256": {
+    "admission": "a0c33f3ed9b34a1c11e35642495e194dc284560420dfc2506a0cca5ec932d6e6",
+    "alert_fingerprint": "087984063b3b79cff0f9d8b2c846465a8183cfcc02fdcbbd7608694c4c79d567",
+    "allocator_release": "a1e2ba478fd9e6a41855c5c201af17a8f184093643b7116952c57855a841db7c",
+    "independent_approval": "bb05fb329bc28413062e83d20deab520879586e34e3f3784e2a2b1d42d61afe6",
+    "journal": "43bae67a23e83cc5791bd9ade4293fa05a2c055a299be0c62014c103c6edcb54",
+    "live_threshold": "d1881358094caf36f6274387c518fa203e2bb4eb0e3a6b2bc66c235bd1781cd7",
+    "raw_catch_hold": "3502af5f71533df8a10ddfe88d6cac530a0e9881a0c44b6000601806317320ac",
+    "readiness": "649d8aa5c729c0aff3c975dc53926cb6fbdd49e8cdc32702c0b9f887d85025fd",
+    "source_summary": "907e0801f74229eb074bb04c8fc70681ab181cd908281076b5f123af436f0b68"
+  },
+  "execution": {
+    "allocator_released_at_utc": "2026-11-28T12:25:15.343Z",
+    "completed_at_utc": "2026-11-28T12:25:37.581428+00:00",
+    "historical_reference_used_as_live_input": false,
+    "manifest_sha256": "c81f3d9c977617f7f9d6e55ed20cf1b5b8706af4a93a385d3520b48859a06b50",
+    "readiness_at_utc": "2026-11-28T12:22:58.764Z",
+    "readiness_status": "profile_observed_review_required",
+    "source_age_class": "live",
+    "source_sample_at_utc": "2026-11-28T12:23:17.756Z",
+    "source_support_review_status": "reviewed-supported",
+    "started_at_utc": "2026-11-28T12:22:57.471870+00:00",
+    "threshold_captured_at_utc": "2026-11-28T12:23:21.170Z"
+  },
+  "hardware": {
+    "container_runtime": "containerd://2.3.7-k3s1.36",
+    "dcgm_version": "4.6.1",
+    "device_plugin_image_sha256": "7673383d44a84bece724d9ca8feeadf4eee69cd46475fdff614cbbca6732d463",
+    "driver_version": "580.178.04",
+    "exporter_image_sha256": "804c17f67ab63e8a4dd5301546beefaa104129f833dae4a68f5ff7c4819f471b",
+    "exporter_version": "4.8.4",
+    "gpu_model": "NVIDIA A100-SXM4-40GB",
+    "kubelet_version": "v1.36.6+k3s1",
+    "kubernetes_version": "v1.36.6+k3s1"
+  },
+  "limitations": [
+    "No disruptive response was requested or claimed.",
+    "Evidence concerns the reviewed bounded fixture profile and does not establish an incident."
+  ],
+  "measurements": {
+    "baseline_direct_mib": 0.0,
+    "baseline_prometheus_mib": 0.0,
+    "direct_prometheus_match": true,
+    "expected_fixture_allocation_bytes": 134217728,
+    "metric": "DCGM_FI_DEV_FB_USED",
+    "observed_direct_mib": 556.0,
+    "observed_prometheus_mib": 556.0,
+    "post_release_direct_mib": 0.0,
+    "post_release_tolerance_mib": 16,
+    "sample_age_limit_seconds": 15,
+    "source_sample_age_ms_at_capture": 3414,
+    "threshold_mib": 128.0,
+    "unit": "MiB"
+  },
+  "policy_results": {
+    "alert_route_bound_to_known_good_fixture": true,
+    "allocator_release_verified": true,
+    "comparator_remained_absent": true,
+    "corroborated_comparator_admitted_in_dry_run": true,
+    "disruptive_action_requested": false,
+    "effective_binding_proved_before_hold": true,
+    "escalation_denied_by_policy": true,
+    "escalation_not_persisted": true,
+    "fixture_resources_removed": true,
+    "hold_immutable_and_receipt_bound": true,
+    "hold_preserved_after_cleanup": true,
+    "incident_or_misuse_claimed": false,
+    "original_workload_same_uid_remained_running": true,
+    "self_asserted_corroboration_denied": true,
+    "wrong_approval_bindings_denied": true
+  },
+  "schema": "saf-a100-publishable-live-receipt-v1",
+  "scope": "Live A100 memory-threshold catch-and-hold policy; bounded fixture workload and case-owned monitoring resources.",
+  "status": "passed"
+}

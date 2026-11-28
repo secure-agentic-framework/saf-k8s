@@ -1,0 +1,40 @@
+{
+  "boot_ref_sha256": "e8641480a09c811832839563a49bc0fdb8b3729b8738167f556d5c2cf8d30c51",
+  "canonical_signer_label_in_builtin_trust": true,
+  "captured_at_utc": "2026-11-28T00:29:50.407185+00:00",
+  "distributor_package": [
+    "linux-signatures-nvidia-6.8.0-1074-gcp",
+    "6.8.0-1074.82~22.04.1"
+  ],
+  "gpu_and_driver": "NVIDIA A100-SXM4-40GB, 580.178.04",
+  "kernel": "6.8.0-1074-gcp",
+  "kernel_lockdown": "none [integrity] confidentiality",
+  "modules": [
+    {
+      "detached_signature_exact_match": true,
+      "distribution_signature_sha256": "2830bbf6a6dc58000a9f400b45117b54181769d80a3037de86416d9c1350d1fd",
+      "driver_version": "580.178.04",
+      "loaded_version_matches": true,
+      "module": "nvidia",
+      "module_sha256": "19cc994564ae60dd06c6d3a025e1f2db21c465588e4035387c4853ae159aa83e",
+      "signer": "Canonical Ltd. Kernel Module Signing",
+      "signing_key_id": "E9:DF:13:0F:92:92:A9:B7",
+      "unsigned_module_taint_present": false
+    },
+    {
+      "detached_signature_exact_match": true,
+      "distribution_signature_sha256": "3e652cbea81df2bd16bcbb5b8f148fd069b965a3b218124147a6b0da34440d44",
+      "driver_version": "580.178.04",
+      "loaded_version_matches": true,
+      "module": "nvidia_uvm",
+      "module_sha256": "a59d86a236dfd972e16644b7227106175ee1165cfa839ebc32a7bce3bb5fd10e",
+      "signer": "Canonical Ltd. Kernel Module Signing",
+      "signing_key_id": "E9:DF:13:0F:92:92:A9:B7",
+      "unsigned_module_taint_present": false
+    }
+  ],
+  "mokutil_secure_boot": true,
+  "provider_attestation": "Reviewed separately through the bound provider measured-boot events.",
+  "schema": "saf-a100-loaded-signed-modules-v1",
+  "secure_boot_efi_variable": true
+}

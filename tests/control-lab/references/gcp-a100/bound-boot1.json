@@ -1,0 +1,24 @@
+{
+  "boot_ref_sha256": "e8641480a09c811832839563a49bc0fdb8b3729b8738167f556d5c2cf8d30c51",
+  "correlation": "exact GCE instance ID, ordered shared boot counter, guest start within 90 seconds",
+  "guest_boot_utc": "2026-11-28T00:17:42+00:00",
+  "host_ref_sha256": "b537e9317159647438b0fabeaa093b776c30ffb4e6808fe6d652a1839ecad9db",
+  "kernel_lockdown_verified": true,
+  "module_signing_verified": true,
+  "provider_boot_counter": 1,
+  "provider_events": {
+    "earlyBootReportEvent": {
+      "observed_utc": "2026-11-28T00:17:36.312187+00:00",
+      "policy_passed": true
+    },
+    "lateBootReportEvent": {
+      "observed_utc": "2026-11-28T00:17:43.465515+00:00",
+      "policy_passed": true
+    }
+  },
+  "provider_startup_utc": "2026-11-28T00:17:34.633305+00:00",
+  "schema": "saf-a100-shielded-module-review-v1",
+  "signed_module_receipt_sha256": "0184c2878d580fb25b5485e4fffd991a53fca14612a5df9c0be40930e1acb6af",
+  "status": "verified",
+  "verification_scope": "VM Secure Boot and Shielded measured boot plus loaded Ubuntu module provenance"
+}

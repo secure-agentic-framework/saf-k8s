@@ -45,3 +45,16 @@ See `a100-admission-replay.json`.
 The [live A100 telemetry reference](../SAF-K8S-1002-003/a100-reference/README.md)
 records the source signal for the observed hold. The repeat test of the live
 escalation decision remained open after Spot preemption.
+
+## Live A100 reference
+
+The A100 run bound the same CUDA workload, GPU, and exporter throughout the
+test. Direct GPU telemetry and Prometheus both reported 556 MiB against the
+128 MiB threshold. Alertmanager delivered the warning and the case stored an
+immutable hold. Kubernetes denied escalation without independent approval.
+The independently approved comparator passed in dry-run and remained absent
+from storage. The original workload kept running and returned to its initial
+0 MiB reading after the allocator released memory.
+
+[Reviewed live receipt](a100-hold-reference.json) ·
+[Case-by-ID hardware replay](../../references/gcp-a100/campaign/README.md)

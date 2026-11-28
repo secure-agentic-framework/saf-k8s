@@ -1,0 +1,31 @@
+{
+  "bundled_file_count": 29,
+  "checks": {
+    "all_bundled_files_match_between_builds": true,
+    "modified_live_catch_hold_runner_rejected": true,
+    "monitor_smoke": {
+      "baseline_zero_and_receiver_empty": true,
+      "cluster_deleted": true,
+      "current_exact_threshold_alert_bound_to_receiver": true,
+      "live_source_drift_cases_rejected_offline": 3,
+      "monitor_resources_removed": true,
+      "schema": "saf-a100-hold-synthetic-monitor-v1",
+      "scope": "Synthetic metrics on fresh Kind with real Prometheus and Alertmanager",
+      "status": "passed",
+      "wrong_capture_and_fingerprint_denied": true,
+      "wrong_exporter_and_pretrigger_sample_denied": true
+    },
+    "python_3_10_fixture_sources_parsed": true,
+    "shared_a100_admission_exactly_matches_tested_code": true
+  },
+  "framework_revision": "88da468f56b5f88821614207a3c1f16866cbac07",
+  "hold_framework_revision": "ab4734d0e726aa6c94c2f3ca78dfbcfa6b285424",
+  "independent_builds": 2,
+  "live_device_test": "awaiting approved hardware",
+  "manifest_sha256": "1f0fbd8a43570e3023666ba3c4141101da43e00effd27af81a7f349844b005ef",
+  "mig_framework_revision": "ce8204c8b386a0862ad04b914886b94dd655d952",
+  "schema": "saf-a100-staging-verification-v1",
+  "scope": "Reproducible workstation builds, Kind approval and synthetic telemetry, and offline source identity checks",
+  "status": "staged",
+  "visibility_framework_revision": "aca448b3aa788b9a6331248217675f6111c3799e"
+}

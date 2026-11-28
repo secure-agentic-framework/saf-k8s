@@ -1,0 +1,37 @@
+{
+  "bundled_file_count": 33,
+  "checks": {
+    "both_bundles_verified_by_guest_entrypoint": true,
+    "byte_identical_bundle_manifests": true,
+    "k3s_matches_publisher_release_checksum": true,
+    "matching_installed_binary_reused": true,
+    "modified_staged_device_plugin_manifest_rejected": true,
+    "network_disabled_installer_generates_server_unit": true,
+    "offline_asset_and_exact_install_retry_tests_passed": 8,
+    "staged_linux_amd64_binary_reports_k3s_release": "v1.36.6+k3s1 (fa45d6a5)"
+  },
+  "independent_builds": 2,
+  "live_device_test": "awaiting approved hardware",
+  "manifest_sha256": "c81f3d9c977617f7f9d6e55ed20cf1b5b8706af4a93a385d3520b48859a06b50",
+  "pinned_artifacts": {
+    "install-k3s.sh": {
+      "bytes": 37118,
+      "sha256": "46177d4c99440b4c0311b67233823a8e8a2fc09693f6c89af1a7161e152fbfad",
+      "source": "https://raw.githubusercontent.com/k3s-io/k3s/v1.36.6%2Bk3s1/install.sh"
+    },
+    "k3s": {
+      "bytes": 79380642,
+      "sha256": "66ceb8e67edfa547195135d74783bfadc2ecc04a91059e90ae5f70a3dbc98c15",
+      "source": "https://github.com/k3s-io/k3s/releases/download/v1.36.6%2Bk3s1/k3s"
+    },
+    "nvidia-device-plugin.yaml": {
+      "bytes": 1885,
+      "sha256": "f59a63d1936eef7005e9982d6cf3539a2005680dd8a782b807b7a6ab3b5d0fff",
+      "source": "https://raw.githubusercontent.com/NVIDIA/k8s-device-plugin/v0.20.2/deployments/static/nvidia-device-plugin.yml"
+    }
+  },
+  "publisher_k3s_checksum_sha256": "920a158ca2f87c41b3ccf5eb7dc9f6617f29fa7685f9091dafb2101ca4b659dd",
+  "schema": "saf-a100-bootstrap-staging-v1",
+  "scope": "Workstation builds and service-file generation in a network-disabled Linux container with service start disabled",
+  "status": "staged"
+}
