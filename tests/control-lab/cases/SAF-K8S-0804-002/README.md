@@ -62,3 +62,25 @@ only. It does not prove hardware-backed evidence, vendor collateral appraisal,
 TEE measurement semantics, online challenge issuance, deployed confidential
 resource access, or runtime renewal/revocation. Those require the selected
 platform, verifier, workload integration, and adopter evidence.
+
+## Archived Intel TDX quote
+
+A separate restricted Kind Job runs the pinned Go TDX verifier against the
+historical quote published with the verifier's own regression tests. At the
+reference evaluation time, it verifies the quote signature and Intel PCK
+certificate chain and matches the known REPORT_DATA and MR_TD hashes. At a
+later fixture time it rejects the expired PCK certificate. An independent
+policy check rejects incorrect expected bindings for the same signed quote.
+Enabling strict checks against the archived Intel collateral rejects this
+quote because it has no matching TCB level.
+
+Require Go 1.21 or later on the operator machine to compile the companion
+Job. The Go dependencies are pinned by the included module and checksums.
+The receipt records only check outcomes, reference dates, and the quote
+digest. The bundled upstream test data stays local to the ephemeral test
+image. This exercise covers historical verification. Live trusted time,
+a fresh hardware challenge, current collateral/revocation, and the adopter's
+workload and relying-party policy require separate evidence.
+
+- [Pinned Go TDX release](https://github.com/google/go-tdx-guest/releases/tag/v0.3.1)
+- [Upstream fixture and collateral checks](https://github.com/google/go-tdx-guest/blob/v0.3.1/verify/verify_test.go)

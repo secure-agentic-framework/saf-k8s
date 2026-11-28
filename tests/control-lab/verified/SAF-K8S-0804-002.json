@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0804-002",
-  "catalog_revision": "5a51c447ad7d34f16572ee53da2609f42629134e",
-  "catalog_sha256": "2a4f9e4bc3c869a7a1bdeff571919ff8fd3cbc0f2b1964ced26040db14837309",
+  "catalog_revision": "88da468f56b5f88821614207a3c1f16866cbac07",
+  "catalog_sha256": "b2fb73602bb10c41e8c4e0650d71e296b3b60b644d16ce55ac63c343f30b05bc",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "af70822e079a17aa12b52bfa153c927ead164076fbe8becfc2edb92f9d89d95f",
-  "scope": "Actual OpenSSL signature checking and Kubernetes Jobs applying fixture binding, freshness, and reuse rules, plus a synthetic role-separated verifier-result and relying-party gate.",
-  "cluster": "saf-lab-a21e80b93783",
+  "scope": "Actual OpenSSL signature checking and Kubernetes Jobs applying fixture binding, freshness, and reuse rules, plus a synthetic role-separated verifier-result and relying-party gate. A separate Kind Job verifies a signed historical Intel TDX quote and expected denials; live freshness remains outside this reference.",
+  "cluster": "saf-lab-7c2c197cc5d8",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -104,6 +104,33 @@
         "baseline_denied_then_exact_and_crossed_writes_bound_by_rbac": true,
         "temporary_fixture_signing_secret_removed": true,
         "writer_role_bindings_removed_after_their_phases": true
+      }
+    },
+    {
+      "phase": "archived_signature_and_chain",
+      "claim": "The historical signed TDX quote verifies under Intel's embedded root and matches its expected bindings",
+      "matched": true,
+      "observed": {
+        "historical_signature_and_pck_chain_verified": true,
+        "expected_report_and_measurement_matched": true
+      }
+    },
+    {
+      "phase": "expiry_and_binding",
+      "claim": "The TDX verifier denies an expired certificate and rejects incorrect expected bindings for the same quote",
+      "matched": true,
+      "observed": {
+        "pck_expiry_denied": true,
+        "wrong_expected_report_data_denied": true,
+        "wrong_expected_measurement_denied": true
+      }
+    },
+    {
+      "phase": "archived_tcb_policy",
+      "claim": "The archived collateral profile rejects the signed quote because the TCB has no matching level",
+      "matched": true,
+      "observed": {
+        "strict_archived_collateral_tcb_denied": true
       }
     }
   ]
