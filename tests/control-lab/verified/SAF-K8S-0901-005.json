@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0901-005",
-  "catalog_revision": "5393051c1897ad97880091bb0956be39e8fdd23b",
-  "catalog_sha256": "2a4f9e4bc3c869a7a1bdeff571919ff8fd3cbc0f2b1964ced26040db14837309",
+  "catalog_revision": "bd8f108ab01aed3dc7ff82df285de5d6355ae830",
+  "catalog_sha256": "b2fb73602bb10c41e8c4e0650d71e296b3b60b644d16ce55ac63c343f30b05bc",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "9eae08ccebd9ee81a587df972fae52d74f5ccd35fb4ef2be78ac06afc7353529",
-  "scope": "One disposable Kind cluster on Kubernetes v1.36.1 with two synthetic participant namespaces and one case-owned local aggregation namespace. Two participant mock HTTP responders first exchange only fixed /healthz markers before NetworkPolicy, then the same ordinary health path is checked after namespace policies isolate participants and permit the approved aggregation Service. Both participants independently contact the identical aggregation ClusterIP and port. No model, training, gradient, adversarial input, real service, feed, or external target is used. The same disposable cluster also runs the pinned Flower SecAgg+ workflow with an exact participant egress allowlist. Two directed owned peer marker routes are checked before and after policy, and the actual authorized Flower workflow completes one equal-weight and one fixed 1-2-3-weight round in the same four Flower Pods. A separately scoped Kubernetes workload checks the exact approved receipt digest for each aggregate. The fixture uses fixed inert vectors. Deployed boundaries, identity, privacy settings and protocol security require separate evidence.",
-  "cluster": "saf-lab-71cfa474e375",
+  "scope": "One disposable Kind cluster on Kubernetes v1.36.1 with two synthetic participant namespaces and one case-owned local aggregation namespace. Two participant mock HTTP responders first exchange only fixed /healthz markers before NetworkPolicy, then the same ordinary health path is checked after namespace policies isolate participants and permit the approved aggregation Service. Both participants independently contact the identical aggregation ClusterIP and port. The namespace probe uses only fixed health markers. The same disposable cluster also runs the pinned Flower SecAgg+ workflow with an exact participant egress allowlist. Two directed owned peer marker routes are checked before and after policy, and the actual authorized Flower workflow completes one equal-weight and one fixed 1-2-3-weight round in the same four Flower Pods. A separately scoped Kubernetes workload checks the exact approved receipt digest for each aggregate. The fixture uses fixed inert vectors. A distinct MP-SPDZ reference runs one bounded binary release with three enrolled Pods, an immutable reservation, and a public calibration oracle. Full gradient privacy, wider Byzantine resilience, and deployment protocol security require further evidence.",
+  "cluster": "saf-lab-68432bca3811",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -195,6 +195,39 @@
         "approved_exact_result_has_only_aggregate": true,
         "weighted_wrong_digest_refused": true,
         "weighted_exact_digest_releases_only_aggregate": true
+      }
+    },
+    {
+      "phase": "red",
+      "claim": "The immutable reservation rejects a second admission for the same fixture round",
+      "matched": true,
+      "observed": {
+        "one_round_reservation": true,
+        "duplicate_denied": true
+      }
+    },
+    {
+      "phase": "green",
+      "claim": "Three distinct enrolled peer Pods complete a single non-restarted MPC reference round",
+      "matched": true,
+      "observed": {
+        "enrolled_peers": 3,
+        "all_completed": true,
+        "no_restarts": true
+      }
+    },
+    {
+      "phase": "positive",
+      "claim": "The one-bit release and public calibration match the independent oracle",
+      "matched": true,
+      "observed": {
+        "agreed_noisy_outputs": 1,
+        "calibration_rows_per_peer": 32,
+        "directed_adjacency_outcome_checks": 48,
+        "maximum_likelihood_ratio": 3,
+        "epsilon_per_release": "ln(3)",
+        "delta": 0,
+        "honest_pair_agreement_checks": 6
       }
     }
   ]

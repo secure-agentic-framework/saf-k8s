@@ -1,0 +1,11 @@
+from itertools import product
+from Compiler.GC.types import sbit
+from Compiler.library import print_ln
+from release_bit import majority, randomized_response
+
+# Fixed public fixture bits and coins. This separate circuit accepts no private inputs.
+for bits in product((0, 1), repeat=5):
+    first, second, third, coin_one, coin_two = (sbit(bit) for bit in bits)
+    result = randomized_response(majority(first, second, third), coin_one, coin_two)
+    fixture_key = "".join(str(bit) for bit in bits)
+    print_ln("saf-public-calibration " + fixture_key + " %s", result.reveal())

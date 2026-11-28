@@ -1,0 +1,10 @@
+from Compiler.GC.types import sbit
+from Compiler.library import print_ln
+from release_bit import majority, randomized_response
+
+updates = [sbit.get_input_from(party) for party in range(3)]
+aggregate = majority(*updates)
+first_coin = sbit.get_random_bit()
+second_coin = sbit.get_random_bit()
+output = randomized_response(aggregate, first_coin, second_coin)
+print_ln("saf-private-update %s", output.reveal())

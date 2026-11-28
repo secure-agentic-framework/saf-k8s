@@ -83,3 +83,31 @@ observations.
 - [Flower secure aggregation workflow API](https://flower.ai/docs/framework/ref-api/flwr.server.workflow.SecAggPlusWorkflow.html)
 - [Original Krum paper](https://proceedings.neurips.cc/paper_files/paper/2017/hash/f4b9ec30ad9f68f89b29639786cb62ef-Abstract.html)
 - [Original secure aggregation research](https://research.google/pubs/practical-secure-aggregation-for-federated-learning-on-user-held-data/)
+
+## CPU reference for private aggregation
+
+The standard control test also runs a bounded binary composition using
+the pinned MP-SPDZ v0.4.4 malicious honest-majority backend. Three
+enrolled Pods use separate certificates. Each computes the sign of one
+local synthetic logistic update for a fixed unit-feature example. Their circuit computes the median privately. It flips
+that bit only when two fresh secret bits are both one, and releases a
+single noisy aggregate.
+
+A separate calibration circuit takes fixed public inputs and checks
+all 32 input and noise combinations. Two agreeing honest contributions
+determine the median when the third bit differs. For replacement of
+one participant bit, the binary release has a maximum likelihood ratio
+of three, giving ε = ln(3) and δ = 0 in the ideal release mechanism under
+independent uniform coins. The runner reserves one release and treats
+aborts as failed runs. The claim assumes the completed one-shot release,
+a trusted fixture enrollment and Kubernetes authority, at most one
+corrupted peer, and no per-input observables or selective retries.
+Production gradients, broader Byzantine resilience, and full output and
+abort guarantees require separate evidence.
+
+The runner builds the case-local image from the checksum-pinned upstream
+release. The current reference uses the upstream Linux x86-64 executable
+and a pinned Debian runtime. On ARM64, the container host needs x86-64
+emulation. The normalized receipt is `bounded-private-aggregation.json`.
+[MP-SPDZ v0.4.4](https://github.com/data61/MP-SPDZ/releases/tag/v0.4.4) ·
+[NIST differential privacy guidance](https://csrc.nist.gov/pubs/sp/800/226/final)
