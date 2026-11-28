@@ -2,11 +2,13 @@
 
 import json
 from pathlib import Path
+import runpy
 import shutil
 
-SCOPE = ("Local AES-GCM round trip through an immutable Kubernetes ConfigMap, using an inert public marker and "
-         "synthetic policy, measurement, artifact identity/digest, and recipient context. The randomized fixture "
-         "key and nonce stay inside one local process; this does not test platform sealing or real attestation.")
+SCOPE = ("Local AES-GCM round trip through an immutable Kubernetes ConfigMap, plus a separate TLS key broker "
+         "Pod and recipient workload using live Kubernetes TokenReview for workload identity. An independent "
+         "fixture signer supplies synthetic measurements. Hardware sealing, measured platform attestation, "
+         "and production key custody and lifecycle require deployment evidence.")
 
 
 def run(lab):
@@ -50,3 +52,5 @@ def run(lab):
               all(binding.values()), binding)
     (lab.evidence / "sealed-artifact-observations.json").write_text(
         json.dumps({**observed, "hardware_sealing_tested": False}, indent=2) + "\n")
+
+    runpy.run_path(str(Path(__file__).with_name("broker_case.py")))["run"](lab)

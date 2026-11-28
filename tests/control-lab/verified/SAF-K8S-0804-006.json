@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0804-006",
-  "catalog_revision": "cd6f6d6d5a5066b658147171209b0e44ff35355c",
-  "catalog_sha256": "1da56289e4f344f65fa946b0099b200d7a52a7c4bea62ee17a32261bedc18861",
+  "catalog_revision": "d015b6c8ced8896328fa27a152f0d4103a320da9",
+  "catalog_sha256": "b2fb73602bb10c41e8c4e0650d71e296b3b60b644d16ce55ac63c343f30b05bc",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "6a40c1172a4bd3a66052c5590924dc5c3ab3781c3341db293c805d3b749f68de",
-  "scope": "Local AES-GCM round trip through an immutable Kubernetes ConfigMap, using an inert public marker and synthetic policy, measurement, artifact identity/digest, and recipient context. The randomized fixture key and nonce stay inside one local process; this does not test platform sealing or real attestation.",
-  "cluster": "saf-lab-a07fde904cc8",
+  "scope": "Local AES-GCM round trip through an immutable Kubernetes ConfigMap, plus a separate TLS key broker Pod and recipient workload using live Kubernetes TokenReview for workload identity. An independent fixture signer supplies synthetic measurements. Hardware sealing, measured platform attestation, and production key custody and lifecycle require deployment evidence.",
+  "cluster": "saf-lab-2a33c85087c2",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -74,6 +74,48 @@
         "artifact_identity_change_denied": true,
         "artifact_digest_change_denied": true,
         "recipient_change_denied": true
+      }
+    },
+    {
+      "phase": "broker-workload-identity",
+      "claim": "The broker requires the approved workload identity and audience",
+      "matched": true,
+      "observed": {
+        "no_token_rejected": true,
+        "wrong_audience_for_approved_pod_rejected": true,
+        "outsider_with_correct_audience_rejected": true,
+        "other_pod_with_same_service_account_rejected": true,
+        "broker_can_create_tokenreviews": true,
+        "broker_cannot_read_kubernetes_secrets": true
+      }
+    },
+    {
+      "phase": "broker-bound-release",
+      "claim": "The broker verifies proof signature, bindings and freshness",
+      "matched": true,
+      "observed": {
+        "missing_envelope_rejected": true,
+        "changed_signature_rejected": true,
+        "expired_envelope_rejected": true,
+        "artifact_id_binding_rejected": true,
+        "policy_binding_rejected": true,
+        "measurement_binding_rejected": true,
+        "recipient_sha256_binding_rejected": true,
+        "challenge_binding_rejected": true,
+        "ciphertext_sha256_binding_rejected": true,
+        "subject_binding_rejected": true,
+        "subject_uid_binding_rejected": true,
+        "pod_uid_binding_rejected": true
+      }
+    },
+    {
+      "phase": "broker-artifact-open",
+      "claim": "The intended workload decrypts once and replay yields no key",
+      "matched": true,
+      "observed": {
+        "one_concurrent_request_released_and_opened_marker": true,
+        "one_concurrent_request_denied_without_key": true,
+        "later_replay_denied_without_key": true
       }
     }
   ]
