@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0901-005",
-  "catalog_revision": "3aed23497f7b6e025464323cb2cd82396582d44f",
+  "catalog_revision": "e4269b9042fb3a2ec11eb5ff171a1c53d5a829ff",
   "catalog_sha256": "b2fb73602bb10c41e8c4e0650d71e296b3b60b644d16ce55ac63c343f30b05bc",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "9eae08ccebd9ee81a587df972fae52d74f5ccd35fb4ef2be78ac06afc7353529",
-  "scope": "One disposable Kind cluster on Kubernetes v1.36.1 with two synthetic participant namespaces and one case-owned local aggregation namespace. Two participant mock HTTP responders first exchange only fixed /healthz markers before NetworkPolicy, then the same ordinary health path is checked after namespace policies isolate participants and permit the approved aggregation Service. Both participants independently contact the identical aggregation ClusterIP and port. The namespace probe uses only fixed health markers. The same disposable cluster also runs the pinned Flower SecAgg+ workflow with an exact participant egress allowlist. Two directed owned peer marker routes are checked before and after policy, and the actual authorized Flower workflow completes one equal-weight and one fixed 1-2-3-weight round in the same four Flower Pods. A separately scoped Kubernetes workload checks the exact approved receipt digest for each aggregate. The fixture uses fixed inert vectors. A distinct MP-SPDZ reference runs one bounded binary release with three enrolled Pods, an immutable reservation, and a public calibration oracle. A separate finite quantized route checks one transcript over two fixed rounds. The pinned Flower workflow then runs across two owned Kind clusters, with a TLS 1.3 relay enforcing the server and exact enrolled participant certificate identities on the Fleet stream. Adopted protocol parameters, trust and deployment evidence require separate verification.",
-  "cluster": "saf-lab-44111d4f1f7a",
+  "scope": "One disposable Kind cluster on Kubernetes v1.36.1 with two synthetic participant namespaces and one case-owned local aggregation namespace. Two participant mock HTTP responders first exchange only fixed /healthz markers before NetworkPolicy, then the same ordinary health path is checked after namespace policies isolate participants and permit the approved aggregation Service. Both participants independently contact the identical aggregation ClusterIP and port. The namespace probe uses only fixed health markers. The same disposable cluster also runs the pinned Flower SecAgg+ workflow with an exact participant egress allowlist. Two directed owned peer marker routes are checked before and after policy, and the actual authorized Flower workflow completes one equal-weight and one fixed 1-2-3-weight round in the same four Flower Pods. A separately scoped Kubernetes workload checks the exact approved receipt digest for each aggregate. The fixture uses fixed inert vectors. A distinct MP-SPDZ reference runs one bounded binary release with three enrolled Pods, an immutable reservation, and a public calibration oracle. A separate finite quantized route checks one transcript over two fixed rounds. The pinned Flower workflow then runs across two owned Kind clusters, with a TLS 1.3 relay enforcing the server and exact enrolled participant certificate identities on the Fleet stream and closing an active Fleet connection after its leaf is withdrawn. Adopted protocol parameters, trust and deployment evidence require separate verification.",
+  "cluster": "saf-lab-113424e35e07",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -285,6 +285,20 @@
         "wrong_server_identity_rejected": true,
         "gateway_tls_required_missing_client_certificate": true,
         "gateway_observed_trusted_unassigned_client": true
+      }
+    },
+    {
+      "phase": "cross-cluster-participant-retirement",
+      "claim": "Withdrawing one enrolled leaf closes its existing Fleet connection and denies reconnection",
+      "matched": true,
+      "observed": {
+        "enrolled_leaf_previously_reached_actual_fleet_http2": true,
+        "only_retired_participant_removed_from_roster": true,
+        "gateway_observed_the_projected_roster": true,
+        "existing_fleet_connection_closed": true,
+        "same_ca_valid_leaf_could_not_reopen_fleet": true,
+        "unaffected_leaf_still_reaches_actual_fleet_http2": true,
+        "gateway_pod_and_containers_were_not_restarted": true
       }
     },
     {

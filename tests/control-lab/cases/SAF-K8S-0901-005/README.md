@@ -144,3 +144,29 @@ secondary cluster. Production enrollment, revocation, trust-provider
 lifecycle, deployed networks, and the adopter's composition assumptions
 require separate evidence. The test needs Docker capacity for two Kind
 clusters and OpenSSL for temporary fixture certificates.
+
+## Participant withdrawal on the live Fleet route
+
+After the existing two pinned Flower rounds finish, a transport-only probe
+from the enrolled participant C opens a TLS 1.3 connection through the same
+Fleet gateway and receives the real Flower server's HTTP/2 SETTINGS. The
+harness removes that leaf's enrollment with a resource-version-checked
+Kubernetes API update. The gateway reads the projected roster and closes
+active connections for withdrawn leaves. The probe observes its existing
+connection close. A new connection using the same CA-valid leaf is denied
+before it can reach Flower, while participant B still receives the Flower
+server's HTTP/2 SETTINGS. The gateway Pod UID, container IDs and restart counts
+stay the same.
+
+The roster is a separate ConfigMap mounted as a directory in the gateway.
+Kubelet projection and relay reload must be observed before the result counts.
+The test demonstrates authorization withdrawal at the fixture relay, and the
+TLS certificate remains valid. It does not establish a production revocation
+SLA, CA-level revocation, enrolled leaf rotation or Flower's native
+public-key enrollment lifecycle. The probe sends only HTTP/2 transport
+negotiation and acknowledgments. The normalized receipt
+`flower-participant-retirement.json` retains outcomes without credential
+material or participant data.
+
+- [Kubernetes ConfigMap volume updates](https://kubernetes.io/docs/concepts/configuration/configmap/#mounted-configmaps-are-updated-automatically)
+- [Flower 1.29 SuperNode authentication](https://flower.ai/docs/framework/1.29/en/how-to-authenticate-supernodes.html)

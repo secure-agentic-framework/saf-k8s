@@ -19,6 +19,8 @@ PYTHON_IMAGE = (
     "e48f59cdba69a3cbd9ed2cf0f348d90d45a8d350d98134cf1070bc106ee9ed90"
 )
 RELAY_CONFIG = "cross-cluster-fleet"
+retirement = runpy.run_path(str(HERE / "retirement.py"))
+ROSTER = retirement["ROSTER"]
 GATEWAY_LABEL = {"cross-cluster-fleet": "gateway"}
 PEER_LABEL = {"cross-cluster-fleet": "peer"}
 PROBE = "fixture-fleet-unenrolled"
@@ -113,6 +115,7 @@ def relay_container(*mode):
                          "seccompProfile": {"type": "RuntimeDefault"}},
     )
     if mode == ("server",):
+        result["volumeMounts"].append({"name": "enrollment", "mountPath": "/enrollment", "readOnly": True})
         result["ports"] = [{"containerPort": 9443, "name": "fleet-tls"}]
         result["readinessProbe"] = {"tcpSocket": {"port": 9443}, "periodSeconds": 1}
     return result
@@ -128,6 +131,8 @@ def install_flower(client, flower, name, image, command, args, relay, credential
         item["metadata"]["labels"].update(labels)
         item["spec"]["volumes"].extend(relay_volumes(credential))
         item["spec"]["containers"].append(relay)
+        if server:
+            item["spec"]["volumes"].append({"name": "enrollment", "configMap": {"name": ROSTER}})
         client.create(item)
 
     env = {"SAF_FLOWER_RESULT_PATH": "/flower-results/result.json",
@@ -191,9 +196,10 @@ def aggregate(client, name, path, expected_round, expected_values):
 
 def exercise(lab, peer, flower, images, source_address, directory):
     certs, allowlist = runpy.run_path(str(HERE / "pki.py"))["generate"](lab, directory / "pki")
-    relay_code = {"relay.py": (HERE / "relay.py").read_text(encoding="utf-8")}
-    configure(lab, flower, {**relay_code, "allow.json": json.dumps(allowlist, sort_keys=True)})
+    relay_code = {name: (HERE / name).read_text(encoding="utf-8") for name in ("relay.py", "hold.py")}
+    configure(lab, flower, relay_code)
     configure(peer, flower, relay_code)
+    create(lab, "ConfigMap", ROSTER, data={"allow.json": json.dumps(allowlist, sort_keys=True)})
     secret(lab, "fleet-server", certs["server"])
     for name in (*PARTICIPANT_IDENTITIES, "unassigned"):
         secret(peer, name, certs[name])
@@ -261,6 +267,8 @@ def exercise(lab, peer, flower, images, source_address, directory):
         lab.kubectl("logs", f"pod/{flower.LINK}", "-c", "flower", "--tail=60", allow_failure=True)
         for name in allowed_names:
             peer.kubectl("logs", f"pod/{name}", "-c", "flower", "--tail=60", allow_failure=True)
+    else:
+        retirement["retire"](lab, peer, allowed_names, flower.LINK, source_address, port, allowlist)
     return identity, outcomes, observed
 
 

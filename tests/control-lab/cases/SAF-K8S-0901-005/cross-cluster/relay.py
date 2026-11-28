@@ -12,7 +12,7 @@ import sys
 
 
 TLS_DIR = "/tls"
-ALLOW_FILE = "/fleet/allow.json"
+ALLOW_FILE = "/enrollment/allow.json"
 FLEET_HOST = "flower-fleet.saf-fixture.test"
 LOCAL_HOST = "127.0.0.1"
 LOCAL_PORT = 19092
@@ -45,28 +45,28 @@ def tls_context(*, server=False, present_certificate=True):
     return context
 
 
-def read_allowlist():
+def read_allowlist(*, initial=False):
+    def unique_entries(items):
+        result = dict(items)
+        if len(result) != len(items):
+            raise ValueError("allowlist contains duplicate digests")
+        return result
+
     with open(ALLOW_FILE, "r", encoding="utf-8") as source:
-        parsed = json.load(source)
-    if not isinstance(parsed, dict) or not parsed:
-        raise ValueError("allowlist must be a non-empty digest-to-participant object")
+        parsed = json.load(source, object_pairs_hook=unique_entries)
+    if not isinstance(parsed, dict):
+        raise ValueError("allowlist must be a digest-to-participant object")
     valid = {}
     for digest, participant in parsed.items():
         if (not isinstance(digest, str) or not re.fullmatch(r"[0-9a-f]{64}", digest)
-                or participant not in PARTICIPANTS):
+                or not isinstance(participant, str) or participant not in PARTICIPANTS):
             raise ValueError("allowlist contains an invalid entry")
         valid[digest] = participant
-    if len(valid) != len(PARTICIPANTS) or set(valid.values()) != PARTICIPANTS:
-        raise ValueError("allowlist must contain each participant exactly once")
+    if len(set(valid.values())) != len(valid):
+        raise ValueError("allowlist must assign each digest and participant exactly once")
+    if initial and (len(valid) != len(PARTICIPANTS) or set(valid.values()) != PARTICIPANTS):
+        raise ValueError("initial allowlist must contain each participant exactly once")
     return valid
-
-
-def peer_identity(writer, allowlist):
-    ssl_object = writer.get_extra_info("ssl_object")
-    peer = ssl_object.getpeercert(binary_form=True) if ssl_object is not None else None
-    if not peer:
-        return None
-    return allowlist.get(hashlib.sha256(peer).hexdigest())
 
 
 async def bridge(left_reader, left_writer, right_reader, right_writer, participant=None):
@@ -103,39 +103,89 @@ async def bridge(left_reader, left_writer, right_reader, right_writer, participa
         await asyncio.gather(*pending, return_exceptions=True)
         await asyncio.gather(*done, return_exceptions=True)
     finally:
+        for task in tasks:
+            if not task.done():
+                task.cancel()
+        await asyncio.gather(*tasks, return_exceptions=True)
         await asyncio.gather(close(left_writer), close(right_writer))
 
 
-async def server_connection(reader, writer, allowlist):
-    participant = peer_identity(writer, allowlist)
+def peer_digest(writer):
+    ssl_object = writer.get_extra_info("ssl_object")
+    peer = ssl_object.getpeercert(binary_form=True) if ssl_object is not None else None
+    return hashlib.sha256(peer).hexdigest() if peer else None
+
+
+async def server_connection(reader, writer, state, original):
+    digest = peer_digest(writer)
+    participant = state["allowlist"].get(digest)
     if participant is None:
-        event("unenrolled-client")
+        if digest in state["retired"]:
+            event("retired-leaf-denied", participant=original[digest])
+        else:
+            event("unenrolled-client")
         await close(writer)
         return
+    task = asyncio.current_task()
+    state["active"].setdefault(digest, set()).add(task)
+    upstream_writer = None
     try:
-        async with asyncio.timeout(CONNECT_TIMEOUT):
-            upstream_reader, upstream_writer = await asyncio.open_connection(
-                LOCAL_HOST, FLEET_PORT)
-    except (OSError, TimeoutError, ConnectionError):
-        event("fleet-upstream-unavailable", participant=participant)
-        writer.write(UPSTREAM_FAILURE)
         try:
-            await writer.drain()
-        except (ConnectionError, OSError):
-            pass
-        await close(writer)
-        return
-    event("relay-open", participant=participant)
-    try:
+            async with asyncio.timeout(CONNECT_TIMEOUT):
+                upstream_reader, upstream_writer = await asyncio.open_connection(
+                    LOCAL_HOST, FLEET_PORT)
+        except (OSError, TimeoutError, ConnectionError):
+            event("fleet-upstream-unavailable", participant=participant)
+            writer.write(UPSTREAM_FAILURE)
+            try:
+                await writer.drain()
+            except (ConnectionError, OSError):
+                pass
+            return
+        event("relay-open", participant=participant)
         writer.write(SENTINEL)
         await writer.drain()
         await bridge(reader, writer, upstream_reader, upstream_writer, participant)
     except (ConnectionError, OSError, ssl.SSLError):
+        pass
+    finally:
+        active = state["active"].get(digest)
+        if active is not None:
+            active.discard(task)
+            if not active:
+                state["active"].pop(digest, None)
         await asyncio.gather(close(writer), close(upstream_writer))
 
 
 async def run_server():
-    allowlist = read_allowlist()
+    allowlist = read_allowlist(initial=True)
+    original = dict(allowlist)
+    state = {"allowlist": allowlist, "retired": set(), "active": {}}
+    event("roster-reloaded", participants=sorted(set(allowlist.values())))
+
+    async def reload_roster():
+        while True:
+            await asyncio.sleep(0.2)
+            try:
+                current = read_allowlist()
+            except (OSError, ValueError):
+                # A missing or malformed projected file immediately revokes all entries.
+                current = {}
+            if not set(current.items()).issubset(set(original.items())):
+                # Do not let a refreshed roster substitute another leaf for an alias.
+                current = {}
+            if current == state["allowlist"]:
+                continue
+            removed = set(state["allowlist"]) - set(current)
+            state["allowlist"] = current
+            state["retired"] = set(original) - set(current)
+            event("roster-reloaded", participants=sorted(set(current.values())))
+            for digest in removed:
+                for task in tuple(state["active"].get(digest, ())):
+                    if not task.done():
+                        event("retired-fleet-session", participant=original[digest])
+                        task.cancel()
+
     context = tls_context(server=True)
     loop = asyncio.get_running_loop()
 
@@ -152,7 +202,7 @@ async def run_server():
         except (OSError, TimeoutError):
             return
         writer = asyncio.StreamWriter(transport, protocol, reader, loop)
-        await server_connection(reader, writer, allowlist)
+        await server_connection(reader, writer, state, original)
 
     handlers = set()
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as listener:
@@ -160,6 +210,7 @@ async def run_server():
         listener.bind(("0.0.0.0", RELAY_PORT))
         listener.listen(32)
         listener.setblocking(False)
+        reloader = asyncio.create_task(reload_roster())
         try:
             while True:
                 connection, _ = await loop.sock_accept(listener)
@@ -167,6 +218,8 @@ async def run_server():
                 handlers.add(task)
                 task.add_done_callback(handlers.discard)
         finally:
+            reloader.cancel()
+            await asyncio.gather(reloader, return_exceptions=True)
             for task in handlers:
                 task.cancel()
             await asyncio.gather(*handlers, return_exceptions=True)
@@ -225,12 +278,17 @@ async def run_probe(address, port, mode):
             reader, writer = await asyncio.open_connection(
                 address, port, ssl=context, server_hostname=server_name,
                 ssl_handshake_timeout=HANDSHAKE_TIMEOUT, limit=COPY_CHUNK)
-            prefix = await reader.readuntil(b"\n")
-        if prefix == SENTINEL:
-            result["outcome"] = "admitted" if mode == "approved" else "unexpectedly-admitted"
-            result["tls"] = writer.get_extra_info("ssl_object").version()
-        elif prefix == UPSTREAM_FAILURE:
-            result["reason"] = "fleet-upstream-unavailable"
+            if mode == "retired":
+                prefix = await reader.read(1)
+                if prefix == b"" and writer.get_extra_info("ssl_object") is not None:
+                    result["outcome"] = "closed-without-admission"
+            else:
+                prefix = await reader.readuntil(b"\n")
+                if prefix == SENTINEL:
+                    result["outcome"] = "admitted" if mode == "approved" else "unexpectedly-admitted"
+                    result["tls"] = writer.get_extra_info("ssl_object").version()
+                elif prefix == UPSTREAM_FAILURE:
+                    result["reason"] = "fleet-upstream-unavailable"
     except ssl.SSLCertVerificationError as exc:
         if mode == "wrong-server" and exc.verify_code == 62:
             result["outcome"] = "rejected-by-server-identity"
@@ -242,7 +300,7 @@ async def run_probe(address, port, mode):
         else:
             result["reason"] = "unexpected-tls-error"
     except asyncio.IncompleteReadError as exc:
-        if writer is not None and not exc.partial and mode in ("missing", "unassigned"):
+        if writer is not None and not exc.partial and mode in ("missing", "unassigned", "retired"):
             result["outcome"] = "closed-without-admission"
         else:
             result["reason"] = "incomplete-authentication"
@@ -274,7 +332,7 @@ def parse_args():
     probe = commands.add_parser("probe")
     probe.add_argument("address", help="approved relay endpoint address")
     probe.add_argument("port", type=parse_port)
-    probe.add_argument("mode", choices=("missing", "unassigned", "wrong-server", "approved"))
+    probe.add_argument("mode", choices=("missing", "unassigned", "wrong-server", "approved", "retired"))
     return parser.parse_args()
 
 
