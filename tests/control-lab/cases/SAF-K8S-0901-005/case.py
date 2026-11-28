@@ -7,7 +7,7 @@ import time
 
 from fixtures import container
 
-SCOPE = 'One disposable Kind cluster on Kubernetes v1.36.1 with two synthetic participant namespaces and one case-owned local aggregation namespace. Two participant mock HTTP responders first exchange only fixed /healthz markers before NetworkPolicy, then the same ordinary health path is checked after namespace policies isolate participants and permit the approved aggregation Service. Both participants independently contact the identical aggregation ClusterIP and port. The namespace probe uses only fixed health markers. The same disposable cluster also runs the pinned Flower SecAgg+ workflow with an exact participant egress allowlist. Two directed owned peer marker routes are checked before and after policy, and the actual authorized Flower workflow completes one equal-weight and one fixed 1-2-3-weight round in the same four Flower Pods. A separately scoped Kubernetes workload checks the exact approved receipt digest for each aggregate. The fixture uses fixed inert vectors. A distinct MP-SPDZ reference runs one bounded binary release with three enrolled Pods, an immutable reservation, and a public calibration oracle. A separate finite quantized route checks one transcript over two fixed rounds. Full gradient privacy, wider Byzantine resilience, and deployment protocol security require further evidence.'
+SCOPE = 'One disposable Kind cluster on Kubernetes v1.36.1 with two synthetic participant namespaces and one case-owned local aggregation namespace. Two participant mock HTTP responders first exchange only fixed /healthz markers before NetworkPolicy, then the same ordinary health path is checked after namespace policies isolate participants and permit the approved aggregation Service. Both participants independently contact the identical aggregation ClusterIP and port. The namespace probe uses only fixed health markers. The same disposable cluster also runs the pinned Flower SecAgg+ workflow with an exact participant egress allowlist. Two directed owned peer marker routes are checked before and after policy, and the actual authorized Flower workflow completes one equal-weight and one fixed 1-2-3-weight round in the same four Flower Pods. A separately scoped Kubernetes workload checks the exact approved receipt digest for each aggregate. The fixture uses fixed inert vectors. A distinct MP-SPDZ reference runs one bounded binary release with three enrolled Pods, an immutable reservation, and a public calibration oracle. A separate finite quantized route checks one transcript over two fixed rounds. The pinned Flower workflow then runs across two owned Kind clusters, with a TLS 1.3 relay enforcing the server and exact enrolled participant certificate identities on the Fleet stream. Adopted protocol parameters, trust and deployment evidence require separate verification.'
 HERE = Path(__file__).resolve().parent
 BASE_CASE = HERE / "base_case.py"
 FLOWER_CASE = HERE / "flower" / "case.py"
@@ -291,12 +291,16 @@ def run(lab):
     if reports is None:
         lab.block("Both Flower aggregate reports are required before release verification")
     flower.verify_workload_release(lab, reports)
+    return flower, images
 
 
 _run_flower = run
 
 
 def run(lab):
-    _run_flower(lab)
+    flower, images = _run_flower(lab)
     composition = load(HERE / "mpc-reference" / "case.py", "saf_0901_005_private_aggregation")
     composition.run(lab)
+
+    transport = load(HERE / "cross-cluster" / "case.py", "saf_0901_005_cross_cluster_fleet")
+    transport.run(lab, flower, images)

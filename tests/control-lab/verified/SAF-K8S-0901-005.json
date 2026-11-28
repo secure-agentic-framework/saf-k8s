@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0901-005",
-  "catalog_revision": "82980f222ed62cb703f7ed716ab04c25772969fe",
+  "catalog_revision": "3aed23497f7b6e025464323cb2cd82396582d44f",
   "catalog_sha256": "b2fb73602bb10c41e8c4e0650d71e296b3b60b644d16ce55ac63c343f30b05bc",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "9eae08ccebd9ee81a587df972fae52d74f5ccd35fb4ef2be78ac06afc7353529",
-  "scope": "One disposable Kind cluster on Kubernetes v1.36.1 with two synthetic participant namespaces and one case-owned local aggregation namespace. Two participant mock HTTP responders first exchange only fixed /healthz markers before NetworkPolicy, then the same ordinary health path is checked after namespace policies isolate participants and permit the approved aggregation Service. Both participants independently contact the identical aggregation ClusterIP and port. The namespace probe uses only fixed health markers. The same disposable cluster also runs the pinned Flower SecAgg+ workflow with an exact participant egress allowlist. Two directed owned peer marker routes are checked before and after policy, and the actual authorized Flower workflow completes one equal-weight and one fixed 1-2-3-weight round in the same four Flower Pods. A separately scoped Kubernetes workload checks the exact approved receipt digest for each aggregate. The fixture uses fixed inert vectors. A distinct MP-SPDZ reference runs one bounded binary release with three enrolled Pods, an immutable reservation, and a public calibration oracle. A separate finite quantized route checks one transcript over two fixed rounds. Full gradient privacy, wider Byzantine resilience, and deployment protocol security require further evidence.",
-  "cluster": "saf-lab-c51cf5807911",
+  "scope": "One disposable Kind cluster on Kubernetes v1.36.1 with two synthetic participant namespaces and one case-owned local aggregation namespace. Two participant mock HTTP responders first exchange only fixed /healthz markers before NetworkPolicy, then the same ordinary health path is checked after namespace policies isolate participants and permit the approved aggregation Service. Both participants independently contact the identical aggregation ClusterIP and port. The namespace probe uses only fixed health markers. The same disposable cluster also runs the pinned Flower SecAgg+ workflow with an exact participant egress allowlist. Two directed owned peer marker routes are checked before and after policy, and the actual authorized Flower workflow completes one equal-weight and one fixed 1-2-3-weight round in the same four Flower Pods. A separately scoped Kubernetes workload checks the exact approved receipt digest for each aggregate. The fixture uses fixed inert vectors. A distinct MP-SPDZ reference runs one bounded binary release with three enrolled Pods, an immutable reservation, and a public calibration oracle. A separate finite quantized route checks one transcript over two fixed rounds. The pinned Flower workflow then runs across two owned Kind clusters, with a TLS 1.3 relay enforcing the server and exact enrolled participant certificate identities on the Fleet stream. Adopted protocol parameters, trust and deployment evidence require separate verification.",
+  "cluster": "saf-lab-44111d4f1f7a",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -272,6 +272,32 @@
         "mpc_release": "MP-SPDZ v0.4.4",
         "backend": "malicious-rep-bin-party.x",
         "namespace_scoped_transport": true
+      }
+    },
+    {
+      "phase": "cross-cluster-enrollment",
+      "claim": "The Fleet gateway authenticates the server and admitted participant leaves",
+      "matched": true,
+      "observed": {
+        "enrolled_leaf_and_expected_server_establish_the_same_route": true,
+        "missing_client_certificate_rejected_before_admission": true,
+        "trusted_unassigned_leaf_rejected_before_flower": true,
+        "wrong_server_identity_rejected": true,
+        "gateway_tls_required_missing_client_certificate": true,
+        "gateway_observed_trusted_unassigned_client": true
+      }
+    },
+    {
+      "phase": "cross-cluster-secagg",
+      "claim": "Three authenticated Fleet streams run both pinned Flower rounds across two Kind clusters",
+      "matched": true,
+      "observed": {
+        "aggregator_and_three_participants_in_distinct_clusters": true,
+        "each_enrolled_leaf_forwarded_both_directions_of_live_fleet_stream": true,
+        "flower_cli_completed": true,
+        "three_participant_equal_round_matches_only_aggregate": true,
+        "three_participant_weighted_round_matches_only_aggregate": true,
+        "secondary_kind_cluster_deleted": true
       }
     }
   ]

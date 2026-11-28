@@ -116,3 +116,31 @@ The case also runs a separate two-round, two-coordinate
 quantized route after the preserved one-bit checks. Its exact finite claim and
 evidence limits are documented in
 `mpc-reference/quantized-two-round/INTEGRATION.md`.
+
+## Flower Fleet transport across two Kind clusters
+
+The standard case-by-ID run also uses an owned secondary Kind cluster for the
+pinned Flower 1.29.0 workflow. A SuperLink runs in the primary cluster and
+three SuperNodes run in the secondary cluster. The actual Fleet gRPC stream
+crosses the Kind Docker bridge over TLS 1.3 with peer authentication. Each
+Flower endpoint uses loopback inside its own Pod. Its relay authenticates the
+remote transport. Only the gateway's dynamically assigned NodePort is used
+across the bridge. The participant egress policy selects that exact address
+and port.
+
+The test generates an ephemeral fixture authorization list and separate
+client certificates. It verifies the server's certificate and DNS identity
+and authorizes the exact fingerprint of each enrolled participant leaf.
+A connection without a client certificate fails TLS. A CA-signed leaf
+without an enrollment is refused before connection to Flower, and a wrong
+server hostname fails verification. Both actual fixed-vector Flower rounds
+must produce the expected aggregate and a count of three participants.
+The gateway must observe bytes in both directions for every enrolled leaf.
+
+The fixture places mutual TLS on the relay channel between Pods. Flower
+uses its local loopback connection on either side. The receipt covers
+the three fixture identities, two aggregate results and deletion of the
+secondary cluster. Production enrollment, revocation, trust-provider
+lifecycle, deployed networks, and the adopter's composition assumptions
+require separate evidence. The test needs Docker capacity for two Kind
+clusters and OpenSSL for temporary fixture certificates.
