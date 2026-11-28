@@ -1,11 +1,11 @@
 {
   "control_id": "SAF-K8S-0804-001",
-  "catalog_revision": "e49a83b0e5ff680cb50e9fd5263c8eb4b1b4f611",
-  "catalog_sha256": "1da56289e4f344f65fa946b0099b200d7a52a7c4bea62ee17a32261bedc18861",
+  "catalog_revision": "2898f6ce3ea4a0bbab53a7898a41c06de516406a",
+  "catalog_sha256": "b2fb73602bb10c41e8c4e0650d71e296b3b60b644d16ce55ac63c343f30b05bc",
   "node_image": "kindest/node:v1.36.1@sha256:3489c7674813ba5d8b1a9977baea8a6e553784dab7b84759d1014dbd78f7ebd5",
   "control_sha256": "bfe5a53c1143a78c746a61187afb67f17db3c5d5bbc76fdc15faadbe270a8381",
-  "scope": "Live admission and scheduler behavior for a modeled reviewed runtime and node label; no TEE is used.",
-  "cluster": "saf-lab-d48d2d14afd2",
+  "scope": "Live admission and scheduling for modeled confidential placement plus a pre-use denial driven by separately authenticated archived CPU and GPU evidence.",
+  "cluster": "saf-lab-6569208b532c",
   "kubernetes": {
     "clientVersion": {
       "major": "1",
@@ -62,6 +62,26 @@
       "matched": true,
       "observed": {
         "same_fixture_ready_in_approved_scope": true
+      }
+    },
+    {
+      "phase": "archived-cpu-gpu-authenticity",
+      "claim": "The two archived reports independently authenticate their signed claims",
+      "matched": true,
+      "observed": {
+        "independent_cpu_identity_and_claims_verified": true,
+        "independent_gpu_identity_and_transcript_verified": true
+      }
+    },
+    {
+      "phase": "archived-evidence-pre-use-denial",
+      "claim": "Independently authentic archive reports cannot authorize fixture use",
+      "matched": true,
+      "observed": {
+        "initial_placement_only_request_accepted": true,
+        "actual_create_denied_by_assurance_policy": true,
+        "sensitive_fixture_absent": true,
+        "approved_assessment_absent": true
       }
     }
   ]

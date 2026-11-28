@@ -1,9 +1,11 @@
 """Verify a fail-closed scheduling decision for a modeled confidential runtime."""
 
+from importlib.util import module_from_spec, spec_from_file_location
 import json
+from pathlib import Path
 import time
 
-SCOPE = "Live admission and scheduler behavior for a modeled reviewed runtime and node label; no TEE is used."
+SCOPE = "Live admission and scheduling for modeled confidential placement plus a pre-use denial driven by separately authenticated archived CPU and GPU evidence."
 NAME = "fixture-sensitive-workload"
 RUNTIME = "fixture-reviewed-confidential"
 ORDINARY = "fixture-ordinary-runtime"
@@ -98,3 +100,8 @@ def run(lab):
         "ordinary_runtime_admitted_initially": admitted, "ordinary_runtime_denied": True,
         "missing_placement_denied": missing, "waited_before_fixture_approval": waiting,
         "expected_placement_ready": matched, "tee_or_memory_encryption_tested": False}, indent=2) + "\n")
+
+    reference = spec_from_file_location("saf_0804_001_azure_hcl", Path(__file__).with_name("hcl_reference.py"))
+    module = module_from_spec(reference)
+    reference.loader.exec_module(module)
+    module.run(lab, pod(RUNTIME))
