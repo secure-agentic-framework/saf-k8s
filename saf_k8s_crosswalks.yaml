@@ -15710,7 +15710,7 @@
   relation_type: supports
   strength_level: weak
   applicability: conditional
-  applicability_condition: Conditional contribution only for a deployed distributed FL design whose participating components are shown to enforce a consistent policy across the actual composition boundaries. The current local NetworkPolicy case demonstrates selected traffic paths only; the Flower companion is a separate single-fixture workflow and does not prove whole-system policy composition.
+  applicability_condition: Conditional contribution only for a deployed distributed FL design whose participating components are shown to enforce a consistent policy across the actual composition boundaries. The local fixtures exercise selected namespace flows and a bounded cross-cluster Flower workflow. Verify consistent policy across all adopted component interfaces.
   strength_reason_code: partial-control-coverage
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
@@ -15731,7 +15731,7 @@
   framework_version: 5.2.0
   framework_requirement_id: SA-8(18)
   framework_requirement_title: Trusted Communications Channels
-  framework_mapping_notes: NIST SA-8(18) addresses trusted communications channels between composed components. This SAF control can contribute for a verified participant-to-aggregator channel; the existing NetworkPolicy and Flower receipts do not establish protected transport or deployed trust.
+  framework_mapping_notes: NIST SA-8(18) addresses trusted communications channels between composed components. The Flower fixture shows TLS 1.3 relay protection for the Fleet stream across two Kind clusters. Verify the adopted channels, approved trust roots and credential lifecycle.
   control_id: SAF-K8S-0901-005
   relation_type: supports
   strength_level: weak
@@ -24956,7 +24956,7 @@
   relation_type: supports
   strength_level: moderate
   applicability: conditional
-  applicability_condition: Conditional contribution only for the explicitly selected participant-to-participant and participant-to-aggregator flows that the adopter defines in an approved information-flow policy and verifies against the deployed policies and paths. The current eight-check case demonstrates a small set of synthetic network flows only.
+  applicability_condition: Conditional contribution only for the explicitly selected participant-to-participant and participant-to-aggregator flows that the adopter defines in an approved information-flow policy and verifies against the deployed policies and paths. The local case exercises selected participant, aggregator and gateway flows.
   strength_reason_code: partial-control-coverage
   framework_mapping_notes: NIST AC-4 enforces approved authorizations controlling information flow within and between systems based on an information-flow policy. The control explicitly requires participant namespace isolation and NetworkPolicy restrictions; this supports only those defined paths, not classification-sensitive or cross-domain filtering.
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
@@ -24969,9 +24969,9 @@
   relation_type: supports
   strength_level: moderate
   applicability: conditional
-  applicability_condition: Conditional contribution only for actual participant and aggregation services that are uniquely identified and authenticated before communication, with identity authority, assignment, and lifecycle separately evidenced. The current base and Flower fixtures use local synthetic identities and do not prove an organizational identity provider.
+  applicability_condition: Conditional contribution only for actual participant and aggregation services that are uniquely identified and authenticated before communication, with identity authority, assignment, and lifecycle separately evidenced. The Flower relay exercise uses an ephemeral fixture authority and exact certificate enrollments.
   strength_reason_code: partial-control-coverage
-  framework_mapping_notes: NIST IA-9 requires unique identification and authentication of organization-defined system services/applications before communication. SAF-K8S-0901-005 explicitly requires authenticated participant enrollment; this is a direct scope match, but the current portable receipts do not exercise enrollment or deployed service authentication.
+  framework_mapping_notes: NIST IA-9 requires unique identification and authentication of organization-defined system services/applications before communication. The local Flower relay authorizes the exact enrolled certificate leaf and denies an unassigned leaf from the same fixture authority. Verify the adopted identities and enrollment lifecycle separately.
 - mapping_set_name: SAF-K8S to NIST SP 800-53r5
   framework_code: NIST-800-53R5
   framework_name: NIST SP 800-53 Revision 5
